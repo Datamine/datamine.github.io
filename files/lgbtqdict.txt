@@ -1,0 +1,8 @@
+0.95 gay
+1.0 lesbian
+1.0 transgender
+0.75 queer
+1.0 bisexual
+1.0 homosexual
+1.0 transsexual
+1.0 transexual

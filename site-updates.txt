@@ -1,0 +1,14 @@
+Updates to *content* (i.e. projects or writing) after publication on www.johnloeber.com:
+
+January 4, 2016: changed a few sentences in the smartphone article. changed it from pdf to html. 
+november 9, 2015: changed one or two sentences in the uber article.
+august 11, 2015: typo fix on uber. changed uber from pdf to html. some other word changes to the article.
+july 18, 2015:  article on sharing economy, changed "hacker school" to "recurse center" following their name change.
+march 16:       article on set game, uploaded setgame, amended index appropriately
+feb 22, 2015: finished hacker school reflections.
+Feb 22, 2015: changed wording in television article w/r/t/ lewinsky scandal.
+November 5, 2014:   Television_Scrape typo fix
+August 8, 2014:   Filesystem-Analysis
+August 4, 2014:   Honors Combinatorics Notes
+
+For a full list of updates, see https://github.com/Datamine/johnloeber-website

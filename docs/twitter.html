@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
+		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
+		
+		<style type="text/css">
+		<!--
+			  .blockfont{ 
+					font-variant: small-caps;
+					text-decoration:none;
+					color:#000000; }
+		-->
+		</style>
+	    
+        <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
+		<script language="JavaScript" type="text/javascript">
+		function ExpandCollapse(theDiv,theButton){ 
+			el = document.getElementById(theDiv); 
+			button = document.getElementById(theButton)
+			if(el.style.display == 'none')
+			{ el.style.display = ''; 
+			  button.innerHTML="(Click here to hide input text.)";}
+			else 
+			{ el.style.display = 'none'; 
+			  button.innerHTML="(Click here to show input text.)";} 
+			return false; } </script>
+		
+	
+		<title>
+			John Loeber: Twitter Bot
+		</title>
+	</head>
+
+	<body>
+		<div style="width:751px;height:20px;background-color:#FFFFFF"></div>
+			<div class="siteimg"></div>
+			<div class="siteheader"> John Loeber </div>
+		<div style="height:10px;width:490px"></div>
+		
+		<div style="width:167px;height:120px;float:left">
+			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
+			<div style="width:10px;height:120px;float:right"></div>
+		</div>
+
+		<div style="width:167px;height:120px;float:left">
+			<a href="../writing.html"><div class="block" id="linkblock"><span class="blockfont">Writing</span></div></a>
+			<div style="width:10px;height:120px;float:right"></div>
+		</div>
+
+		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
+			
+	<div class="main">
+		<br>
+	<atitle>Hacker School Newsfeed via Twitter</atitle></td>
+	<br><br>
+<sh>Introduction</sh>
+<p>
+People at <a href="http://www.hackerschool.com">Hacker School</a> build a great number of cool projects, even after Hacker School. 
+I thought it might be nice to have some sort of newsfeed for the community that serves two purposes:
+<ul>
+<li>Lets Hacker School attendees and alumni publicize their projects</li>
+<br>
+<li>Lets Hacker School attendees and alumni, as well as the general public, see cool things made by Hacker Schoolers!</li>
+</ul>
+The newsfeed uses Twitter as its main platform. Essentially, a bot retweets hacker schoolers' selected tweets. This creates
+a newsfeed of tweets.
+</p>
+<br>
+
+<sh>How do I use it?</sh>
+<p>
+You can follow and read the newsfeed <a href="http://www.twitter.com/hsalums">here, on Twitter</a>. If you are a Hacker Schooler,
+and you would like to publicize one of your projects, then you just need to tweet about it, and the bot can retweet you. Specifically, there are
+two ways to have the bot retweet your project:
+<ul>
+<li>You include <code>@hsalums</code> in your tweet. Your tweet has to be at least 20 characters long.</li><br>
+<li>You tweet about your project, then send a tweet <code>@hsalums</code> that is less than 20 characters long. Your previous tweet (i.e. the one about your project) will be retweeted.</li>
+</ul>
+The latter option is so that you can have your project-tweet retweeted without sacrificing valuable characters or adding clutter to your tweet. The 20-character limit exists because Twitter won't always allow you to send the same tweet to the same user, so you have a few characters to make your short message unique.
+</p>
+
+<br>
+<sh>How does it work?</sh>
+<p>
+The bot itself is a simple python-script that uses the Twitter REST API, deployed via Heroku. It queries the <code>@hsalums</code>
+account every two minutes for recent mentions, then filters the mentions for those coming from Hacker Schoolers, 
+and filters further for new tweets (it logs the ones it has already seen). Based on the length of the tweet, it then decides whether to retweet that tweet or the user's previous tweet.
+In the latter case, it queries the user's timeline to obtain the previous tweet.
+</p>
+
+<br>
+<sh>Potential Issues</sh>
+<p>
+Note that due to <a href="https://dev.twitter.com/rest/public/rate-limits">Twitter's rate limits</a>, there is a chance that under circumstances of flooding (400 tweets <code>@hsalums</code> per minute), your tweets may not be noticed by the bot. Rate limits put several constraints on engineering this bot, and the current state uses the best (i.e. most defensively written) solution I could find.
+</p>
+<p>
+In one test run, certain tweets were not retweeted (about three in sixty). I have not been able to reproduce this problem, and don't know why it occurred. I suspect that this may be a bug in the <code>getMentions</code> function in <code>python-twitter</code>, or maybe in the REST API itself. Let me know if you have any problems: just e-mail me or contact me <a href="http://www.twitter.com/johnloeber">@johnloeber</a>.</p>
+
+<br>
+<sh>Acknowledgements</sh>
+<p>I used Sumana Harihareswara's <a href="http://www.harihareswara.net/sumana/2013/12/05/0">guide to making a Twitter bot</a> for the basic steps. Credit for the <code>@hsalums</code> profile picture goes to Sonali Sridhar.</p>
+
+<br>
+<sh>Download</sh>
+</p>
+The GitHub repository is available <a href="https://github.com/Datamine/HackerSchoolBot">here</a>. Note that some private files (list of hackerschool alumni, my private Twitter keys, etc.) have been omitted for obvious security reasons. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
+	
+			<div class="notice">
+				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+			</div>
+		</div>
+	</body>
+</html>
+

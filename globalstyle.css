@@ -1,0 +1,148 @@
+body{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 18px;
+	text-decoration:none;
+	width:751px;
+	margin:auto;
+	float:center;
+}
+
+.siteheader{
+	font-weight: 300;
+	height: 120px;
+	width: 491px;
+	display:table-cell;
+	vertical-align: middle;
+	text-align: center;
+	font-family: 'Merriweather', serif;
+	font-size: 72px;
+	background-color: white;
+}
+
+.siteimg:before{
+    width:250px; 
+    height:250px;
+    content:url(./siteimg.png);
+	float: left;
+	padding-right:10px;
+	padding-bottom:0px;
+}
+
+#linkblock:hover{
+	font-weight: bold;
+}
+
+.block{
+	vertical-align:middle;
+	font-weight:300;
+	font-size:30px;
+	height:120px;
+	width:157px;
+	color:#000000;
+	display:table-cell;
+	text-align:center;
+	background-color: #42a148;
+}
+
+#selected{
+	background-color: #427CB8;
+	font-size:34px;
+	color:#000000;
+	font-variant:small-caps;
+}
+
+
+.body a:hover, a:visited, a:link, a:active
+{
+    text-decoration: none;
+}
+
+.main{
+	position:absolute;
+	top:280px;
+	width:751px;
+	z-index:-1;
+	text-align:justify;
+}
+
+.main a{
+	text-decoration:none;
+	font-weight:none;
+	color: #1C396B;
+}
+
+.main a:visited{
+	color:#751000;
+}
+
+table a{
+	font-weight:bold;
+}
+	
+.notice {
+	font-size:10px;
+	color:#666666;
+	text-align:center;
+}
+
+.notice a{
+	font-weight:normal;
+}
+
+p{
+	text-align:justify;
+}
+
+/* line 211, /Users/schacon/github/progit/gitscm2/app/assets/stylesheets/typography.css.scss */
+code{
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -o-border-radius: 3px;
+  border-radius: 3px;
+  /*display: block;*/
+  padding: 1px;
+  margin-bottom: 1em;
+  background-color: #fff;
+  border: solid 1px #efeee6;
+  color: #02590B;
+  /*color: #f14e32;*/
+  font-family: Courier, monospace !important;
+  /*line-height: 18px;*/
+  overflow: auto;
+}
+
+atitle{
+	display:inline-block;
+	width:100%;
+	text-align:center;
+	font-size:32px;
+	font-weight:bold;
+}
+
+sh{ /* subheader*/
+	font-weight: bold;
+	font-size: 22px;
+}
+
+date{
+    font-weight:light;
+    font-size: 14px;
+	color:#666666;
+}
+
+/* ref. to http://css-tricks.com/almanac/properties/v/vertical-align/ */
+.imghelper > *{
+    vertical-align: middle;
+
+}
+
+/* ref. to http://www.w3.org/Style/Examples/007/center.en.html#block */
+.imgcenter {
+    display: block;
+    margin-left: auto;
+    margin-right: auto }
+
+td {
+    vertical-align:top;
+}

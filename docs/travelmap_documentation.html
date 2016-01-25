@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
+		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
+		
+		<style type="text/css">
+		<!--
+			  .blockfont{ 
+					font-variant: small-caps;
+					text-decoration:none;
+					color:#000000; }
+		-->
+		</style>
+		
+		<!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
+		<script language="JavaScript" type="text/javascript">
+		function ExpandCollapse(theDiv,theButton){ 
+			el = document.getElementById(theDiv); 
+			button = document.getElementById(theButton)
+			if(el.style.display == 'none')
+			{ el.style.display = ''; 
+			  button.innerHTML="(Click here to hide input text.)";}
+			else 
+			{ el.style.display = 'none'; 
+			  button.innerHTML="(Click here to show input text.)";} 
+			return false; } </script>
+		
+		<title>
+			John Loeber: Travelmap
+		</title>
+	</head>
+
+	<body>
+		<div style="width:751px;height:20px;background-color:#FFFFFF"></div>
+			<div class="siteimg"></div>
+			<div class="siteheader"> John Loeber </div>
+		<div style="height:10px;width:490px"></div>
+		
+		<div style="width:167px;height:120px;float:left">
+			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
+			<div style="width:10px;height:120px;float:right"></div>
+		</div>
+
+		<div style="width:167px;height:120px;float:left">
+			<a href="../writing.html"><div class="block" id="linkblock"><span class="blockfont">Writing</span></div></a>
+			<div style="width:10px;height:120px;float:right"></div>
+		</div>
+
+		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
+			
+	<div class="main">
+		<br>
+	<atitle><span class="blockfont">Travelmap</span></atitle></td>
+	<br><br>
+	<sh>Example of Final Result</sh><br><br>
+		<div class="imghelper">
+	<img width="751px" src="../images/travelmap-final1.png"></img>
+		</div>
+	<br>
+	<br>
+	<sh>Documentation/Introduction and Usage Guide</sh>
+	<p>This documentation is written as a tutorial. Feel free to <a href="../files/travelmap.tar.gz">download the tarball</a>, and replicate the steps in this document to learn how to produce the results.</p>
+	<p>
+	This is a tool to display and connect points on a map. As users are expected to have differing and particular mapping needs, it has been built to be modular, flexible, and customizable. It was developed for a UNIX-based operating system, but should work equally well on a Windows OS (this has not been tested). The script relies on the <code>pyproj </code> and <code>pygeocoder</code> libraries, as well as <code>matplotlib, numpy</code> and the <code> Python Imaging Library</code>. All required packages can be installed easily using <a href="http://en.wikipedia.org/wiki/Pip_(package_manager)">pip</a>. This tool was developed using Python 2.7.4. Note that the tool makes use of the Google Maps API and therefore requires an internet connection to work.
+	</p>
+	<p>
+	At its core, the script takes as input a textfile of <strong>locations</strong>, and outputs a map with those locations marked by points. The script can also connect these locations in sequence on the map, using lines. The user may also specify different types of connections between the locations, which will be reflected graphically in the lines. As such, the script requires the following command-line options, in sequence:
+<ol>
+<li> Input Textfile: a list of locations and, optionally, descriptors to differentiate types of connections between places.
+<li> Lines: whether you want the program to connect the plotted points with lines or not. This argument should be either 'y' or 'n'. These two possible inputs correspond to <em>lines on</em> and <em>lines off</em>, respectively.
+<li> Colors: whether you want the program to differentiate the types of connections according to their descriptors, and thereupon assign lines of different type different colors.This argument should be either 'y' or 'n' for <em>colors on</em> or <em>colors off</em>. Note: with colors off, all lines will be of the same color. You can specify that color by editing the source code. Furthermore, your input textfile will need to be formatted differently depending on whether you set colors on or off.
+<li> Image File: the map onto which you want the program to plot the points (and lines).
+</ol>
+So, to run the script, your command will take this form:
+</p>
+	<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py [textfile] [lines:y/n] [colors:y/n] [imagefile]</code></span>
+<p>
+Beyond that, the program offers plenty of opportunity to customize the output map: e.g. change the color of the markers, their size, the thickness of the lines, the color of the lines (when you have colors turned off), etc. We will discuss those a little later. First, we must discuss the format of the input textfile. These formats differ depending on whether <em>colors</em> are turned <em>on</em> or <em>off</em>. Both formats, however, allow for commented text: all  <strong>lines starting with</strong> a pound sign ('#') will be ignored by the script. Every location must be on its own line. Note that the program essentially looks up the the locations on Google Maps to find their coordinates, so make sure your inputs are sufficiently well-described for Google Maps to return the right result. Without further ado, here is an example file (<code>example_nocolors1.txt</code>) for <em>colors off</em>:
+</p>
+	<p style="margin-left:4em;margin-right:4em;">
+	<span style="display:inline-block; width:100%; text-align:left;background-color:#E8E8E8"># This is a comment.<br>
+	Rome, Italy <br>
+	Washington DC <br>
+	New York City<br>
+	Nuuk, Greenland
+	</span>
+	</p>
+<p>If you have <em>lines</em> turned <em>off</em>, the script will just plot each one of these locations on the map with points. With the default settings, that will look like this (scaled to fit):</p>
+		<img width="751px" src="../images/travelmap-2.png"></img>
+		<p>The command to produce this map is:</p>
+	<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors1.txt n n Robinson_Color.png</code></span>		
+<p>If you turn lines <em>on</em>, the map will look like this (scaled to fit):</p>
+<img width="751px" src="../images/travelmap-3.png"></img>
+		<p>As produced by this command:</p>
+	<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors1.txt y n Robinson_Color.png
+	</code></span>
+	<p>
+	You may notice that the last argument in that command is <code>Robinson_Color.png</code>, corresponding to a colored Robinson Projection Map of the world. This is one of the two maps included with this program. The other is <code>Robinson_BW.png</code>, a Black-and-White Robinson Projection. The program is configured to handle both of these maps. You can also use other maps of your choosing (more on that later). These maps are, for all intents and purposes, interchangeable. I will use both in the course of this documentation.
+	</p>
+	<p>
+	You can use the input textfile to create more complex networks. For example, we'll use the settings from the previous map, but a more elaborate input textfile, <code>example_nocolors2.txt</code>. <span id="button1" onClick="ExpandCollapse('name1','button1');" style="cursor:hand; cursor:pointer;color: #1C396B;font-weight:bold;">(Click here to show input text.)</span>
+	
+	<div id="name1" style="display:none;">
+	<div style="margin-left:4em;margin-right:4em;">
+	<span OnClick="ExpandCollapse('name1','button1');" style="cursor:hand; cursor:pointer;display:inline-block; width:100%;background-color:#E8E8E8">
+	London, UK<br>
+Paris, France<br>
+Helsinki, Finland<br>
+Kiev, Ukraine<br>
+Rome, Italy<br>
+Gibraltar, Spain<br>
+Gran Canaria Islands<br>
+Rhode Island, USA<br>
+Washington DC<br>
+Nashville, Tennessee<br>
+Phoenix, AZ<br>
+San Francisco, CA<br>
+Anchorage, AK<br>
+San Francisco, CA<br>
+Mexico City<br>
+Cuba<br>
+Panama<br>
+Mexico City<br>
+Lima Peru<br>
+Cape Horn<br>
+Lesotho<br>
+Lima Peru<br>
+Djibouti<br>
+Baku, Azerbaijan<br>
+Djibouti<br>
+Lesotho<br>
+	</span>
+	</div>
+	</div>
+
+	That creates the following map:</p>
+	
+<img width="751px" src="../images/travelmap-4.png"></img>
+	
+<p>
+As produced by the following command:
+</p>
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors2.txt y n Robinson_Color.png</code></span>		
+<p>To do the same on the Black-and-White Robinson Map, just run:</p>
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors2.txt y n Robinson_BW.png</code></span>		
+<p>The resultant map looks like this:</p>
+
+<img width="751px" src="../images/travelmap-5.png"></img>
+
+<p>The previous examples have demonstrated the map output with <em>default settings</em>. Now let's change those up a little. Lines <strong>146 to 178</strong> in <code>travelmap.py</code> offer options for configuring the markers, the lines, and their outlines (strokes). The code is fairly well-commented, so the options should be self-explanatory. Note that when specifying the colors, the <a href="http://effbot.org/imagingbook/imagecolor.htm">PIL Format</a> must be used. Below is an example of such a change in settings. The points connected by the map are the same as in the previous map.</p>
+
+<img width="751px" src="../images/travelmap-6.png"></img>
+
+<p>So far we've been running all our commands with <em>colors off</em>. Now we'll turn that on. The <em>colors</em> option allows you to specify the <em>types</em> of connections between points, and colors the connecting lines accordingly. This means that the <em>colors on</em> option requires <strong>a different file format</strong>. This is best explained by example. Suppose you have been travelling. You use this tool to track your travels, but you really want to differentiate between<em>air</em>-and <em>rail</em>-travel. You do this simply by writing, on a new line, the type of connection between two cities, i.e. &ldquo;air&rdquo; or &ldquo;rail&rdquo;. The program then assigns a different color to each <strong>type</strong> of connection, and colors all lines according to their connections. Below is an example file (<code>example_colors1.txt</code>):</p>
+	<p style="margin-left:4em;margin-right:4em;">
+	<span style="display:inline-block; width:100%; text-align:left;background-color:#E8E8E8">
+	# For the colors option: differentiating between Air and Rail.<br>
+Bali<br>
+Air<br>
+Shanghai<br>
+Rail<br>
+Ulaanbataar<br>
+Air<br>
+Tallinn, Estonia<br>
+Rail<br>
+Berlin, Germany<br>
+Rail<br>
+Barcelona, Spain<br>
+Air<br>
+Reykjavik<br>
+Air<br>
+Vermont<br>
+Rail<br>
+Cleveland, Ohio<br>
+Rail<br>
+Tucson, AZ<br>
+Air<br>
+French Guyana<br>
+Air<br>
+Madagascar<br>
+	</span>
+	</p>
+<p>Using default settings and the following command:</p>
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_colors1.txt y y Robinson_BW.png</code></span>		
+<p>The resultant map looks like this:</p>
+<img width="751px" src="../images/travelmap-7.png"></img>
+<p>Just as with the <em>colors off</em> option, it is possible to configure the markers and their connecting lines in terms of thickness, color, etc. For the rest of the documentation, I will use a set of settings configured in favor of legibility. In particular, I set <code>dotcolor="white", strokecolor="black", r=8, sw=6, lsc="black", lsw=2</code>, and <code>lw=6</code>.Running the same command as above, with those configured settings, we get this map:</p>
+<img width="751px" src="../images/travelmap-8.png"></img>
+<p>Note that the blue lines between places correspond to lines reading &ldquo;air&rdquo; in the input textfile, and the red lines correspond to lines reading &ldquo;rail&rdquo;. If the pattern is still not clear, read the textfile and trace the connections on the map. Let's see another example (<code>example_colors2.txt</code>), this time with six types of connections. <span id="button2" onClick="ExpandCollapse('name2','button2');" style="cursor:hand; cursor:pointer;color: #1C396B;font-weight:bold;">(Click here to show input text.)</span>
+
+	<div id="name2" style="display:none;">
+	<div style="margin-left:4em;margin-right:4em;">
+	<span OnClick="ExpandCollapse('name2','button2');" style="cursor:hand; cursor:pointer;display:inline-block; width:100%;background-color:#E8E8E8">
+Marrakesh<br>
+1<br>
+Ghana<br>
+2<br>
+Tunisia<br>
+2<br>
+Cairo<br>
+4<br>
+South Sudan<br>
+4<br>
+Ghana<br>
+3<br>
+Marrakesh<br>
+3<br>
+Tunisia<br>
+1<br>
+South Sudan<br>
+3<br>
+Zimbabwe<br>
+3<br>
+Seychelles<br>
+3<br>
+Maledives<br>
+1<br>
+Sri Lanka<br>
+1<br>
+Bangladesh<br>
+2<br>
+Cambodia<br>
+4<br>
+Laos<br>
+4<br>
+Hanoi<br>
+4<br>
+Manila<br>
+5<br>
+Kyoto<br>
+5<br>
+Papua New Guinea<br>
+5<br>
+Fiji<br>
+5<br>
+Papua New Guinea<br>
+5<br>
+Christchurch, NZ<br>
+5<br>
+Papua New Guinea<br>
+5<br>
+Kalgoorlie<br>
+5<br>
+Papua New Guinea<br>
+5<br>
+Kyoto<br>
+6<br>
+Fiji<br>
+6<br>
+Christchurch, NZ<br>
+1<br>
+Kalgoorlie<br>
+2<br>
+Kuala Lumpur<br>
+2<br>
+Manila<br>
+4<br>
+Papua New Guinea<br>
+3<br>
+Jakarta<br>
+3<br>
+Indian Ocean<br>
+5<br>
+Yemen<br>
+2<br>
+Armenia<br>
+1<br>
+Amman, Jordan<br>
+2<br>
+Malta<br>
+6<br>
+Strait of Gibraltar<br>
+6<br>
+Guadeloupe<br>
+4<br>
+Bogota<br>
+4<br>
+Cuba<br>
+1<br>
+Suriname<br>
+3<br>
+Paraguay<br>
+3<br>
+Suriname<br>
+6<br>
+Recife, Brazil<br>
+1<br>
+Paraguay<br>
+1<br>
+Montevideo<br>
+3<br>
+Paraguay<br>
+2<br>
+Buenos Aires<br>
+5<br>
+Santiago<br>
+4<br>
+Hawaii<br>
+3<br>
+Cuba<br>
+5<br>
+Paraguay<br>
+2<br>
+Cuba<br>
+1<br>
+Paraguay<br>
+	</span>
+	</div>
+	</div>
+
+Which yields the following map:</p>
+<img width="751px" src="../images/travelmap-9.png"></img>
+<p>Produced by this command:</p>
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_colors1.txt y y Robinson_BW.png</code></span>		
+
+<p>You may have wondered how these colors are automatically assigned. This is done on lines 173 and 205, and uses a <strong>colormap</strong> from matplotlib. See <a href="http://matplotlib.org/api/pyplot_summary.html">here</a> for colormap documentation. On line 173, you may specify a colormap of your choosing. The default colormap, <em>jet</em>, covers the traditional colors of the rainbow. Alternatives are available, e.g. solid gradients, etc. For a list of usable colorschemes, see the aforementioned documentation. On line 205, the space of possible colors is partitioned into as many colors as we have distinct connection-types. We'll experiment with one other colormap, the <em>spring</em> colormap, which provides a gradient from magenta to yellow. On line 173, I change &ldquo;jet&rdquo; to &ldquo;spring&rdquo;. Otherwise, I run the exact same command as in the previous example, on <code>example-colors2.txt</code>. That yields this map:</p>
+<img width="751px" src="../images/travelmap-10.png"></img>
+
+<p>Some colormaps are better than others for certain tasks. In particular many colormaps provide smooth two-color gradients, which are good if you want to illustrate some sort of gradual transition. For example, suppose you are travelling from San Francisco to Shanghai, and like to associate the color magenta with the distant past, and the color yellow with the present. You could use the <em>spring</em> colormap to produce the following map:</p>
+<img width="751px" src="../images/travelmap-11.png"></img>
+<p>For that map, the input text was <code>example_colors3.txt</code>:</p>
+	<p style="margin-left:4em;margin-right:4em;">
+	<span style="display:inline-block; width:100%; text-align:left;background-color:#E8E8E8">
+		San Francisco<br>
+1<br>
+New Orleans<br>
+2<br>
+Durham, NC<br>
+3<br>
+Lisbon<br>
+4<br>
+Sicily<br>
+5<br>
+Syria<br>
+6<br>
+Tehran<br>
+7<br>
+Karachi<br>
+8<br>
+Nepal<br>
+9<br>
+Xining<br>
+10<br>
+Shanghai<br>
+</span></p>
+<p>If you've run any of these commands yet, you may have noticed that the output of the program is usually an image file of the name <code>Plotted_[Input-Textfile-Name-Here]_[Input-Imagefile-Name-Here].png</code>. Even though this is effective for preventing accidental overwriting, it may not be the best or most suitable naming convention. You can change this easily on line 219.</p>
+<p>
+So far, the only inputs we have discussed have been named locations. It is also perfectly possible to use coordinates as input. (Remember that the program only queries the Google Maps API, and returns the coordinates of the top result for a given location, so it is reasonable that the coordinates returned will always correspond to the coordinates used as input.) For example, on a given line in your input-textfile, you might write either <code>Naples, Italy</code> or <code>40.8450 N, 14.2583 E</code>. They're (almost) interchangeable.
+</p>
+<p>One thing remains to be discussed: adapting this program for other maps. In particular, lines 94 through 109, while currently configured for the two included maps, could easily be set to allow for the use of other images of maps. If you're using other Robinson Maps, you would only have to make sure that <code>imgw,imgh,w</code> and <code>h</code> are set correctly. Beware: there are maps out there that are falsely labelled as Robinson Maps. The differences can be subtle. </p>
+<p>
+Finally, I assume that it is also possible to change some of the configurations in the <code>makecoords</code> function so as to have this program work on other Map Projections as well. I have generally tried to write code that is reasonably modular and easy to adapt.</p>
+<br>
+	<sh>Potential Improvements</sh>
+	<p>I hope to implement all of the following in the near future:</p>
+	<ul>
+	<li>Currently, this program only plots straight lines between places. I think straight lines are a little bit ugly, and also not quite optimal for the task. It would be better if it were plotting geodesics between places, or at least if there were an option for this.</li><br>
+	<li>Additionally, long straight lines occasionally seem unrealistic, so it can be desirable to use markers to split up the long line into shorter lines, thereby guiding the overall path more realistically. However, this may introduce far more markers than desired. It would be good to have an option that allows for the placement of invisible markers.</li><br>
+	<li>The output for connecting two points on the eastern and western edges of the map can be quite ugly: for example, connecting Hawaii and New Zealand, in reality, warrants a line across the Pacific. However, the program will currently draw a line straight across the world map, which is as unrealistic as it is unpleasant to look at. One possibility 
+	to solve this is to have lines &lsquo;wrap around&rsquo; the edges of the map, with some way to visually distinguish them from each other to prevent confusion. Another is to reroute such paths via the north or south poles such that they are unlikely to interfere with other lines. </li><br>
+	<li>The user should be able to submit the settings for line-thickness, color, etc. using an external file containing these settings, rather than having to edit the script.</li>
+	</ul>
+	<br>
+	<sh>Acknowledgements</sh>
+	<p>This script ships with two Robinson Projection Maps based on open-source images:
+	<ul>
+	<li>Robinson_BW.png: Courtesy of the <a href="http://alabamamaps.ua.edu/about.html">University of Alabama Cartographic Research Lab.</a></li>
+	<li>Robinson_Color.png: from <a href="http://upload.wikimedia.org/wikipedia/commons/9/96/Robinson_projection_SW.jpg">Wikipedia</a> by <a href="http://commons.wikimedia.org/wiki/User:Strebe">User:Strebe.</a> Distributed as CC-BY-SA 3.0.</li>
+	</ul></p>
+	<br>
+	<sh>Download</sh>
+	<p>You can download the tarball containing everything <a href="../files/travelmap.tar.gz">here</a> or view the GitHub repository <a href="https://github.com/Datamine/Travelmap">here</a>. Please contact me if you find any bugs or use my script for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
+			<div class="notice">
+				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+			</div>
+		</div>
+	</body>
+</html>
+
