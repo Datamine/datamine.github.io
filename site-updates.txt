@@ -11,4 +11,4 @@ November 5, 2014:   Television_Scrape typo fix
 August 8, 2014:   Filesystem-Analysis
 August 4, 2014:   Honors Combinatorics Notes
 
-For a full list of updates, see https://github.com/Datamine/johnloeber-website
+For a full list of updates, see https://github.com/Datamine/datamine.github.io
