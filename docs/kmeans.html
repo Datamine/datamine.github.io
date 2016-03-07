@@ -165,15 +165,15 @@ def mean_cluster(labelled_cluster):
     		</p>
 <pre><code>def form_clusters(labelled_data, unlabelled_centroids):
     """
-    given some data and centroids for the data, allocate each datapoint
-    to its closest centroid. This forms clusters.
+    given some data and centroids for the data, allocate each
+    datapoint to its closest centroid. This forms clusters.
     """
     # enumerate because centroids are arrays which are unhashable
     centroids_indices = range(len(unlabelled_centroids))
     
-    # initialize an empty list for each centroid. The list will contain
-    # all the datapoints that are closer to that centroid than to any other.
-    # That list is the cluster of that centroid.
+    # initialize an empty list for each centroid. The list will
+    # contain all the datapoints that are closer to that centroid
+    # than to any other. That list is the cluster of that centroid.
     clusters = {c: [] for c in centroids_indices}
     
     for (label,Xi) in labelled_data:
