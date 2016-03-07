@@ -5,6 +5,11 @@
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
 		
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/default.min.css" rel="stylesheet" />
+    <script>hljs.initHighlightingOnLoad();</script>
+
+
 		<style type="text/css">
 		<!--
 			  .blockfont{ 
@@ -13,20 +18,14 @@
 					color:#000000; }
 		-->
 		</style>
-	    
-        <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
-		<script language="JavaScript" type="text/javascript">
-		function ExpandCollapse(theDiv,theButton){ 
-			el = document.getElementById(theDiv); 
-			button = document.getElementById(theButton)
-			if(el.style.display == 'none')
-			{ el.style.display = ''; 
-			  button.innerHTML="(Click here to hide input text.)";}
-			else 
-			{ el.style.display = 'none'; 
-			  button.innerHTML="(Click here to show input text.)";} 
-			return false; } </script>
-		
+
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+		</script>
+		<script type="text/javascript" async
+		  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+		</script>
+
 	
 		<title>
 			John Loeber: K-Means Clustering
@@ -51,43 +50,61 @@
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
 			
-	<div class="main">
-		<br>
-	<atitle>K-Means Clustering on Handwritten Digits</atitle></td>
-<p>
-K-Means Clustering is a machine learning technique for classifying data. It&rsquo;s best explained with a simple example. Below is some (fictitious) data comparing elephants and penguins. We've plotted 20 animals, and each one is represented by a (weight, height) coordinate.<br>
-<img class="imgcenter" src="../images/animals_kmeans.png"></img>
-<p>
-You can see that the coordinate points of the elephants and penguins form two clusters: elephants are bigger and heavier, penguins are smaller and lighter. Now suppose we've got one more datapoint, but we've forgotten whether it's an elephant or a penguin. Let's plot it, too. We've marked it in orange.
-</p>
-<img class="imgcenter" src="../images/animals_kmeans1.png"></img>
-<p>
-If you were to make a guess, you'd say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
-</p>
-<p>
-This is the essence of K-Means clustering. We take some labelled data &mdash; like heights and weights of animals. In our example, &ldquo;penguin&rdquo; or &ldquo;elephant&rdquo; is a label. We use an algorithm to figure out what the clusters are. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label.
-</p>
+		<div class="main">
+			<br>
+			<atitle>K-Means Clustering on Handwritten Digits</atitle></td>
+			<p>
+			K-Means Clustering is a machine learning technique for classifying data. It&rsquo;s best explained with a simple example. Below is some (fictitious) data comparing elephants and penguins. We've plotted 20 animals, and each one is represented by a (weight, height) coordinate.<br>
+			<img class="imgcenter" src="../images/animals_kmeans.png"></img>
+			<p>
+			You can see that the coordinate points of the elephants and penguins form two clusters: elephants are bigger and heavier, penguins are smaller and lighter. Now suppose we've got one more datapoint, but we've forgotten whether it's an elephant or a penguin. Let's plot it, too. We've marked it in orange.
+			</p>
+			<img class="imgcenter" src="../images/animals_kmeans1.png"></img>
+			<p>
+			If you were to make a guess, you'd say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
+			</p>
+			<p>
+			This is the essence of K-Means clustering. We take some labelled data &mdash; like heights and weights of animals. In our example, &ldquo;penguin&rdquo; or &ldquo;elephant&rdquo; is a label. We use an algorithm to figure out which points belong to which clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label. 
+			</p>
+			<p>
+			We call the process K-Means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd's Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We say the algorithm has converged<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> when it stops moving the centroids.
+			</p>
+			<p>
+			We'll use K-Means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
+			</p>
+			<img class="imgcenter" src="../images/mnist.png"></img>
+			<p>			
+			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can cluster it.
+			</p>
+				<pre><code class="python">	
+import sys
+def foo(x,a): 
+	return a
+	</code></pre>
 
 
-<img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide48.PNG"></img>
-<p>
-Thanks for your time. Questions?
-</p>
-FORMATTING: APOSTROPHES ETC
+	
+			<img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide48.PNG"></img>
+			<p>
+			Thanks for your time. Questions?
+			</p>
+			FORMATTING: APOSTROPHES ETC
 
-<br>
-<sh>Sources</sh>
-<br>
-The two parts of the presentation build upon two of my projects at Quantopian:
-<ol>
-<li> <a href="https://www.quantopian.com/posts/computing-the-fama-french-factors-with-pipeline-1">Computing the Fama-French Factors with Pipeline</a>
-<li> <a href="https://www.quantopian.com/posts/market-panic-parameter-optimized-strategy-for-lay-investors">Parameter-Optimized Strategy for Lay Investors</a>
-</ol>
+			<br>
+			<sh>Acknowledgements</sh>
+			<p>
+				This project was inspired by a homework assignment in John Lafferty's <a href="https://galton.uchicago.edu/~lafferty/37601-syllabus.pdf">Large-Scale Data Analysis</a> course that I took at UChicago in the Spring of 2015. I collaborated with Elliott Ding on that assignment. In the class, we used Apache Spark and a map-reduce framework on AWS to take advantage of parallelization. To make the algorithm more accessible, I've rewritten the code for this article to not use distributed systems.
+			</p>
 
-<br>
-<sh>Download</sh>
-<br>
-A GitHub repository containing all slides, etc. is available <a href="https://github.com/Datamine/Quantopian-Talk">here</a>.
+			<sh>Download</sh>
+			<p>
+				A GitHub repository containing the iPython notebook, dataset, etc. is available <a href="https://github.com/Datamine/MNIST-K-Means-Clustering">here</a>.
+			</p>
+			
+			<sh>Notes</sh>
+			<p>
+			<a href="#note0" name="footnote0">[0]</a> Lloyd's algorithm converges only to a local optimum. Lloyd's algorithm does not guarantee finding a global optimum. This can be a critical pitfall.
+			</p>
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>
