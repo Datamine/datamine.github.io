@@ -99,14 +99,126 @@ import matplotlib.pyplot as plt
     array = array.astype(np.float64)
     return (digit["label"], array)</code></pre>
     		<p>
-    		Then we use that function to read in the data.
+    		Then we use that function to read in the data. We read every datapoint into a tuple containing a label and the data vector. 
     		</p>
 <pre><code> class="python"># read in the digits file. Digits is a list of 60,000 tuples,
 # each containing a labelled digit and its vector representation.
 with open("digits.base64.json","r") as f:
     digits = map(parse, f.readlines())</code></pre>
+    		<p>
+    		Then we split the data into a <i>training</i> and a <i>validation</i> set. We'll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set. We can then check those classifications against the labels to see how often the algorithm misclassifies a datapoint.
+    		</p>
+<pre><code># pick a ratio for splitting the digits list into a training and a validation set.
+ratio = int(len(digits)*0.25)
+validation = digits[:ratio]
+training = digits[ratio:]</code></pre>
+			<p>
+			Now we write a function to take a datapoint and display the digit. This is mostly for debugging and checking our results.
+			</p>
+<pre><code>def display_digit(digit, labeled = True, title = ""):
+    """ 
+    graphically displays a 784x1 vector, representing a digit
+    """
+    if labeled:
+        digit = digit[1]
+    image = digit
+    plt.figure()
+    fig = plt.imshow(image.reshape(28,28))
+    fig.set_cmap('gray_r')
+    fig.axes.get_xaxis().set_visible(False)
+    fig.axes.get_yaxis().set_visible(False)
+    if title != "":
+        plt.title("Inferred label: " + str(title))</code></pre>
+        	<p>
+        	Now we begin writing Lloyd's algorithm. There are many libraries that have already implemented this algorithm, but it's good practice to write by hand. Notice that the <i>means</i> in k-means clustering comes from the function in which we take the mean of a cluster, and relocate the centroid to that mean. A mean, however, is not robust to outliers. It's possible to take the median instead of the mean &mdash; that's known as <a href="https://en.wikipedia.org/wiki/K-medians_clustering">k-medians clustering</a>. As usual, there are many variants of this algorithm for various use cases. Following are helper functions for Lloyd's algorithm.
+        	</p>
+<pre><code>def init_centroids(labelled_data,k):
+    """
+    randomly pick some k centers from the data as starting values for centroids.
+    Remove labels.
+    """
+    return map(lambda x: x[1], random.sample(labelled_data,k))
 
+def sum_cluster(labelled_cluster):
+    """
+    from http://stackoverflow.com/questions/20640396/quickly-summing-numpy-arrays-element-wise
+    element-wise sums a list of arrays. assumes all datapoints in labelled_cluster are labelled.
+    """
+    # assumes len(cluster) > 0
+    sum_ = labelled_cluster[0][1].copy()
+    for (label,vector) in labelled_cluster[1:]:
+        sum_ += vector
+    return sum_
 
+def mean_cluster(labelled_cluster):
+    """
+    computes the mean (i.e. the centroid at the middle) of a list of vectors (a cluster).
+    take the sum and then divide by the size of the cluster.
+    assumes all datapoints in labelled_cluster are labelled.
+    """
+    sum_of_points = sum_cluster(labelled_cluster)
+    mean_of_points = sum_of_points * (1.0 / len(labelled_cluster))
+    return mean_of_points</code></pre>
+    		<p>
+    		Finally, the main parts of Lloyd's algorithm: forming clusters and moving centroids.
+    		</p>
+<pre><code>def form_clusters(labelled_data, unlabelled_centroids):
+    """
+    given some data and centroids for the data, allocate each datapoint
+    to its closest centroid. This forms clusters.
+    """
+    # enumerate because centroids are arrays which are unhashable,
+    centroids_indices = range(len(unlabelled_centroids))
+    
+    # initialize an empty list for each centroid. The list will contain
+    # all the datapoints that are closer to that centroid than to any other.
+    # That list is the cluster of that centroid.
+    clusters = {c: [] for c in centroids_indices}
+    
+    for (label,Xi) in labelled_data:
+        # for each datapoint, pick the closest centroid.
+        smallest_distance = float("inf")
+        for cj_index in centroids_indices:
+            cj = unlabelled_centroids[cj_index]
+            distance = np.linalg.norm(Xi - cj)
+            if distance < smallest_distance:
+                closest_centroid_index = cj_index
+                smallest_distance = distance
+        # allocate that datapoint to the cluster of that centroid.
+        clusters[closest_centroid_index].append((label,Xi))
+    return clusters.values()
+
+def move_centroids(labelled_clusters):
+    """
+    returns a list of centroids corresponding to the clusters.
+    """
+    new_centroids = []
+    for cluster in labelled_clusters:
+        new_centroids.append(mean_cluster(cluster))
+    return new_centroids
+
+def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centroids):
+    """
+    form clusters around centroids, then keep moving the centroids
+    until the moves are no longer significant, i.e. we've found
+    the best-fitting centroids for the data.
+    """
+    previous_max_difference = 0
+    while True:
+        unlabelled_old_centroids = unlabelled_centroids
+        unlabelled_centroids = move_centroids(labelled_clusters)
+        labelled_clusters = form_clusters(labelled_data, unlabelled_centroids)
+        # we keep old_clusters and clusters so we can get the maximum difference
+        # between centroid positions every time. we say the centroids have converged
+        # when the maximum difference between centroid positions is small.   
+        differences = map(lambda a, b: np.linalg.norm(a-b),unlabelled_old_centroids,unlabelled_centroids)
+        max_difference = max(differences)
+        difference_change = abs((max_difference-previous_max_difference)/np.mean([previous_max_difference,max_difference])) * 100
+        previous_max_difference = max_difference
+        # difference change is nan once the list of differences is all zeroes.
+        if np.isnan(difference_change):
+            break
+    return labelled_clusters, unlabelled_centroids</code></pre>
 
 
 
