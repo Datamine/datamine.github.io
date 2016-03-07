@@ -5,9 +5,9 @@
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
 		
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
-    <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/default.min.css" rel="stylesheet" />
-    <script>hljs.initHighlightingOnLoad();</script>
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/solarized-light.min.css">
+		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    	<script>hljs.initHighlightingOnLoad();</script>
 
 
 		<style type="text/css">
@@ -76,14 +76,21 @@
 			<p>			
 			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can cluster it.
 			</p>
-				<pre><code class="python">	
-import sys
-def foo(x,a): 
-	return a
-	</code></pre>
+			<p>
+			We start by importing all required libraries.
+			</p>
+				<pre><code class="python">
+import random
+from base64 import b64decode
+from json import loads
+import numpy as np
+import matplotlib.pyplot as plt
+# set matplotlib to display all plots inline with the notebook
+%matplotlib inline
+				</code></pre>
 
 
-	
+
 			<img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide48.PNG"></img>
 			<p>
 			Thanks for your time. Questions?
