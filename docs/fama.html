@@ -171,7 +171,7 @@ In initialize &mdash; this section only runs once at the very beginning of our a
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide20.PNG"></img>
 <p>
-I've put the main logic into <code>before_trading_start</code>. We get our three factors: returns, market cap, and book equity over market equity. We get the 50th percentile, and appropriately partition our universe into small caps and large caps.
+I've put the main logic into <inlineCode>before_trading_start</inlineCode>. We get our three factors: returns, market cap, and book equity over market equity. We get the 50th percentile, and appropriately partition our universe into small caps and large caps.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide21.PNG"></img>
@@ -267,12 +267,12 @@ So, that's our goal. We'll go over this space of possible drops and rebounds in 
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide38.PNG"></img>
 <p>
-I wrote this very simple algorithm to sell or buy SPY as appropriate when SPY drops by <code>m</code> percent from a previous maximum, or rebounds by <code>n</code> percent from a previous minimum. 
+I wrote this very simple algorithm to sell or buy SPY as appropriate when SPY drops by <inlineCode>m</inlineCode> percent from a previous maximum, or rebounds by <inlineCode>n</inlineCode> percent from a previous minimum. 
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide39.PNG"></img>
 <p>
-Next, I set up some code to iterate over all possible combinations for <code>m</code> and <code>n</code>, and for each combination, to run the algorithm and record the returns over the thirteen-year period.
+Next, I set up some code to iterate over all possible combinations for <inlineCode>m</inlineCode> and <inlineCode>n</inlineCode>, and for each combination, to run the algorithm and record the returns over the thirteen-year period.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide40.PNG"></img>
@@ -282,7 +282,7 @@ Running the 2500 backtests took a few hours, but the returns can be nicely visua
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide41.PNG"></img>
 <p>
-And we're really only interested in the benchmark-beating returns, so we filter the heatmap down to those <code>(m,n)</code> points that returned more than 85%. In this example, the best return is about 118.6%. That's a pretty substantial gain on 85%.
+And we're really only interested in the benchmark-beating returns, so we filter the heatmap down to those <inlineCode>(m,n)</inlineCode> points that returned more than 85%. In this example, the best return is about 118.6%. That's a pretty substantial gain on 85%.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide42.PNG"></img>
@@ -307,10 +307,10 @@ And in this backtest, we can see quite clearly that the reason this strategy was
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide46.PNG"></img>
 <p>
-Back to this heatmap. For the entire bubble in the middle, the behavioral pattern is exactly the same. All of these <code>(m,n)</code> strategies are effectively calibrated to stop out in a very narrow one or two week window, just avoiding the worst of the recession, and then they all buy back in the same one-or-two week window a few months later.
+Back to this heatmap. For the entire bubble in the middle, the behavioral pattern is exactly the same. All of these <inlineCode>(m,n)</inlineCode> strategies are effectively calibrated to stop out in a very narrow one or two week window, just avoiding the worst of the recession, and then they all buy back in the same one-or-two week window a few months later.
 </p>
 <p>
-The real dead giveaway that we've got a colossal overfit here is that we have the point with the best possible returns almost adjacent to points with mediocre returns and ones that fail to beat the benchmark. That's for tiny differences in <code>m</code> and <code>n</code>. Sub-percent calibrations should not make that kind of difference.
+The real dead giveaway that we've got a colossal overfit here is that we have the point with the best possible returns almost adjacent to points with mediocre returns and ones that fail to beat the benchmark. That's for tiny differences in <inlineCode>m</inlineCode> and <inlineCode>n</inlineCode>. Sub-percent calibrations should not make that kind of difference.
 </p>
 
 
