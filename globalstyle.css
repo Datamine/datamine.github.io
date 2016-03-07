@@ -94,7 +94,7 @@ p{
 }
 
 /* line 211, /Users/schacon/github/progit/gitscm2/app/assets/stylesheets/typography.css.scss */
-mycode{
+code{
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   -ms-border-radius: 3px;
