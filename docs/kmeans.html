@@ -198,7 +198,7 @@ def move_centroids(labelled_clusters):
         new_centroids.append(mean_cluster(cluster))
     return new_centroids</code></pre>
     		<p>
-    		We want to repeat the forming and moving steps until the centroids cease moving, which is the case when their movements are arbitrarily small. In this case, I've chosen to determine convergence when the movements are zero. This takes longer depending on the size of $k$, so some implementations don&rsquo;t wait for convergence, and instead run some sufficiently large number of iterations (e.g. 100) to get appropriately close.
+    		We want to repeat the forming and moving steps until the algorithm converges &mdash; when the movements of centroids are arbitrarily small. In this case, I've chosen to determine convergence when the movements are zero. This takes longer depending on the size of $k$, so some implementations don&rsquo;t wait for convergence, and instead run some sufficiently large number of iterations (e.g. 100) to get appropriately close.
     		</p>
 <pre><code>def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centroids):
     """
@@ -220,8 +220,63 @@ def move_centroids(labelled_clusters):
         if np.isnan(difference_change):
             break
     return labelled_clusters, unlabelled_centroids</code></pre>
+    		<p>
+    		Finally, we can wrap everything up in this function:
+    		</p>
+<pre><code>
+def cluster(labelled_data, k):
+    """
+    runs k-means clustering on the data. It is assumed that the data is labelled.
+    """
+    centroids = init_centroids(labelled_data, k)
+    clusters = form_clusters(labelled_data, centroids)
+    final_clusters, final_centroids = repeat_until_convergence(labelled_data, clusters, centroids)
+    return final_clusters, final_centroids</code></pre>
+    		<p>
+    		However, our centroids aren't labelled yet. We'll write a function to label each centroids with the most common label in its cluster. 
+    		</p>
+<pre><code>def assign_labels_to_centroids(clusters, centroids):
+    """
+    Assigns a digit label to each centroid.
+    NOTE: this function depends on clusters and centroids being in the same order.
+    """
+    labelled_centroids = []
+    for i in range(len(clusters)):
+        labels = map(lambda x: x[0], clusters[i])
+        # pick the most common label
+        most_common = max(set(labels), key=labels.count)
+        centroid = (most_common, centroids[i])
+        labelled_centroids.append(centroid)
+    return labelled_centroids</code></pre>
+    		<p>
+    		But we're not just interested in clustering the known data; we want to classify unknown data using those clusters!
+    		So let's write a function to classify an unlabelled digit, and let's write another function to classify many of them, so we can get an <i>error rate<i/> that tells us about the performance of our algorithm.
+    		</p>
+<pre><code>def classify_digit(digit, labelled_centroids):
+    """
+    given an unlabelled digit represented by a vector and a list of
+    labelled centroids [(label,vector)], determine the closest centroid
+    and thus classify the digit.
+    """
+    mindistance = float("inf")
+    for (label, centroid) in labelled_centroids:
+        distance = np.linalg.norm(centroid - digit)
+        if distance < mindistance:
+            mindistance = distance
+            closest_centroid_label = label
+    return closest_centroid_label
 
-
+def get_error_rate(digits,labelled_centroids):
+    """
+    classifies a list of labelled digits. returns the error rate.
+    """
+    classified_incorrect = 0
+    for (label,digit) in digits:
+        classified_label = classify_digit(digit, labelled_centroids)
+        if classified_label != label:
+            classified_incorrect +=1
+    error_rate = classified_incorrect / float(len(digits))
+    return error_rate</code></pre>
 
 
 			FORMATTING: APOSTROPHES ETC
