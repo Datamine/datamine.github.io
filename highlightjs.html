@@ -2,21 +2,33 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>higlight.js example</title>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/highlight.min.js"></script>
-    <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/7.3/styles/default.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/highlight/styles/default.css">
+	<script src="/highlight/highlight.pack.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
 </head>
 <body>
-<pre><code class="xml">&lt;!DOCTYPE html&gt;
-&lt;title&gt;Title&lt;/title&gt;
-&lt;style&gt;body {width: 500px;}&lt;/style&gt;
-&lt;script type="application/javascript"&gt;
-  function $init() {return true;}
-&lt;/script&gt;
-&lt;body&gt;
-  &lt;p checked class="title" id='title'&gt;Title&lt;/p&gt;
-  &lt;!-- here goes the rest of the page --&gt;
-&lt;/body&gt;
+<pre><code class="python">
+from random import randint
+
+def getran():
+    d1,d2,d4=randint(1,6),randint(1,6),randint(1,6)
+    if d1+d2==3:
+        return True
+    elif d2+d4==3:
+        return True
+    elif d1+d4==3:
+        return True
+    else:
+        return False
+
+def getcount():
+    count=0
+    for i in range(1000000):
+        if getran():
+            count+=1
+    print count
+
+getcount()
 </code></pre>
 </body>
 </html>
