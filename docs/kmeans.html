@@ -221,10 +221,9 @@ def move_centroids(labelled_clusters):
             break
     return labelled_clusters, unlabelled_centroids</code></pre>
     		<p>
-    		Finally, we can wrap everything up in this function:
+    		Finally, we can wrap the entire procedure up in this function, which will output the optimal clusters and corresponding centroids:
     		</p>
-<pre><code>
-def cluster(labelled_data, k):
+<pre><code>def cluster(labelled_data, k):
     """
     runs k-means clustering on the data. It is assumed that the data is labelled.
     """
@@ -266,17 +265,50 @@ def cluster(labelled_data, k):
             closest_centroid_label = label
     return closest_centroid_label
 
-def get_error_rate(digits,labelled_centroids):
+def get_error_rate(labelled_digits,labelled_centroids):
     """
     classifies a list of labelled digits. returns the error rate.
     """
     classified_incorrect = 0
-    for (label,digit) in digits:
+    for (label,digit) in labelled_digits:
         classified_label = classify_digit(digit, labelled_centroids)
         if classified_label != label:
             classified_incorrect +=1
     error_rate = classified_incorrect / float(len(digits))
     return error_rate</code></pre>
+    		<p>
+    		We're done implementing this tool. Let's test it out. We'll try clustering with $k=16$.
+    		</p>
+<pre><code>k = 16
+trained_clusters, trained_centroids = cluster(training, k)
+labelled_centroids = assign_labels_to_centroids(trained_clusters, trained_centroids)</code></pre>
+
+<table border="0" style="background-color:#FFFFFF;border-collapse:collapse;border:0px solid #FFCC00;color:#000000;width:100%" cellpadding="3" cellspacing="3">
+	<tr>
+		<td><img src="../images/kmeans_mnist/0_1.png"></img></td>
+		<td><img src="../images/kmeans_mnist/0_2.png"></td>
+		<td><img src="../images/kmeans_mnist/0_3.png"></td>
+		<td><img src="../images/kmeans_mnist/1_1.png"></td>
+	</tr>
+	<tr>
+		<td><img src="../images/kmeans_mnist/1_2.png"></img></td>
+		<td><img src="../images/kmeans_mnist/2_0.png"></td>
+		<td><img src="../images/kmeans_mnist/2_1.png"></td>
+		<td><img src="../images/kmeans_mnist/3_1.png"></td>
+	</tr>
+	<tr>
+		<td><img src="../images/kmeans_mnist/3_2.png"></img></td>
+		<td><img src="../images/kmeans_mnist/4_1.png"></td>
+		<td><img src="../images/kmeans_mnist/6_1.png"></td>
+		<td><img src="../images/kmeans_mnist/6_2.png"></td>
+	</tr>
+	<tr>
+		<td><img src="../images/kmeans_mnist/7_1.png"></img></td>
+		<td><img src="../images/kmeans_mnist/7_2.png"></td>
+		<td><img src="../images/kmeans_mnist/8_1.png"></td>
+		<td><img src="../images/kmeans_mnist/9_1.png"></td>
+	</tr>
+</table>
 
 
 			FORMATTING: APOSTROPHES ETC
