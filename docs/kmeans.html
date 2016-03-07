@@ -281,7 +281,10 @@ def get_error_rate(labelled_digits,labelled_centroids):
     		</p>
 <pre><code>k = 16
 trained_clusters, trained_centroids = cluster(training, k)
-labelled_centroids = assign_labels_to_centroids(trained_clusters, trained_centroids)</code></pre>
+labelled_centroids = assign_labels_to_centroids(trained_clusters, trained_centroids)
+
+for (label,digit) in labelled_centroids:
+    display_digit(digit, labeled=False, title=label)</code></pre>
 
 <table border="0" style="background-color:#FFFFFF;border-collapse:collapse;border:0px solid #FFCC00;color:#000000;width:100%" cellpadding="3" cellspacing="3">
 	<tr>
