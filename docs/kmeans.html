@@ -64,17 +64,17 @@
 			If you were to make a guess, you'd say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
 			</p>
 			<p>
-			This is the essence of K-Means clustering. We take some labelled data &mdash; like heights and weights of animals. In our example, &ldquo;penguin&rdquo; or &ldquo;elephant&rdquo; is a label. We use an algorithm to figure out which points belong to which clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label. 
+			This is the essence of k-means clustering. We take some labelled data &mdash; like heights and weights of animals. In our example, &ldquo;penguin&rdquo; or &ldquo;elephant&rdquo; is a label. We use an algorithm to figure out which points belong to which clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label. 
 			</p>
 			<p>
-			We call the process K-Means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd's Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We say the algorithm has converged<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> when it stops moving the centroids.
+			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd's Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We say the algorithm has converged<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> when it stops moving the centroids.
 			</p>
 			<p>
-			We'll use K-Means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
+			We'll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
 			</p>
 			<img class="imgcenter" src="../images/mnist.png"></img>
 			<p>			
-			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can cluster it.
+			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can run k-means clustering. Let&rsquo;s do it.
 			</p>
 			<p>
 			We start by importing all required libraries.
@@ -98,13 +98,19 @@ import matplotlib.pyplot as plt
     array = np.fromstring(b64decode(digit["data"]),dtype=np.ubyte)
     array = array.astype(np.float64)
     return (digit["label"], array)</code></pre>
+    		<p>
+    		Then we use that function to read in the data.
+    		</p>
+<pre><code> class="python"># read in the digits file. Digits is a list of 60,000 tuples,
+# each containing a labelled digit and its vector representation.
+with open("digits.base64.json","r") as f:
+    digits = map(parse, f.readlines())</code></pre>
 
 
 
-			<img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide48.PNG"></img>
-			<p>
-			Thanks for your time. Questions?
-			</p>
+
+
+
 			FORMATTING: APOSTROPHES ETC
 
 			<br>
