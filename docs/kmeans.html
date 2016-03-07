@@ -108,7 +108,8 @@ with open("digits.base64.json","r") as f:
     		<p>
     		Then we split the data into a <i>training</i> and a <i>validation</i> set. We'll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set. We can then check those classifications against the labels to see how often the algorithm misclassifies a datapoint.
     		</p>
-<pre><code class="python"># pick a ratio for splitting the digits list into a training and a validation set.
+<pre><code class="python"># pick a ratio for splitting the digits list 
+# into a training and a validation set.
 ratio = int(len(digits)*0.25)
 validation = digits[:ratio]
 training = digits[ratio:]</code></pre>
