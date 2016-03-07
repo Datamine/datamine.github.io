@@ -277,7 +277,7 @@ def get_error_rate(labelled_digits,labelled_centroids):
     error_rate = classified_incorrect / float(len(digits))
     return error_rate</code></pre>
     		<p>
-    		We're done implementing this tool. Let's test it out. We'll try clustering with $k=16$.
+    		We're done implementing this tool. Let's test it out. We'll try clustering with $k=16$, and we'll display the 16 centroids.
     		</p>
 <pre><code>k = 16
 trained_clusters, trained_centroids = cluster(training, k)
@@ -288,28 +288,28 @@ for (label,digit) in labelled_centroids:
 
 <table border="0" style="background-color:#FFFFFF;border-collapse:collapse;border:0px solid #FFCC00;color:#000000" cellpadding="3" cellspacing="3">
 	<tr>
-		<td><img src="../images/kmeans-mnist/0_1.png"></img></td>
-		<td><img src="../images/kmeans-mnist/0_2.png"></td>
-		<td><img src="../images/kmeans-mnist/0_3.png"></td>
-		<td><img src="../images/kmeans-mnist/1_1.png"></td>
+		<td><img width="182px" src="../images/kmeans-mnist/0_1.png"></img></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/0_2.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/0_3.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/1_1.png"></td>
 	</tr>
 	<tr>
-		<td><img src="../images/kmeans-mnist/1_2.png"></img></td>
-		<td><img src="../images/kmeans-mnist/2_0.png"></td>
-		<td><img src="../images/kmeans-mnist/2_1.png"></td>
-		<td><img src="../images/kmeans-mnist/3_1.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/1_2.png"></img></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/2_0.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/2_1.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/3_1.png"></td>
 	</tr>
 	<tr>
-		<td><img src="../images/kmeans-mnist/3_2.png"></img></td>
-		<td><img src="../images/kmeans-mnist/4_1.png"></td>
-		<td><img src="../images/kmeans-mnist/6_1.png"></td>
-		<td><img src="../images/kmeans-mnist/6_2.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/3_2.png"></img></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/4_1.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/6_1.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/6_2.png"></td>
 	</tr>
 	<tr>
-		<td><img src="../images/kmeans-mnist/7_1.png"></img></td>
-		<td><img src="../images/kmeans-mnist/7_2.png"></td>
-		<td><img src="../images/kmeans-mnist/8_1.png"></td>
-		<td><img src="../images/kmeans-mnist/9_1.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/7_1.png"></img></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/7_2.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/8_1.png"></td>
+		<td><img width="182px"  src="../images/kmeans-mnist/9_1.png"></td>
 	</tr>
 </table>
 
