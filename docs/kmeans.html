@@ -67,7 +67,7 @@
 			This is the essence of k-means clustering. We take some labelled data &mdash; like heights and weights of animals. In our example, &ldquo;penguin&rdquo; or &ldquo;elephant&rdquo; is a label. We use an algorithm to figure out which points belong to which clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label. 
 			</p>
 			<p>
-			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd's Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We say the algorithm has converged<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> when it stops moving the centroids.
+			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd's Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small>
 			</p>
 			<p>
 			We'll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
@@ -161,7 +161,7 @@ def mean_cluster(labelled_cluster):
     mean_of_points = sum_of_points * (1.0 / len(labelled_cluster))
     return mean_of_points</code></pre>
     		<p>
-    		Finally, the main parts of Lloyd's algorithm: forming clusters and moving centroids.
+    		The main parts of Lloyd's algorithm: forming clusters and moving centroids.
     		</p>
 <pre><code>def form_clusters(labelled_data, unlabelled_centroids):
     """
@@ -191,14 +191,16 @@ def mean_cluster(labelled_cluster):
 
 def move_centroids(labelled_clusters):
     """
-    returns a list of mean centroids corresponding to the clusters.
+    returns list of mean centroids corresponding to clusters.
     """
     new_centroids = []
     for cluster in labelled_clusters:
         new_centroids.append(mean_cluster(cluster))
-    return new_centroids
-
-def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centroids):
+    return new_centroids</code></pre>
+    		<p>
+    		We want to repeat the forming and moving steps until the centroids cease moving, which is the case when their movements are arbitrarily small. In this case, I've chosen to determine convergence when the movements are zero. This takes longer depending on the size of $k$, so some implementations don&rsquo;t wait for convergence, and instead run some sufficiently large number of iterations (e.g. 100) to get appropriately close.
+    		</p>
+<pre><code>def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centroids):
     """
     form clusters around centroids, then keep moving the centroids
     until the moves are no longer significant.
@@ -208,9 +210,8 @@ def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centro
         unlabelled_old_centroids = unlabelled_centroids
         unlabelled_centroids = move_centroids(labelled_clusters)
         labelled_clusters = form_clusters(labelled_data, unlabelled_centroids)
-        # we keep old_clusters and clusters so we can get the maximum difference
-        # between centroid positions every time. we say the centroids have converged
-        # when the maximum difference between centroid positions is small.   
+        # keep old_clusters and clusters so we can get the maximum difference
+        # between centroid positions every time.
         differences = map(lambda a, b: np.linalg.norm(a-b),unlabelled_old_centroids,unlabelled_centroids)
         max_difference = max(differences)
         difference_change = abs((max_difference-previous_max_difference)/np.mean([previous_max_difference,max_difference])) * 100
@@ -238,7 +239,7 @@ def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centro
 			
 			<sh>Notes</sh>
 			<p>
-			<a href="#note0" name="footnote0">[0]</a> Lloyd's algorithm converges only to a local optimum. Lloyd's algorithm does not guarantee finding a global optimum. This can be a critical pitfall.
+			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd's algorithm converges only to a local optimum. Lloyd's algorithm does not guarantee finding a global optimum. This can be a critical pitfall.
 			</p>
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
