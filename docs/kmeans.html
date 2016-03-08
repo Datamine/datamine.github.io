@@ -97,7 +97,7 @@ import matplotlib.pyplot as plt
     json_object = loads(json_file)
     json_data = b64decode(json_object["data"])
     digit_vector = np.fromstring(json_data, dtype=np.ubyte)
-    digit_vector = array.astype(np.float64)
+    digit_vector = digit_vector.astype(np.float64)
     return (json_object["label"], digit_vector)</code></pre>
     		<p>
     		Then we use that function to read in the data. We read every datapoint into a tuple containing a label and the data vector. 
