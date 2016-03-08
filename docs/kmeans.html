@@ -74,7 +74,7 @@
 			</p>
 			<img class="imgcenter" src="../images/mnist.png"></img>
 			<p>			
-			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can run k-means clustering. Let&rsquo;s do it.
+			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can run k-means clustering. Let&rsquo;s do it. I will be using Python 2.7 in an iPython notebook.
 			</p>
 			<p>
 			We start by importing all the libraries we will use.
@@ -89,15 +89,15 @@ import matplotlib.pyplot as plt
 			<p>
 			Next, we write a function to read in the MNIST data.
 			</p>
-<pre><code class="python">def parse(x):
+<pre><code class="python">def read_in_data(json_file):
     """
     to parse the digits file into tuples of 
     (labelled digit, numpy array of vector representation of digit)
     """
-    digit = loads(x)
-    array = np.fromstring(b64decode(digit["data"]),dtype=np.ubyte)
-    array = array.astype(np.float64)
-    return (digit["label"], array)</code></pre>
+    json_object = loads(json_file)
+    digit_vector = np.fromstring(b64decode(json_object["data"]),dtype=np.ubyte)
+    digit_vector = array.astype(np.float64)
+    return (json_object["label"], digit_vector)</code></pre>
     		<p>
     		Then we use that function to read in the data. We read every datapoint into a tuple containing a label and the data vector. 
     		</p>
@@ -314,6 +314,38 @@ for (label,digit) in labelled_centroids:
 </table>
 		<p>
 		We see a few interesting results. Most people tend to draw the figure eight the same way, so there&rsquo;s only one centroid for it. On the other hand, there are three centroids (and clusters) for the figure zero, even though they don&rsquo;t look very different. The centroids for the figure two reflect that some people draw their twos with a kind of cursive loop, and some people draw their twos without a loop. Notice that there&rsquo;s no centroid for the figure five. Thus, we never classify any digit as a five.
+		</p>
+		<p>
+		Earlier, we discussed that the $k$ centroids are initiated at random. This can change the final cluster configuration. To drive this point home, I re-ran the above commands, and got a substantially different set of centroids:
+		</p>
+<table border="0" style="background-color:#FFFFFF;border-collapse:collapse;border:0px solid #FFCC00;color:#000000" cellpadding="3" cellspacing="3">
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/0_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/0_2.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/1_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/1_2.png"></img></td>
+	</tr>
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/2_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/3_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/3_2.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/4_1.png"></img></td>
+	</tr>
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/4_2.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/5_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/6_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/6_2.png"></img></td>
+	</tr>
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/7_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/7_2.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/8_1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/second-iteration/9_1.png"></img></td>
+	</tr>
+</table>
+		<p>
+		In this set, we actually have a &ldquo;five&rdquo; centroid. 
 		</p>
 		<p>
 		We can now iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
