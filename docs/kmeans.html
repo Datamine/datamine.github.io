@@ -110,9 +110,9 @@ with open("digits.base64.json","r") as f:
     		</p>
 <pre><code class="python"># pick a ratio for splitting the digits list 
 # into a training and a validation set.
-ratio = int(len(digits)*0.25)
-validation = digits[:ratio]
-training = digits[ratio:]</code></pre>
+training_size = int(len(digits)*0.25)
+validation = digits[:training_size]
+training = digits[training_size:]</code></pre>
 			<p>
 			Now we write a function to take a datapoint and display the digit. This is mostly for debugging and checking our results.
 			</p>
