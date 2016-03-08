@@ -280,8 +280,8 @@ def get_error_rate(labelled_digits,labelled_centroids):
     		We're done implementing this tool. Let's test it out. We'll try clustering with $k$=16, and we'll display the 16 centroids.
     		</p>
 <pre><code>k = 16
-trained_clusters, trained_centroids = cluster(training, k)
-labelled_centroids = assign_labels_to_centroids(trained_clusters, trained_centroids)
+clusters, centroids = cluster(training, k)
+labelled_centroids = assign_labels_to_centroids(clusters, centroids)
 
 for (label,digit) in labelled_centroids:
     display_digit(digit, labeled=False, title=label)</code></pre>
@@ -320,8 +320,8 @@ for (label,digit) in labelled_centroids:
 		</p>
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
 for k in range(5,25):
-    trained_clusters, trained_centroids = cluster(training, k)
-    labelled_centroids = assign_labels_to_centroids(trained_clusters, trained_centroids)
+    clusters, centroids = cluster(training, k)
+    labelled_centroids = assign_labels_to_centroids(clusters, centroids)
     error_rate = get_error_rate(validation, labelled_centroids)
     error_rates[k] = error_rate
 
@@ -335,7 +335,8 @@ plt.xlabel("Number of Clusters")
 plt.ylabel("Error Rate")
 plt.show()</code></pre>
     <img class="imgcenter" src="../images/kmeans-mnist/error_rates.png"></img>
-
+Let's zoom in on the left side of the image:
+    <img class="imgcenter" src="../images/kmeans-mnist/error_rate_fit_labels_to_clusters.png"></img>
 			FORMATTING: APOSTROPHES ETC
 
 			<br>
