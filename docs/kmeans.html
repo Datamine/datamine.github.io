@@ -481,7 +481,7 @@ for (label,digit) in validation:
         <td>&nbsp;&nbsp;</td>
         <td>2</td>
         </tr>
-        	
+
         <tr>
         <td>7</td>
         <td>&nbsp;&nbsp;</td>
@@ -530,9 +530,11 @@ for (label,digit) in validation:
 		<td><img width="182px" src="../images/kmeans-mnist/nines/15.png"></img></td>
 	</tr>
 </table>
-
 		<p>
-		Now let us iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
+		There is a surprising number of digits that you would very clearly expect to have been classified in another cluster, such as the top-left one, the two in the left column, or the seven in the bottom right. Looking at these digits and the centroids further up, it seems as if those centroids would be a much better match than the centroid for the figure nine. I can currently only guess as to why the classification didn&rsquo;t work better.
+		</p>
+		<p>
+		Now let us iterate over various values for $k$, and see how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
 		</p>
 
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
