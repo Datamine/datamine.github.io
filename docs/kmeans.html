@@ -232,7 +232,7 @@ def move_centroids(labelled_clusters):
     final_clusters, final_centroids = repeat_until_convergence(labelled_data, clusters, centroids)
     return final_clusters, final_centroids</code></pre>
     		<p>
-    		However, our centroids aren't labelled yet. We'll write a function to label each centroids with the most common label in its cluster. 
+    		However, our centroids aren't labelled yet. We'll write a function to label each centroid with the most common label in its cluster. 
     		</p>
 <pre><code>def assign_labels_to_centroids(clusters, centroids):
     """
