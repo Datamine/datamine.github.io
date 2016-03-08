@@ -95,7 +95,8 @@ import matplotlib.pyplot as plt
     (labelled digit, numpy array of vector representation of digit)
     """
     json_object = loads(json_file)
-    digit_vector = np.fromstring(b64decode(json_object["data"]),dtype=np.ubyte)
+    json_data = b64decode(json_object["data"])
+    digit_vector = np.fromstring(json_data, dtype=np.ubyte)
     digit_vector = array.astype(np.float64)
     return (json_object["label"], digit_vector)</code></pre>
     		<p>
