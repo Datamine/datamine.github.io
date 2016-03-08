@@ -349,7 +349,7 @@ for (label,digit) in labelled_centroids:
 		In this set, we actually have a &ldquo;five&rdquo; centroid. Note that it&rsquo;s pretty messy &mdash; it seems that fives are drawn least consistently, so their centroid (average) is the least clear, and as we saw in the first set, they&rsquo;re apparently easily misclassified. Beyond that, though the two sets of centroids seem quite different, their error rates in classifying the validation set are not: the first set classifies with an error rate of 0.342, the second with an error rate of 0.304.
 		</p>
 		<p>
-		Just to go into a bit more detail, let us look at classification at the level of an individual cluster. I used the following snippet of code to see which digits are classified into the &ldquo;two&rdquo; cluster:
+		Just to go into a bit more detail, let us look at classification at the level of an individual cluster. I used the following snippet of code to see which digits are classified into the &ldquo;two&rdquo; cluster from the most recent clustering:
 		</p>
 <pre><code>twos = []
 frequency = {x:0 for x in range(10)}
@@ -419,21 +419,100 @@ for (label,digit) in validation:
         <td>1</td>
         </tr>
         </table>
+        <p>
+        On the other hand, if we run the same code to see which digits are classified into the &ldquo;nine&rdquo; cluster, the results aren&rsquo;t as good.
+        </p>
+        <table border="0" align="center" style="background-color:#FFFFFF;border-collapse:collapse;border:0px solid #FFCC00;color:#000000" cellpadding="3" cellspacing="3">
+        <tr>
+        <td><strong>Digit</strong></td>
+        <td><strong>Frequency Count</strong></td>
+        </tr>
+        
+        <tr>
+        <td>0</td>
+        <td>1</td>
+        </tr>
+        
+        <tr>
+        <td>1</td>
+        <td>11</td>
+        </tr>
+
+        <tr>
+        <td>2</td>
+        <td>19</td>
+        </tr>
+
+        <tr>
+        <td>3</td>
+        <td>69</td>
+        </tr>
+
+        <tr>
+        <td>4</td>
+        <td>255</td>
+        </tr>
+
+        <tr>
+        <td>5</td>
+        <td>88</td>
+        </tr>
+
+        <tr>
+        <td>6</td>
+        <td>2</td>
+        </tr>
+
+        <tr>
+        <td>7</td>
+        <td>180</td>
+        </tr>
+
+        <tr>
+        <td>8</td>
+        <td>68</td>
+        </tr>
+
+
+        <tr>
+        <td>9</td>
+        <td>448</td>
+        </tr>
+        </table>
+        <p>
+        I find it very surprising that so many threes are misclassified as nines: as far as I can recall, threes and nines look nothing alike! Let us take a look at 25 digits, randomly selected from the ones classified as nines:
+        </p>
+<table border="0" style="background-color:#FFFFFF;border-collapse:collapse;border:0px solid #FFCC00;color:#000000" cellpadding="3" cellspacing="3">
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/0.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/1.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/2.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/3.png"></img></td>
+	</tr>
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/4.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/5.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/6.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/7.png"></img></td>
+	</tr>
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/8.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/9.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/10.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/11.png"></img></td>
+	</tr>
+	<tr>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/12.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/13.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/14.png"></img></td>
+		<td><img width="182px" src="../images/kmeans-mnist/nines/15.png"></img></td>
+	</tr>
+</table>
+
 		<p>
 		Now let us iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
-		</p>def classify_digit(digit, labelled_centroids):
-    """
-    given an unlabelled digit represented by a vector and a list of
-    labelled centroids [(label,vector)], determine closest centroid
-    and thus classify the digit.
-    """
-    mindistance = float("inf")
-    for (label, centroid) in labelled_centroids:
-        distance = np.linalg.norm(centroid - digit)
-        if distance < mindistance:
-            mindistance = distance
-            closest_centroid_label = label
-    return closest_centroid_label
+		</p>
+
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
 for k in range(5,25):
     clusters, centroids = cluster(training, k)
