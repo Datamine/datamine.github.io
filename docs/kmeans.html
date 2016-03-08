@@ -54,23 +54,23 @@
 			<br>
 			<atitle>K-Means Clustering on Handwritten Digits</atitle></td>
 			<p>
-			K-Means Clustering is a machine learning technique for classifying data. It&rsquo;s best explained with a simple example. Below is some (fictitious) data comparing elephants and penguins. We've plotted 20 animals, and each one is represented by a (weight, height) coordinate.<br>
+			K-Means Clustering is a machine learning technique for classifying data. It&rsquo;s best explained with a simple example. Below is some (fictitious) data comparing elephants and penguins. We&rsquo;ve plotted 20 animals, and each one is represented by a (weight, height) coordinate.<br>
 			<img class="imgcenter" src="../images/animals_kmeans.png"></img>
 			<p>
-			You can see that the coordinate points of the elephants and penguins form two clusters: elephants are bigger and heavier, penguins are smaller and lighter. Now suppose we've got one more datapoint, but we've forgotten whether it's an elephant or a penguin. Let's plot it, too. We've marked it in orange.
+			You can see that the coordinate points of the elephants and penguins form two clusters: elephants are bigger and heavier, penguins are smaller and lighter. Now suppose we&rsquo;ve got one more datapoint, but we&rsquo;ve forgotten whether it&rsquo;s an elephant or a penguin. Let&rsquo;s plot it, too. We&rsquo;ve marked it in orange.
 			</p>
 			<img class="imgcenter" src="../images/animals_kmeans1.png"></img>
 			<p>
-			If you were to make a guess, you'd say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
+			If you were to make a guess, you&rsquo;d say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
 			</p>
 			<p>
 			This is the essence of clustering. We take some labelled data &mdash; like heights and weights of animals, where each animal is labeled as either a penguin or an elephant. We use an algorithm to figure out which datapoints belong to which (weight, height) clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label. 
 			</p>
 			<p>
-			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd's Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small>
+			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd&rsquo;s Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small>
 			</p>
 			<p>
-			We'll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
+			We&rsquo;ll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
 			</p>
 			<img class="imgcenter" src="../images/mnist.png"></img>
 			<p>			
@@ -106,7 +106,7 @@ import matplotlib.pyplot as plt
 with open("digits.base64.json","r") as f:
     digits = map(parse, f.readlines())</code></pre>
     		<p>
-    		Then we split the data into a <i>training</i> and a <i>validation</i> set. We'll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set, i.e. to assign labels to these datapoints. We can then check those inferred labels against the known labels to see how often the algorithm misclassifies a datapoint.
+    		Then we split the data into a <i>training</i> and a <i>validation</i> set. We&rsquo;ll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set, i.e. to assign labels to these datapoints. We can then check those inferred labels against the known labels to see how often the algorithm misclassifies a datapoint.
     		</p>
 <pre><code class="python"># pick a ratio for splitting the digits list 
 # into a training and a validation set.
@@ -131,7 +131,7 @@ training = digits[ratio:]</code></pre>
     if title != "":
         plt.title("Inferred label: " + str(title))</code></pre>
         	<p>
-        	Now we begin writing Lloyd's algorithm. There are many libraries that have already implemented this algorithm, but it's good practice to write by hand. Notice that the <i>means</i> in k-means clustering comes from the function in which we take the mean of a cluster, and relocate the centroid to that mean. A mean, however, is not robust to outliers. It's possible to take the median instead of the mean &mdash; that's known as <a href="https://en.wikipedia.org/wiki/K-medians_clustering">k-medians clustering</a>. As usual, there are many variants of this algorithm for various use cases. Following are helper functions for Lloyd's algorithm. For clarity, I've written <code>labelled_x</code> when we can expect <code>x</code> to be tuples of <code>(label,data)</code>.
+        	Now we begin writing Lloyd&rsquo;s algorithm. There are many libraries that have already implemented this algorithm, but it&rsquo;s good practice to write by hand. Notice that the <i>means</i> in k-means clustering comes from the function in which we take the mean of a cluster, and relocate the centroid to that mean. A mean, however, is not robust to outliers. It&rsquo;s possible to take the median instead of the mean &mdash; that&rsquo;s known as <a href="https://en.wikipedia.org/wiki/K-medians_clustering">k-medians clustering</a>. As usual, there are many variants of this algorithm for various use cases. Following are helper functions for Lloyd&rsquo;s algorithm. For clarity, I&rsquo;ve written <code>labelled_x</code> when we can expect <code>x</code> to be tuples of <code>(label,data)</code>.
         	</p>
 <pre><code>def init_centroids(labelled_data,k):
     """
@@ -161,7 +161,7 @@ def mean_cluster(labelled_cluster):
     mean_of_points = sum_of_points * (1.0 / len(labelled_cluster))
     return mean_of_points</code></pre>
     		<p>
-    		The main parts of Lloyd's algorithm: forming clusters and moving centroids.
+    		The main parts of Lloyd&rsquo;s algorithm: forming clusters and moving centroids.
     		</p>
 <pre><code>def form_clusters(labelled_data, unlabelled_centroids):
     """
@@ -198,7 +198,7 @@ def move_centroids(labelled_clusters):
         new_centroids.append(mean_cluster(cluster))
     return new_centroids</code></pre>
     		<p>
-    		We want to repeat the forming and moving steps until the algorithm converges &mdash; when the movements of centroids are arbitrarily small. In this case, I've chosen to determine convergence by when the movements are zero. This takes longer depending on the size of $k$, so some implementations don&rsquo;t wait for convergence, and instead run some sufficiently large number of iterations (e.g. 100) to get appropriately close.
+    		We want to repeat the forming and moving steps until the algorithm converges &mdash; when the movements of centroids are arbitrarily small. In this case, I&rsquo;ve chosen to determine convergence by when the movements are zero. This takes longer depending on the size of $k$, so some implementations don&rsquo;t wait for convergence, and instead run some sufficiently large number of iterations (e.g. 100) to get appropriately close.
     		</p>
 <pre><code>def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centroids):
     """
@@ -232,7 +232,7 @@ def move_centroids(labelled_clusters):
     final_clusters, final_centroids = repeat_until_convergence(labelled_data, clusters, centroids)
     return final_clusters, final_centroids</code></pre>
     		<p>
-    		However, our centroids aren't labelled yet. We'll write a function to label each centroid with the most common label in its cluster. 
+    		However, our centroids aren&rsquo;t labelled yet. We&rsquo;ll write a function to label each centroid with the most common label in its cluster. 
     		</p>
 <pre><code>def assign_labels_to_centroids(clusters, centroids):
     """
@@ -248,8 +248,8 @@ def move_centroids(labelled_clusters):
         labelled_centroids.append(centroid)
     return labelled_centroids</code></pre>
     		<p>
-    		But we're not just interested in clustering the known data; we want to classify unknown data using those clusters!
-    		So let's write a function to classify an unlabelled digit, and let's write another function to classify many of them, so we can get an <i>error rate</i> that tells us about the performance of our algorithm.
+    		But we&rsquo;re not just interested in clustering the known data; we want to classify unknown data using those clusters!
+    		So let&rsquo;s write a function to classify an unlabelled digit, and let&rsquo;s write another function to classify many of them, so we can get an <i>error rate</i> that tells us about the performance of our algorithm.
     		</p>
 <pre><code>def classify_digit(digit, labelled_centroids):
     """
@@ -277,7 +277,7 @@ def get_error_rate(labelled_digits,labelled_centroids):
     error_rate = classified_incorrect / float(len(digits))
     return error_rate</code></pre>
     		<p>
-    		We're done implementing this tool. Let's test it out. We'll try clustering with k=16, and we'll display the 16 centroids.
+    		We&rsquo;re done implementing this tool. Let&rsquo;s test it out. We&rsquo;ll try clustering with k=16, and we&rsquo;ll display the 16 centroids.
     		</p>
 <pre><code>k = 16
 clusters, centroids = cluster(training, k)
@@ -313,10 +313,10 @@ for (label,digit) in labelled_centroids:
 	</tr>
 </table>
 		<p>
-		We see a few interesting results. Most people tend to draw the figure eight the same way, so there's only one centroid for it. On the other hand, there are three centroids (and clusters) for the figure zero, even though they don't look very different. The centroids for the figure two reflect that some people draw their twos with a kind of cursive loop, and some people draw their twos without a loop. Notice that there's no centroid for the figure five. Thus, we never classify any digit as a five.
+		We see a few interesting results. Most people tend to draw the figure eight the same way, so there&rsquo;s only one centroid for it. On the other hand, there are three centroids (and clusters) for the figure zero, even though they don&rsquo;t look very different. The centroids for the figure two reflect that some people draw their twos with a kind of cursive loop, and some people draw their twos without a loop. Notice that there&rsquo;s no centroid for the figure five. Thus, we never classify any digit as a five.
 		</p>
 		<p>
-		We can now iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd's algorithm's time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
+		We can now iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
 		</p>
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
 for k in range(5,25):
@@ -335,7 +335,7 @@ plt.xlabel("Number of Clusters")
 plt.ylabel("Error Rate")
 plt.show()</code></pre>
     <img class="imgcenter" src="../images/kmeans-mnist/error_rates.png"></img>
-Let's zoom in on the left side of the image:
+Let&rsquo;s zoom in on the left side of the image:
     <img class="imgcenter" src="../images/kmeans-mnist/error_rate_fit_labels_to_clusters.png"></img>
     		<p>
 			We can see that increasing the number of clusters steadily improves the error rate, and that with k=100, we get an error rate around 0.12. It is conceivable that we could further decrease error with larger k. We can also make many heuristic improvements to k-means: for example, the weakness of randomly selecting initial centroids, which may lead to suboptimal clusterings, is addressed by the <a href="https://en.wikipedia.org/wiki/K-means%2B%2B">k-means++</a> algorithm.
@@ -349,7 +349,7 @@ Let's zoom in on the left side of the image:
 			<br>
 			<sh>Acknowledgements</sh>
 			<p>
-				This project was inspired by a homework assignment in John Lafferty's <a href="https://galton.uchicago.edu/~lafferty/37601-syllabus.pdf">Large-Scale Data Analysis</a> course that I took at UChicago in the Spring of 2015. I collaborated with Elliott Ding on that assignment. In the class, we used Apache Spark and a map-reduce framework on AWS to take advantage of parallelization. To make the algorithm more accessible, I've rewritten the code for this article to not use distributed systems.
+				This project was inspired by a homework assignment in John Lafferty&rsquo;s <a href="https://galton.uchicago.edu/~lafferty/37601-syllabus.pdf">Large-Scale Data Analysis</a> course that I took at UChicago in the Spring of 2015. I collaborated with Elliott Ding on that assignment. In the class, we used Apache Spark and a map-reduce framework on AWS to take advantage of parallelization. To make the algorithm more accessible, I&rsquo;ve rewritten the code for this article to not use distributed systems.
 			</p>
 
 			<sh>Download</sh>
@@ -359,7 +359,7 @@ Let's zoom in on the left side of the image:
 			
 			<sh>Notes</sh>
 			<p>
-			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd's algorithm converges only to a local optimum. Lloyd's algorithm does not guarantee finding a global optimum. This can be a critical pitfall.
+			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd&rsquo;s algorithm converges only to a local optimum. Lloyd&rsquo;s algorithm does not guarantee finding a global optimum. This can be a critical pitfall.
 			</p>
 			<p>
 			<a href="#note1" name="footnote1">[1]</a> Using more clusters raises the perennial danger of <a href="https://en.wikipedia.org/wiki/Overfitting">overfitting</a>.
