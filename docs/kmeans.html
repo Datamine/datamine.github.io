@@ -225,7 +225,7 @@ def move_centroids(labelled_clusters):
     		</p>
 <pre><code>def cluster(labelled_data, k):
     """
-    runs k-means clustering on the data. It is assumed that the data is labelled.
+    runs k-means clustering on the data. 
     """
     centroids = init_centroids(labelled_data, k)
     clusters = form_clusters(labelled_data, centroids)
@@ -236,8 +236,8 @@ def move_centroids(labelled_clusters):
     		</p>
 <pre><code>def assign_labels_to_centroids(clusters, centroids):
     """
-    Assigns a digit label to each centroid.
-    NOTE: this function depends on clusters and centroids being in the same order.
+    Assigns a digit label to each centroid. Note: This function
+     depends on clusters and centroids being in the same order.
     """
     labelled_centroids = []
     for i in range(len(clusters)):
@@ -254,7 +254,7 @@ def move_centroids(labelled_clusters):
 <pre><code>def classify_digit(digit, labelled_centroids):
     """
     given an unlabelled digit represented by a vector and a list of
-    labelled centroids [(label,vector)], determine the closest centroid
+    labelled centroids [(label,vector)], determine closest centroid
     and thus classify the digit.
     """
     mindistance = float("inf")
@@ -271,13 +271,13 @@ def get_error_rate(labelled_digits,labelled_centroids):
     """
     classified_incorrect = 0
     for (label,digit) in labelled_digits:
-        classified_label = classify_digit(digit, labelled_centroids)
+        classified_label =classify_digit(digit, labelled_centroids)
         if classified_label != label:
             classified_incorrect +=1
     error_rate = classified_incorrect / float(len(digits))
     return error_rate</code></pre>
     		<p>
-    		We're done implementing this tool. Let's test it out. We'll try clustering with $k=16$, and we'll display the 16 centroids.
+    		We're done implementing this tool. Let's test it out. We'll try clustering with $k$=16, and we'll display the 16 centroids.
     		</p>
 <pre><code>k = 16
 trained_clusters, trained_centroids = cluster(training, k)
@@ -312,6 +312,12 @@ for (label,digit) in labelled_centroids:
 		<td><img width="182px"  src="../images/kmeans-mnist/9_1.png"></td>
 	</tr>
 </table>
+		<p>
+		We see a few interesting results. Most people tend to draw the figure eight the same way, so there's only one centroid for it. On the other hand, there are three centroids (and clusters) for the figure zero, even though they don't look very different. The centroids for the figure two reflect that some people draw their twos with a kind of cursive loop, and some people draw their twos without a loop. Notice that there's no centroid for the figure five. Thus, we never classify any digit as a five.
+		</p>
+		<p>
+		We can now iterate over various values for $k$ to see how the k-means algorithm performs. 
+		</p>
 
 
 			FORMATTING: APOSTROPHES ETC
