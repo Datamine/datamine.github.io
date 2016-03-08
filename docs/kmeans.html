@@ -89,7 +89,7 @@ import matplotlib.pyplot as plt
 			<p>
 			Next, we write a function to read in the MNIST data.
 			</p>
-<pre><code class="python">def read_in_data(json_file):
+<pre><code class="python">def read_in_data(json_line):
     """
     to parse the digits file into tuples of 
     (labelled digit, numpy array of vector representation of digit)
@@ -104,7 +104,7 @@ import matplotlib.pyplot as plt
 <pre><code class="python"># Digits is a list of 60,000 tuples, 
 # each containing a labelled digit and its vector representation.
 with open("digits.base64.json","r") as f:
-    digits = map(parse, f.readlines())</code></pre>
+    digits = map(read_in_data, f.readlines())</code></pre>
     		<p>
     		Then we split the data into a <i>training</i> and a <i>validation</i> set. We&rsquo;ll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set, i.e. to assign labels to these datapoints. We can then check those inferred labels against the known labels to see how often the algorithm misclassifies a datapoint.
     		</p>
