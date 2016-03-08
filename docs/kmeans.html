@@ -77,7 +77,7 @@
 			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can run k-means clustering. Let&rsquo;s do it.
 			</p>
 			<p>
-			We start by importing all required libraries.
+			We start by importing all the libraries we will use.
 			</p>
 <pre><code class="python">import random
 from base64 import b64decode
@@ -106,7 +106,7 @@ import matplotlib.pyplot as plt
 with open("digits.base64.json","r") as f:
     digits = map(parse, f.readlines())</code></pre>
     		<p>
-    		Then we split the data into a <i>training</i> and a <i>validation</i> set. We'll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set. We can then check those classifications against the labels to see how often the algorithm misclassifies a datapoint.
+    		Then we split the data into a <i>training</i> and a <i>validation</i> set. We'll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set, i.e. to assign labels to these datapoints. We can then check those inferred labels against the known labels to see how often the algorithm misclassifies a datapoint.
     		</p>
 <pre><code class="python"># pick a ratio for splitting the digits list 
 # into a training and a validation set.
@@ -198,7 +198,7 @@ def move_centroids(labelled_clusters):
         new_centroids.append(mean_cluster(cluster))
     return new_centroids</code></pre>
     		<p>
-    		We want to repeat the forming and moving steps until the algorithm converges &mdash; when the movements of centroids are arbitrarily small. In this case, I've chosen to determine convergence when the movements are zero. This takes longer depending on the size of $k$, so some implementations don&rsquo;t wait for convergence, and instead run some sufficiently large number of iterations (e.g. 100) to get appropriately close.
+    		We want to repeat the forming and moving steps until the algorithm converges &mdash; when the movements of centroids are arbitrarily small. In this case, I've chosen to determine convergence by when the movements are zero. This takes longer depending on the size of $k$, so some implementations don&rsquo;t wait for convergence, and instead run some sufficiently large number of iterations (e.g. 100) to get appropriately close.
     		</p>
 <pre><code>def repeat_until_convergence(labelled_data, labelled_clusters, unlabelled_centroids):
     """
