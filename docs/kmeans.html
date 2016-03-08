@@ -349,8 +349,91 @@ for (label,digit) in labelled_centroids:
 		In this set, we actually have a &ldquo;five&rdquo; centroid. Note that it&rsquo;s pretty messy &mdash; it seems that fives are drawn least consistently, so their centroid (average) is the least clear, and as we saw in the first set, they&rsquo;re apparently easily misclassified. Beyond that, though the two sets of centroids seem quite different, their error rates in classifying the validation set are not: the first set classifies with an error rate of 0.342, the second with an error rate of 0.304.
 		</p>
 		<p>
-		Now let us iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
+		Just to go into a bit more detail, let us look at classification at the level of an individual cluster. I used the following snippet of code to see which digits are classified into the &ldquo;two&rdquo; cluster:
 		</p>
+<pre><code>twos = []
+frequency = {x:0 for x in range(10)}
+
+for (label,digit) in validation:
+    inferred_label = classify_digit(digit, labelled_centroids)
+    if inferred_label==2:
+        twos.append(digit)
+        frequency[label] +=1</code></pre>
+        <p>
+        The result is strikingly good, with an extremely low error rate:
+        </p>
+        <table border="0" style="background-color:#FFFFFF;border-collapse:collapse;border:0px solid #FFCC00;color:#000000" cellpadding="3" cellspacing="3">
+        <tr>
+        <td>Digit</td>
+        <td>Frequency Count</td>
+        </tr>
+        
+        <tr>
+        <td>0</td>
+        <td>1</td>
+        </tr>
+        
+        <tr>
+        <td>1</td>
+        <td>2</td>
+        </tr>
+
+        <tr>
+        <td>2</td>
+        <td>1018</td>
+        </tr>
+
+        <tr>
+        <td>3</td>
+        <td>39</td>
+        </tr>
+
+        <tr>
+        <td>4</td>
+        <td>0</td>
+        </tr>
+
+        <tr>
+        <td>5</td>
+        <td>1</td>
+        </tr>
+
+        <tr>
+        <td>6</td>
+        <td>1</td>
+        </tr>
+
+        <tr>
+        <td>7</td>
+        <td>4</td>
+        </tr>
+
+        <tr>
+        <td>8</td>
+        <td>7</td>
+        </tr>
+
+
+        <tr>
+        <td>9</td>
+        <td>1</td>
+        </tr>
+        </table>
+		<p>
+		Now let us iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
+		</p>def classify_digit(digit, labelled_centroids):
+    """
+    given an unlabelled digit represented by a vector and a list of
+    labelled centroids [(label,vector)], determine closest centroid
+    and thus classify the digit.
+    """
+    mindistance = float("inf")
+    for (label, centroid) in labelled_centroids:
+        distance = np.linalg.norm(centroid - digit)
+        if distance < mindistance:
+            mindistance = distance
+            closest_centroid_label = label
+    return closest_centroid_label
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
 for k in range(5,25):
     clusters, centroids = cluster(training, k)
