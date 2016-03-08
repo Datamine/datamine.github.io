@@ -1,5 +1,8 @@
 Updates to *content* (i.e. projects or writing) after publication on www.johnloeber.com:
 
+march 7, 2016: hid the following project:
+					* filesystem analysis. pending rework or maybe i'll just leave it off the main page, it isn't very interesting.
+
 January 4, 2016: changed a few sentences in the smartphone article. changed it from pdf to html. 
 november 9, 2015: changed one or two sentences in the uber article.
 august 11, 2015: typo fix on uber. changed uber from pdf to html. some other word changes to the article.
