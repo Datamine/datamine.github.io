@@ -338,13 +338,14 @@ plt.show()</code></pre>
 Let's zoom in on the left side of the image:
     <img class="imgcenter" src="../images/kmeans-mnist/error_rate_fit_labels_to_clusters.png"></img>
     		<p>
-			We can see that increasing the number of clusters steadily improves the error rate, and that with k=100, we get an error rate around 0.12. It is conceivable that we could further decrease error with larger k, but our results thus far show that k-means clustering leaves something to be desired. <a href="http://yann.lecun.com/exdb/mnist/">Other techniques</a> &mdash; specifically, convolutional neural networks &mdash; regularly result in error rates below 0.01.
+			We can see that increasing the number of clusters steadily improves the error rate, and that with k=100, we get an error rate around 0.12. It is conceivable that we could further decrease error with larger k. We can also make many heuristic improvements to k-means: for example, the weakness of randomly selecting initial centroids, which may lead to suboptimal clusterings, is addressed by the <a href="https://en.wikipedia.org/wiki/K-means%2B%2B">k-means++</a> algorithm.
 			</p>
 			<p>
-			We can make many heuristic improvements to k-means: for example, the weakness of randomly selecting initial centroids, which may lead to suboptimal clusterings, is addressed by <a href="https://en.wikipedia.org/wiki/K-means%2B%2B">k-means++</a>. Nonetheless, despite many incremental improvements, it is rare to find a dataset in which k-means is competitive with more advanced machine learning techniques. 
+			 Nonetheless, despite many possible improvements, it is rare to find a dataset in which k-means is competitive with more advanced machine learning techniques. <a href="http://yann.lecun.com/exdb/mnist/">convolutional neural networks</a> can classify the MNIST data with error rates below 0.01.
 			</p>
 			<p>
 			However, for purposes of education, k-means clustering is a great way to introduce machine learning. It is technically reasonably accessible, and it illustrates in broad strokes how machine learning and data mining techniques are used in practice.
+			</p>
 			<br>
 			<sh>Acknowledgements</sh>
 			<p>
