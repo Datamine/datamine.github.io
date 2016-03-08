@@ -318,7 +318,13 @@ for (label,digit) in labelled_centroids:
 		<p>
 		We can now iterate over various values for $k$ to see how the k-means algorithm performs. 
 		</p>
-
+<pre><code>error_rates = {x:None for x in range(5,25)+[100]}
+for k in range(5,25):
+    trained_clusters, trained_centroids = cluster(training, k)
+    labelled_centroids = assign_labels_to_centroids(trained_clusters, trained_centroids)
+    error_rate = get_error_rate(validation, labelled_centroids)
+    error_rates[k] = error_rate</code></pre>
+    <img class="imgcenter" src="../images/kmeans-mnist/error_rates.png"></img>
 
 			FORMATTING: APOSTROPHES ETC
 
