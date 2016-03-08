@@ -321,7 +321,7 @@ for (label,digit) in labelled_centroids:
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
 for k in range(5,25):
     clusters, centroids = cluster(training, k)
-    label_centroids = assign_labels_to_centroids(clusters, centroids)
+    label_centroids =assign_labels_to_centroids(clusters,centroids)
     error_rate = get_error_rate(validation, label_centroids)
     error_rates[k] = error_rate
 
