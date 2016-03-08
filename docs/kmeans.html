@@ -316,14 +316,24 @@ for (label,digit) in labelled_centroids:
 		We see a few interesting results. Most people tend to draw the figure eight the same way, so there's only one centroid for it. On the other hand, there are three centroids (and clusters) for the figure zero, even though they don't look very different. The centroids for the figure two reflect that some people draw their twos with a kind of cursive loop, and some people draw their twos without a loop. Notice that there's no centroid for the figure five. Thus, we never classify any digit as a five.
 		</p>
 		<p>
-		We can now iterate over various values for $k$ to see how the k-means algorithm performs. 
+		We can now iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd's algorithm's time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
 		</p>
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
 for k in range(5,25):
     trained_clusters, trained_centroids = cluster(training, k)
     labelled_centroids = assign_labels_to_centroids(trained_clusters, trained_centroids)
     error_rate = get_error_rate(validation, labelled_centroids)
-    error_rates[k] = error_rate</code></pre>
+    error_rates[k] = error_rate
+
+# Show the error rates
+x_axis = sorted(error_rates.keys())
+y_axis = [error_rates[key] for key in x_axis]
+plt.figure()
+plt.title("Error Rate by Number of Clusters")
+plt.scatter(x_axis, y_axis)
+plt.xlabel("Number of Clusters")
+plt.ylabel("Error Rate")
+plt.show()</code></pre>
     <img class="imgcenter" src="../images/kmeans-mnist/error_rates.png"></img>
 
 			FORMATTING: APOSTROPHES ETC
@@ -342,6 +352,9 @@ for k in range(5,25):
 			<sh>Notes</sh>
 			<p>
 			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd's algorithm converges only to a local optimum. Lloyd's algorithm does not guarantee finding a global optimum. This can be a critical pitfall.
+			</p>
+			<p>
+			<a href="#note1" name="footnote1">[1]</a> Using more clusters raises the perennial danger of <a href="https://en.wikipedia.org/wiki/Overfitting">overfitting</a>.
 			</p>
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
