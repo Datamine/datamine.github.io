@@ -67,7 +67,7 @@
 			This is the essence of clustering. We take some labelled data &mdash; like heights and weights of animals, where each animal is labeled as either a penguin or an elephant. We use an algorithm to figure out which datapoints belong to which (weight, height) clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label. 
 			</p>
 			<p>
-			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd&rsquo;s Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small>
+			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd&rsquo;s Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> We do this in order to minimize the total sum of distances from every centroid to the points in its cluster &mdash; that is our metric for how well the clusters split up the data.
 			</p>
 			<p>
 			We&rsquo;ll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
@@ -578,7 +578,7 @@ Let&rsquo;s zoom in on the left side of the image:
 			
 			<sh>Notes</sh>
 			<p>
-			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd&rsquo;s algorithm converges only to a local optimum. Lloyd&rsquo;s algorithm does not guarantee finding a global optimum. This can be a critical pitfall.
+			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd&rsquo;s algorithm converges only to a local optimum. Lloyd&rsquo;s algorithm does not guarantee finding a global optimum. This can be a critical pitfall. For this reason, different runs of the k-means algorithm with the same settings will often result in different clusterings. 
 			</p>
 			<p>
 			<a href="#note1" name="footnote1">[1]</a> Using more clusters raises the perennial danger of <a href="https://en.wikipedia.org/wiki/Overfitting">overfitting</a>.
