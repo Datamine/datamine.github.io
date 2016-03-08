@@ -346,10 +346,10 @@ for (label,digit) in labelled_centroids:
 	</tr>
 </table>
 		<p>
-		In this set, we actually have a &ldquo;five&rdquo; centroid. Though the two sets of centroids seem quite different, their error rates in classifying the validation set are not: the first set classifies with an error rate of 0.342, the second with an error rate of 0.304. Out of interest, let's check how this error rates break down. We will now look at each centroid, and 
+		In this set, we actually have a &ldquo;five&rdquo; centroid. Note that it&rsquo;s pretty messy &mdash; it seems that fives are drawn least consistently, so their centroid (average) is the least clear, and as we saw in the first set, they&rsquo;re apparently easily misclassified. Beyond that, though the two sets of centroids seem quite different, their error rates in classifying the validation set are not: the first set classifies with an error rate of 0.342, the second with an error rate of 0.304.
 		</p>
 		<p>
-		We can now iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
+		Now let us iterate over various values for $k$, and find how the performance improves as we use more clusters.<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small> However, since Lloyd&rsquo;s algorithm&rsquo;s time complexity is polynomial in $k$ and I did not constrain the number of iterations, I only ran one trial for a large $k$ (of 100).
 		</p>
 <pre><code>error_rates = {x:None for x in range(5,25)+[100]}
 for k in range(5,25):
