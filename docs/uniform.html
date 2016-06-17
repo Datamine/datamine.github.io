@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
+		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
+		
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/solarized-light.min.css">
+		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
+    	<script>hljs.initHighlightingOnLoad();</script>
+
+
+		<style type="text/css">
+		<!--
+			  .blockfont{ 
+					font-variant: small-caps;
+					text-decoration:none;
+					color:#000000; }
+		-->
+		</style>
+
+		<script type="text/x-mathjax-config">
+		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+		</script>
+		<script type="text/javascript" async
+		  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+		</script>
+
+	
+		<title>
+			John Loeber: Uniform Distribution
+		</title>
+	</head>
+
+	<body>
+		<div style="width:751px;height:20px;background-color:#FFFFFF"></div>
+			<div class="siteimg"></div>
+			<div class="siteheader"> John Loeber </div>
+		<div style="height:10px;width:490px"></div>
+		
+		<div style="width:167px;height:120px;float:left">
+			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
+			<div style="width:10px;height:120px;float:right"></div>
+		</div>
+
+		<div style="width:167px;height:120px;float:left">
+			<a href="../writing.html"><div class="block" id="linkblock"><span class="blockfont">Writing</span></div></a>
+			<div style="width:10px;height:120px;float:right"></div>
+		</div>
+
+		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
+			
+		<div class="main">
+			<br>
+			<atitle>Maximum Likelihood Estimators <br>vs. Method of Moments</atitle></td>
+            <br><br>
+            <sh>Abstract</sh>
+            <p>
+            I show that for the uniform distribution, parameter estimation via the Method of Moments outperforms Maximum Likelihood Estimation for samples smaller than five datapoints. To illustrate this, I use both a proof and a simulation.
+            </p>
+            <hr>
+			<p>
+		    In statistics, the <a href="https://en.wikipedia.org/wiki/Uniform_distribution_%28continuous%29">uniform distribution</a> is a probability distribution on an interval $[a,b]$ in which all outcomes are equally likely. In particular, the probability of any outcome $x$ is $f(x) = \frac{1}{b-a}$. As a consequence, any uniform distribution is characterized entirely by its interval. We denote such a distribution by $U(a,b)$.
+            </p>
+            <p>Let's suppose we have the distribution $U(0,\theta)$ and we sample $n$ datapoints from it: $X_1, \ldots, X_n$. Further, suppose we don't know what $\theta$ is, and want to use our datapoints to estimate $\theta$.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> We can then use the theory of <a href="https://en.wikipedia.org/wiki/Maximum_likelihood">Maximum Likelihood Estimators (MLE)</a> to estimate $\theta$. We quickly find the MLE for $\theta$:
+            </p>
+            <p>
+            In the uniform distribution, all outcomes are equiprobable with probability $f(x) = \frac{1}{b-a}$. In our case, since $a=0$, we have $f(x) = \frac{1}{\theta}$ for all datapoints. Then, since the datapoints represent independent events, we can multiply their probabilities to find the overall probability of obtaining this set of datapoints, for any given $\theta$. This creates the Likelihood Function $L$. We seek to find a $\theta$ that maximizes $L$. This $\theta$ is the value that is most likely to have yielded the datapoints we saw.
+$$L(\theta) = f(X_1) \times f(X_2) \times \ldots \times f(X_n) = \prod_{i=1}^n \frac{1}{\theta} = \theta^{-n}$$
+
+We then think about where $\theta^{-n}$ is maximized. To do this, we take the derivative:
+$$\frac{d}{d\theta} L(\theta) = \frac{d}{d\theta} \theta^{-n} = -n\theta^{-n+1}$$
+And since $n$, the number of datapoints, is necessarily greater than zero, it must be that $\frac{d}{d\theta} < 0$, 
+which means that $L(\theta)$ is a decreasing function &mdash; i.e. the larger our $\theta$, the smaller the probability that this is the true $\theta$. Consequently, our best estimate for $\theta$ makes it as small as possible, and since $\theta$ must be at least as large as all the datapoints we found, our best estimate for $\theta$ is the largest datapoint we sampled. This is the MLE, and we denote it by $\theta_L = \max(X_1 \ldots X_n)$.
+			</p>
+            <p>
+            Intuitively, this makes sense: if you have, for example, a million datapoints distributed uniformly on an interval, you would expect that your maximum datapoint gets very close to the interval's upper bound.
+            In fact, we can get a precise measure of how far we can expect $\theta_L$ to be from the upper bound &mdash; in other words, how imprecise we expect this estimator to be &mdash; by computing the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">Mean Squared Error</a>. 
+
+
+ But what if your sample is very small? If you only have one or two datapoints, it is intuitively unlikely that these datapoints are close to the upper bound. It turns out that we can get a better estimate using the <a href="https://en.wikipedia.org/wiki/Method_of_moments_%28statistics%29">Method of Moments Estimator (MME)</a>. 
+            </p>
+            <p>
+            
+            </p>
+			<br>
+			<sh>Download</sh>
+			<p>
+				A GitHub repository containing the iPython notebook, dataset, etc. is available <a href="https://github.com/Datamine/MNIST-K-Means-Clustering">here</a>.
+			</p>
+			
+			<sh>Notes</sh>
+			<p>
+			<a href="#note0" name="footnote0">[0]</a> Note that this is without loss of generality. We can use the same method to find $a$ for $U(a,b)$, or even both $a$ and $b$. In our example, we set $a=0$ only for simplicity in doing the arithmetic.
+			<p>
+			<a href="#note1" name="footnote1">[1]</a> Using more clusters raises the perennial danger of <a href="https://en.wikipedia.org/wiki/Overfitting">overfitting</a>.
+			</p>
+			<div class="notice">
+				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+			</div>
+		</div>
+	</body>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-74324013-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</html>
