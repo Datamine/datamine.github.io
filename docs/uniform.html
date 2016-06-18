@@ -56,32 +56,69 @@
             <br><br>
             <sh>Abstract</sh>
             <p>
-            I show that for the uniform distribution, parameter estimation via the Method of Moments outperforms Maximum Likelihood Estimation for samples smaller than five datapoints. To illustrate this, I use both a proof and a simulation.
+            I show that for the uniform distribution, parameter estimation via the Method of Moments outperforms Maximum Likelihood Estimation for samples smaller than five datapoints.
+            To illustrate this, I use both a proof and a simulation.
             </p>
-            <hr>
-			<p>
-		    In statistics, the <a href="https://en.wikipedia.org/wiki/Uniform_distribution_%28continuous%29">uniform distribution</a> is a probability distribution on an interval $[a,b]$ in which all outcomes are equally likely. In particular, the probability of any outcome $x$ is $f(x) = \frac{1}{b-a}$. As a consequence, any uniform distribution is characterized entirely by its interval. We denote such a distribution by $U(a,b)$.
-            </p>
-            <p>Let's suppose we have the distribution $U(0,\theta)$ and we sample $n$ datapoints from it: $X_1, \ldots, X_n$. Further, suppose we don't know what $\theta$ is, and want to use our datapoints to estimate $\theta$.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> We can then use the theory of <a href="https://en.wikipedia.org/wiki/Maximum_likelihood">Maximum Likelihood Estimators (MLE)</a> to estimate $\theta$. We quickly find the MLE for $\theta$:
+			<sh>Proof</sh>
+            <p>
+            Suppose we have a random variable $X \sim \mathrm{Unif}(0,\theta)$ where $\theta$ is unknown. We sample $n$ independent and identically distributed datapoints, 
+            call them $X_1, X_2, \ldots, X_n$. We want to estimate $\theta$. 
+            For a uniform distribution on an interval $[a,b]$, all outcomes share the same probability: $f(x) = \frac{1}{b-a}$, and in our case that's $f(x) = \frac{1}{\theta}$.
             </p>
             <p>
-            In the uniform distribution, all outcomes are equiprobable with probability $f(x) = \frac{1}{b-a}$. In our case, since $a=0$, we have $f(x) = \frac{1}{\theta}$ for all datapoints. Then, since the datapoints represent independent events, we can multiply their probabilities to find the overall probability of obtaining this set of datapoints, for any given $\theta$. This creates the Likelihood Function $L$. We seek to find a $\theta$ that maximizes $L$. This $\theta$ is the value that is most likely to have yielded the datapoints we saw.
-$$L(\theta) = f(X_1) \times f(X_2) \times \ldots \times f(X_n) = \prod_{i=1}^n \frac{1}{\theta} = \theta^{-n}$$
+            We want to estimate $\theta$.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> The standard tool is to use the 
+            <a href="https://en.wikipedia.org/wiki/Maximum_likelihood">Maximum Likelihood Estimator (MLE)</a>. Since the datapoints are independent, 
+            we multiply their probabilities to find the overall probability of obtaining this set of datapoints, 
+            for a given $\theta$. This creates the Likelihood Function $L$, which tells us how probable it is that a given $\theta$ resulted in the observation of these datapoints. 
+            We seek to find a $\theta$ that maximizes $L$.
 
-We then think about where $\theta^{-n}$ is maximized. To do this, we take the derivative:
-$$\frac{d}{d\theta} L(\theta) = \frac{d}{d\theta} \theta^{-n} = -n\theta^{-n+1}$$
-And since $n$, the number of datapoints, is necessarily greater than zero, it must be that $\frac{d}{d\theta} < 0$, 
-which means that $L(\theta)$ is a decreasing function &mdash; i.e. the larger our $\theta$, the smaller the probability that this is the true $\theta$. Consequently, our best estimate for $\theta$ makes it as small as possible, and since $\theta$ must be at least as large as all the datapoints we found, our best estimate for $\theta$ is the largest datapoint we sampled. This is the MLE, and we denote it by $\theta_L = \max(X_1 \ldots X_n)$.
-			</p>
+            $$L(\theta) = f(X_1) f(X_2) \ldots f(X_n) = \prod_{i=1}^n \frac{1}{\theta} = \theta^{-n}$$
+            
+            We then think about where $\theta^{-n}$ is maximized. To do this, we take the derivative:
+
+            $$\frac{d}{d\theta} L(\theta) = \frac{d}{d\theta} \theta^{-n} = -n\theta^{-n+1}$$
+
+            Since $n$, the number of datapoints, is necessarily greater than zero, it must be that $\frac{d}{d\theta} < 0$.
+            Thus, $L(\theta)$ is a decreasing function, i.e. the larger our estimated $\theta$, the smaller the probability that it yielded these datapoints.
+            Consequently, our best estimate for $\theta$ makes it as small as possible, and since $\theta$ must be at least as large as all the datapoints observed, 
+            our best estimate for $\theta$ is the largest datapoint we sampled. This is the MLE, and we denote it by $\theta_L = \max(X_1 \ldots X_n)$.
             <p>
-            Intuitively, this makes sense: if you have, for example, a million datapoints distributed uniformly on an interval, you would expect that your maximum datapoint gets very close to the interval's upper bound.
-            In fact, we can get a precise measure of how far we can expect $\theta_L$ to be from the upper bound &mdash; in other words, how imprecise we expect this estimator to be &mdash; by computing the <a href="https://en.wikipedia.org/wiki/Mean_squared_error">Mean Squared Error</a>. 
+            We can measure how far we can expect $\theta_L$ to be from the true $\theta$, or in other words, how precise we expect this estimator to be, by computing the
+            <a href="https://en.wikipedia.org/wiki/Mean_squared_error">Mean Squared Error (MSE)</a>. It is known that $\mathrm{MSE}(\theta_L) = \mathrm{Var}(\theta_L) + \mathrm{Bias}(\theta_L)^2$.
+            </p>
+            <p>
+            To compute the MSE, we treat $\theta_L$ as a random variable. We find its pdf by computing the cdf and taking the derivative. 
+            Note first that the cdf of the uniform distribution is given by $p(X_i < y) = \frac{y}{\theta}$ for $0 < y < \theta$, where $X_i$ is sampled from $\mathrm{Unif}(0,\theta)$.
+            \begin{align*}p(\theta_L < y) &= p(\max(X_1,\ldots,X_n) < y) \\
+                                          &= p(X_1 < y) p(X_2 < y)  \ldots p(X_n < y) \\
+                                          &= \prod_{i=1}^n \frac{y}{\theta} \\
+                                          &= \left(\frac{y}{\theta}\right)^n \\
+            \frac{dp(\theta_L < y)}{dy} &= \frac{ny^{n-1}}{\theta^n} \\
+            \therefore f(\theta_L|\theta) &= \begin{cases}
+                                        \frac{n\theta_L^{n-1}}{\theta^n} \;\quad 0 < y < \theta
+                                        \\
+                                        0 \;\quad\quad\;\; \text{otherwise}
+                                        \end{cases}
+            \end{align*}
+            We then compute expectations and, in turn, variance of $\theta_L$ and its <a href="https://en.wikipedia.org/wiki/Bias_of_an_estimator">bias</a>. 
+            It is at this point that I offer you an apology for the potentially confusing notation of $\theta_L$ and $\theta$. Remember that $\theta$ is 
+            the true, but unknown value of the parameter of the distribution, and $\theta_L$ is our Maximum Likelihood Estimate for it.
+            $$E(\theta_L) = \int_0^\theta \theta_L \times \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta}{n+1}$$
+            $$E(\theta_L^2) = \int_0^\theta \theta_L^2 \times \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta^2}{n+2}$$
+            $$\mathrm{Var}(\theta_L) = E(\theta_L^2) - E(\theta_L)^2 = \frac{n\theta^2}{(n+1)^2(n+2)}$$
+            $$\mathrm{Bias}(\theta_L) = E(\theta_L) - \theta = \frac{n\theta}{n+1} - \theta = - \frac{\theta}{n+1}$$
+            $$\mathrm{MSE}(\theta_L) = \frac{n\theta^2}{(n+1)^2(n+2)} - \frac{\theta}{n+1} = \frac{2\theta^2}{(n+1)(n+2)}$$
+            </p>
+            <p>
+            
+            </p>
 
 
  But what if your sample is very small? If you only have one or two datapoints, it is intuitively unlikely that these datapoints are close to the upper bound. It turns out that we can get a better estimate using the <a href="https://en.wikipedia.org/wiki/Method_of_moments_%28statistics%29">Method of Moments Estimator (MME)</a>. 
             </p>
             <p>
-            
+            Intuitively, this makes sense: if you have, for example, a million datapoints distributed uniformly on an interval, you would expect that your maximum datapoint gets very close to the interval's upper bound.
+            In fact, we
             </p>
 			<br>
 			<sh>Download</sh>
