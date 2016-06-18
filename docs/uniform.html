@@ -103,35 +103,86 @@
             We then compute expectations and, in turn, variance of $\theta_L$ and its <a href="https://en.wikipedia.org/wiki/Bias_of_an_estimator">bias</a>. 
             It is at this point that I offer you an apology for the potentially confusing notation of $\theta_L$ and $\theta$. Remember that $\theta$ is 
             the true, but unknown value of the parameter of the distribution, and $\theta_L$ is our Maximum Likelihood Estimate for it.
-            $$E(\theta_L) = \int_0^\theta \theta_L \times \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta}{n+1}$$
-            $$E(\theta_L^2) = \int_0^\theta \theta_L^2 \times \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta^2}{n+2}$$
+            $$E(\theta_L) = \int_0^\theta \theta_L \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta}{n+1}$$
+            $$E(\theta_L^2) = \int_0^\theta \theta_L^2 \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta^2}{n+2}$$
             $$\mathrm{Var}(\theta_L) = E(\theta_L^2) - E(\theta_L)^2 = \frac{n\theta^2}{(n+1)^2(n+2)}$$
             $$\mathrm{Bias}(\theta_L) = E(\theta_L) - \theta = \frac{n\theta}{n+1} - \theta = - \frac{\theta}{n+1}$$
-            $$\mathrm{MSE}(\theta_L) = \frac{n\theta^2}{(n+1)^2(n+2)} - \frac{\theta}{n+1} = \frac{2\theta^2}{(n+1)(n+2)}$$
+            $$\mathrm{MSE}(\theta_L) = \frac{n\theta^2}{(n+1)^2(n+2)} + \frac{\theta^2}{(n+1)^2} = \frac{2\theta^2}{(n+1)(n+2)}$$
             </p>
             <p>
+            Now we repeat this process for the <a href="https://en.wikipedia.org/wiki/Method_of_moments_%28statistics%29">Method of Moments Estimator (MME)</a>. 
+            We obtain the first moment, the expectation of the uniform density, by:
+
+            $$E(X_i) = \int_0^\theta x \frac{1}{\theta}dx = \frac{\theta}{2}$$
+
+            Whereby $\theta = 2E(X_i)$.  We use $\bar X$ to denote the mean of our sample, i.e. 
+
+            $$\bar X = \frac{1}{n}\left(X_1 + \ldots + X_n \right)$$
+
+            Then, by <a href="https://en.wikipedia.org/wiki/Expected_value#Linearity">linearity of expectation</a>, we have that:
+
+            \begin{align*}
+            E(\bar X)   &= E(\frac{1}{n} (X_1 + \ldots + X_n)) \\
+                        &= \frac{1}{n} E(X_1 + \ldots X_n) \\
+                        &= \frac{1}{n} \left( E(X_1) + \ldots + E(X_n)\right)\\
+                        &= \frac{1}{n} \left(n E(X_i)\right) \\
+                        &= E(X_i)\\
+                        &= \frac{\theta}{2}\\
+            \end{align*}
+            It is key that the samples $X_i$ are i.i.d. so $E(X_1) = E(X_2) = \ldots = E(X_n) = E(X_i)$.
+            \begin{align*}
+            E(\theta_M) &= E(2 \bar X) \\
+                        &= 2 E(\bar X) \\
+                        &= \theta
+            \end{align*}
+            Thus, $\theta_M$ is an unbiased estimator: $\mathrm{Bias}(\theta_M) = E(\theta_M) - \theta = 0$.
+            Next, we compute the variance. Again, we can use linearity.
+
+            \begin{align*}
+                E(X_i^2) &= \int_0^\theta x^2 \frac{1}{\theta}dx = \frac{\theta^2}{3} \\
+                \mathrm{Var}(X_i) &= E(X_i^2) - E(X_i)^2 \\
+                                  &= \frac{\theta^2}{12} \\
+                \mathrm{Var}(\bar X) &= \frac{1}{n}\mathrm{Var}(X_i) \\
+                                     &= \frac{\theta^2}{12n} \\
+                \mathrm{Var}(\theta_M) &= \mathrm{Var}(2\bar X) \\
+                                       &= 4\mathrm{Var}(\bar X) \\
+                                       &= \frac{\theta^2}{3n}
+            \end{align*}
             
+            Then we obtain the MSE:
+            $$\mathrm{MSE}(\theta_M) = \mathrm{Var}(\theta_M) + \mathrm{Bias}(\theta_M)^2 = \frac{\theta^2}{3n}$$
+            </p>
+            
+            <p>
+            All that is left is to compare the MSEs. We have:
+
+            \begin{align*}
+            \mathrm{MSE}(\theta_M) &= \frac{\theta^2}{3n} \\ 
+            \mathrm{MSE}(\theta_L) &= \frac{2\theta^2}{(n+1)(n+2)}
+            \end{align*}
+
+            The denominator for $\theta_M$ grows linearly in $n$, and the denominator for $\theta_L$ grows quadratically in $n$. It is thus clear that for large $n$, $\mathrm{MSE}(\theta_M) > \mathrm{MSE}(\theta_L)$. 
+            This is to be expected, since one of the defining characteristics of the MLE is that it is <a href="https://en.wikipedia.org/wiki/Maximum_likelihood#Properties">asymptotically efficient</a>.
+            However, if you plug in $n = 1$, for instance, then 
+
+
             </p>
 
 
- But what if your sample is very small? If you only have one or two datapoints, it is intuitively unlikely that these datapoints are close to the upper bound. It turns out that we can get a better estimate using the <a href="https://en.wikipedia.org/wiki/Method_of_moments_%28statistics%29">Method of Moments Estimator (MME)</a>. 
+ But what if your sample is very small? If you only have one or two datapoints, it is intuitively unlikely that these datapoints are close to the upper bound. It turns out that we can get a better estimate using the 
             </p>
+            <sh>Intuition</sh>
             <p>
             Intuitively, this makes sense: if you have, for example, a million datapoints distributed uniformly on an interval, you would expect that your maximum datapoint gets very close to the interval's upper bound.
             In fact, we
             </p>
 			<br>
-			<sh>Download</sh>
-			<p>
-				A GitHub repository containing the iPython notebook, dataset, etc. is available <a href="https://github.com/Datamine/MNIST-K-Means-Clustering">here</a>.
-			</p>
-			
 			<sh>Notes</sh>
 			<p>
-			<a href="#note0" name="footnote0">[0]</a> Note that this is without loss of generality. We can use the same method to find $a$ for $U(a,b)$, or even both $a$ and $b$. In our example, we set $a=0$ only for simplicity in doing the arithmetic.
-			<p>
-			<a href="#note1" name="footnote1">[1]</a> Using more clusters raises the perennial danger of <a href="https://en.wikipedia.org/wiki/Overfitting">overfitting</a>.
-			</p>
+			<a href="#note0" name="footnote0">[0]</a> Note that this is without loss of generality. 
+            We can use the same method to find $a$ for $U(a,b)$, or even both $a$ and $b$. 
+            In our example, we set $a=0$ only for simplicity in doing the arithmetic.
+            </p>
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>
