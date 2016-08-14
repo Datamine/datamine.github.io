@@ -5,7 +5,7 @@ function getCBSACode(){
     document.getElementById('cbsadesignation').innerHTML = "Searching...";
     $.ajax({
       type: "GET",
-      url: "https://fierce-sea-45041.herokuapp.com/:43163",
+      url: "https://fierce-sea-45041.herokuapp.com/",
       data: {"address":address},
       dataType: "jsonp",
       success: function(returndata)
