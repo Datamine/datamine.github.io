@@ -4,30 +4,21 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
-	    
+
         <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
 		<script language="JavaScript" type="text/javascript">
-		function ExpandCollapse(theDiv,theButton){ 
-			el = document.getElementById(theDiv); 
+		function ExpandCollapse(theDiv,theButton){
+			el = document.getElementById(theDiv);
 			button = document.getElementById(theButton)
 			if(el.style.display == 'none')
-			{ el.style.display = ''; 
+			{ el.style.display = '';
 			  button.innerHTML="(Click here to hide input text.)";}
-			else 
-			{ el.style.display = 'none'; 
-			  button.innerHTML="(Click here to show input text.)";} 
+			else
+			{ el.style.display = 'none';
+			  button.innerHTML="(Click here to show input text.)";}
 			return false; } </script>
-		
-	
+
+
 		<title>
 			John Loeber: Television
 		</title>
@@ -38,7 +29,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -50,15 +41,15 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 	<div class="main">
 		<br>
 	<atitle>Television 1950-2014 Episode Summary Dataset, with Analysis</atitle></td>
 	<br><br>
 	<sh>Abstract</sh>
-	<p>Wikipedia contains a large number of episode summaries of television shows that aired in the USA during the period 1950-2014. 
-	Scraping Wikipedia for this data yields in a powerful dataset of word frequencies by year, totaling over four million datapoints. 
-	Assuming a close relationship between a society and its televised content, analysis of this dataset enables one to make certain sociological 
+	<p>Wikipedia contains a large number of episode summaries of television shows that aired in the USA during the period 1950-2014.
+	Scraping Wikipedia for this data yields in a powerful dataset of word frequencies by year, totaling over four million datapoints.
+	Assuming a close relationship between a society and its televised content, analysis of this dataset enables one to make certain sociological
 	observations. This article presents the dataset, related analytical tools, as well as some informal results of exemplary analysis.</p>
 	<br>
 	<sh>Introduction</sh>
@@ -75,7 +66,7 @@
 	</p>
 	<p>
 	All of these episode summaries were written quite recently, since Wikipedia is only 13 years old. The benefit of this is that it is reasonable to assume
-	that these episode summaries generally use a homogeneous corpus of modern language, so that it is possible to meaningfully compare these texts by year. 
+	that these episode summaries generally use a homogeneous corpus of modern language, so that it is possible to meaningfully compare these texts by year.
 	The purpose of making comparisons between episode summary texts is to drive sociological or anthropological conclusions. This is possible, based on a chain of
 	two assumptions: that an episode summary actually corresponds closely to the content of the televised episode, and that general televised content macroscopically corresponds
 	sufficiently closely to that society's sentiments to change with a change in sentiment. Where the causality lies in that correspondence is unknown (does television reflect a society's interests, or does television
@@ -111,9 +102,9 @@ causes significant spread among the datapoints, such that this data may not be u
 From about 1975 onwards, we can discern a wavelike pattern in the datapoints: perhaps
 this reflects some sort of sociopolitical pattern of liberal/conservative reactions:
 a sexually liberal push, then a conservative pull back, etc. This wavelike pattern
-could be a consequence of any number of plausible reasons. 
-Humorously, I note that the most consistent peak in sexual index seems to have 
-occurred in the 90s, followed by a severe slump. Could it have been caused by a taboo following the Lewinsky scandal? 
+could be a consequence of any number of plausible reasons.
+Humorously, I note that the most consistent peak in sexual index seems to have
+occurred in the 90s, followed by a severe slump. Could it have been caused by a taboo following the Lewinsky scandal?
 Could it be a consequence of post-9/11 sorrow and a changed sociopolitical climate?
 </p>
 <p>Thus, the next <i>Frequencies</i>-type analysis uses <a href="../files/happydict.txt">this</a> dictionary, words commonly
@@ -137,7 +128,7 @@ attempts to track LGBTQ discussion on television:
 This looks more or less like what you would expect. Note the low datapoints in the mid-1980s: I assume that this reflects the HIV/AIDS scare. This movement is commensurate with the trough in the Television Sexuality Index, above.
 </p>
 <p>
-Another big question concerns the focus on violence in this society. Virtually all statistics indicate that the 
+Another big question concerns the focus on violence in this society. Virtually all statistics indicate that the
 world is continuously becoming a safer place. However, many people are under the (false) impression that the world is
 continuously becoming more dangerous. Let's see how this is reflected by television. This is yet another <i>Frequencies</i>-type
 analysis using <a href="../files/dangerdict.txt">this</a> dictionary:
@@ -152,7 +143,7 @@ From here on, this article is mostly a technical documentation of and usage guid
 	<br>
     <sh>Frequencies: Documentation</sh>
 	<p>
-	The script <code>getfrequencies.py</code> scrapes Wikipedia for all episode summaries, from which it computes word frequencies by year. The script <code>postprocess.py</code> 
+	The script <code>getfrequencies.py</code> scrapes Wikipedia for all episode summaries, from which it computes word frequencies by year. The script <code>postprocess.py</code>
     needs to be run afterwards to clean up the data. Then it is ready for analysis. The tool <code>analysis.py</code> can assist with the more obvious types of analyses. The dataset
     itself is a set of files labeled by year: &ldquo;1950&rdquo; through &ldquo;2014&rdquo;. Each file contains three lines. The first line is the dictionary of word frequencies. The
     second line is the total word count of that dictionary. The third line is the number of unique words in the dictionary. To give an example, this is what a dataset might look like:
@@ -168,22 +159,22 @@ From here on, this article is mostly a technical documentation of and usage guid
     <br>
     <sh>Frequencies: Implementation Details</sh>
 <p>
-    <i>If you just want to work with the datasets, then you don't need to read this section.</i> <br><br> <code>getfrequencies.py</code> is written using Python 2.7.6 and using the <code>collections</code>, 
-	<code>bs4</code> (BeautifulSoup), and <code>urllib2</code> libraries. It was written for use on a UNIX system, though it probably 
+    <i>If you just want to work with the datasets, then you don't need to read this section.</i> <br><br> <code>getfrequencies.py</code> is written using Python 2.7.6 and using the <code>collections</code>,
+	<code>bs4</code> (BeautifulSoup), and <code>urllib2</code> libraries. It was written for use on a UNIX system, though it probably
 	works on Windows, too (untested). Here's how it works:
 	<ol>
-	<li>It starts at <a href="http://en.wikipedia.org/wiki/Category:Television_seasons_by_year">Wikipedia's category of television seasons 
-	by year</a>. This page contains links to subcategories of television seasons for given years, such as 
-	<a href="http://en.wikipedia.org/wiki/Category:2002_television_seasons">2002 television seasons</a>, 
-	<a href="http://en.wikipedia.org/wiki/Category:1954_television_seasons">1954 television seasons</a>, 
+	<li>It starts at <a href="http://en.wikipedia.org/wiki/Category:Television_seasons_by_year">Wikipedia's category of television seasons
+	by year</a>. This page contains links to subcategories of television seasons for given years, such as
+	<a href="http://en.wikipedia.org/wiki/Category:2002_television_seasons">2002 television seasons</a>,
+	<a href="http://en.wikipedia.org/wiki/Category:1954_television_seasons">1954 television seasons</a>,
 	etc. It finds the links to all of these subcategories: one for each year.</li>
 	<br>
-	<li>Each of these subcategories lists and links to articles on all television show seasons that 
-	aired in a subcategory's respective year. The script finds all these links, and follows them. For 
-	example: the category <a href="http://en.wikipedia.org/wiki/Category:1990_television_seasons">1990 
+	<li>Each of these subcategories lists and links to articles on all television show seasons that
+	aired in a subcategory's respective year. The script finds all these links, and follows them. For
+	example: the category <a href="http://en.wikipedia.org/wiki/Category:1990_television_seasons">1990
 	television seasons</a> contains a link to <a href="http://en.wikipedia.org/wiki/The_Fresh_Prince_of_Bel-Air_(season_1)">The Fresh Prince of Bel-Air (Season 1)</a>.</li>
 	<br>
-	<li>Each of these <i>Television Show (Season n)</i> pages contains a <i>List of Episodes</i>, in which each episode is summarized. The script finds the list of episodes, parses the text 
+	<li>Each of these <i>Television Show (Season n)</i> pages contains a <i>List of Episodes</i>, in which each episode is summarized. The script finds the list of episodes, parses the text
         (removing all punctuation and other detritus),
         and adds word occurrences to that year's dictionary of word frequencies.</li>
 	<br>
@@ -193,17 +184,17 @@ From here on, this article is mostly a technical documentation of and usage guid
     Thus, it can be run at the command-line with <code>python getfrequencies.py y</code> or <code>python getfrequencies.py n</code>. When filtering stopwords, it draws on a file that is a list
     of stopwords, <code>stopwords-final</code>. This list comprises two lists of stopwords found <a href="http://norm.al/2009/04/14/list-of-english-stop-words/">here</a> and <a href="http://www.ranks.nl/stopwords/">here</a>. </p>
 
-	<p>As aforementioned, the output of <code>getfrequencies.py</code> is a set of files, &ldquo;1950&rdquo; through &ldquo;2014&rdquo;. However, these files tend to have 
-    some issues with Unicode representation. Essentially, some HTML ascii, like <code>&amp;nbsp;</code> is parsed into 
-	Unicode by BeautifulSoup, yielding the non-ascii character <code>\xc2\xa0</code>. Thus, some dictionary entries, like this one, are garbled: <code>'fianc\xc3\xa9e': 1</code>.</p> 
-	<p>Thankfully, this can be corrected (i.e. these unicode representations can be replaced with regular ascii characters). The script 
+	<p>As aforementioned, the output of <code>getfrequencies.py</code> is a set of files, &ldquo;1950&rdquo; through &ldquo;2014&rdquo;. However, these files tend to have
+    some issues with Unicode representation. Essentially, some HTML ascii, like <code>&amp;nbsp;</code> is parsed into
+	Unicode by BeautifulSoup, yielding the non-ascii character <code>\xc2\xa0</code>. Thus, some dictionary entries, like this one, are garbled: <code>'fianc\xc3\xa9e': 1</code>.</p>
+	<p>Thankfully, this can be corrected (i.e. these unicode representations can be replaced with regular ascii characters). The script
 	<code>postprocess.py</code> has been written, in Python 2.7.6, for this purpose. It requires the <code>sys</code>, <code>os</code>, <code>ast</code>, and <code>collections</code> libraries.
     </p>
     <p>
     <code>postprocess.py</code> takes a directory of <code>getfrequencies.py</code>-output files as a command line argument. For example, suppose I use <code>getfrequencies.py</code> to generate files
 	&ldquo;1950&rdquo; through &ldquo;2014&rdquo;, and I put all these
 
-	into the directory <code>without-stopwords/</code>. Then I will call <code>python postprocess.py without-stopwords/</code>. The script will create a new directory, 
+	into the directory <code>without-stopwords/</code>. Then I will call <code>python postprocess.py without-stopwords/</code>. The script will create a new directory,
 	<code>2without-stopwords/</code>, containing the correctly processed files. They may still contain negligible amounts of garbled output, as the postprocessing script does
 	not filter out <i>all</i> unicode representations. An additional
 	 script, <code>gettotal.py</code>, has been included for testing
@@ -213,19 +204,19 @@ From here on, this article is mostly a technical documentation of and usage guid
 	in order to assess the quality of the processed output.</p>
 	<p>
 	The post-processed files are in the same format as the pre-processed ones. Thus, each year's file contains a dictionary of word frequency counts for that year on the first line, the total number of words on the second line, and the number of unique words on the third line.
-	This dictionary can be read trivially into python using <a href="http://stackoverflow.com/q/988228/2844655">ast.literal_eval</a>. Note that the format is quite similar to 
-	JSON, so parsing this data is easy in many languages. 
+	This dictionary can be read trivially into python using <a href="http://stackoverflow.com/q/988228/2844655">ast.literal_eval</a>. Note that the format is quite similar to
+	JSON, so parsing this data is easy in many languages.
 	</p>
 
-<p>Note that these scripts have not been optimized for efficiency &mdash; running the script to collect word frequencies for 1950 through 2014 may take a few minutes. I think that the workflow 
+<p>Note that these scripts have not been optimized for efficiency &mdash; running the script to collect word frequencies for 1950 through 2014 may take a few minutes. I think that the workflow
 could generally be substantially improved and simplified. Unfortunately, I currently cannot justify spending further time on these optimizations.</p>
 
 	<br>
 	<sh>Frequencies: Analysis</sh>
 	<p>We can now use the postprocessed data for sociological/cultural analysis. There are many ways to analyze this dataset, for one of which I've built a little tool.</p>
     <p>
-    As the data is a set of word-frequency dictionaries by year, the obvious course of attack 
-    is to track the changes in frequency for some word that we are interested in, over time. We observed previously that the total wordcounts generally rise over time, 
+    As the data is a set of word-frequency dictionaries by year, the obvious course of attack
+    is to track the changes in frequency for some word that we are interested in, over time. We observed previously that the total wordcounts generally rise over time,
     so it is not wise to track raw frequency changes, but rather
     proportion: the fraction of the total wordcount that is the word(s) we are interested in. On top of that, we can <i>weigh</i> particular words more than others when considering
     this proportion. For example, suppose we are interested in the popularity of physics on television over time. We'll give &ldquo;physics&rdquo; a weight of 1, &ldquo;quantum&rdquo; a weight of 0.9 (implying that we think that 90% of uses of the word &ldquo;quantum&rdquo; are in the context of physics), the word &ldquo;gravity&rdquo; a weight of 0.5, the word &ldquo;molecule&rdquo; a weight of 0.9, etc. We can then find the weighted proportion per year, and compare that figure over the course of time. This is what the tool <code>analysis.py</code> does. </p>
@@ -253,7 +244,7 @@ could generally be substantially improved and simplified. Unfortunately, I curre
 </p>
 
 The format is always the same: on the first line, there is a dictionary that displays the cumulative weights of all words. Note that in our example, this line is wrapped onto two lines. The second line contains the year and the total weight. The third line displays the proportional representation of the dictionary that year: that's the total weight of our dictionary-words (19.75) divided by the total number of words in the 2007 dictionary. I think that third line is the really important statistic to track and compare over time.
-Consequently, I also wrote the script <code>dictoresults.py</code> to format this output. Running <code>python dictoresults.py worddict_2without-stopwords</code> will produce <code>results_worddict_2without-stopwords</code>, which is just a file of space-and-comma-separated years and proportional representations, like &ldquo;2007, 0.000209074356369&rdquo; which is easier to work with. 
+Consequently, I also wrote the script <code>dictoresults.py</code> to format this output. Running <code>python dictoresults.py worddict_2without-stopwords</code> will produce <code>results_worddict_2without-stopwords</code>, which is just a file of space-and-comma-separated years and proportional representations, like &ldquo;2007, 0.000209074356369&rdquo; which is easier to work with.
 </p>
 <p>However, note the limitations of this statistic: the word-counts are usually very small. For example, in 2007, the word &ldquo;physicist&rdquo; appears three times. This makes it possible for outliers to significantly skew the results. Thus, it is probably important to use large dictionaries with wisely-chosen weights in order to arrive at more reliable results.
 </p>
@@ -296,13 +287,13 @@ http://en.wikipedia.org/wiki/Seinfeld_%28season_9%29
 These are, in order, the links to the first through ninth seasons of Seinfeld. Now you can run <code>python retrieve.py seinfurls</code>. It will return a set of files, <code>souped_0</code> through <code>souped_8</code>. Here, <code>souped_0</code> corresponds to the page for the first season of Seinfeld, <code>souped_1</code> corresponds to the second season, etc. and <code>souped_8</code> corresponds to the ninth season of Seinfeld. Each document is just a list of episodes separated by some newlines and the text <code>&lt;new episode&gt;</code>. Now, place all your <code>souped</code> files into a directory, like <code>seinfeld-episodes/</code>. Now you have a dataset. Because you have the plaintext of the episodes without words filtered, you can conduct whatever Natural Language Processing-type analysis you like. However, I have prepared a small script for the obvious frequency-type analysis.
 <br>
 <br>
-This small script is <code>text-analysis.py</code>. It takes three command line arguments: the first is a directory of sequentially numbered files that contain 
+This small script is <code>text-analysis.py</code>. It takes three command line arguments: the first is a directory of sequentially numbered files that contain
 the episode summaries to be analyzed. The second argument is a dictionary-file of space-separated weights and words, as discussed in the <i>Frequencies</i> section.
 The third argument is just a <code>y</code> or <code>n</code> depending on whether or not you want stopwords to be filtered out (<code>y</code> to filter). Note that
 if you select <code>y</code>, then you need the file <code>stopwords-final</code> in your working directory.
 </p>
-<p>  
-To continue our example: Seinfeld is famously a show about nothing, but I don't really believe that, so let's investigate the importance of <i>personal relationships</i> in Seinfeld. 
+<p>
+To continue our example: Seinfeld is famously a show about nothing, but I don't really believe that, so let's investigate the importance of <i>personal relationships</i> in Seinfeld.
 So we write this dictionary and save it as <code>dictionary</code>:
 <p style="margin-left:4em;margin-right:4em;">
 <span style="display:inline-block; width:100%; text-align:left;background-color:#E8E8E8">
@@ -340,7 +331,7 @@ The red regression line shows an upward trend, suggesting that the importance of
 <sh> Potential Improvements</sh>
 <ul>
 <li>
-This analysis could be adapted to Wikipedias of other languages &mdash; Japanese, German, Russian, Spanish, etc. 
+This analysis could be adapted to Wikipedias of other languages &mdash; Japanese, German, Russian, Spanish, etc.
 This would allow one to track and compare particular changes in sentiment over time, across several language groups, i.e. across cultural groups,
 which would potentially answer interesting questions (e.g. &ldquo;to what extents have different societies become more sexually liberal in the last fifty years?&rdquo;),
 and might yield quantitative indications as to the extent to which cultures have become homogenized in recent decades.
@@ -350,10 +341,10 @@ and might yield quantitative indications as to the extent to which cultures have
 <br>
 <li>It would be really nice to have an easily-usable JavaScript frontend for this, such that it can actually be used as easily as the Google Books ngram viewer.</li>
 </ul>
-<br>	
+<br>
 <sh>Download</sh>
 	<p>The GitHub repository is available <a href="https://github.com/Datamine/Television">here</a>. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
-	
+
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>

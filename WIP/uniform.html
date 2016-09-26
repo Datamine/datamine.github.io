@@ -4,20 +4,10 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
+
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/solarized-light.min.css">
 		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
     	<script>hljs.initHighlightingOnLoad();</script>
-
-
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
 
 		<script type="text/x-mathjax-config">
 		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
@@ -26,7 +16,7 @@
 		  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
 		</script>
 
-	
+
 		<title>
 			John Loeber: Uniform Distribution
 		</title>
@@ -37,7 +27,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -49,7 +39,7 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 		<div class="main">
 			<br>
 			<atitle>Maximum Likelihood Estimators <br>vs. Method of Moments</atitle></td>
@@ -61,33 +51,33 @@
             </p>
 			<sh>Proof</sh>
             <p>
-            Suppose we have a random variable $X \sim \mathrm{Unif}(0,\theta)$ where $\theta$ is unknown. We sample $n$ independent and identically distributed datapoints, 
-            call them $X_1, X_2, \ldots, X_n$. We want to estimate $\theta$. 
+            Suppose we have a random variable $X \sim \mathrm{Unif}(0,\theta)$ where $\theta$ is unknown. We sample $n$ independent and identically distributed datapoints,
+            call them $X_1, X_2, \ldots, X_n$. We want to estimate $\theta$.
             For a uniform distribution on an interval $[a,b]$, all outcomes share the same probability: $f(x) = \frac{1}{b-a}$, and in our case that's $f(x) = \frac{1}{\theta}$.
             </p>
             <p>
-            We want to estimate $\theta$.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> The standard tool is to use the 
-            <a href="https://en.wikipedia.org/wiki/Maximum_likelihood">Maximum Likelihood Estimator (MLE)</a>. Since the datapoints are independent, 
-            we multiply their probabilities to find the overall probability of obtaining this set of datapoints, 
-            for a given $\theta$. This creates the Likelihood Function $L$, which tells us how probable it is that a given $\theta$ resulted in the observation of these datapoints. 
+            We want to estimate $\theta$.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> The standard tool is to use the
+            <a href="https://en.wikipedia.org/wiki/Maximum_likelihood">Maximum Likelihood Estimator (MLE)</a>. Since the datapoints are independent,
+            we multiply their probabilities to find the overall probability of obtaining this set of datapoints,
+            for a given $\theta$. This creates the Likelihood Function $L$, which tells us how probable it is that a given $\theta$ resulted in the observation of these datapoints.
             We seek to find a $\theta$ that maximizes $L$.
 
             $$L(\theta) = f(X_1) f(X_2) \ldots f(X_n) = \prod_{i=1}^n \frac{1}{\theta} = \theta^{-n}$$
-            
+
             We then think about where $\theta^{-n}$ is maximized. To do this, we take the derivative:
 
             $$\frac{d}{d\theta} L(\theta) = \frac{d}{d\theta} \theta^{-n} = -n\theta^{-n+1}$$
 
             Since $n$, the number of datapoints, is necessarily greater than zero, it must be that $\frac{d}{d\theta} < 0$.
             Thus, $L(\theta)$ is a decreasing function, i.e. the larger our estimated $\theta$, the smaller the probability that it yielded these datapoints.
-            Consequently, our best estimate for $\theta$ makes it as small as possible, and since $\theta$ must be at least as large as all the datapoints observed, 
+            Consequently, our best estimate for $\theta$ makes it as small as possible, and since $\theta$ must be at least as large as all the datapoints observed,
             our best estimate for $\theta$ is the largest datapoint we sampled. This is the MLE, and we denote it by $\theta_L = \max(X_1 \ldots X_n)$.
             <p>
             We can measure how far we can expect $\theta_L$ to be from the true $\theta$, or in other words, how precise we expect this estimator to be, by computing the
             <a href="https://en.wikipedia.org/wiki/Mean_squared_error">Mean Squared Error (MSE)</a>. It is known that $\mathrm{MSE}(\theta_L) = \mathrm{Var}(\theta_L) + \mathrm{Bias}(\theta_L)^2$.
             </p>
             <p>
-            To compute the MSE, we treat $\theta_L$ as a random variable. We find its pdf by computing the cdf and taking the derivative. 
+            To compute the MSE, we treat $\theta_L$ as a random variable. We find its pdf by computing the cdf and taking the derivative.
             Note first that the cdf of the uniform distribution is given by $p(X_i < y) = \frac{y}{\theta}$ for $0 < y < \theta$, where $X_i$ is sampled from $\mathrm{Unif}(0,\theta)$.
             \begin{align*}p(\theta_L < y) &= p(\max(X_1,\ldots,X_n) < y) \\
                                           &= p(X_1 < y) p(X_2 < y)  \ldots p(X_n < y) \\
@@ -100,8 +90,8 @@
                                         0 \;\quad\quad\;\; \text{otherwise}
                                         \end{cases}
             \end{align*}
-            We then compute expectations and, in turn, variance of $\theta_L$ and its <a href="https://en.wikipedia.org/wiki/Bias_of_an_estimator">bias</a>. 
-            It is at this point that I offer you an apology for the potentially confusing notation of $\theta_L$ and $\theta$. Remember that $\theta$ is 
+            We then compute expectations and, in turn, variance of $\theta_L$ and its <a href="https://en.wikipedia.org/wiki/Bias_of_an_estimator">bias</a>.
+            It is at this point that I offer you an apology for the potentially confusing notation of $\theta_L$ and $\theta$. Remember that $\theta$ is
             the true, but unknown value of the parameter of the distribution, and $\theta_L$ is our Maximum Likelihood Estimate for it.
             $$E(\theta_L) = \int_0^\theta \theta_L \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta}{n+1}$$
             $$E(\theta_L^2) = \int_0^\theta \theta_L^2 \frac{n\theta_L^{n-1}}{\theta^n}d\theta_L = \frac{n\theta^2}{n+2}$$
@@ -110,12 +100,12 @@
             $$\mathrm{MSE}(\theta_L) = \frac{n\theta^2}{(n+1)^2(n+2)} + \frac{\theta^2}{(n+1)^2} = \frac{2\theta^2}{(n+1)(n+2)}$$
             </p>
             <p>
-            Now we repeat this process for the <a href="https://en.wikipedia.org/wiki/Method_of_moments_%28statistics%29">Method of Moments Estimator (MME)</a>. 
+            Now we repeat this process for the <a href="https://en.wikipedia.org/wiki/Method_of_moments_%28statistics%29">Method of Moments Estimator (MME)</a>.
             We obtain the first moment, the expectation of the uniform density, by:
 
             $$E(X_i) = \int_0^\theta x \frac{1}{\theta}dx = \frac{\theta}{2}$$
 
-            Whereby $\theta = 2E(X_i)$.  We use $\bar X$ to denote the mean of our sample, i.e. 
+            Whereby $\theta = 2E(X_i)$.  We use $\bar X$ to denote the mean of our sample, i.e.
 
             $$\bar X = \frac{1}{n}\left(X_1 + \ldots + X_n \right)$$
 
@@ -148,28 +138,28 @@
                                        &= 4\mathrm{Var}(\bar X) \\
                                        &= \frac{\theta^2}{3n}
             \end{align*}
-            
+
             Then we obtain the MSE:
             $$\mathrm{MSE}(\theta_M) = \mathrm{Var}(\theta_M) + \mathrm{Bias}(\theta_M)^2 = \frac{\theta^2}{3n}$$
             </p>
-            
+
             <p>
             All that is left is to compare the MSEs. We have:
 
             \begin{align*}
-            \mathrm{MSE}(\theta_M) &= \frac{\theta^2}{3n} \\ 
+            \mathrm{MSE}(\theta_M) &= \frac{\theta^2}{3n} \\
             \mathrm{MSE}(\theta_L) &= \frac{2\theta^2}{(n+1)(n+2)}
             \end{align*}
 
-            The denominator for $\theta_M$ grows linearly in $n$, and the denominator for $\theta_L$ grows quadratically in $n$. It is thus clear that for large $n$, $\mathrm{MSE}(\theta_M) > \mathrm{MSE}(\theta_L)$. 
+            The denominator for $\theta_M$ grows linearly in $n$, and the denominator for $\theta_L$ grows quadratically in $n$. It is thus clear that for large $n$, $\mathrm{MSE}(\theta_M) > \mathrm{MSE}(\theta_L)$.
             This is to be expected, since one of the defining characteristics of the MLE is that it is <a href="https://en.wikipedia.org/wiki/Maximum_likelihood#Properties">asymptotically efficient</a>.
-            However, if you plug in $n = 1$, for instance, then 
+            However, if you plug in $n = 1$, for instance, then
 
 
             </p>
 
 
- But what if your sample is very small? If you only have one or two datapoints, it is intuitively unlikely that these datapoints are close to the upper bound. It turns out that we can get a better estimate using the 
+ But what if your sample is very small? If you only have one or two datapoints, it is intuitively unlikely that these datapoints are close to the upper bound. It turns out that we can get a better estimate using the
             </p>
             <sh>Intuition</sh>
             <p>
@@ -179,8 +169,8 @@
 			<br>
 			<sh>Notes</sh>
 			<p>
-			<a href="#note0" name="footnote0">[0]</a> Note that this is without loss of generality. 
-            We can use the same method to find $a$ for $U(a,b)$, or even both $a$ and $b$. 
+			<a href="#note0" name="footnote0">[0]</a> Note that this is without loss of generality.
+            We can use the same method to find $a$ for $U(a,b)$, or even both $a$ and $b$.
             In our example, we set $a=0$ only for simplicity in doing the arithmetic.
             </p>
 			<div class="notice">

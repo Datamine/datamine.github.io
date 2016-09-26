@@ -4,29 +4,20 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
-		
+
 		<!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
 		<script language="JavaScript" type="text/javascript">
-		function ExpandCollapse(theDiv,theButton){ 
-			el = document.getElementById(theDiv); 
+		function ExpandCollapse(theDiv,theButton){
+			el = document.getElementById(theDiv);
 			button = document.getElementById(theButton)
 			if(el.style.display == 'none')
-			{ el.style.display = ''; 
+			{ el.style.display = '';
 			  button.innerHTML="(Click here to hide input text.)";}
-			else 
-			{ el.style.display = 'none'; 
-			  button.innerHTML="(Click here to show input text.)";} 
+			else
+			{ el.style.display = 'none';
+			  button.innerHTML="(Click here to show input text.)";}
 			return false; } </script>
-		
+
 		<title>
 			John Loeber: Travelmap
 		</title>
@@ -37,7 +28,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -49,7 +40,7 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 	<div class="main">
 		<br>
 	<atitle><span class="blockfont">Travelmap</span></atitle></td>
@@ -90,7 +81,7 @@ Beyond that, the program offers plenty of opportunity to customize the output ma
 <p>If you have <em>lines</em> turned <em>off</em>, the script will just plot each one of these locations on the map with points. With the default settings, that will look like this (scaled to fit):</p>
 		<img width="751px" src="../images/travelmap-2.png"></img>
 		<p>The command to produce this map is:</p>
-	<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors1.txt n n Robinson_Color.png</code></span>		
+	<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors1.txt n n Robinson_Color.png</code></span>
 <p>If you turn lines <em>on</em>, the map will look like this (scaled to fit):</p>
 <img width="751px" src="../images/travelmap-3.png"></img>
 		<p>As produced by this command:</p>
@@ -101,7 +92,7 @@ Beyond that, the program offers plenty of opportunity to customize the output ma
 	</p>
 	<p>
 	You can use the input textfile to create more complex networks. For example, we'll use the settings from the previous map, but a more elaborate input textfile, <code>example_nocolors2.txt</code>. <span id="button1" onClick="ExpandCollapse('name1','button1');" style="cursor:hand; cursor:pointer;color: #1C396B;font-weight:bold;">(Click here to show input text.)</span>
-	
+
 	<div id="name1" style="display:none;">
 	<div style="margin-left:4em;margin-right:4em;">
 	<span OnClick="ExpandCollapse('name1','button1');" style="cursor:hand; cursor:pointer;display:inline-block; width:100%;background-color:#E8E8E8">
@@ -136,15 +127,15 @@ Lesotho<br>
 	</div>
 
 	That creates the following map:</p>
-	
+
 <img width="751px" src="../images/travelmap-4.png"></img>
-	
+
 <p>
 As produced by the following command:
 </p>
-		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors2.txt y n Robinson_Color.png</code></span>		
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors2.txt y n Robinson_Color.png</code></span>
 <p>To do the same on the Black-and-White Robinson Map, just run:</p>
-		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors2.txt y n Robinson_BW.png</code></span>		
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_nocolors2.txt y n Robinson_BW.png</code></span>
 <p>The resultant map looks like this:</p>
 
 <img width="751px" src="../images/travelmap-5.png"></img>
@@ -183,7 +174,7 @@ Madagascar<br>
 	</span>
 	</p>
 <p>Using default settings and the following command:</p>
-		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_colors1.txt y y Robinson_BW.png</code></span>		
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_colors1.txt y y Robinson_BW.png</code></span>
 <p>The resultant map looks like this:</p>
 <img width="751px" src="../images/travelmap-7.png"></img>
 <p>Just as with the <em>colors off</em> option, it is possible to configure the markers and their connecting lines in terms of thickness, color, etc. For the rest of the documentation, I will use a set of settings configured in favor of legibility. In particular, I set <code>dotcolor="white", strokecolor="black", r=8, sw=6, lsc="black", lsw=2</code>, and <code>lw=6</code>.Running the same command as above, with those configured settings, we get this map:</p>
@@ -313,7 +304,7 @@ Paraguay<br>
 Which yields the following map:</p>
 <img width="751px" src="../images/travelmap-9.png"></img>
 <p>Produced by this command:</p>
-		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_colors1.txt y y Robinson_BW.png</code></span>		
+		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_colors1.txt y y Robinson_BW.png</code></span>
 
 <p>You may have wondered how these colors are automatically assigned. This is done on lines 173 and 205, and uses a <strong>colormap</strong> from matplotlib. See <a href="http://matplotlib.org/api/pyplot_summary.html">here</a> for colormap documentation. On line 173, you may specify a colormap of your choosing. The default colormap, <em>jet</em>, covers the traditional colors of the rainbow. Alternatives are available, e.g. solid gradients, etc. For a list of usable colorschemes, see the aforementioned documentation. On line 205, the space of possible colors is partitioned into as many colors as we have distinct connection-types. We'll experiment with one other colormap, the <em>spring</em> colormap, which provides a gradient from magenta to yellow. On line 173, I change &ldquo;jet&rdquo; to &ldquo;spring&rdquo;. Otherwise, I run the exact same command as in the previous example, on <code>example-colors2.txt</code>. That yields this map:</p>
 <img width="751px" src="../images/travelmap-10.png"></img>
@@ -358,7 +349,7 @@ Finally, I assume that it is also possible to change some of the configurations 
 	<ul>
 	<li>Currently, this program only plots straight lines between places. I think straight lines are a little bit ugly, and also not quite optimal for the task. It would be better if it were plotting geodesics between places, or at least if there were an option for this.</li><br>
 	<li>Additionally, long straight lines occasionally seem unrealistic, so it can be desirable to use markers to split up the long line into shorter lines, thereby guiding the overall path more realistically. However, this may introduce far more markers than desired. It would be good to have an option that allows for the placement of invisible markers.</li><br>
-	<li>The output for connecting two points on the eastern and western edges of the map can be quite ugly: for example, connecting Hawaii and New Zealand, in reality, warrants a line across the Pacific. However, the program will currently draw a line straight across the world map, which is as unrealistic as it is unpleasant to look at. One possibility 
+	<li>The output for connecting two points on the eastern and western edges of the map can be quite ugly: for example, connecting Hawaii and New Zealand, in reality, warrants a line across the Pacific. However, the program will currently draw a line straight across the world map, which is as unrealistic as it is unpleasant to look at. One possibility
 	to solve this is to have lines &lsquo;wrap around&rsquo; the edges of the map, with some way to visually distinguish them from each other to prevent confusion. Another is to reroute such paths via the north or south poles such that they are unlikely to interfere with other lines. </li><br>
 	<li>The user should be able to submit the settings for line-thickness, color, etc. using an external file containing these settings, rather than having to edit the script.</li>
 	</ul>

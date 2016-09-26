@@ -4,20 +4,10 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
+
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/solarized-light.min.css">
 		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
     	<script>hljs.initHighlightingOnLoad();</script>
-
-
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
 
 		<script type="text/x-mathjax-config">
 		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
@@ -26,7 +16,7 @@
 		  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
 		</script>
 
-	
+
 		<title>
 			John Loeber: K-Means Clustering
 		</title>
@@ -37,7 +27,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -49,7 +39,7 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 		<div class="main">
 			<br>
 			<atitle>K-Means Clustering on Handwritten Digits</atitle></td>
@@ -64,7 +54,7 @@
 			If you were to make a guess, you&rsquo;d say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
 			</p>
 			<p>
-			This is the essence of clustering. We take some labelled data &mdash; like heights and weights of animals, where each animal is labeled as either a penguin or an elephant. We use an algorithm to figure out which datapoints belong to which (weight, height) clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label. 
+			This is the essence of clustering. We take some labelled data &mdash; like heights and weights of animals, where each animal is labeled as either a penguin or an elephant. We use an algorithm to figure out which datapoints belong to which (weight, height) clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label.
 			</p>
 			<p>
 			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd&rsquo;s Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> We do this in order to minimize the total sum of distances from every centroid to the points in its cluster &mdash; that is our metric for how well the clusters split up the data.
@@ -73,7 +63,7 @@
 			We&rsquo;ll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
 			</p>
 			<img class="imgcenter" src="../images/mnist.png"></img>
-			<p>			
+			<p>
 			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can run k-means clustering. Let&rsquo;s do it. I will be using Python 2.7 in an iPython notebook.
 			</p>
 			<p>
@@ -91,7 +81,7 @@ import matplotlib.pyplot as plt
 			</p>
 <pre><code class="python">def read_in_data(json_line):
     """
-    to parse the a line of the digits file into tuples of 
+    to parse the a line of the digits file into tuples of
     (labelled digit, numpy array of vector representation of digit)
     """
     json_object = loads(json_file)
@@ -100,16 +90,16 @@ import matplotlib.pyplot as plt
     digit_vector = digit_vector.astype(np.float64)
     return (json_object["label"], digit_vector)</code></pre>
     		<p>
-    		Then we use that function to read in the data. We read every datapoint into a tuple containing a label and the data vector. 
+    		Then we use that function to read in the data. We read every datapoint into a tuple containing a label and the data vector.
     		</p>
-<pre><code class="python"># Digits is a list of 60,000 tuples, 
+<pre><code class="python"># Digits is a list of 60,000 tuples,
 # each containing a labelled digit and its vector representation.
 with open("digits.base64.json","r") as f:
     digits = map(read_in_data, f.readlines())</code></pre>
     		<p>
     		Then we split the data into a <i>training</i> and a <i>validation</i> set. We&rsquo;ll construct our clusters with the training set, and then use those clusters to classify the datapoints in the validation set, i.e. to assign labels to these datapoints. We can then check those inferred labels against the known labels to see how often the algorithm misclassifies a datapoint.
     		</p>
-<pre><code class="python"># pick a ratio for splitting the digits list 
+<pre><code class="python"># pick a ratio for splitting the digits list
 # into a training and a validation set.
 training_size = int(len(digits)*0.25)
 validation = digits[:training_size]
@@ -118,7 +108,7 @@ training = digits[training_size:]</code></pre>
 			Now we write a function to take a datapoint and display the digit. This is mostly for debugging and checking our results.
 			</p>
 <pre><code>def display_digit(digit, labeled = True, title = ""):
-    """ 
+    """
     graphically displays a 784x1 vector, representing a digit
     """
     if labeled:
@@ -136,7 +126,7 @@ training = digits[training_size:]</code></pre>
         	</p>
 <pre><code>def init_centroids(labelled_data,k):
     """
-    randomly pick some k centers from the data as starting values 
+    randomly pick some k centers from the data as starting values
     for centroids. Remove labels.
     """
     return map(lambda x: x[1], random.sample(labelled_data,k))
@@ -144,7 +134,7 @@ training = digits[training_size:]</code></pre>
 def sum_cluster(labelled_cluster):
     """
     from http://stackoverflow.com/a/20642156
-    element-wise sums a list of arrays. 
+    element-wise sums a list of arrays.
     """
     # assumes len(cluster) > 0
     sum_ = labelled_cluster[0][1].copy()
@@ -154,7 +144,7 @@ def sum_cluster(labelled_cluster):
 
 def mean_cluster(labelled_cluster):
     """
-    compute the mean (i.e. centroid at the middle) 
+    compute the mean (i.e. centroid at the middle)
     of a list of vectors (a cluster):
     take the sum and then divide by the size of the cluster.
     """
@@ -171,12 +161,12 @@ def mean_cluster(labelled_cluster):
     """
     # enumerate because centroids are arrays which are unhashable
     centroids_indices = range(len(unlabelled_centroids))
-    
+
     # initialize an empty list for each centroid. The list will
     # contain all the datapoints that are closer to that centroid
     # than to any other. That list is the cluster of that centroid.
     clusters = {c: [] for c in centroids_indices}
-    
+
     for (label,Xi) in labelled_data:
         # for each datapoint, pick the closest centroid.
         smallest_distance = float("inf")
@@ -226,14 +216,14 @@ def move_centroids(labelled_clusters):
     		</p>
 <pre><code>def cluster(labelled_data, k):
     """
-    runs k-means clustering on the data. 
+    runs k-means clustering on the data.
     """
     centroids = init_centroids(labelled_data, k)
     clusters = form_clusters(labelled_data, centroids)
     final_clusters, final_centroids = repeat_until_convergence(labelled_data, clusters, centroids)
     return final_clusters, final_centroids</code></pre>
     		<p>
-    		However, our centroids aren&rsquo;t labelled yet. We&rsquo;ll write a function to label each centroid with the most common label in its cluster. 
+    		However, our centroids aren&rsquo;t labelled yet. We&rsquo;ll write a function to label each centroid with the most common label in its cluster.
     		</p>
 <pre><code>def assign_labels_to_centroids(clusters, centroids):
     """
@@ -368,13 +358,13 @@ for (label,digit) in validation:
         <td>&nbsp;&nbsp;</td>
         <td><strong>Frequency Count</strong></td>
         </tr>
-        
+
         <tr>
         <td>0</td>
         <td>&nbsp;&nbsp;</td>
         <td>1</td>
         </tr>
-        
+
         <tr>
         <td>1</td>
         <td>&nbsp;&nbsp;</td>
@@ -439,13 +429,13 @@ for (label,digit) in validation:
         <td>&nbsp;&nbsp;</td>
         <td><strong>Frequency Count</strong></td>
         </tr>
-        
+
         <tr>
         <td>0</td>
         <td>&nbsp;&nbsp;</td>
         <td>1</td>
         </tr>
-        
+
         <tr>
         <td>1</td>
         <td>&nbsp;&nbsp;</td>
@@ -575,10 +565,10 @@ Let&rsquo;s zoom in on the left side of the image:
 			<p>
 				A GitHub repository containing the iPython notebook, dataset, etc. is available <a href="https://github.com/Datamine/MNIST-K-Means-Clustering">here</a>.
 			</p>
-			
+
 			<sh>Notes</sh>
 			<p>
-			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd&rsquo;s algorithm converges only to a local optimum. Lloyd&rsquo;s algorithm does not guarantee finding a global optimum. This can be a critical pitfall. For this reason, different runs of the k-means algorithm with the same settings will often result in different clusterings. 
+			<a href="#note0" name="footnote0">[0]</a> We say that the algorithm converges when the centroids cease moving. Note that Lloyd&rsquo;s algorithm converges only to a local optimum. Lloyd&rsquo;s algorithm does not guarantee finding a global optimum. This can be a critical pitfall. For this reason, different runs of the k-means algorithm with the same settings will often result in different clusterings.
 			</p>
 			<p>
 			<a href="#note1" name="footnote1">[1]</a> Using more clusters raises the perennial danger of <a href="https://en.wikipedia.org/wiki/Overfitting">overfitting</a>.

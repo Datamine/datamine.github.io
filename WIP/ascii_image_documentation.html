@@ -4,16 +4,7 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
-		
+
 		<title>
 			John Loeber: ASCII Image
 		</title>
@@ -24,7 +15,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -36,7 +27,7 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 	<div class="main">
 		<br>
 	<atitle><span class="blockfont">Ascii Image</span></atitle></td>
@@ -49,11 +40,11 @@
 	<img class="imgcenter" src="../images/fish.jpg"></img>
 	<span style="text-align:center;display:block">(Picture <a href="http://commons.wikimedia.org/wiki/File:Gullfiskur.jpg">Source</a>)</span>
 	<p>We'll run the following command, using <code>'b'</code> to use the basic ASCII set:</p>
-	<span style="display:inline-block; width:100%; text-align:center;"><code>python ascii_image.py fish.jpg b</code></span>		
+	<span style="display:inline-block; width:100%; text-align:center;"><code>python ascii_image.py fish.jpg b</code></span>
 	This results in the following terminal output:
 	<br>
 	<img class="imgcenter" src="../images/fish_ascii1.png"></img>
-	<p>Take a step back, and it reminds of the image of the fish! Note that the settings of the appearance of your terminal are critically important: choice of font, font size, and underlying colorscheme can make a world of difference. 
+	<p>Take a step back, and it reminds of the image of the fish! Note that the settings of the appearance of your terminal are critically important: choice of font, font size, and underlying colorscheme can make a world of difference.
 	To prove this point, I ran the exact same script in a terminal with the colorscheme I normally use for coding. It looks awful:</p>
 	<img class="imgcenter" src="../images/fish_ascii2.png"></img>
 	<p>Now, by contrast, this uses the same options as in the first image, except that I took the font size down from <code>8.0</code> to <code>4.0</code>. This allows for significantly greater detail:</p>
@@ -64,16 +55,16 @@
 	<ul>
 	<li>This script uses <a href="http://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape codes</a> to display color. The default ANSI escape codes only support seven colors, which yields one of the
 	limitations of this program. Apparently there exist expansions to ANSI escape codes that support the printing of more colors to the terminal.</li><br>
-	<li>ANSI escape codes also allow for dictating the background of a character, not just the foreground color. The strategic use of foreground/background colors and a sufficiently small font size 
+	<li>ANSI escape codes also allow for dictating the background of a character, not just the foreground color. The strategic use of foreground/background colors and a sufficiently small font size
 	would greatly expand the effective color palette by &ldquo;blending&rdquo; colors.</li><br>
-	<li>As it stands, the program tends to stretch images vertically, because each pixel is mapped to a character, and the characters of most fonts are more tall than they are wide. A solution to this would be to 
+	<li>As it stands, the program tends to stretch images vertically, because each pixel is mapped to a character, and the characters of most fonts are more tall than they are wide. A solution to this would be to
 	detect the dimensions of the terminal font (which is presumably monospaced), and to scale the dimensions of the output accordingly.</li>
 	</ul>
 	</p>
 	<br>
 	<sh>Download</sh>
 	<p>You can download the file <a href="../files/ascii_image.py">here</a>, or view the GitHub repository <a href="https://github.com/Datamine/ASCII-IMG">here</a>. Please contact me if you find any bugs or use my script for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
-	
+
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>

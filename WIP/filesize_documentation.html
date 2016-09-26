@@ -4,16 +4,7 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
-		
+
 		<title>
 			John Loeber: Filesize
 		</title>
@@ -24,7 +15,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -36,7 +27,7 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 	<div class="main">
 		<br>
 	<atitle><span class="blockfont">Filesystem Analysis Tool</span></atitle></td>
@@ -51,7 +42,7 @@
 	</ul>
 	To use the tool, you must have Python and its standard libraries installed. You must also have the <code>numpy</code> and <code>matplotlib</code> libraries installed. This tool was developed using Python 2.7.4 and Matplotlib 1.2.1.</p>
 	<p>
-	Using the script is simple: download it, open up your terminal, and type: 
+	Using the script is simple: download it, open up your terminal, and type:
 	</p>
 	<span style="display:inline-block; width:100%; text-align:center;"><code>python filesize.py &lt;your path here&gt; &lt;hidden&gt; &lt;save&gt;</code></span>
 	<p>
@@ -59,13 +50,13 @@
 	</p>
 	<span style="display:inline-block; width:100%; text-align:center;"><code>python filesize.py ~/me/Documents/ y y</code></span>
 	<p>Here is an example output of the script:</p>
-	
+
 	<div class="imghelper">
-		<img width="395px" src="../images/barchart.png"></img> 
-		<img width="340px" src="../images/piechart.png"></img> 
+		<img width="395px" src="../images/barchart.png"></img>
+		<img width="340px" src="../images/piechart.png"></img>
 	</div>
 	<p>
-	The bar chart is quite intuitive. It simply shows how many files there are in each filesize category. There are 100 categories, and they are evenly spaced between the smallest and largest file in the path. In this example, the smallest file has size 0 kB, the largest file has size 2,000,000 kB. So the categories are on intervals of 20,000 kB. You know how to read a bar chart. The only thing that is a little tricky here is the scale on the y-axis: because you're quite likely to have tens of thousands of tiny files (especially in the root/system files), and you're not so likely to have many large files, the y-axis is, for all y&gt;1, on a base-10 logarithmic scale. A (&ldquo;normal&rdquo;) linear scale would make the bars representing the smaller counts almost meaninglessly small. However, the scale is linear between 0 and 1: a true logarithmic scale has its origin at (0,1) rather than (0,0), and we want to be able to differentiate between counts of zero and one of certain filesizes. 
+	The bar chart is quite intuitive. It simply shows how many files there are in each filesize category. There are 100 categories, and they are evenly spaced between the smallest and largest file in the path. In this example, the smallest file has size 0 kB, the largest file has size 2,000,000 kB. So the categories are on intervals of 20,000 kB. You know how to read a bar chart. The only thing that is a little tricky here is the scale on the y-axis: because you're quite likely to have tens of thousands of tiny files (especially in the root/system files), and you're not so likely to have many large files, the y-axis is, for all y&gt;1, on a base-10 logarithmic scale. A (&ldquo;normal&rdquo;) linear scale would make the bars representing the smaller counts almost meaninglessly small. However, the scale is linear between 0 and 1: a true logarithmic scale has its origin at (0,1) rather than (0,0), and we want to be able to differentiate between counts of zero and one of certain filesizes.
 	</p>
 	<p>
 	The pie chart is less intutive, but more useful. Referring to the example: the title of the legend reads "Total Size: 29.5983 GB". This is the total size of all files in the path you have called the script on, excluding hidden files if you used that option. The colored slices of the pie each represent the percentage of those 29.5983 GB that is occupied by a particular size-tier of files. This becomes clearer by example: look at the big, lime-green slice of the pie. It reads 27.91%. This means that the files represented by that lime-green wedge take up 27.91% of the 29.5983 GB. Indeed, if you refer to the legend, you see that lime-green denotes files of size 1 GB to 10 GB. There are six of them, and altogether they occupy 8.2597 GB of space. This is 27.91% of the 29.5983 GB. The same goes for the blue wedge which represents the 100 MB to 1 GB filesize category, etc.

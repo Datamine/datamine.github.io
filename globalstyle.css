@@ -146,3 +146,9 @@ date{
 td {
     vertical-align:top;
 }
+                
+.blockfont{
+    font-variant: small-caps;
+    text-decoration:none;
+    color:#000000; 
+}

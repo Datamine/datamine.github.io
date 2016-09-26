@@ -4,30 +4,21 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
-	    
+
         <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
 		<script language="JavaScript" type="text/javascript">
-		function ExpandCollapse(theDiv,theButton){ 
-			el = document.getElementById(theDiv); 
+		function ExpandCollapse(theDiv,theButton){
+			el = document.getElementById(theDiv);
 			button = document.getElementById(theButton)
 			if(el.style.display == 'none')
-			{ el.style.display = ''; 
+			{ el.style.display = '';
 			  button.innerHTML="(Click here to hide input text.)";}
-			else 
-			{ el.style.display = 'none'; 
-			  button.innerHTML="(Click here to show input text.)";} 
+			else
+			{ el.style.display = 'none';
+			  button.innerHTML="(Click here to show input text.)";}
 			return false; } </script>
-		
-	
+
+
 		<title>
 			John Loeber: Twitter Bot
 		</title>
@@ -38,7 +29,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -50,14 +41,14 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 	<div class="main">
 		<br>
 	<atitle>Hacker School Newsfeed via Twitter</atitle></td>
 	<br><br>
 <sh>Introduction</sh>
 <p>
-People at <a href="http://www.hackerschool.com">Hacker School</a> build a great number of cool projects, even after Hacker School. 
+People at <a href="http://www.hackerschool.com">Hacker School</a> build a great number of cool projects, even after Hacker School.
 I thought it might be nice to have some sort of newsfeed for the community that serves two purposes:
 <ul>
 <li>Lets Hacker School attendees and alumni publicize their projects</li>
@@ -85,7 +76,7 @@ The latter option is so that you can have your project-tweet retweeted without s
 <sh>How does it work?</sh>
 <p>
 The bot itself is a simple python-script that uses the Twitter REST API, deployed via Heroku. It queries the <code>@hsalums</code>
-account every two minutes for recent mentions, then filters the mentions for those coming from Hacker Schoolers, 
+account every two minutes for recent mentions, then filters the mentions for those coming from Hacker Schoolers,
 and filters further for new tweets (it logs the ones it has already seen). Based on the length of the tweet, it then decides whether to retweet that tweet or the user's previous tweet.
 In the latter case, it queries the user's timeline to obtain the previous tweet.
 </p>
@@ -106,7 +97,7 @@ In one test run, certain tweets were not retweeted (about three in sixty). I hav
 <sh>Download</sh>
 </p>
 The GitHub repository is available <a href="https://github.com/Datamine/HackerSchoolBot">here</a>. Note that some private files (list of hackerschool alumni, my private Twitter keys, etc.) have been omitted for obvious security reasons. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
-	
+
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>

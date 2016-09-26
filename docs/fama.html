@@ -4,30 +4,21 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
-	    
+
         <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
 		<script language="JavaScript" type="text/javascript">
-		function ExpandCollapse(theDiv,theButton){ 
-			el = document.getElementById(theDiv); 
+		function ExpandCollapse(theDiv,theButton){
+			el = document.getElementById(theDiv);
 			button = document.getElementById(theButton)
 			if(el.style.display == 'none')
-			{ el.style.display = ''; 
+			{ el.style.display = '';
 			  button.innerHTML="(Click here to hide input text.)";}
-			else 
-			{ el.style.display = 'none'; 
-			  button.innerHTML="(Click here to show input text.)";} 
+			else
+			{ el.style.display = 'none';
+			  button.innerHTML="(Click here to show input text.)";}
 			return false; } </script>
-		
-	
+
+
 		<title>
 			John Loeber: Fama-French & Parameter Optimization
 		</title>
@@ -38,7 +29,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -50,13 +41,13 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 	<div class="main">
 		<br>
 	<atitle>Fama-French Factors and Parameter Optimization</atitle></td>
 <p>
 On November 6 2015, I was asked to give a talk at <a href="http://www.blue1647.com/">BLUE1647</a>, a Chicago technology center, on some of the projects I worked on
-while at <a href="http://www.quantopian.com">Quantopian</a>. Below are the slides from the talk, as well as the (approximate) transcript. 
+while at <a href="http://www.quantopian.com">Quantopian</a>. Below are the slides from the talk, as well as the (approximate) transcript.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide1.PNG"></img>
@@ -209,12 +200,12 @@ And here are the results for August 2014 through August 2015.
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide27.PNG"></img>
 <p>
-I then used some dimensionality reduction techniques to conduct a more general comparison: here's a plot of the three Fama-French factors combined into one metric for every month over the last thirteen and a half years: blue are canonical, red are mine. We generally see that they're quite similar. 
+I then used some dimensionality reduction techniques to conduct a more general comparison: here's a plot of the three Fama-French factors combined into one metric for every month over the last thirteen and a half years: blue are canonical, red are mine. We generally see that they're quite similar.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide28.PNG"></img>
 <p>
-But of course there are some differences. Much of these differences is due to methodology: Ken French computes his factors over calendar months, but the native unit on Quantopian really is the trading day, so I computed these factors over periods of trading days, rather than calendar months. Making sure that all my periods line up with those of Ken French was somewhat challenging. 
+But of course there are some differences. Much of these differences is due to methodology: Ken French computes his factors over calendar months, but the native unit on Quantopian really is the trading day, so I computed these factors over periods of trading days, rather than calendar months. Making sure that all my periods line up with those of Ken French was somewhat challenging.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide29.PNG"></img>
@@ -224,7 +215,7 @@ Moreover: the canonical Fama-French factors published by Ken French only rely on
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide30.PNG"></img>
 <p>
-So: what are the applications of this? How can we use the Fama-French factors to generate alpha? Well, we usually use them to evaluate the performance of a trading strategy. Specifically, in the pyfolio library, which was developed and open-sourced by Quantopian, users are encouraged to look at six-month rolling Fama-French factors, and to correlate those factors with the returns of their strategies. The reason for this is that it often happens that someone may think they're trading on some particular signal, but a correlation analysis shows that 95% of that signal is explained by SMB. 
+So: what are the applications of this? How can we use the Fama-French factors to generate alpha? Well, we usually use them to evaluate the performance of a trading strategy. Specifically, in the pyfolio library, which was developed and open-sourced by Quantopian, users are encouraged to look at six-month rolling Fama-French factors, and to correlate those factors with the returns of their strategies. The reason for this is that it often happens that someone may think they're trading on some particular signal, but a correlation analysis shows that 95% of that signal is explained by SMB.
 </p>
 <p>
 Once the Pipeline API comes to Quantopian's research environment, users will be able to use this implementation to generate, modify, and work with Fama-French factors over any rolling time window. I expect that this will add yet another powerful tool for users to evaluate and prime their strategies.
@@ -262,12 +253,12 @@ As such, my guiding question was along these lines: suppose that you're a lay in
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide37.PNG"></img>
 <p>
-So, that's our goal. We'll go over this space of possible drops and rebounds in half-percent increments. In particular, we'll focus on strategies that beat the benchmark: SPY returned about 85% between January 2002 and February 2015. 
+So, that's our goal. We'll go over this space of possible drops and rebounds in half-percent increments. In particular, we'll focus on strategies that beat the benchmark: SPY returned about 85% between January 2002 and February 2015.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide38.PNG"></img>
 <p>
-I wrote this very simple algorithm to sell or buy SPY as appropriate when SPY drops by <inlineCode>m</inlineCode> percent from a previous maximum, or rebounds by <inlineCode>n</inlineCode> percent from a previous minimum. 
+I wrote this very simple algorithm to sell or buy SPY as appropriate when SPY drops by <inlineCode>m</inlineCode> percent from a previous maximum, or rebounds by <inlineCode>n</inlineCode> percent from a previous minimum.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide39.PNG"></img>
@@ -302,7 +293,7 @@ Again, we filter down to the benchmark-beating returns. The best return here is 
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide45.PNG"></img>
 <p>
-And in this backtest, we can see quite clearly that the reason this strategy was &ldquo;successful&rdquo; was that it was tremendously overfit to the recession. For the most part, SPY (in red) and the strategy (in blue) are totally commensurate in their movements, except for the recession. Around 2009, SPY drops like a rock, but our strategy sells off and holds cash. This means that when the markets began to recover, some time mid-2009, our strategy's portfolio is pure cash, worth about 50% more than the SPY portfolio. Then our strategy puts all its cash in SPY. Then we have two portfolios: one of them consists of 100k in SPY, the other consists of 150k in SPY. Five years of bull-market compound growth later, it stands to reason that the cash difference is exaggerated and one of them is worth far more than the other. 
+And in this backtest, we can see quite clearly that the reason this strategy was &ldquo;successful&rdquo; was that it was tremendously overfit to the recession. For the most part, SPY (in red) and the strategy (in blue) are totally commensurate in their movements, except for the recession. Around 2009, SPY drops like a rock, but our strategy sells off and holds cash. This means that when the markets began to recover, some time mid-2009, our strategy's portfolio is pure cash, worth about 50% more than the SPY portfolio. Then our strategy puts all its cash in SPY. Then we have two portfolios: one of them consists of 100k in SPY, the other consists of 150k in SPY. Five years of bull-market compound growth later, it stands to reason that the cash difference is exaggerated and one of them is worth far more than the other.
 </p>
 
 <img width="751px" style="border:1px solid black" src="../images/Q-Talk/Slide46.PNG"></img>
@@ -319,7 +310,7 @@ The real dead giveaway that we've got a colossal overfit here is that we have th
 Finally, conclusions! The main one I hope this example illustrated was that parameter optimization is something you can do quite easily in the Quantopian research environment, and it's very powerful, but also dangerous. Overfitting is a common trap.
 </p>
 <p>
-Moreover, we need to ask ourselves whether this kind of investigation is actually even meaningful. With this kind of strategy, we're trying to prepare for large economic downturns, which are not only exceedingly rare, but also generally structurally quite different from one another. Whatever the next serious downturn in the financial markets may look like, I think it will probably be structurally different from the ones we've seen previously. Thus, even a well-calibrated, non-overfit model of this type would probably not be applicable. 
+Moreover, we need to ask ourselves whether this kind of investigation is actually even meaningful. With this kind of strategy, we're trying to prepare for large economic downturns, which are not only exceedingly rare, but also generally structurally quite different from one another. Whatever the next serious downturn in the financial markets may look like, I think it will probably be structurally different from the ones we've seen previously. Thus, even a well-calibrated, non-overfit model of this type would probably not be applicable.
 </p>
 <p>
 To answer the guiding question: does there exist a minimal-effort, market-beating strategy for a lay investor that has them sell off or rebalance their portfolio based on certain indicators of economic downturn? Well, maybe. But it's almost certainly not this kind of primitive drop-and-rebound strategy.

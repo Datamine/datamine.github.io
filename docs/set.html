@@ -4,30 +4,21 @@
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
 		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-		
-		<style type="text/css">
-		<!--
-			  .blockfont{ 
-					font-variant: small-caps;
-					text-decoration:none;
-					color:#000000; }
-		-->
-		</style>
-	    
+
         <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
 		<script language="JavaScript" type="text/javascript">
-		function ExpandCollapse(theDiv,theButton){ 
-			el = document.getElementById(theDiv); 
+		function ExpandCollapse(theDiv,theButton){
+			el = document.getElementById(theDiv);
 			button = document.getElementById(theButton)
 			if(el.style.display == 'none')
-			{ el.style.display = ''; 
+			{ el.style.display = '';
 			  button.innerHTML="(Click here to hide input text.)";}
-			else 
-			{ el.style.display = 'none'; 
-			  button.innerHTML="(Click here to show input text.)";} 
+			else
+			{ el.style.display = 'none';
+			  button.innerHTML="(Click here to show input text.)";}
 			return false; } </script>
-		
-	
+
+
 		<title>
 			John Loeber: Set
 		</title>
@@ -38,7 +29,7 @@
 			<div class="siteimg"></div>
 			<div class="siteheader"> John Loeber </div>
 		<div style="height:10px;width:490px"></div>
-		
+
 		<div style="width:167px;height:120px;float:left">
 			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
 			<div style="width:10px;height:120px;float:right"></div>
@@ -50,7 +41,7 @@
 		</div>
 
 		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-			
+
 	<div class="main">
 		<br>
 	<atitle>Set</atitle></td>
@@ -68,7 +59,7 @@
 <sh>Introduction</sh>
 <br>
 <p>
-In the Winter of 2015, I took <a href="https://www.classes.cs.uchicago.edu/archive/2015/winter/22300-1/">Functional Programming</a> at the University of Chicago. 
+In the Winter of 2015, I took <a href="https://www.classes.cs.uchicago.edu/archive/2015/winter/22300-1/">Functional Programming</a> at the University of Chicago.
 The course focused on topics in functional programming, specifically purely functional data structures, and used the <a href="http://www.elm-lang.org">Elm Programming Language</a>,
 which compiles to JavaScript, for implementations.
 Elm, though still in development, is a superb way to write applications for the browser: it is a strongly and statically typed, functionally reactive language that is remarkably easy to use.
@@ -83,14 +74,14 @@ to web development. This makes it not only easy, but also enjoyable to write, re
 power, expressiveness, and ease of use. I expect Elm to become increasingly popular as time progresses.
 </p>
 <p>
-That being said, there are of course parts of Elm that could be improved or are otherwise controversial. 
+That being said, there are of course parts of Elm that could be improved or are otherwise controversial.
 I could nit-pick the presence of a few bugs in the Graphics libraries (e.g. textures and links seem to not work properly), but those
 sorts of minor issues are to be expected of a language-in-development. More seriously, I'm concerned that the functional programming paradigm can occasionally be too restrictive, coercing the user into writing
 a solution in a very particular way, constrained by the syntax of the language. The current absence of straight-forward iteration, or the impossibility of converting a Signal into a constant value
  might be frustrating to some users. I think there are effectively three ways of handling such issues:
 <ul>
 <li> Abstraction: devise more abstract internal wrappers to hide potentially frustrating or confusing issues from the programmer. As an example, I had to make significant use of the <inlineCode>Random</inlineCode> library for generating random values. Elm currently requires
-the programmer to keep track of the Seed for generating random values, which can be tedious. I think that the programmer's experience would be improved if all Seed-handling was 
+the programmer to keep track of the Seed for generating random values, which can be tedious. I think that the programmer's experience would be improved if all Seed-handling was
 abstracted away from the user and done automatically (perhaps directly in JavaScript).<br><br>
 <li> Superficially compromise the functional purity of elm: incorporate features that, to the programmer, look like imperative alternatives, but are simply imperative-style wrappers on functional methods.
 <br><br>
@@ -108,9 +99,9 @@ which forced me to spend more time thinking about problem-solving, digging throu
 <sh>Download</sh>
 <br>
 <p>
-The GitHub repository is available <a href="https://github.com/Datamine/Set-Trainer">here</a>. Note that I wrote this application in Elm 0.14.1, and Elm is undergoing rapid iterative development, 
+The GitHub repository is available <a href="https://github.com/Datamine/Set-Trainer">here</a>. Note that I wrote this application in Elm 0.14.1, and Elm is undergoing rapid iterative development,
 so the <inlineCode>.elm</inlineCode> files will likely need to be adjusted in the future. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
-	
+
 			<div class="notice">
 				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>
