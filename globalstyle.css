@@ -1,31 +1,41 @@
-body{
-	font-family: 'Open Sans', sans-serif;
-	font-size: 18px;
-	text-decoration:none;
-	width:751px;
-	margin:auto;
-	float:center;
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+@import url('http://fonts.googleapis.com/css?family=Merriweather:400,300');
+
+/* NAVIGATION / TOP BAR */
+
+.topspace{
+  width:751px;
+  height:20px;
+  background-color:#FFFFFF;
 }
 
-.siteheader{
-	font-weight: 300;
-	height: 120px;
-	width: 491px;
-	display:table-cell;
-	vertical-align: middle;
-	text-align: center;
-	font-family: 'Merriweather', serif;
-	font-size: 72px;
-	background-color: white;
+.horizontalspace{
+  width:10px;
+  height:120px;
+  float:left;
 }
 
 .siteimg:before{
-    width:250px; 
-    height:250px;
-    content:url(./siteimg.png);
-	float: left;
-	padding-right:10px;
-	padding-bottom:0px;
+  display: inline-block;
+  width: 120px;
+  height: 120px;
+  content: " ";
+  background: url(./images/home/jl-logo.svg);
+	background-size:100%;
+  float: left;
+}
+
+.siteheader:before{
+	font-weight: 300;
+	height: 120px;
+	width: 199px;
+	display:inline-block;
+	vertical-align: middle;
+	text-align: center;
+	font-family: 'Merriweather', serif;
+	font-size: 48px;
+  float:left;
+  content:"John Loeber";
 }
 
 #linkblock:hover{
@@ -35,9 +45,10 @@ body{
 .block{
 	vertical-align:middle;
 	font-weight:300;
-	font-size:30px;
+	font-size:36px;
+  font-variant:small-caps;
 	height:120px;
-	width:157px;
+	width:174px;
 	color:#000000;
 	display:table-cell;
 	text-align:center;
@@ -46,11 +57,22 @@ body{
 
 #selected{
 	background-color: #427CB8;
-	font-size:34px;
-	color:#000000;
-	font-variant:small-caps;
+	font-size:42px;
 }
 
+
+
+
+/* OTHER STUFF */
+
+body{
+	font-family: 'Open Sans', sans-serif;
+	font-size: 18px;
+	text-decoration:none;
+	width:751px;
+	margin:auto;
+	float:center;
+}
 
 .body a:hover, a:visited, a:link, a:active
 {
@@ -59,7 +81,7 @@ body{
 
 .main{
 	position:absolute;
-	top:280px;
+	top:140px;
 	width:751px;
 	z-index:-1;
 	text-align:justify;
