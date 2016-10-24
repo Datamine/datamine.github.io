@@ -1,74 +1,67 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
-		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
-		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-
-		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/solarized-light.min.css">
-		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
-    	<script>hljs.initHighlightingOnLoad();</script>
-
-		<script type="text/x-mathjax-config">
-		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-		</script>
-		<script type="text/javascript" async
-		  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
-		</script>
-
-
+<head>
+<link href="../globalstyle.css" rel="stylesheet" type="text/css">
 		<title>
-			John Loeber: K-Means Clustering
+			  K-Means Clustering
 		</title>
-	</head>
+</head>
+<body>
+<div class="topspace"></div>
+<div class="siteheader">John Loeber</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../index.html">
+    		<div class="block" id="linkblock">Projects</div>
+		</a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../writing.html">
+        <div class="block" id="linkblock">Writing</div>
+    </a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../about.html">
+        <div class="block" id="linkblock">About</div>
+    </a>
+</div>
+<div class="main">
+<br>
+<!--###################### CONTENT BELOW ######################-->
+<br>
+<atitle>
+    K-Means Clustering on Handwritten Digits
+</atitle>
+<p>
+K-Means Clustering is a machine learning technique for classifying data. It&rsquo;s best explained with a simple example. Below is some (fictitious) data comparing elephants and penguins. We&rsquo;ve plotted 20 animals, and each one is represented by a (weight, height) coordinate.<br>
+<img class="imgcenter" src="../images/animals_kmeans.png"></img>
+<p>
+You can see that the coordinate points of the elephants and penguins form two clusters: elephants are bigger and heavier, penguins are smaller and lighter. Now suppose we&rsquo;ve got one more datapoint, but we&rsquo;ve forgotten whether it&rsquo;s an elephant or a penguin. Let&rsquo;s plot it, too. We&rsquo;ve marked it in orange.
+</p>
+<img class="imgcenter" src="../images/animals_kmeans1.png"></img>
+<p>
+If you were to make a guess, you&rsquo;d say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
+</p>
+<p>
+This is the essence of clustering. We take some labelled data &mdash; like heights and weights of animals, where each animal is labeled as either a penguin or an elephant. We use an algorithm to figure out which datapoints belong to which (weight, height) clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label.
+</p>
+<p>
+We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd&rsquo;s Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> We do this in order to minimize the total sum of distances from every centroid to the points in its cluster &mdash; that is our metric for how well the clusters split up the data.
+</p>
+<p>
+We&rsquo;ll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
+</p>
+<img class="imgcenter" src="../images/mnist.png"></img>
+<p>
+For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can run k-means clustering. Let&rsquo;s do it. I will be using Python 2.7 in an iPython notebook.
+</p>
+<p>
+We start by importing all the libraries we will use.
+</p>
 
-	<body>
-		<div style="width:751px;height:20px;background-color:#FFFFFF"></div>
-			<div class="siteimg"></div>
-			<div class="siteheader"> John Loeber </div>
-		<div style="height:10px;width:490px"></div>
 
-		<div style="width:167px;height:120px;float:left">
-			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
-			<div style="width:10px;height:120px;float:right"></div>
-		</div>
-
-		<div style="width:167px;height:120px;float:left">
-			<a href="../writing.html"><div class="block" id="linkblock"><span class="blockfont">Writing</span></div></a>
-			<div style="width:10px;height:120px;float:right"></div>
-		</div>
-
-		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-
-		<div class="main">
-			<br>
-			<atitle>K-Means Clustering on Handwritten Digits</atitle></td>
-			<p>
-			K-Means Clustering is a machine learning technique for classifying data. It&rsquo;s best explained with a simple example. Below is some (fictitious) data comparing elephants and penguins. We&rsquo;ve plotted 20 animals, and each one is represented by a (weight, height) coordinate.<br>
-			<img class="imgcenter" src="../images/animals_kmeans.png"></img>
-			<p>
-			You can see that the coordinate points of the elephants and penguins form two clusters: elephants are bigger and heavier, penguins are smaller and lighter. Now suppose we&rsquo;ve got one more datapoint, but we&rsquo;ve forgotten whether it&rsquo;s an elephant or a penguin. Let&rsquo;s plot it, too. We&rsquo;ve marked it in orange.
-			</p>
-			<img class="imgcenter" src="../images/animals_kmeans1.png"></img>
-			<p>
-			If you were to make a guess, you&rsquo;d say that the orange datapoint probably belongs to an elephant, and not to a penguin. We say this because the orange datapoint seems to belong to the elephant cluster, not to the penguin cluster.
-			</p>
-			<p>
-			This is the essence of clustering. We take some labelled data &mdash; like heights and weights of animals, where each animal is labeled as either a penguin or an elephant. We use an algorithm to figure out which datapoints belong to which (weight, height) clusters. We look at the labels of the clusters to understand what label each cluster corresponds to. Then we take an unlabelled datapoint, see into which cluster it fits best, and thereby assign the unlabelled datapoint a label.
-			</p>
-			<p>
-			We call the process k-means clustering because we assume that there are $k$ clusters, and each cluster is defined by its center point &mdash; its mean. To find these clusters, we use <i>Lloyd&rsquo;s Algorithm</i>: we start out with $k$ random centroids. A centroid is simply a datapoint around which we form a cluster. For each centroid, we find the datapoints that are closer to that centroid than to any other centroid. We call that set of datapoints its cluster. Then we take the mean of the cluster, and let that be the new centroid. We repeat this process (using the new centroids to form clusters, etc.) until the algorithm stops moving the centroids.<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small> We do this in order to minimize the total sum of distances from every centroid to the points in its cluster &mdash; that is our metric for how well the clusters split up the data.
-			</p>
-			<p>
-			We&rsquo;ll use k-means clustering on the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset of handwritten digits</a>, which consists of 60,000 handwritten digits (0-9) that have been scanned in and scaled to 28 $\times$ 28 pixels. They look like this:
-			</p>
-			<img class="imgcenter" src="../images/mnist.png"></img>
-			<p>
-			For every digit, each pixel can be represented as an integer in the range [0,255] where 0 corresponds to the pixel being completely white, and 255 corresponds to the pixel being completely black. This gives us a 28 $\times$ 28 matrix of integers. We can then flatten this matrix into a 784 $\times$ 1 vector, which is like a coordinate pair, except for that instead of 2 coordinates it has 784. Now that the data is in coordinate form, we can run k-means clustering. Let&rsquo;s do it. I will be using Python 2.7 in an iPython notebook.
-			</p>
-			<p>
-			We start by importing all the libraries we will use.
-			</p>
 <pre><code class="python">import random
 from base64 import b64decode
 from json import loads

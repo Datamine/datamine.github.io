@@ -1,70 +1,74 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
-		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
-		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-
-		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/solarized-light.min.css">
-		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js"></script>
-    	<script>hljs.initHighlightingOnLoad();</script>
-
-		<script type="text/x-mathjax-config">
-		  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-		</script>
-		<script type="text/javascript" async
-		  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
-		</script>
-
-
+<head>
+<link href="../globalstyle.css" rel="stylesheet" type="text/css">
 		<title>
-			John Loeber: PokerTexter
+		    PokerTexter
 		</title>
-	</head>
+</head>
+<body>
+<div class="topspace"></div>
+<div class="siteheader">John Loeber</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../index.html">
+    		<div class="block" id="linkblock">Projects</div>
+		</a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../writing.html">
+        <div class="block" id="linkblock">Writing</div>
+    </a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../about.html">
+        <div class="block" id="linkblock">About</div>
+    </a>
+</div>
+<div class="main">
+<br>
+<!--###################### CONTENT BELOW ######################-->
 
-	<body>
-		<div style="width:751px;height:20px;background-color:#FFFFFF"></div>
-			<div class="siteimg"></div>
-			<div class="siteheader"> John Loeber </div>
-		<div style="height:10px;width:490px"></div>
 
-		<div style="width:167px;height:120px;float:left">
-			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
-			<div style="width:10px;height:120px;float:right"></div>
-		</div>
 
-		<div style="width:167px;height:120px;float:left">
-			<a href="../writing.html"><div class="block" id="linkblock"><span class="blockfont">Writing</span></div></a>
-			<div style="width:10px;height:120px;float:right"></div>
-		</div>
-
-		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-
-		<div class="main">
-			<br>
-			<atitle>PokerTexter</atitle></td>
-			<p>
-            Suppose you&rsquo;re playing Texas Hold 'Em, and you&rsquo;re dealt a nine of hearts and a king of spades. There are nine other players. It's the pre-flop round of betting, and you're wondering whether you should play this hand. You know that a nine-king offsuit is a reasonably strong hand when there are only two other players, but in this round there are nine other players. Should you play the hand? You could try to mentally work out all the probabilities. Alternatively, you could quickly use PokerTexter.
-            </p>
-            <p>
-            PokerTexter analyzes your initial cards and the number of players for probabilities of winning and tying, and computes the expected gain, an indicator of whether to play the hand or not. You interact with PokerTexter via text message (SMS). This messaging service runs on a stack of Twilio, Heroku, and Flask. You will need to set up PokerTexter in order to use it. The documentation and detailed setup instructions are in the  <a href="https://github.com/datamine/pokertexter">GitHub repository</a>. Check it out!
-            </p>
+<br>
+<atitle>
+    PokerTexter
+</atitle>
+<p>
+    Suppose you&rsquo;re playing Texas Hold 'Em, and you&rsquo;re dealt a nine of hearts and a king of spades. There are nine other players. It's the pre-flop round of betting, and you're wondering whether you
+</p>
+<p>
+    PokerTexter analyzes your initial cards and the number of players for probabilities of winning and tying, and computes the expected gain, an indicator of whether to play the hand or not. You interact with PokerTexter via text message (SMS). This messaging service runs on a stack of Twilio, Heroku, and Flask. You will need to set up PokerTexter in order to use it. The documentation and detailed setup instructions are in the  <a href="https://github.com/datamine/pokertexter">GitHub repository</a>. Check it out!
+</p>
 <p>
 			<img class="imgcenter" src="https://raw.githubusercontent.com/Datamine/PokerTexter/master/example.png"></img>
 </p>
-			<div class="notice">
-				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
-			</div>
-		</div>
-	</body>
+
+
+
+
+<!--- END CONTENT, START TWITTERBAR -->
+<hr>
+<center><a href="http://twitter.com/@johnloeber">Follow me on Twitter</a>.</center>
+<hr>
+<!--- END TWITTERBAR, START FOOTNOTES -->
+
+
+<!--###################### END OF CONTENT ######################-->
+<div class="notice">
+<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+</div>
+</div>
+</body>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-74324013-1', 'auto');
-  ga('send', 'pageview');
-
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-74324013-1', 'auto');
+ga('send', 'pageview');
 </script>
 </html>
