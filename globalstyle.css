@@ -72,6 +72,18 @@
 }
 
 
+/* FOOTER */
+
+.notice {
+	font-size:10px;
+	color:#666666;
+	text-align:center;
+}
+
+.notice a{
+	font-weight:normal;
+}
+
 /* OTHER STUFF */
 
 body{
@@ -105,21 +117,6 @@ body{
 .main a:visited{
 	color:#751000;
 }
-
-table a{
-	font-weight:bold;
-}
-	
-.notice {
-	font-size:10px;
-	color:#666666;
-	text-align:center;
-}
-
-.notice a{
-	font-weight:normal;
-}
-
 p{
 	text-align:justify;
 }
