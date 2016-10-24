@@ -1,12 +1,11 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
 @import url('http://fonts.googleapis.com/css?family=Merriweather:400,300');
 
-/* NAVIGATION / TOP BAR */
+/* NAVIGATION BAR */
 
 .topspace{
   width:751px;
   height:20px;
-  background-color:#FFFFFF;
 }
 
 .horizontalspace{
@@ -15,18 +14,8 @@
   float:left;
 }
 
-.siteimg:before{
-  display: inline-block;
-  width: 120px;
-  height: 120px;
-  content: " ";
-  background: url(./images/home/jl-logo.svg);
-	background-size:100%;
-  float: left;
-}
-
-.siteheader:before{
-	font-weight: 300;
+.siteheader{
+	font-weight: 100;
 	height: 120px;
 	width: 199px;
 	display:inline-block;
@@ -35,11 +24,12 @@
 	font-family: 'Merriweather', serif;
 	font-size: 48px;
   float:left;
-  content:"John Loeber";
 }
 
-#linkblock:hover{
-	font-weight: bold;
+.blockwrapper{
+  width:174px;
+  height:120px;
+  float:left;
 }
 
 .block{
@@ -57,10 +47,29 @@
 
 #selected{
 	background-color: #427CB8;
-	font-size:42px;
+	font-size:36px;
 }
 
+#linkblock:hover{
+	font-weight: bold;
+}
 
+/* CONTENT TABLES (PROJECTS & WRITING) */
+
+.date{
+  width:200px;
+  font-weight:light;
+  text-align:right;
+  vertical-align:middle;
+  font-size: 14px;
+  color:#666666;
+}
+
+.navtitle{
+  width:551px;
+  font-weight:bold;
+  font-size:22px;
+}
 
 
 /* OTHER STUFF */
@@ -147,28 +156,19 @@ sh{ /* subheader*/
 	font-size: 22px;
 }
 
-date{
-    font-weight:light;
-    font-size: 14px;
-	color:#666666;
-}
 
 /* ref. to http://css-tricks.com/almanac/properties/v/vertical-align/ */
 .imghelper > *{
     vertical-align: middle;
-
 }
 
 /* ref. to http://www.w3.org/Style/Examples/007/center.en.html#block */
 .imgcenter {
     display: block;
     margin-left: auto;
-    margin-right: auto }
-
-td {
-    vertical-align:top;
+    margin-right: auto;
 }
-                
+
 .blockfont{
     font-variant: small-caps;
     text-decoration:none;
