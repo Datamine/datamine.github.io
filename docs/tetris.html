@@ -1,50 +1,40 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
-		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
-		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
-
-        <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
-		<script language="JavaScript" type="text/javascript">
-		function ExpandCollapse(theDiv,theButton){
-			el = document.getElementById(theDiv);
-			button = document.getElementById(theButton)
-			if(el.style.display == 'none')
-			{ el.style.display = '';
-			  button.innerHTML="(Click here to hide input text.)";}
-			else
-			{ el.style.display = 'none';
-			  button.innerHTML="(Click here to show input text.)";}
-			return false; } </script>
-
-
+<head>
+<link href="../globalstyle.css" rel="stylesheet" type="text/css">
 		<title>
-			John Loeber: Tetris
+        Tetris
 		</title>
-	</head>
+</head>
+<body>
+<div class="topspace"></div>
+<div class="siteheader">John Loeber</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../index.html">
+    		<div class="block" id="linkblock">Projects</div>
+		</a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../writing.html">
+        <div class="block" id="linkblock">Writing</div>
+    </a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../about.html">
+        <div class="block" id="linkblock">About</div>
+    </a>
+</div>
+<div class="main">
+<br>
+<!--###################### CONTENT BELOW ######################-->
+<br>
+<atitle>
+  Tetris
+</atitle>
 
-	<body>
-		<div style="width:751px;height:20px;background-color:#FFFFFF"></div>
-			<div class="siteimg"></div>
-			<div class="siteheader"> John Loeber </div>
-		<div style="height:10px;width:490px"></div>
-
-		<div style="width:167px;height:120px;float:left">
-			<a href="../index.html"><div class="block" id="linkblock"><span class="blockfont">Projects</span></div></a>
-			<div style="width:10px;height:120px;float:right"></div>
-		</div>
-
-		<div style="width:167px;height:120px;float:left">
-			<a href="../writing.html"><div class="block" id="linkblock"><span class="blockfont">Writing</span></div></a>
-			<div style="width:10px;height:120px;float:right"></div>
-		</div>
-
-		<a href="../about.html"><div class="block" id="linkblock"><span class="blockfont">About</span></div></a>
-
-	<div class="main">
-		<br>
-	<atitle>Tetris</atitle></td>
 <p>
 I implemented the classic Tetris game. It requires Python 2 and the <inlineCode>pygame</inlineCode> library to run. I wrote it in Python 2.7.8 for UNIX-based operating systems, though it can be modified easily to run on Windows, too.
 </p>
@@ -72,22 +62,35 @@ It is possible for you to modify many aspects of the game, as the source code is
 <p style="clear: both;"><br></p>
 <sh>Download</sh>
 </p>
-The GitHub repository is available <a href="https://github.com/Datamine/Tetris">here</a>. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
+The GitHub repository is available
+<a href="https://github.com/Datamine/Tetris">here</a>.
+Please contact me if you find any bugs/errors, or use
+my work for any interesting derivative work &mdash; I'd like to
+see what you come up with. </p>
 
-			<div class="notice">
-				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
-			</div>
-		</div>
-	</body>
+
+
+<!--- END CONTENT, START TWITTERBAR -->
+<hr>
+<center><a href="http://twitter.com/@johnloeber">Follow me on Twitter</a>.</center>
+<hr>
+<!--- END TWITTERBAR, START FOOTNOTES -->
+
+
+
+
+<!--###################### END OF CONTENT ######################-->
+<div class="notice">
+<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+</div>
+</div>
+</body>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-74324013-1', 'auto');
-  ga('send', 'pageview');
-
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-74324013-1', 'auto');
+ga('send', 'pageview');
 </script>
 </html>
-
