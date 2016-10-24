@@ -1,3 +1,91 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+@import url('http://fonts.googleapis.com/css?family=Merriweather:400,300');
+
+/* NAVIGATION BAR */
+
+.topspace{
+  width:751px;
+  height:20px;
+}
+
+.horizontalspace{
+  width:10px;
+  height:120px;
+  float:left;
+}
+
+.siteheader{
+	font-weight: 100;
+	height: 120px;
+	width: 199px;
+	display:inline-block;
+	vertical-align: middle;
+	text-align: center;
+	font-family: 'Merriweather', serif;
+	font-size: 48px;
+  float:left;
+}
+
+.blockwrapper{
+  width:174px;
+  height:120px;
+  float:left;
+}
+
+.block{
+	vertical-align:middle;
+	font-weight:300;
+	font-size:36px;
+  font-variant:small-caps;
+	height:120px;
+	width:174px;
+	color:#000000;
+	display:table-cell;
+	text-align:center;
+	background-color: #42a148;
+}
+
+#selected{
+	background-color: #427CB8;
+	font-size:36px;
+}
+
+#linkblock:hover{
+	font-weight: bold;
+}
+
+/* CONTENT TABLES (PROJECTS & WRITING) */
+
+.date{
+  width:200px;
+  font-weight:light;
+  text-align:right;
+  vertical-align:middle;
+  font-size: 14px;
+  color:#666666;
+}
+
+.navtitle{
+  width:551px;
+  font-weight:bold;
+  font-size:22px;
+}
+
+
+/* FOOTER */
+
+.notice {
+	font-size:10px;
+	color:#666666;
+	text-align:center;
+}
+
+.notice a{
+	font-weight:normal;
+}
+
+/* OTHER STUFF */
+
 body{
 	font-family: 'Open Sans', sans-serif;
 	font-size: 18px;
@@ -7,51 +95,6 @@ body{
 	float:center;
 }
 
-.siteheader{
-	font-weight: 300;
-	height: 120px;
-	width: 491px;
-	display:table-cell;
-	vertical-align: middle;
-	text-align: center;
-	font-family: 'Merriweather', serif;
-	font-size: 72px;
-	background-color: white;
-}
-
-.siteimg:before{
-    width:250px; 
-    height:250px;
-    content:url(./siteimg.png);
-	float: left;
-	padding-right:10px;
-	padding-bottom:0px;
-}
-
-#linkblock:hover{
-	font-weight: bold;
-}
-
-.block{
-	vertical-align:middle;
-	font-weight:300;
-	font-size:30px;
-	height:120px;
-	width:157px;
-	color:#000000;
-	display:table-cell;
-	text-align:center;
-	background-color: #42a148;
-}
-
-#selected{
-	background-color: #427CB8;
-	font-size:34px;
-	color:#000000;
-	font-variant:small-caps;
-}
-
-
 .body a:hover, a:visited, a:link, a:active
 {
     text-decoration: none;
@@ -59,7 +102,7 @@ body{
 
 .main{
 	position:absolute;
-	top:280px;
+	top:140px;
 	width:751px;
 	z-index:-1;
 	text-align:justify;
@@ -73,20 +116,6 @@ body{
 
 .main a:visited{
 	color:#751000;
-}
-
-table a{
-	font-weight:bold;
-}
-	
-.notice {
-	font-size:10px;
-	color:#666666;
-	text-align:center;
-}
-
-.notice a{
-	font-weight:normal;
 }
 
 p{
@@ -125,28 +154,19 @@ sh{ /* subheader*/
 	font-size: 22px;
 }
 
-date{
-    font-weight:light;
-    font-size: 14px;
-	color:#666666;
-}
 
 /* ref. to http://css-tricks.com/almanac/properties/v/vertical-align/ */
 .imghelper > *{
     vertical-align: middle;
-
 }
 
 /* ref. to http://www.w3.org/Style/Examples/007/center.en.html#block */
 .imgcenter {
     display: block;
     margin-left: auto;
-    margin-right: auto }
-
-td {
-    vertical-align:top;
+    margin-right: auto;
 }
-                
+
 .blockfont{
     font-variant: small-caps;
     text-decoration:none;
