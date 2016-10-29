@@ -47,11 +47,11 @@
 
 #selected{
 	background-color: #427CB8;
-	font-size:36px;
 }
 
 #linkblock:hover{
 	font-weight: bold;
+	font-size:38px;
 }
 
 /* CONTENT TABLES (PROJECTS & WRITING) */
