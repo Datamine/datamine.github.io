@@ -137,11 +137,12 @@ inlineCode{
   /*display: block;*/
   padding: 1px;
   margin-bottom: 1em;
-  background-color: #fff;
+  background-color: #f5f4ef;
   border: solid 1px #efeee6;
   color: #02590B;
   /*color: #f14e32;*/
   font-family: Courier, monospace !important;
+  font-weight: bold,
   /*line-height: 18px;*/
   overflow: auto;
 }
