@@ -5,7 +5,7 @@ function getCBSACode(){
     document.getElementById('cbsadesignation').innerHTML = "Searching...";
     $.ajax({
       type: "GET",
-      url: "https://fierce-sea-45041.herokuapp.com/",
+      url: "https://ruca-cbsa-codes.herokuapp.com/",
       data: {"address":address},
       dataType: "jsonp",
       success: function(returndata)
