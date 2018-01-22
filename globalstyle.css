@@ -120,6 +120,7 @@ body{
 
 p{
 	text-align:justify;
+    line-height:150%;
 }
 
 .blockquote {

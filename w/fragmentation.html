@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="../globalstyle.css" rel="stylesheet" type="text/css">
+        <title>
+            Fragmentation in Cryptocurrencies
+        </title>
+</head>
+<body>
+<div class="topspace"></div>
+<div class="siteheader">John Loeber</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../index.html">
+            <div class="block" id="linkblock">Projects</div>
+        </a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../writing.html">
+        <div class="block" id="linkblock">Writing</div>
+    </a>
+</div>
+<div class="horizontalspace"></div>
+<div class="blockwrapper">
+    <a href="../about.html">
+        <div class="block" id="linkblock">About</div>
+    </a>
+</div>
+<div class="main">
+<br>
+<!--###################### CONTENT BELOW ######################-->
+<br>
+<atitle>
+    Abstract
+</atitle>
+<br><br>
+<p>
+    I discuss the loss of bitcoin's market dominance, the proliferation
+    of alternative, special-purpose cryptocurrencies, and the way in which
+    this fragments the cryptocurrency markets. I argue that due to the structure
+    of financial incentives in the space, this fragmentation is likely to continue.
+    I discuss the implications of the Lightning Network, a recently-launched
+    technology that may solve these fragmentation concerns.
+</p>
+<br>
+<atitle>
+    Fragmentation in Cryptocurrencies
+</atitle>
+<br><br>
+<p>
+    2017 was an interesting year for cryptocurrencies, primarily marked by
+    outstanding growth. The price of bitcoin rose from $980 to $13,170,<small><sup><a href="#footnote0" name="note0">[0]</a></sup></small>
+    peaking slightly north of $20,000 on some exchanges.
+    Some new bitcoin also came into existence,
+    so it's helpful to look at the market capitalization, which rose from $15.5b to $220.9b,
+    representing an increase by 1,326%.
+</p>
+<p>
+    Beyond bitcoin, there are many other cryptocurrencies (&ldquo;coins&rdquo;).<small><sup><a href="#footnote1" name="note1">[1]</a></sup></small>
+    The year began with 617 coins listed on <a href='https://coinmarketcap.com/'>CoinMarketCap</a>, and finished with 1,335.
+    The total market cap of all coins rose from $17.9b to $601.4b
+    &mdash; a 3,260% increase.
+</p>
+<p>
+    Though some might call 2017 the year of bitcoin, these statistics should give us pause.
+    Bitcoin started with its market cap accounting for 87% of the total cryptocurrency market cap,
+    and finished at 38%. This was the year that bitcoin lost its dominance.
+</p>
+<p>
+    <a href='../images/coinmarketcap-btc-dominance.png' target='_blank'>
+        <img width='751px' src="../images/coinmarketcap-btc-dominance.png"></img>
+    </a>
+</p>
+<p>
+    The matter is not just the growth of main technological competitors (e.g. Ethereum, Ripple, Bitcoin Cash),
+    but rather the proliferation of smaller, reasonably successful cryptocurrencies.
+    By December 31st, there were 31 coins with market caps greater than a billion dollars,
+    and 149 coins with market caps greater than $100m.<small><sup><a href="#footnote2" name="note2">[2]</a></sup></small>
+    And though it's popular in the cryptocurrency community to deride the vast majority of coins
+    as useless, poorly engineered, or fraudulent (oftentimes all three),
+    it's hard to deny that there are now
+    many legitimate projects that show genuine technological promise.
+</p>
+<p>
+    The issue with this is that the promising cryptocurrencies generally serve niche use cases,
+    and no single coin is doing a good job at consolidating all these technologies.
+    For example, let's say you monetize your blog using the <a href='https://basicattentiontoken.org/'>Basic Attention Token</a>.
+    You trade into <a href='http://www.augur.net/'>Augur</a>, so that you can place a bet on a prediction market.
+    You want to trade into <a href='https://z.cash/'>ZCash</a>, so you can send someone money totally anonymously, but there might not exist
+    a market for trading between ZCash and Augur, so you first have to trade from Augur into bitcoin, the <i>de facto</i>
+    reserve cryptocurrency, from which you can then trade into ZCash.
+    Finally, you might trade into Stellar, so you can send money almost instantaneously at a low cost.
+    In terms of <i>actual use</i> beyond speculation, this is an ecosystem that is quickly becoming
+    as fragmented and frictious as the technologies of yesteryear.
+</p>
+<p>
+    In theory, this isn't a problem, because all the code for these currencies is open-source,
+    meaning that developers can freely adapt the best features of other cryptocurrencies.
+    When alternatives to bitcoin first appeared, the prevailing community opinion
+    was that there would eventually be many coins in competition with one another,
+    rapidly adapting each other's features, and this competitive iteration would
+    yield the best technologies, much like how competition in traditional markets is
+    thought to produce the best products for the consumer.
+</p>
+<p>
+    In practice, however, this is not at all the case.
+    2017 has shown technological governance (the decision-making process for
+    making changes to cryptocurrency protocols) to be the hardest problem
+    in the space.<small><sup><a href="#footnote3" name="note3">[3]</a></sup></small>
+    The best example lies in the scaling debates:
+    as cryptocurrencies gained
+    popularity in 2017, operating those networks at scale became difficult.
+    Due to the size of the network,
+    bitcoin presently takes around half an hour to process any transaction, at a cost of around $15.
+    A proposed solution ended up bitterly splitting the community, with a new
+    coin, Bitcoin Cash, emerging as a consequence.
+</p>
+<p>
+    Thus, it is not at all obvious whether any meaningful consolidation of special-purpose
+    coins will occur in the near
+    future. Any single large technological change to a cryptocurrency
+    is likely to split its community and produce a forked coin in the process.
+    Beyond that, one might argue that the space is suffering
+    because there is a proliferation of coins that are essentially
+    forks of one another; i.e. not meaningfully differentiated. There are, fundamentally,
+    two reasons for this, both of them variations on a misalignment of financial incentives.
+</p>
+<sh>
+    1. Financial Incentives for Developers
+</sh>
+<p>
+    Suppose you have an idea for a cryptocurrency feature, e.g. a way to make
+    transactions anonymous. You have two options: either you try to add this feature
+    to an existing coin, or you build your own coin
+    based on this feature. In the first case &mdash; suppose you try to add your feature
+    to bitcoin &mdash; you not only have to carefully refactor existing code to accommodate your
+    innovation, but persuade the rest of the developers to support your feature, and
+    ensure that it has the blessing of the major mining pools. What, beyond
+    sheer idealism, incentivizes you to do this? It's not like you get to draw a
+    salary for your work.<small><sup><a href="#footnote4" name="note4">[4]</a></sup></small>
+    The only financial incentive exists if you already hold
+    significant amounts of bitcoin, and expect your work to cause a non-trivial
+    price rise. This means that you need enormous amounts of skin in the game:
+    beyond investing a great deal of time, you also need to hold on to tens, if
+    not hundreds of thousands of dollars in bitcoin to have any hope of making
+    a reasonable profit.
+</p>
+<p>
+    On the other hand, you could also just create your own cryptocurrency.
+    Because other coins are open-source, you can trivially lift all the
+    boilerplate code from others.
+    All the factors that might slow you down in the former case, like having to reach consensus with
+    other developers, are totally mitigated.
+    And the financial incentives are compelling:
+    as the first miner, you're going
+    to capture a lot of the early coins, or you might even bake in a reward scheme
+    that rewards you, the creator, with some percentage of mined coins.<small><sup><a href="#footnote5" name="note5">[5]</a></sup></small>
+    In this scenario, the only thing you risk is your time. Even that is possible
+    to mostly mitigate by running an ICO based on your whitepaper, which would
+    hopefully yield funding for the development phase.
+</p>
+<p>
+    In terms of financial incentives, this is a total no-brainer for any potential
+    cryptocurrency contributor. Attempting to bring a major feature to
+    a major cryptocurrency makes sense only if you have large amounts of time
+    and are already heavily invested in that coin. There are very few people
+    to whom this description applies.
+</p>
+<sh>
+    2. Financial Incentives for Speculators
+</sh>
+<p>
+    Investing in cryptocurrencies is tricky, because the markets and technologies
+    are still highly immature. While it is very likely that cryptocurrencies in general
+    still have significant upside, it's hard to predict which ones will succeed
+    in the medium or long term. At the end of 2017, fifty-six out of the top 100
+    cryptocurrencies had not existed at the start of the year.<small><sup><a href="#footnote6" name="note6">[6]</a></sup></small>
+</p>
+<p>
+    As such, considering the difficulties that many of the older coins are facing,
+    and the promise that some of the newer projects are showing,
+    it is reasonable for an investor who is bullish on a small-cap coin's technology
+    to expect it to have much more upside than one of the established
+    coins.<small><sup><a href="#footnote7" name="note7">[7]</a></sup></small> For bitcoin
+    to double in price at this point requires significant capital inflow from outside
+    the ecosystem,
+    whereas a
+    coin with a $500m market cap could double in price simply based on good news.<small><sup><a href="#footnote8" name="note8">[8]</a></sup></small>
+    Especially if you believe that the eventually-dominant cryptocurrency is yet to be
+    invented, and that technological and political developments and corresponding
+    price movements over the long term are hard to predict,
+    then it makes sense to apply a venture capital-style, power-law driven approach:
+    purchasing small amounts of all promising cryptocurrencies,
+    in the hope that some of them will 10x, maybe 100x, etc. and that these winners
+    will greatly overcompensate for the losers.<small><sup><a href="#footnote9" name="note9">[9]</a></sup></small>
+</p>
+<p>
+    This style of investing supplies capital across the board, and reduces the dominance
+    of any one given coin. This indirectly contributes to technological fragmentation,
+    because the market capitalization of a coin is seen as social proof
+    of its legitimacy, thus influencing consumer behavior.
+</p>
+<sh>
+An Eye to the Future
+</sh>
+<p>
+    Among the more significant technological causes of fragmentation is
+    bitcoin's difficulty scaling its network.
+    There are currently many cryptocurrencies whose main value propositions are that
+    they transact faster or might scale better than bitcoin.
+    As such, the most important question regarding consolidation is how well bitcoin
+    and Ethereum will be able to solve their scaling difficulties.
+</p>
+<p>
+    For bitcoin,
+    the currently most promising solution is the Lightning Network, a
+    transactional layer on top of bitcoin, which went live
+    in January 2018, and is currently being tested in production.
+    If the Lightning
+    Network works, then we're going to see bitcoin's transaction capacity rise from
+    seven transactions a second to millions of transactions per second,<small><sup><a href="#footnote10" name="note10">[10]</a></sup></small>
+    with totally negligible fees.
+    Coins which currently offer little beyond faster
+        transactions &mdash; which include some of the very largest,
+        such as Bitcoin Cash, Litecoin, Dash, Ripple, and Stellar &mdash; would become
+    totally obsolete overnight.
+</p>
+<p>
+</p>
+<p>
+    Another interesting implication of the Lightning Network is that regardless of
+    its power to render minor coins obsolete and thus de-fragment the market,
+    it would de-fragment the market and remove cross-cryptocurrency transactional frictions anyway.
+    This is because Lightning can be extended to many blockchains,
+    and it
+    enables
+    atomic swaps across blockchains,
+    meaning that you can trivially trade your cryptocurrency X for cryptocurrency Y,
+    so even if you only hold cryptocurrency X,
+    you are able to transact as if you were holding cryptocurrency Y.<small><sup><a href="#footnote11" name="note11">[11]</a></sup></small>
+    This turns the earlier discussion about fragmentation between special-purpose coins
+    into a non-concern. If the Lightning Network or a similarly interoperable transactional
+    layer were to succeed, it would be the greatest possible contributor to the
+    long-term success of cryptocurrencies. I can think of no other factor that
+    would even come close in terms of impact.
+</p>
+<p>
+    If the Lightning Network does not succeed, then the future is a little more opaque.
+    Based on the current structure of financial incentives in the space,
+    there would be no clear end in sight for technological fragmentation.
+    In the long term, we'd hope for a few emergent victors to consolidate technologies,
+    incorporate the innovations of special-purpose coins, and render them obsolete.
+    When and how that would happen is unclear.
+    In the medium term, I would expect to see significant growth for special-purpose coins,
+    i.e. a significant number of coins joining the $500m-$5b market cap range,
+    solving problems specific to niche applications and industries.
+</p>
+<!--- END CONTENT, START TWITTERBAR -->
+<div style='padding-top:1em;padding-bottom:1em;background-color:#e6e6e6;'>
+        <center><a href="http://twitter.com/@johnloeber">Follow me on Twitter</a>.</center>
+</div>
+<!--- END TWITTERBAR, START FOOTNOTES -->
+<p>
+    <a href="#note0" name="footnote0">[0]</a> All figures are from <a href='https://coinmarketcap.com'>CoinMarketCap</a>, as of January 1 and December 31, 2017. I saved a copy of that data, available <a href='https://github.com/Datamine/Various/tree/master/Cryptocurrency-data-2017'>here</a>.
+</p>
+<p>
+    <a href="#note1" name="footnote1">[1]</a> Incidentally, not all proclaimed cryptocurrencies are secured by cryptographic protocols in the way
+        that bitcoin is. The nomenclature in this space is not perfect.
+</p>
+<p>
+    <a href="#note2" name="footnote2">[2]</a> If we want to be statistically rigorous, we might say that the distribution of market caps across coins was an
+        extremely platykurtic exponential distribution, and the kurtosis has increased slightly; i.e. tails have become slightly fatter.
+</p>
+<p>
+    <a href="#note3" name="footnote3">[3]</a> Perhaps only second to coordinating with actual political governance.
+</p>
+<p>
+    <a href="#note4" name="footnote4">[4]</a> There's a caveat in that some contributors are paid by donations or by organizations such as Blockstream, which provides funding for certain improvements to Bitcoin Core.
+</p>
+<p>
+    <a href="#note5" name="footnote5">[5]</a> This example is actually the story of ZCash, which is a cryptocurrency enabling totally anonymous transactions based
+        on zk-SNARKs, a particular application of <a href='https://en.wikipedia.org/wiki/Zero-knowledge_proof'>zero-knowledge proofs</a>.
+        ZCash is otherwise a fork of bitcoin, i.e. it is essentially bitcoin code with a zk-SNARK transactional layer.
+        The ZCash developers could just as well have petitioned to add a zk-SNARK layer to bitcoin, Litecoin, or any of the other major coins.
+        But they instead implemented ZCash as its own coin, ostensibly because that's much faster than
+        trying to add such a layer to any other coin, and because the ZCash founders
+        <a href='https://z.cash/blog/funding.html'>reserved a 10% reward of all ZCash for themselves</a>,
+        which is a rather compelling financial incentive.
+</p>
+<p>
+    <a href="#note6" name="footnote6">[6]</a> Where "top" is measured by market capitalization, as usual.
+</p>
+<p>
+    <a href="#note7" name="footnote7">[7]</a> This may also be because it is easier to value a niche product.
+        For example, if there is a cryptocurrency or blockchain-based solution to a particular technological problem
+        that costs $x per year, then its addressable market and potential upside can be calculated quite easily,
+        since there are few variables in play.
+
+        On the other hand, it is difficult to estimate &mdash; even to an order of magnitude &mdash; how
+        much a general-purpose transactional cryptocurrency could be worth in an optimistic scenario.
+</p>
+<p>
+    <a href="#note8" name="footnote8">[8]</a> This happens all the time. Quite often, these good news are fake news, but such is marketing.
+</p>
+<p>
+    <a href="#note9" name="footnote9">[9]</a> Another way to characterize this approach is that in the long-term,
+        having exposure to the entire sector (i.e. to the mean coin) is probably far more valuable than having exposure to the median coin.
+</p>
+
+<p>
+    <a href="#note10" name="footnote10">[10]</a> This is the seemingly-optimistic estimate by Lightning engineers.
+        Even if this is an overshot and the network can only support in the thousands of transactions per second,
+        that is still a massive improvement, and puts bitcoin in the range of major credit card processors by volume.
+        For reference, VISA processes about 40,000 transactions per second.
+</p>
+<p>
+    <a href="#note11" name="footnote11">[11]</a> I found <a href='https://bitcoinmagazine.com/articles/atomic-swaps-how-the-lightning-network-extends-to-altcoins-1484157052/'>this explanation</a>
+        of atomic swaps reasonably useful.
+</p>
+
+<sh>
+    Acknowledgements
+</sh>
+<p>
+Thanks to [[you]] for helpful feedback on earlier drafts of this piece.
+</p>
+
+<sh>
+    Disclaimer
+</sh>
+<p>
+This article is intended for informational purposes only. The views expressed
+in this article are not, and should not be construed as, investment advice.
+This article is not an offer, nor a solicitation, to transact in any of the
+assets discussed. There is no guarantee as to the accuracy or completeness of
+the views expressed in this article. These views are subject to change.
+</p>
+
+<!--###################### END OF CONTENT ######################-->
+<div class="notice">
+    <br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+</div>
+</div>
+</body>
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', 'UA-74324013-1', 'auto');
+ga('send', 'pageview');
+</script>
+</html>
