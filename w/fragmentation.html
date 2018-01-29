@@ -39,9 +39,13 @@
     I discuss the loss of bitcoin's market dominance, the proliferation
     of alternative, special-purpose cryptocurrencies, and the way in which
     this fragments the cryptocurrency markets. I argue that due to the structure
-    of financial incentives in the space, this fragmentation is likely to continue.
-    I discuss the implications of the Lightning Network, a recently-launched
-    technology that may solve these fragmentation concerns.
+    of financial incentives for both developers and investors,
+    this fragmentation is likely to continue.
+    I argue that a solution to the bitcoin scaling problem may also imply
+    a solution to the fragmentation problem, by facilitating abstraction layers
+    for cross-chain swaps. I discuss the
+    Lightning Network, a recently-launched
+    technology that addresses these problems.
 </p>
 <br>
 <atitle>
@@ -219,28 +223,28 @@
 </p>
 <p>
     It's worth noting that a significant cause of fragmentation is
-    that the major cryptocurrencies (Ethereum and bitcoin) struggle to scale their networks.
-    Transactions are (almost prohibitively) slow and expensive.
+    that the major cryptocurrencies (i.e. Ethereum and bitcoin) struggle to scale their networks.
+    Transactions are problematically slow and expensive.
     As such, there are many coins which offer little beyond faster
     transactions &mdash; these include some of the very largest,
-        such as Bitcoin Cash, Litecoin, Dash, Ripple, and Stellar.<small><sup><a href="#footnote10" name="note10">[10]</a></sup></small>
-    If the scaling problem were solved, then all these coins
-    would become obsolete overnight, and we would see great consolidation among
-    coins, where the winners would largely be determined by network effects.
+    such as Bitcoin Cash, Litecoin, Dash, Ripple, and Stellar.<small><sup><a href="#footnote10" name="note10">[10]</a></sup></small>
+    If the scaling problem were solved, then these coins
+    would become obsolete overnight. We would see consolidation in the market,
+    where the winners would largely be determined by network effects.
 </p>
 <p>
-    What's critically important is that solving the scaling problem may actually
+    What's critically important is that solving the scaling problem may
     imply solving the fragmentation problem. Suppose you hold cryptocurrency X
     and need cryptocurrency Y to buy item Z. If both currency X and Y had solved
     their scaling problems, such that you can make near-instant microtransactions on
     either blockchain, then this enables a service that lets you buy item Z with
-    currency X, performing a swap between X and Y under the hood. This is called
-    an <i>atomic swap</i>. If two blockchains X and Y have solved their scaling problems,
-    then one can perform atomic swaps between them, enabling you to transact with
-    currency Y even though you only hold currency X.<small><sup><a href="#footnote11" name="note11">[11]</a></sup></small>
+    currency X, performing a swap between X and Y under the hood.
+    If two blockchains X and Y have solved their scaling problems,
+    then it's possible to build a cross-chain swap layer on top,
+    enabling you to transact with
+    currency Y even if you only hold currency X.
     Then it doesn't matter how many competing coins there are, you only need to hold one
-    to be able to use all of them.<small><sup><a href="#footnote12" name="note12">[12]</a></sup></small>
-
+    to be able to use all of them.<small><sup><a href="#footnote11" name="note11">[11]</a></sup></small>
 </p>
 <sh>
     Solving the Scaling Problem
@@ -255,43 +259,56 @@
     technologies like Ripple and Stellar: semi-centralized cryptocurrencies that
     promise fast transactions on-chain. They have not been able to win over
     significant end-user trust, and because their mechanisms are, due to their
-    semi-centralized nature, structurally different from almost all other
-    cryptocurrencies, they have also not led to any progress in facilitating atomic swaps.
+    semi-centralized nature, infrastructurally different from almost all other
+    cryptocurrencies, they have also not led to any progress in facilitating cross-chain swaps.
 </p>
 <p>
-    It's beginning to seem that the most promising solutions to the scaling problem
-    &mdash; which don't compromise the decentralization of cryptocurrencies &mdash;
-    are higher-level transactional layers that enable transactions and
+    It seems that the most promising solutions to the scaling problem
+    &mdash; which don't compromise decentralization &mdash;
+    are higher-level abstraction layers that enable transactions and
     settlements off the underlying blockchains. In the past, when people tried
-    to transact in goods that were highly illiquid, they developed credit/representational
+    to transact in commodities that were highly illiquid, they developed
+    credit or representational
     layers on the underlying: instead of sending barrels of salt around your kingdom,
-    you can just send around certificates that represent
+    you can just transact in certificates that represent barrels of salt,
+    and settle the certificates and receive the actual barrels only when that's necessary.
+    This historical analogy implies some centralization, but it may be possible
+    to achieve a decentralized/trustless modern equivalent.
 </p>
-
 <p>
-    For bitcoin,
-    the currently most promising solution is the Lightning Network, a
-    transactional layer on top of bitcoin, which went live
+    One such protocol is the <a href='https://lightning.engineering'>Lightning Network</a>,
+    a transactional layer on top of bitcoin, which went live
     in January 2018, and is currently being tested in production.
-    If the Lightning
-    Network works, then we're going to see bitcoin's transaction capacity rise from
-    seven transactions a second to millions of transactions per second,<small><sup><a href="#footnote13" name="note13">[13]</a></sup></small>
+    If the Lightning Network succeeds, then
+    we're going to
+    see bitcoin's transaction capacity rise from
+    seven transactions a second to millions of transactions per second,<small><sup><a href="#footnote12" name="note12">[12]</a></sup></small>
     with totally negligible fees.
+    Beyond that,
+    the Lightning Network promises <i>cross-chain atomic swaps</i>,<small><sup><a href="#footnote13" name="note13">[13]</a></sup></small>
+    which would enable you to transact with any Lightning-enabled
+    cryptocurrency even if you hold a different one. Notably, because it's
+    built on bitcoin,
+    the Lightning Network is interoperable with any cryptocurrency
+    that is a bitcoin-fork and has activated Segregated Witness.<small><sup><a href="#footnote14" name="note14">[14]</a></sup></small>
+    Currently, that's only a few coins,<small><sup><a href="#footnote15" name="note15">[15]</a></sup></small> there will be more in the future.
 </p>
 <p>
-    Another interesting implication of the Lightning Network is that regardless of
-    its power to render minor coins obsolete and thus de-fragment the market,
-    it would de-fragment the market and remove cross-cryptocurrency transactional frictions anyway.
-    This is because Lightning can be extended to many blockchains,
-    and it
-    enables
-    atomic swaps across blockchains,
-    meaning that you can trivially trade your cryptocurrency X for cryptocurrency Y,
-    so even if you only hold cryptocurrency X,
-    you are able to transact as if you were holding cryptocurrency Y.
-    This turns the earlier discussion about fragmentation between special-purpose coins
-    into a non-concern. If the Lightning Network or a similarly interoperable transactional
-    layer were to succeed, it would be the greatest possible contributor to the
+    There are some other recent innovations that are worth
+    mentioning in this vein. The <a href='https://0xproject.com/'>0x Protocol</a>
+    enables trading of <a href='https://etherscan.io/tokens'>ERC20 tokens</a> on the Ethereum blockchain,
+    with off-chain order relays that offer low transactional costs, but on-chain
+    transaction settlement. The developers at 0x are planning to eventually
+    branch out to performing general cross-chain swaps as opposed to just for ERC20 tokens,
+    but that's well in the future.
+    The <a href='https://kyber.network/'>Kyber Network</a> is aiming to launch arbitrary token trading on their platform
+    in Q2 2018. They're presently running a testnet. <a href='https://omisego.network/'>OmiseGO</a> is
+    similarly offering cross-chain transactions as part of their wallet.
+</p>
+<p>
+    We're still many months out from gauging the success of Lightning and others,
+    but if Lightning or a similarly interoperable transactional layer
+    were to succeed, it would be the greatest possible contributor to the
     long-term success of cryptocurrencies. I can think of no other factor that
     would even come close in terms of impact.
 </p>
@@ -346,26 +363,30 @@
     <a href="#note9" name="footnote9">[9]</a> Another way to characterize this approach is that in the long-term,
         having exposure to the entire sector (i.e. to the mean coin) is probably far more valuable than having exposure to the median coin.
 </p>
-
 <p>
     <a href="#note10" name="footnote10">[10]</a> On December 31, these coins had a total market cap of about $143.6 billion, i.e. 25% of the total cryptocurrency market cap.
 </p>
 <p>
-    <a href="#note11" name="footnote11">[11]</a> I found <a href='https://bitcoinmagazine.com/articles/atomic-swaps-how-the-lightning-network-extends-to-altcoins-1484157052/'>this explanation</a>
-        of atomic swaps (specifically as applied to the Lightning Network) reasonably useful.
+    <a href="#note11" name="footnote11">[11]</a> Ironically, this would likely bolster bitcoin's position in the market, since it already functions as the <i>de facto</i> reserve cryptocurrency.
 </p>
-
 <p>
-    <a href="#note12" name="footnote12">[12]</a> Ironically, this would likely bolster bitcoin's position in the market, since it already functions as the de facto reserve cryptocurrency.
-</p>
-
-<p>
-    <a href="#note13" name="footnote13">[13]</a> This is the seemingly-optimistic estimate by Lightning engineers.
+    <a href="#note12" name="footnote12">[12]</a> This is the seemingly-optimistic estimate by Lightning engineers.
         Even if this is an overshot and the network can only support in the thousands of transactions per second,
         that is still a massive improvement, and puts bitcoin in the range of major credit card processors by volume.
         For reference, VISA processes about 1,600 transactions per second, with an <a href='https://mybroadband.co.za/news/security/190348-visanet-handling-100000-transactions-per-minute.html'>estimated peak of 56,000 transactions per second</a>.
 </p>
-
+<p>
+    <a href="#note13" name="footnote13">[13]</a> I found <a href='https://bitcoinmagazine.com/articles/atomic-swaps-how-the-lightning-network-extends-to-altcoins-1484157052/'>this</a> older explanation
+    of atomic swaps (specifically as applied to the Lightning Network) reasonably useful. <a href='https://www.coindesk.com/atomic-action-will-2018-year-cross-blockchain-swap/'>Here's</a> some further, more recent discussion.
+</p>
+<p>
+    <a href="#note14" name="footnote14">[14]</a> More precisely: in order to be Lightning-compatible, it is not required for a cryptocurrency to be a strict bitcoin fork.
+        What's required is for a blockchain to use the same hash function as bitcoin for creating time locks, and the ability to create time locks in transaction scripts.
+        Bitcoin forks trivially fulfill these requirements.
+</p>
+<p>
+    <a href="#note15" name="footnote15">[15]</a> As of January 28, 2018: bitcoin, Litecoin, Decred, and VertCoin are Lightning-compatible.
+</p>
 <sh>
     Acknowledgements
 </sh>
