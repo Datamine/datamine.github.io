@@ -129,25 +129,6 @@ p{
 }
 
 /* line 211, /Users/schacon/github/progit/gitscm2/app/assets/stylesheets/typography.css.scss */
-inlineCode{
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
-  border-radius: 3px;
-  /*display: block;*/
-  padding: 1px;
-  margin-bottom: 1em;
-  background-color: #f5f4ef;
-  border: solid 1px #efeee6;
-  color: #02590B;
-  /*color: #f14e32;*/
-  font-family: Courier, monospace !important;
-  font-weight: bold,
-  /*line-height: 18px;*/
-  overflow: auto;
-}
-
 .inlineCode{
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;

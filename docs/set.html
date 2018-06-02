@@ -69,7 +69,7 @@ sorts of minor issues are to be expected of a language-in-development. More seri
 a solution in a very particular way, constrained by the syntax of the language. The current absence of straight-forward iteration, or the impossibility of converting a Signal into a constant value
  might be frustrating to some users. I think there are effectively three ways of handling such issues:
 <ul>
-<li> Abstraction: devise more abstract internal wrappers to hide potentially frustrating or confusing issues from the programmer. As an example, I had to make significant use of the <inlineCode>Random</inlineCode> library for generating random values. Elm currently requires
+<li> Abstraction: devise more abstract internal wrappers to hide potentially frustrating or confusing issues from the programmer. As an example, I had to make significant use of the <span class="inlineCode">Random</span> library for generating random values. Elm currently requires
 the programmer to keep track of the Seed for generating random values, which can be tedious. I think that the programmer's experience would be improved if all Seed-handling was
 abstracted away from the user and done automatically (perhaps directly in JavaScript).<br><br>
 <li> Superficially compromise the functional purity of elm: incorporate features that, to the programmer, look like imperative alternatives, but are simply imperative-style wrappers on functional methods.
@@ -89,7 +89,7 @@ which forced me to spend more time thinking about problem-solving, digging throu
 <br>
 <p>
 The GitHub repository is available <a href="https://github.com/Datamine/Set-Trainer">here</a>. Note that I wrote this application in Elm 0.14.1, and Elm is undergoing rapid iterative development,
-so the <inlineCode>.elm</inlineCode> files will likely need to be adjusted in the future. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with.
+so the <span class="inlineCode">.elm</span> files will likely need to be adjusted in the future. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with.
 </p>
 
 
