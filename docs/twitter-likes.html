@@ -107,8 +107,8 @@
 </p>
     <img class='imgcenter' src="../images/twitter-likes-5.png" style='border: 1px solid black;'></img>
 <p>
-    So it appeared that the list of tweets to display on my likes timeline
-    was served from some part of twitter's system that was totally disconnected
+    It appeared that the list of tweets to display on my likes timeline
+    was served from some part of Twitter's system that was totally disconnected
     from the API, and that the logic of whether or not to display a filled-in heart,
     denoting a liked tweet, was dependent on the API. Go figure.
 </p>
@@ -133,8 +133,8 @@
     when the former is empty and the latter is not.
 </p>
 <p>
-    Anyway, having figured all that out, I then went down my infinite-scroll
-    Twitter likes timeline, and used browser tools to extract the ids:
+    Having figured all that out, I then went down my infinite-scroll
+    likes timeline, and used browser tools to extract the ids:
     every tweet was of class <span class='inlineCode'>js-stream-item</span> and
     had a <span class='inlineCode'>data-item-id</span> attribute.
 </p>
@@ -158,7 +158,7 @@
 <p>
     The number of liked tweets at this point is, of course, wrong. Again, this is unsurprising in terms
     of building scalable systems: there's no way Twitter performs a database count every time your profile is loaded;
-    that number is likely stored elsewhere and updated on entirely mysterious conditions. Twitter has a remarkably
+    that number is likely stored elsewhere and updated (on entirely mysterious conditions). Twitter has a remarkably
     <a href='https://help.twitter.com/en/using-twitter/missing-tweets'>unhelpful help page</a> which
     confirms that this is an issue, but offers no explanation.
 </p>
