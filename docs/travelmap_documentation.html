@@ -2,7 +2,7 @@
 <html>
 <head>
 <link href="../globalstyle.css" rel="stylesheet" type="text/css">
-    <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
+    <!-- Javascript below adapted from https://smallbusiness.chron.com/expand-collapse-text-47345.html and https://www.ehow.com/how_5772308_expand-collapse-text.html -->
 		<script language="JavaScript" type="text/javascript">
 		function ExpandCollapse(theDiv,theButton){
 			el = document.getElementById(theDiv);
@@ -56,7 +56,7 @@
 	<sh>Documentation/Introduction and Usage Guide</sh>
 	<p>This documentation is written as a tutorial. Feel free to clone the <a href="https://github.com/Datamine/Travelmap">GitHub repo</a>, and replicate the steps in this document to learn how to produce the results.</p>
 	<p>
-	This is a tool to display and connect points on a map. As users are expected to have differing and particular mapping needs, it has been built to be modular, flexible, and customizable. It was developed for a UNIX-based operating system, but should work equally well on a Windows OS (this has not been tested). The script relies on the <code>pyproj </code> and <code>pygeocoder</code> libraries, as well as <code>matplotlib, numpy</code> and the <code> Python Imaging Library</code>. All required packages can be installed easily using <a href="http://en.wikipedia.org/wiki/Pip_(package_manager)">pip</a>. This tool was developed using Python 2.7.4. Note that the tool makes use of the Google Maps API and therefore requires an internet connection to work.
+	This is a tool to display and connect points on a map. As users are expected to have differing and particular mapping needs, it has been built to be modular, flexible, and customizable. It was developed for a UNIX-based operating system, but should work equally well on a Windows OS (this has not been tested). The script relies on the <code>pyproj </code> and <code>pygeocoder</code> libraries, as well as <code>matplotlib, numpy</code> and the <code> Python Imaging Library</code>. All required packages can be installed easily using <a href="https://en.wikipedia.org/wiki/Pip_(package_manager)">pip</a>. This tool was developed using Python 2.7.4. Note that the tool makes use of the Google Maps API and therefore requires an internet connection to work.
 	</p>
 	<p>
 	At its core, the script takes as input a textfile of <strong>locations</strong>, and outputs a map with those locations marked by points. The script can also connect these locations in sequence on the map, using lines. The user may also specify different types of connections between the locations, which will be reflected graphically in the lines. As such, the script requires the following command-line options, in sequence:
@@ -142,7 +142,7 @@ As produced by the following command:
 
 <img width="751px" src="../images/travelmap-5.png"></img>
 
-<p>The previous examples have demonstrated the map output with <em>default settings</em>. Now let's change those up a little. Lines <strong>146 to 178</strong> in <code>travelmap.py</code> offer options for configuring the markers, the lines, and their outlines (strokes). The code is fairly well-commented, so the options should be self-explanatory. Note that when specifying the colors, the <a href="http://effbot.org/imagingbook/imagecolor.htm">PIL Format</a> must be used. Below is an example of such a change in settings. The points connected by the map are the same as in the previous map.</p>
+<p>The previous examples have demonstrated the map output with <em>default settings</em>. Now let's change those up a little. Lines <strong>146 to 178</strong> in <code>travelmap.py</code> offer options for configuring the markers, the lines, and their outlines (strokes). The code is fairly well-commented, so the options should be self-explanatory. Note that when specifying the colors, the <a href="https://effbot.org/imagingbook/imagecolor.htm">PIL Format</a> must be used. Below is an example of such a change in settings. The points connected by the map are the same as in the previous map.</p>
 
 <img width="751px" src="../images/travelmap-6.png"></img>
 
@@ -308,7 +308,7 @@ Which yields the following map:</p>
 <p>Produced by this command:</p>
 		<span style="display:inline-block; width:100%; text-align:center;"><code>python travelmap.py example_colors1.txt y y Robinson_BW.png</code></span>
 
-<p>You may have wondered how these colors are automatically assigned. This is done on lines 173 and 205, and uses a <strong>colormap</strong> from matplotlib. See <a href="http://matplotlib.org/api/pyplot_summary.html">here</a> for colormap documentation. On line 173, you may specify a colormap of your choosing. The default colormap, <em>jet</em>, covers the traditional colors of the rainbow. Alternatives are available, e.g. solid gradients, etc. For a list of usable colorschemes, see the aforementioned documentation. On line 205, the space of possible colors is partitioned into as many colors as we have distinct connection-types. We'll experiment with one other colormap, the <em>spring</em> colormap, which provides a gradient from magenta to yellow. On line 173, I change &ldquo;jet&rdquo; to &ldquo;spring&rdquo;. Otherwise, I run the exact same command as in the previous example, on <code>example-colors2.txt</code>. That yields this map:</p>
+<p>You may have wondered how these colors are automatically assigned. This is done on lines 173 and 205, and uses a <strong>colormap</strong> from matplotlib. See <a href="https://matplotlib.org/api/pyplot_summary.html">here</a> for colormap documentation. On line 173, you may specify a colormap of your choosing. The default colormap, <em>jet</em>, covers the traditional colors of the rainbow. Alternatives are available, e.g. solid gradients, etc. For a list of usable colorschemes, see the aforementioned documentation. On line 205, the space of possible colors is partitioned into as many colors as we have distinct connection-types. We'll experiment with one other colormap, the <em>spring</em> colormap, which provides a gradient from magenta to yellow. On line 173, I change &ldquo;jet&rdquo; to &ldquo;spring&rdquo;. Otherwise, I run the exact same command as in the previous example, on <code>example-colors2.txt</code>. That yields this map:</p>
 <img width="751px" src="../images/travelmap-10.png"></img>
 
 <p>Some colormaps are better than others for certain tasks. In particular many colormaps provide smooth two-color gradients, which are good if you want to illustrate some sort of gradual transition. For example, suppose you are travelling from San Francisco to Shanghai, and like to associate the color magenta with the distant past, and the color yellow with the present. You could use the <em>spring</em> colormap to produce the following map:</p>
@@ -359,14 +359,14 @@ Finally, I assume that it is also possible to change some of the configurations 
 	<sh>Acknowledgements</sh>
 	<p>This script ships with two Robinson Projection Maps based on open-source images:
 	<ul>
-	<li>Robinson_BW.png: Courtesy of the <a href="http://alabamamaps.ua.edu/about.html">University of Alabama Cartographic Research Lab.</a></li>
-	<li>Robinson_Color.png: from <a href="http://upload.wikimedia.org/wikipedia/commons/9/96/Robinson_projection_SW.jpg">Wikipedia</a> by <a href="http://commons.wikimedia.org/wiki/User:Strebe">User:Strebe.</a> Distributed as CC-BY-SA 3.0.</li>
+	<li>Robinson_BW.png: Courtesy of the <a href="https://alabamamaps.ua.edu/about.html">University of Alabama Cartographic Research Lab.</a></li>
+	<li>Robinson_Color.png: from <a href="https://upload.wikimedia.org/wikipedia/commons/9/96/Robinson_projection_SW.jpg">Wikipedia</a> by <a href="https://commons.wikimedia.org/wiki/User:Strebe">User:Strebe.</a> Distributed as CC-BY-SA 3.0.</li>
 	</ul></p>
 	<br>
 	<sh>Download</sh>
 	<p>You can view the GitHub repository <a href="https://github.com/Datamine/Travelmap">here</a>. Please contact me if you find any bugs or use my script for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
 			<div class="notice">
-				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+				<br><br>This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>
 		</div>
 	</body>

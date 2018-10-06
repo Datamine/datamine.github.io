@@ -144,7 +144,7 @@ def pietuple(occurrences,filesizes):
 		# even though that is not quite proper.)
 	
 	# some bits for pie chart formatting adapted from:
-	# http://nxn.se/post/46440196846/making-nicer-looking-pie-charts-with-matplotlib
+	# https://nxn.se/post/46440196846/making-nicer-looking-pie-charts-with-matplotlib
 	cmap = pl.cm.prism
 	colors = cmap(np.linspace(0.2, 0.8, len(fracs)))
 	explode = [0.00]*len(colors) 
@@ -159,7 +159,7 @@ def makepie(dummy,fracs,colors,explode,labels,total):
 		pie = pl.pie(fracs,autopct='%1.2f%%',colors=colors,labeldistance=1.1,
 					 explode=explode,radius=1.5)
 		for pie_slice in pie[0]: 
-		# set pie slice line width: http://stackoverflow.com/a/1916809
+		# set pie slice line width: https://stackoverflow.com/a/1916809
 			pie_slice.set_lw(0)
 	else:
 		pie = pl.pie(fracs,colors=colors,radius=0.01)
@@ -203,7 +203,7 @@ def main():
 			# just remove the 'not's in the two lines below.
 			files = [f for f in files if not f[0] == '.'] 
     			dirs[:] = [d for d in dirs if not d[0] == '.']
-    			# above: from http://stackoverflow.com/a/13454267
+    			# above: from https://stackoverflow.com/a/13454267
 		# "name in files": note that this omits the countless '4096' sizes of 
 		# folders (something similar should be the case for non-UNIX OSes).
 		for name in files:  
@@ -234,7 +234,7 @@ def main():
 		t = str(int(time()))
 		pl.savefig("filesize_barchart_"+t+".pdf") 
 		# can change extension to .pdf to get vectorized output. 
-		# See http://stackoverflow.com/q/9622163 if you have trouble with this.
+		# See https://stackoverflow.com/q/9622163 if you have trouble with this.
 	
 	# Pie Chart. This is done in two steps.
 	# Step 1: Make the actual pie chart.
@@ -254,7 +254,7 @@ def main():
 	if save:
 		pl.savefig("filesize_piechart_"+t+".pdf") 
 		# can change extension to .pdf to get vectorized output. 
-		# See http://stackoverflow.com/q/9622163 if you have trouble with this.
+		# See https://stackoverflow.com/q/9622163 if you have trouble with this.
 	pl.show()	
 
 if __name__=='__main__':

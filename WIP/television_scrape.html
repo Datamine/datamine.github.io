@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
-		<link href='http://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
+		<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+		<link href='https://fonts.googleapis.com/css?family=Merriweather:400,300' rel='stylesheet' type='text/css'>
 		<link href="../globalstyle.css" rel="stylesheet" type="text/css">
 
-        <!-- Javascript below adapted from http://smallbusiness.chron.com/expand-collapse-text-47345.html and http://www.ehow.com/how_5772308_expand-collapse-text.html -->
+        <!-- Javascript below adapted from https://smallbusiness.chron.com/expand-collapse-text-47345.html and https://www.ehow.com/how_5772308_expand-collapse-text.html -->
 		<script language="JavaScript" type="text/javascript">
 		function ExpandCollapse(theDiv,theButton){
 			el = document.getElementById(theDiv);
@@ -153,7 +153,7 @@ From here on, this article is mostly a technical documentation of and usage guid
 	</span>
 	</p>
 
-    The dataset has two variations: <i>with-stopwords</i>, which doesn't filter out any words, and <i>without-stopwords</i>, which has all <a href="http://en.wikipedia.org/wiki/Stop_words">stopwords</a> filtered out. The datasets themselves are located in the <code>.zip</code> folder labeled <code>DATASET1</code>.
+    The dataset has two variations: <i>with-stopwords</i>, which doesn't filter out any words, and <i>without-stopwords</i>, which has all <a href="https://en.wikipedia.org/wiki/Stop_words">stopwords</a> filtered out. The datasets themselves are located in the <code>.zip</code> folder labeled <code>DATASET1</code>.
 
 	</p>
     <br>
@@ -163,16 +163,16 @@ From here on, this article is mostly a technical documentation of and usage guid
 	<code>bs4</code> (BeautifulSoup), and <code>urllib2</code> libraries. It was written for use on a UNIX system, though it probably
 	works on Windows, too (untested). Here's how it works:
 	<ol>
-	<li>It starts at <a href="http://en.wikipedia.org/wiki/Category:Television_seasons_by_year">Wikipedia's category of television seasons
+	<li>It starts at <a href="https://en.wikipedia.org/wiki/Category:Television_seasons_by_year">Wikipedia's category of television seasons
 	by year</a>. This page contains links to subcategories of television seasons for given years, such as
-	<a href="http://en.wikipedia.org/wiki/Category:2002_television_seasons">2002 television seasons</a>,
-	<a href="http://en.wikipedia.org/wiki/Category:1954_television_seasons">1954 television seasons</a>,
+	<a href="https://en.wikipedia.org/wiki/Category:2002_television_seasons">2002 television seasons</a>,
+	<a href="https://en.wikipedia.org/wiki/Category:1954_television_seasons">1954 television seasons</a>,
 	etc. It finds the links to all of these subcategories: one for each year.</li>
 	<br>
 	<li>Each of these subcategories lists and links to articles on all television show seasons that
 	aired in a subcategory's respective year. The script finds all these links, and follows them. For
-	example: the category <a href="http://en.wikipedia.org/wiki/Category:1990_television_seasons">1990
-	television seasons</a> contains a link to <a href="http://en.wikipedia.org/wiki/The_Fresh_Prince_of_Bel-Air_(season_1)">The Fresh Prince of Bel-Air (Season 1)</a>.</li>
+	example: the category <a href="https://en.wikipedia.org/wiki/Category:1990_television_seasons">1990
+	television seasons</a> contains a link to <a href="https://en.wikipedia.org/wiki/The_Fresh_Prince_of_Bel-Air_(season_1)">The Fresh Prince of Bel-Air (Season 1)</a>.</li>
 	<br>
 	<li>Each of these <i>Television Show (Season n)</i> pages contains a <i>List of Episodes</i>, in which each episode is summarized. The script finds the list of episodes, parses the text
         (removing all punctuation and other detritus),
@@ -182,7 +182,7 @@ From here on, this article is mostly a technical documentation of and usage guid
 	</ol>
 	The code itself is really straightforward. <code>getfrequencies.py</code> only takes one command-line argument: <code>y</code> to filter, or <code>n</code> to not filter stopwords.
     Thus, it can be run at the command-line with <code>python getfrequencies.py y</code> or <code>python getfrequencies.py n</code>. When filtering stopwords, it draws on a file that is a list
-    of stopwords, <code>stopwords-final</code>. This list comprises two lists of stopwords found <a href="http://norm.al/2009/04/14/list-of-english-stop-words/">here</a> and <a href="http://www.ranks.nl/stopwords/">here</a>. </p>
+    of stopwords, <code>stopwords-final</code>. This list comprises two lists of stopwords found <a href="https://norm.al/2009/04/14/list-of-english-stop-words/">here</a> and <a href="https://www.ranks.nl/stopwords/">here</a>. </p>
 
 	<p>As aforementioned, the output of <code>getfrequencies.py</code> is a set of files, &ldquo;1950&rdquo; through &ldquo;2014&rdquo;. However, these files tend to have
     some issues with Unicode representation. Essentially, some HTML ascii, like <code>&amp;nbsp;</code> is parsed into
@@ -204,7 +204,7 @@ From here on, this article is mostly a technical documentation of and usage guid
 	in order to assess the quality of the processed output.</p>
 	<p>
 	The post-processed files are in the same format as the pre-processed ones. Thus, each year's file contains a dictionary of word frequency counts for that year on the first line, the total number of words on the second line, and the number of unique words on the third line.
-	This dictionary can be read trivially into python using <a href="http://stackoverflow.com/q/988228/2844655">ast.literal_eval</a>. Note that the format is quite similar to
+	This dictionary can be read trivially into python using <a href="https://stackoverflow.com/q/988228/2844655">ast.literal_eval</a>. Note that the format is quite similar to
 	JSON, so parsing this data is easy in many languages.
 	</p>
 
@@ -273,15 +273,15 @@ This differs from <i>Whole-Episodes</i> only in that (1) it requires the user to
 First off, you need a television show you want to investigate. Go to Wikipedia and find that television show's list of episodes. Usually these pages are titled <i>Television Show (Season n)</i>. Once you have found these pages, copy-paste the links into a notepad file. I'll use <i>Seinfeld</i> as an example. For Seinfeld, your document of urls (we'll call it <code>seinfurls</code>) should look like this:
 <p style="margin-left:4em;margin-right:4em;">
 <span style="display:inline-block; width:100%; text-align:left;background-color:#E8E8E8">
-http://en.wikipedia.org/wiki/Seinfeld_%28season_1%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_2%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_3%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_4%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_5%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_6%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_7%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_8%29
-http://en.wikipedia.org/wiki/Seinfeld_%28season_9%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_1%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_2%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_3%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_4%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_5%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_6%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_7%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_8%29
+https://en.wikipedia.org/wiki/Seinfeld_%28season_9%29
 </span>
 </p>
 These are, in order, the links to the first through ninth seasons of Seinfeld. Now you can run <code>python retrieve.py seinfurls</code>. It will return a set of files, <code>souped_0</code> through <code>souped_8</code>. Here, <code>souped_0</code> corresponds to the page for the first season of Seinfeld, <code>souped_1</code> corresponds to the second season, etc. and <code>souped_8</code> corresponds to the ninth season of Seinfeld. Each document is just a list of episodes separated by some newlines and the text <code>&lt;new episode&gt;</code>. Now, place all your <code>souped</code> files into a directory, like <code>seinfeld-episodes/</code>. Now you have a dataset. Because you have the plaintext of the episodes without words filtered, you can conduct whatever Natural Language Processing-type analysis you like. However, I have prepared a small script for the obvious frequency-type analysis.
@@ -346,7 +346,7 @@ and might yield quantitative indications as to the extent to which cultures have
 	<p>The GitHub repository is available <a href="https://github.com/Datamine/Television">here</a>. Please contact me if you find any bugs/errors, or use my work for any interesting derivative work &mdash; I'd like to see what you come up with. </p>
 
 			<div class="notice">
-				<br><br>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+				<br><br>This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 			</div>
 		</div>
 	</body>

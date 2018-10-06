@@ -1,5 +1,5 @@
-@import url(http://fonts.googleapis.com/css?family=Open+Sans);
-@import url('http://fonts.googleapis.com/css?family=Merriweather:400,300&text="John Loeber"');
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+@import url('https://fonts.googleapis.com/css?family=Merriweather:400,300&text="John Loeber"');
 
 /* NAVIGATION BAR */
 
@@ -162,12 +162,12 @@ sh{ /* subheader*/
 }
 
 
-/* ref. to http://css-tricks.com/almanac/properties/v/vertical-align/ */
+/* ref. to https://css-tricks.com/almanac/properties/v/vertical-align/ */
 .imghelper > *{
     vertical-align: middle;
 }
 
-/* ref. to http://www.w3.org/Style/Examples/007/center.en.html#block */
+/* ref. to https://www.w3.org/Style/Examples/007/center.en.html#block */
 .imgcenter {
     display: block;
     margin-left: auto;
