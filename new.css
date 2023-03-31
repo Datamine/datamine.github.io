@@ -11,8 +11,8 @@ body{
 	margin:auto;
     margin-top: 2rem;
     margin-bottom: 2rem;
-	float:center;
     color: #282826;
+    background-position-x: center;
 }
 
 .header {
