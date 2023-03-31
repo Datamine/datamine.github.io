@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Prata&display=swap');
+
+body{
+    background-image: url(kandinsky85.jpg);
+    background-size: cover;
+	font-family: 'EB Garamond', serif;
+    font-weight: 400;
+	font-size: 22px;
+	text-decoration:none;
+	width:700px;
+	margin:auto;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+	float:center;
+    color: #282826;
+}
+
+.header {
+    font-family: 'Prata', serif; 
+    font-size: 48px; 
+    font-weight: 400;
+    text-align: center;
+    padding-top: 10%;
+    padding-bottom: 10%;
+    background-image: url(1751088.svg);
+    background-size: 40%;
+    background-position-x: center;
+    background-position-y: 85px;
+    background-repeat: no-repeat;
+    color: #2a3f8c;
+    border: 3px double #2a3f8c;
+}
+
+.header:hover { 
+    background-image: url(waterlily_cropped3.jpg);
+    background-size: 101%;
+    background-position-y: -38px;
+    background-position-x: -3px;
+    color: white;
+    border: 3px double white;
+}
+
+.subheader {
+    font-weight: 600;
+    font-variant: small-caps;
+    letter-spacing: 1px;
+    text-decoration: underline double 1px;
+}
+
+.maintable {
+    border: 5px double #282826;
+    padding-left:2rem;
+    padding-right:2rem;
+    background-color: #f8f7f2;
+}
+
+.notice {
+	font-size:10px;
+	text-align:center;
+    padding-bottom: 2rem;
+}
+
+.notice a{
+	font-weight: 400;
+}
+
+a:visited, a:link, a:active
+{
+    text-decoration: none;
+    color: #2a3f8c;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p{
+	text-align:justify;
+    line-height:125%;
+}
+
+ul { 
+    list-style-type: square;
+    margin-left: .75rem;
+    margin-top: .75rem;
+    margin-right: .75rem;
+}
+
+img {
+    width:250px;
+    border:3px double #282826;
+}
