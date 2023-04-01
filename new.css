@@ -22,16 +22,6 @@ body{
     text-align: center;
     padding-top: 10%;
     padding-bottom: 10%;
-    background-image: url(1751088.svg);
-    background-size: 40%;
-    background-position-x: center;
-    background-position-y: 85px;
-    background-repeat: no-repeat;
-    color: #2a3f8c;
-    border: 3px double #2a3f8c;
-}
-
-.header:hover { 
     background-image: url(waterlily_cropped3.jpg);
     background-size: 101%;
     background-position-y: -38px;
