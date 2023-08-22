@@ -81,3 +81,8 @@ img {
     width:250px;
     border:3px double #282826;
 }
+
+.yspace {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
