@@ -1,19 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Prata&display=swap');
 
-body{
-    background-image: url(kandinsky85.jpg);
-    background-size: auto 3100px;
-	font-family: 'EB Garamond', serif;
-    font-weight: 400;
-	font-size: 22px;
-	text-decoration:none;
-	width:700px;
-	margin:auto;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-    color: #282826;
-    background-position-x: center;
-}
 
 .header {
     font-family: 'Prata', serif;
@@ -37,16 +23,46 @@ body{
     text-decoration: underline double 1px;
 }
 
-.maintable {
-    border: 5px double #282826;
-    padding-left:2rem;
-    padding-right:2rem;
-    background-color: #f8f7f2;
+@media (min-device-width:432px) {
+    body{
+        background-image: url(kandinsky85.jpg);
+        background-size: auto 3100px;
+        font-family: 'EB Garamond', serif;
+        font-weight: 400;
+        font-size: 22px;
+        text-decoration:none;
+        width:700px;
+        margin:auto;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        color: #282826;
+        background-position-x: center;
+    }
+
+    .maintable {
+        border: 5px double #282826;
+        padding-left:2rem;
+        padding-right:2rem;
+        background-color: #f8f7f2;
+    }
 }
 
-@media only screen and (max-width: 431px) {
+@media (max-device-width: 431px) {
+    body{
+        font-family: 'EB Garamond', serif;
+        font-weight: 400;
+        font-size: 32px;
+        text-decoration:none;
+        width:100%;
+        color: #282826;
+    }
+
     .maintable {
         color:red;
+        width: 100%;
+        padding-left:2rem;
+        padding-right:2rem;
+        background-color: #f8f7f2;
     }
 }
 
