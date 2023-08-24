@@ -2,7 +2,7 @@
 
 body{
     background-image: url(kandinsky85.jpg);
-    background-size: cover;
+    background-size: auto 3100px;
 	font-family: 'EB Garamond', serif;
     font-weight: 400;
 	font-size: 22px;
@@ -16,8 +16,8 @@ body{
 }
 
 .header {
-    font-family: 'Prata', serif; 
-    font-size: 48px; 
+    font-family: 'Prata', serif;
+    font-size: 48px;
     font-weight: 400;
     text-align: center;
     padding-top: 10%;
@@ -70,7 +70,7 @@ p{
     line-height:125%;
 }
 
-ul { 
+ul {
     list-style-type: square;
     margin-left: .75rem;
     margin-top: .75rem;
