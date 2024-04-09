@@ -20,14 +20,10 @@ body{
     font-size: 48px;
     font-weight: 400;
     text-align: center;
-    padding-top: 10%;
-    padding-bottom: 10%;
     background-image: url(waterlily_cropped3.jpg);
-    background-size: 101%;
-    background-position-y: -38px;
-    background-position-x: -3px;
     color: white;
     border: 3px double white;
+    padding-top: 1%;
 }
 
 .subheader {
