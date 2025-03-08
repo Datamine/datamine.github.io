@@ -7,7 +7,8 @@ body{
     font-weight: 400;
 	font-size: 22px;
 	text-decoration:none;
-	width:700px;
+	width:100%;
+	max-width: 700px;
 	margin:auto;
     margin-top: 2rem;
     margin-bottom: 2rem;
@@ -28,6 +29,7 @@ body{
     padding-right:2rem;
     padding-bottom:2rem;
     background-color: #f8f7f2;
+    box-sizing: border-box;
 }
 
 a:visited, a:link, a:active
@@ -55,7 +57,9 @@ ul {
 
 img {
     height:307px;
+    max-width: 100%;
     border:3px double #282826;
+    object-fit: cover;
 }
 
 .yspace {
@@ -80,5 +84,84 @@ img {
 
 .float-right {
   float: right;
-  margin: 0 0 0 1rem; /* adjust margins to control spacing between the image and text */
+  margin: 0 0 1rem 1rem; /* adjust margins to control spacing between the image and text */
+}
+
+.bio-content {
+  margin-bottom: 2rem;
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 20px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .maintable {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+    width: calc(100% - 20px);
+  }
+
+  img {
+    height: auto;
+    max-width: 100%;
+  }
+
+  .float-right {
+    float: right;
+    margin: 0 0 1rem 0;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 18px;
+    padding: 0;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    margin-top: 0.25rem;
+    float: none;
+  }
+
+  .float-right {
+    float: none;
+    display: block;
+    margin: 0 auto 1rem auto;
+    text-align: center;
+  }
+
+  .bio-content {
+    margin-bottom: 2rem;
+  }
+
+  .subheader {
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    padding-left: 1.5rem;
+  }
+
+  .maintable {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+  }
 }
