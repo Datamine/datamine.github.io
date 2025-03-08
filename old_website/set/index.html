@@ -3067,7 +3067,7 @@ Elm.Native.Graphics.Element.make = function(localRuntime) {
             }
         }
 
-        // stop capturing clicks if 
+        // stop capturing clicks if
         if (removed
             && nextProps.hover.ctor === '_Tuple0'
             && nextProps.click.ctor === '_Tuple0')
@@ -3247,7 +3247,7 @@ Elm.Native.Graphics.Input.make = function(localRuntime) {
         btn.elm_up.style.display = 'block';
         btn.elm_hover.style.display = 'none';
         btn.elm_down.style.display = 'none';
-  
+
         btn.appendChild(btn.elm_up);
         btn.appendChild(btn.elm_hover);
         btn.appendChild(btn.elm_down);
@@ -4966,7 +4966,7 @@ Elm.Native.Text.make = function(elm) {
     function makeSpaces(s) {
         if (s.length == 0) { return s; }
         var arr = s.split('');
-        if (arr[0] == ' ') { arr[0] = "&nbsp;" }      
+        if (arr[0] == ' ') { arr[0] = "&nbsp;" }
         for (var i = arr.length; --i; ) {
             if (arr[i][0] == ' ' && arr[i-1] == ' ') {
                 arr[i-1] = arr[i-1] + arr[i];
@@ -5477,7 +5477,7 @@ Elm.Native.Utils.make = function(localRuntime) {
         return '\n' + lines.join('\n');
     }
 
-    function badCase(moduleName, span) { 
+    function badCase(moduleName, span) {
         var msg = indent([
             'Non-exhaustive pattern match in case-expression.',
             'Make sure your patterns cover every case!'
@@ -5485,7 +5485,7 @@ Elm.Native.Utils.make = function(localRuntime) {
         throw new Error('Runtime error in module ' + moduleName + ' (' + span + ')' + msg);
     }
 
-    function badIf(moduleName, span) { 
+    function badIf(moduleName, span) {
         var msg = indent([
             'Non-exhaustive pattern match in multi-way-if expression.',
             'It is best to use \'otherwise\' as the last branch of multi-way-if.'
@@ -5494,7 +5494,7 @@ Elm.Native.Utils.make = function(localRuntime) {
     }
 
 
-    function badPort(expected, received) { 
+    function badPort(expected, received) {
         var msg = indent([
             'Expecting ' + expected + ' but was given ',
             JSON.stringify(received)
@@ -7252,7 +7252,7 @@ Three cards form a <em>set</em> if and only if: for every property, the three ca
 <li> They all have the same filling, or they have three different fillings.
 </ul>
 </p>
-By <a href="https://www.twitter.com/johnloeber">@johnloeber</a>. Check out <a href="https://www.johnloeber.com">my website</a>, or <a href="https://www.johnloeber.com/docs/set.html">read the documentation for this project</a>.
+By <a href="https://www.twitter.com/johnloeber">@johnloeber</a>. Check out <a href="https://www.johnloeber.com">my website</a>, or <a href="../docs/set.html">read the documentation for this project</a>.
 </body>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
