@@ -29,16 +29,6 @@ body{
     background-color: #f8f7f2;
 }
 
-.notice {
-	font-size:10px;
-	text-align:center;
-    padding-bottom: 2rem;
-}
-
-.notice a{
-	font-weight: 400;
-}
-
 a:visited, a:link, a:active
 {
     text-decoration: none;
