@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&family=Prata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap');
 
 body{
     background-image: url(kandinsky85.jpg);
@@ -13,17 +13,6 @@ body{
     margin-bottom: 2rem;
     color: #282826;
     background-position-x: center;
-}
-
-.header {
-    font-family: 'Prata', serif;
-    font-size: 48px;
-    font-weight: 400;
-    text-align: center;
-    background-image: url(waterlily_cropped3.jpg);
-    color: white;
-    border: 3px double white;
-    padding-top: 1%;
 }
 
 .subheader {
