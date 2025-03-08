@@ -54,7 +54,7 @@ ul {
 }
 
 img {
-    width:250px;
+    height:307px;
     border:3px double #282826;
 }
 
@@ -76,4 +76,9 @@ img {
 
 .header-right {
     float: right;
+}
+
+.float-right {
+  float: right;
+  margin: 0 0 0 1rem; /* adjust margins to control spacing between the image and text */
 }
