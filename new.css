@@ -4,6 +4,7 @@ body{
     background-image: url(images/kandinsky85.jpg);
     background-size: auto 3100px;
 	font-family: 'EB Garamond', serif;
+    font-variant-emoji: text;
     font-weight: 400;
 	font-size: 22px;
 	text-decoration:none;
@@ -21,6 +22,12 @@ body{
     font-variant: small-caps;
     letter-spacing: 1px;
     text-decoration: underline double 1px;
+}
+
+summary::marker,
+summary::-webkit-details-marker {
+    font-family: 'EB Garamond', serif;
+    font-variant-emoji: text;
 }
 
 .maintable {
