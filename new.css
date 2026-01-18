@@ -24,23 +24,10 @@ body{
     text-decoration: underline double 1px;
 }
 
-details > summary {
-    list-style: none;
-}
-
-details > summary::-webkit-details-marker {
-    display: none;
-}
-
-details > summary::before {
-    content: "▸\FE0E";
-    display: inline-block;
-    margin-right: 0.5rem;
+summary::marker,
+summary::-webkit-details-marker {
     font-family: 'EB Garamond', serif;
-}
-
-details[open] > summary::before {
-    content: "▾\FE0E";
+    font-variant-emoji: text;
 }
 
 .maintable {
