@@ -7,4 +7,4 @@ echo ">>>> Selector check"
 python3 check_selectors.py
 echo ""
 echo ">>>> Check links are not broken"
-linkchecker index.html
+linkchecker index.html --check-extern --no-status --no-warnings
