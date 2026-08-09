@@ -10,7 +10,8 @@ ga("send", "pageview");
 document.addEventListener('DOMContentLoaded', function() {
   const images = [
     'images/beach.jpg',
-    'images/self2.jpg',
+    'images/suit-recent.png',
+    'images/green_headshot.png',
     'images/self.jpg',
     'images/twitter-img.jpg'
   ];
