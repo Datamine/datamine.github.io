@@ -90,7 +90,7 @@ def parse_year_blocks(content):
 
 
 def guess_indents(content):
-    match = re.search(r"\n(\s*)<div class=\"yspace\">", content)
+    match = re.search(r"\n([ \t]*)<div class=\"yspace\">", content)
     indent_div = match.group(1) if match else "        "
     indent_li = indent_div + "    "
     return indent_div, indent_li
