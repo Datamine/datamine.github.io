@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Concrete</title>
+  <desc>Structural pads and infrastructure; restrained mineral texture. Neutral relief is tinted by the model color.</desc>
+  <!-- Editable source for material 'concrete'. Rebuild with node sf/build.mjs. -->
+  <defs>
+    <pattern id="concrete" width="128" height="128" patternUnits="userSpaceOnUse">
+      <g id="concrete-background">
+        <rect width="128" height="128" fill="#deded1"/>
+      </g>
+      <!-- Surface relief: texture marks, highlights and seams. -->
+      <g id="concrete-detail">
+        <path d="M0 0H128M0 64H128M0 128H128M32 0V64M96 64V128" stroke="#b4b9ad" stroke-width=".8"/>
+        <circle cx="0.0" cy="0.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="31.7" cy="17.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="63.5" cy="34.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="95.2" cy="52.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="126.9" cy="69.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="30.7" cy="87.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="62.4" cy="104.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="94.1" cy="121.7" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="125.8" cy="11.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="29.6" cy="28.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="61.3" cy="45.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="93.0" cy="63.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="124.8" cy="80.7" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="28.5" cy="98.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="60.2" cy="115.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="91.9" cy="4.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="123.7" cy="22.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="27.4" cy="39.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="59.1" cy="57.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="90.9" cy="74.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="122.6" cy="91.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="26.3" cy="109.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="58.1" cy="126.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="89.8" cy="16.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="121.5" cy="33.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="25.2" cy="50.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="57.0" cy="68.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="88.7" cy="85.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="120.4" cy="102.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="24.2" cy="120.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="55.9" cy="9.7" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="87.6" cy="27.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="119.4" cy="44.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="23.1" cy="61.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="54.8" cy="79.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="86.5" cy="96.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="118.3" cy="114.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="22.0" cy="3.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="53.7" cy="20.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="85.5" cy="38.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="117.2" cy="55.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="20.9" cy="73.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="52.7" cy="90.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="84.4" cy="107.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="116.1" cy="125.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="19.8" cy="14.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="51.6" cy="31.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="83.3" cy="49.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="115.0" cy="66.7" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="18.8" cy="84.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="50.5" cy="101.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="82.2" cy="118.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="114.0" cy="8.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="17.7" cy="25.7" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="49.4" cy="43.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="81.2" cy="60.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="112.9" cy="77.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="16.6" cy="95.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="48.3" cy="112.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="80.1" cy="2.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="111.8" cy="19.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="15.5" cy="36.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="47.3" cy="54.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="79.0" cy="71.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="110.7" cy="89.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="14.4" cy="106.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="46.2" cy="123.7" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="77.9" cy="13.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="109.6" cy="30.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="13.4" cy="47.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="45.1" cy="65.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="76.8" cy="82.7" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="108.6" cy="100.1" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="12.3" cy="117.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="44.0" cy="6.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="75.8" cy="24.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="107.5" cy="41.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="11.2" cy="59.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="42.9" cy="76.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="74.7" cy="93.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="106.4" cy="111.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="10.1" cy="0.6" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="41.9" cy="18.0" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="73.6" cy="35.4" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="105.3" cy="52.8" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="9.1" cy="70.2" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="40.8" cy="87.5" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="72.5" cy="104.9" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="104.2" cy="122.3" r=".45" fill="#9fa99a" opacity=".4"/>
+        <circle cx="8.0" cy="11.7" r=".45" fill="#9fa99a" opacity=".4"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" fill="url(#concrete)" />
+</svg>

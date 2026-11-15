@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>Tahoe alpine material sheet</title>
+  <desc>Four 512-pixel swatches: wind-packed snow, groomed snow, fractured granite, and pine forest floor. Terrain uses world-space triplanar mapping and mipmaps.</desc>
+  <defs>
+    <filter id="alpine-snow-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".07 .12" numOctaves="3" seed="19" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <filter id="alpine-rock-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".025 .055" numOctaves="4" seed="31" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <filter id="alpine-duff-grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".032" numOctaves="3" seed="7" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <pattern id="alpine-drift-relief" width="128" height="128" patternUnits="userSpaceOnUse">
+      <path d="M-20 31Q31 6 78 32T148 29M-20 91Q18 61 73 85T148 88" fill="none" stroke="#acbdca" stroke-width="2.4" opacity=".16"/>
+      <path d="M-20 28Q31 3 78 29T148 26M-20 88Q18 58 73 82T148 85" fill="none" stroke="#fff" stroke-width="2.2" opacity=".65"/>
+      <g fill="#9cb0bf" opacity=".16"><circle cx="21" cy="47" r=".8"/><circle cx="84" cy="116" r=".7"/><circle cx="105" cy="62" r=".9"/><circle cx="58" cy="70" r=".6"/></g>
+    </pattern>
+    <pattern id="alpine-corduroy" width="16" height="64" patternUnits="userSpaceOnUse">
+      <path d="M1 0V64M9 0V64" stroke="#b7c8d2" stroke-width="1.2" opacity=".23"/>
+      <path d="M3 0V64M11 0V64" stroke="#fff" stroke-width="1.5" opacity=".7"/>
+      <path d="M0 47L16 45" stroke="#d5dfe2" stroke-width=".6" opacity=".28"/>
+    </pattern>
+    <pattern id="alpine-granite-cracks" width="256" height="256" patternUnits="userSpaceOnUse">
+      <g fill="none" stroke-linejoin="round">
+        <path d="M-8 27L58 47 95 30 153 75 202 62 264 85M38-8L58 47 31 105 70 153 49 205 74 264M153 75L133 142 184 194 173 264M-8 167L70 153 133 142 208 122 264 137M184 194L235 213 264 207" stroke="#58635f" stroke-width="2.2" opacity=".36"/>
+        <path d="M-8 24L59 44 96 27 155 72 203 59 264 82M40-8L61 45 34 105 73 153 52 205 77 264M157 76L137 141 188 194 177 264" stroke="#e0dfd2" stroke-width="1.6" opacity=".48"/>
+        <path d="M104 59L93 90 103 108M205 21L217 47M106 190L117 229M9 227L32 236" stroke="#6b7770" stroke-width=".9" opacity=".4"/>
+      </g>
+      <g fill="#a1ad79" opacity=".27"><ellipse cx="91" cy="128" rx="13" ry="5"/><ellipse cx="204" cy="74" rx="8" ry="4"/><ellipse cx="22" cy="213" rx="10" ry="7"/></g>
+    </pattern>
+    <pattern id="alpine-pine-litter" width="64" height="64" patternUnits="userSpaceOnUse">
+      <g stroke-linecap="round" fill="none" opacity=".42">
+        <path d="M5 9L14 17M7 11L15 12M42 7L36 18M39 12L45 19M21 32L30 38M24 34L25 43M49 39L56 47M44 54L53 51M7 52L13 59" stroke="#596b4f" stroke-width="1.1"/>
+        <path d="M19 8L24 14M52 19L57 26M9 36L17 33M34 50L31 58M58 60L63 56" stroke="#b39d75" stroke-width="1.3"/>
+      </g>
+      <g fill="#c1b59a" opacity=".38"><ellipse cx="31" cy="17" rx="2.5" ry="1.5"/><ellipse cx="53" cy="36" rx="1.7" ry="1.1"/><ellipse cx="18" cy="55" rx="2" ry="1.2"/></g>
+    </pattern>
+  </defs>
+  <g id="alpine-wind-packed-snow" data-slot="0">
+    <rect width="512" height="512" fill="#f3f6f5"/>
+    <rect width="512" height="512" filter="url(#alpine-snow-grain)" opacity=".065"/>
+    <rect width="512" height="512" fill="url(#alpine-drift-relief)"/>
+  </g>
+  <g id="alpine-groomed-snow" data-slot="1" transform="translate(512 0)">
+    <rect width="512" height="512" fill="#edf3f3"/>
+    <rect width="512" height="512" fill="url(#alpine-corduroy)"/>
+    <rect width="512" height="512" filter="url(#alpine-snow-grain)" opacity=".045"/>
+  </g>
+  <g id="alpine-fractured-granite" data-slot="2" transform="translate(0 512)">
+    <rect width="512" height="512" fill="#afb3aa"/>
+    <rect width="512" height="512" filter="url(#alpine-rock-grain)" opacity=".3"/>
+    <rect width="512" height="512" fill="url(#alpine-granite-cracks)"/>
+  </g>
+  <g id="alpine-pine-forest-floor" data-slot="3" transform="translate(512 512)">
+    <rect width="512" height="512" fill="#94a584"/>
+    <rect width="512" height="512" filter="url(#alpine-duff-grain)" opacity=".16"/>
+    <rect width="512" height="512" fill="url(#alpine-pine-litter)"/>
+  </g>
+</svg>

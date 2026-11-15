@@ -1,0 +1,64 @@
+// Navigation positions use the same logical tile coordinates as the player.
+// Randomness is injected so dispatch and net attempts can be tested reliably.
+export function createTigerEncounter({player,home,exit,wardenStarts,routeTo,canCapture,canPursue=()=>true,onDeath=()=>{},onEvent=()=>{},random=Math.random,speed=4.6}){
+    const tiger={...home,path:[],angle:Math.PI,travel:0,moving:false,repath:0,target:null};
+    const state={phase:'caged',elapsed:0,gate:0,tiger,wardens:[],dispatchAt:0,attempts:0,deaths:0,grace:0};
+    let transition=0,transitionStart=null,patrolDirection=1,lastTarget=null,dispatched=false;
+    const roll=()=>Math.max(0,Math.min(.999999,random()));
+    const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+    function move(actor,budget){
+        actor.moving=false;
+        while(budget>1e-8&&actor.path.length){const p=actor.path[0],dx=p.x-actor.x,dy=p.y-actor.y,d=Math.hypot(dx,dy);if(d<1e-7){actor.path.shift();continue;}
+            const step=Math.min(budget,d);actor.x+=dx/d*step;actor.y+=dy/d*step;actor.angle=Math.atan2(dy,dx);actor.travel+=step;actor.moving=true;budget-=step;if(step>=d-1e-7)actor.path.shift();
+        }
+    }
+    function follow(actor,target,dt,pace){
+        actor.repath-=dt;
+        if(actor.repath<=0){
+            if(!actor.target||distance(actor.target,target)>.4||!actor.path.length&&distance(actor,target)>.3){const path=routeTo(target.x,target.y,actor);if(path)actor.path=path;actor.target={x:target.x,y:target.y};}
+            actor.repath=.65+(actor.index||0)*.13;
+        }
+        move(actor,pace*dt);
+    }
+    function release(){
+        if(state.phase!=='caged')return false;
+        Object.assign(state,{phase:'opening',elapsed:0,gate:0,wardens:[],dispatchAt:4+roll()*7,attempts:0,deaths:0,grace:0});
+        transition=0;transitionStart={x:tiger.x,y:tiger.y};lastTarget={x:player.x,y:player.y};dispatched=false;tiger.path=[];tiger.repath=0;tiger.target=null;
+        onEvent('released');return true;
+    }
+    function capture(){state.phase='returning';tiger.path=[];tiger.target=null;tiger.repath=0;onEvent('captured');}
+    function tick(dt){
+        state.elapsed+=dt;state.grace=Math.max(0,state.grace-dt);
+        for(const w of state.wardens)w.speechFor=Math.max(0,(w.speechFor||0)-dt);
+        if(state.phase==='caged'){
+            if(!tiger.path.length){patrolDirection*=-1;tiger.path=[{x:home.x,y:home.y+patrolDirection*.8}];}move(tiger,.7*dt);
+            for(const w of state.wardens)follow(w,w.home,dt,speed*.8);
+            state.wardens=state.wardens.filter(w=>distance(w,w.home)>.2);return;
+        }
+        if(state.phase==='opening'){state.gate=Math.min(1,state.gate+dt/.7);if(state.gate>=1-1e-8){state.gate=1;state.phase='escaping';transition=0;}return;}
+        if(state.phase==='escaping'||state.phase==='caging'){
+            const inward=state.phase==='caging',from=inward?exit:transitionStart,to=inward?home:exit;
+            transition=Math.min(1,transition+dt/.8);const before={x:tiger.x,y:tiger.y};tiger.x=from.x+(to.x-from.x)*transition;tiger.y=from.y+(to.y-from.y)*transition;tiger.travel+=distance(before,tiger);tiger.angle=Math.atan2(to.y-from.y,to.x-from.x);tiger.moving=transition<1;
+            if(transition>=1-1e-8){tiger.x=to.x;tiger.y=to.y;state.phase=inward?'closing':'loose';transition=0;}return;
+        }
+        if(state.phase==='closing'){state.gate=Math.max(0,state.gate-dt/.65);if(state.gate<1e-8){state.gate=0;state.phase='caged';tiger.path=[];onEvent('caged');}return;}
+        if(state.phase==='loose'){
+            if(canPursue())lastTarget={x:player.x,y:player.y};
+            follow(tiger,lastTarget,dt,speed);
+            if(!dispatched&&state.elapsed>=state.dispatchAt){dispatched=true;state.wardens=wardenStarts.map((p,index)=>({...p,home:{...p},index,path:[],angle:0,travel:0,moving:false,repath:0,target:null,pace:speed*(1.08+roll()*.24),netAt:state.elapsed+1+roll()*2}));onEvent('dispatched');}
+            for(const w of state.wardens){
+                follow(w,tiger,dt,state.elapsed>75?speed*1.65:w.pace);
+                if(distance(w,tiger)<1&&canCapture(w,tiger)&&state.elapsed>=w.netAt){state.attempts++;w.netAt=state.elapsed+1.5+roll()*3;
+                    if(roll()<.35||state.elapsed>75){capture();break;}onEvent('missed',w);
+                }
+            }
+            if(state.phase==='loose'&&!state.grace&&canPursue()&&distance(tiger,player)<.66&&canCapture(tiger,player)){state.deaths++;state.grace=6;onDeath();return 'player-caught';}
+        }else if(state.phase==='returning'){
+            follow(tiger,exit,dt,speed*.72);for(const w of state.wardens)follow(w,tiger,dt,speed*.8);
+            if(distance(tiger,exit)<.05){state.phase='caging';transition=0;}
+        }
+        return null;
+    }
+    function update(dt){let remaining=Math.max(0,dt);while(remaining>1e-8){const step=Math.min(.05,remaining),event=tick(step);remaining-=step;if(event)return event;}return null;}
+    return {state,release,update,get dangerous(){return state.phase==='loose';}};
+}

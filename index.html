@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="new.css" rel="stylesheet" type="text/css">
     <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
@@ -309,5 +310,86 @@
         </ul>
     </details>
 </div>
+<button id="sf-toggle" class="sf-toggle" type="button" aria-pressed="false" aria-controls="sf-world">
+    <span class="sf-toggle-icon" aria-hidden="true">◇</span><span id="sf-toggle-label">Explore SF</span><span class="sf-switch" aria-hidden="true"></span>
+</button>
+<section id="sf-world" aria-label="Explore John's San Francisco" hidden>
+    <canvas id="sf-canvas" tabindex="0" aria-label="3D San Francisco. Click to walk, right-click to examine. Left and right arrows rotate the camera; up and down arrows tilt it. E interacts. Use the slider, scroll, or pinch to zoom."></canvas>
+    <div id="sf-actor-labels" class="sf-actor-labels" aria-hidden="true"></div>
+    <div id="sf-player-speech" class="sf-player-speech" role="status" aria-live="polite" hidden></div>
+    <div id="sf-place-markers" class="sf-place-markers" aria-label="John's destinations"></div>
+    <div id="sf-click-marker" class="sf-click-marker" aria-hidden="true" hidden></div>
+    <div id="sf-custody" class="sf-custody" role="status" hidden><strong>Carceral Urbanist Facility</strong><span>Marin Headlands · Detained indefinitely</span></div>
+    <div id="sf-wanted" class="sf-wanted" role="status" hidden>WANTED · Police are pursuing you</div>
+    <aside class="sf-map-panel" aria-label="Neighborhood map">
+        <button id="sf-map-button" class="sf-map-button" aria-label="Minimap. Click to travel. Arrow keys select a content icon; Enter travels there."><canvas id="sf-minimap" width="184" height="154" aria-hidden="true"></canvas></button>
+    </aside>
+    <div id="sf-hover" class="sf-hover" hidden></div>
+    <div id="sf-context" class="sf-context" role="menu" aria-label="Choose an action" hidden></div>
+    <div id="sf-status" class="sf-sr-only" role="status" aria-live="polite"></div>
+    <div class="sf-bottom-bar">
+        <div class="sf-journal"><div id="sf-log" role="log" aria-label="Adventure log"><div><time>Guide</time> Welcome to San Francisco. Make yourself at home.</div><div><time>Tip</time> Visit a storefront to discover what's inside.</div></div><div id="sf-dialogue" class="sf-dialogue" role="group" aria-label="Conversation" hidden></div></div>
+        <div class="sf-actions" role="group" aria-label="Exploration controls" data-mode="ground">
+            <div class="sf-purse" aria-live="polite"><span>◉ <strong id="sf-coins">25</strong> coins</span><span id="sf-inventory">0 equity · 0 grain</span></div>
+            <div class="sf-zoom">
+                <label class="sf-zoom-control"><span class="sf-zoom-ends" aria-hidden="true"><span>Far</span><span>Near</span></span><input id="sf-zoom-slider" type="range" min="55" max="165" step="1" value="100" aria-label="Zoom" aria-valuetext="100% zoom"></label>
+                <button id="sf-recenter" aria-label="Reset camera angle and zoom">⌖</button>
+            </div>
+            <div class="sf-travel-controls">
+                <button id="sf-climb-button" class="sf-bike-button" type="button" hidden>Climb down <span class="sf-key">E</span></button>
+                <button id="sf-surf-button" class="sf-bike-button" type="button" aria-pressed="false">Windsurf <span class="sf-key">F</span></button>
+                <button id="sf-bike-button" class="sf-bike-button" type="button" aria-pressed="false">Find bike <span class="sf-key">B</span></button>
+                <button id="sf-airship-button" class="sf-bike-button" type="button" aria-pressed="false">Airship <span class="sf-key">A</span></button>
+                <button id="sf-rope-button" class="sf-bike-button" type="button" hidden>Rope</button>
+                <button id="sf-ski-button" class="sf-bike-button" type="button" hidden>Ride gondola</button>
+                <button id="sf-say-button" class="sf-bike-button" type="button" aria-label="Say yo (S)" aria-keyshortcuts="S" title="Say yo (S)">Say <span class="sf-key">S</span></button>
+                <button id="sf-help-button" class="sf-bike-button" type="button" aria-label="Help: controls and icon legend">Help</button>
+            </div>
+        </div>
+    </div>
+    <section id="sf-reader" class="sf-reader" role="region" aria-labelledby="sf-reader-title" hidden><div class="sf-reader-top"><span id="sf-reader-category" class="sf-eyebrow"></span><button id="sf-close-reader" aria-label="Close place">×</button></div><h2 id="sf-reader-title"></h2><p id="sf-reader-description" class="sf-reader-description"></p><div id="sf-reader-content"></div><div class="sf-reader-footer">From johnloeber.com <span>↗ Links open in a new tab</span></div></section>
+    <div id="sf-reader-shade" class="sf-reader-shade" hidden></div>
+    <section id="sf-help" class="sf-help" role="dialog" aria-modal="true" aria-labelledby="sf-help-title" hidden>
+        <button id="sf-close-help" aria-label="Close guide">×</button>
+        <span class="sf-eyebrow">THE CITY IS YOURS</span>
+        <h2 id="sf-help-title">Find your next stop.</h2>
+        <p>Glowing symbols mark content from John's homepage. The same symbols appear above the buildings and on the minimap.</p>
+        <h3>Icon legend</h3>
+        <div id="sf-icon-legend" class="sf-icon-legend" role="list" aria-label="Content icon legend"></div>
+        <h3>Controls</h3>
+        <dl>
+            <dt>Minimap</dt><dd>Your marker stays in the center while the map follows you. Click a street to travel, or a content icon to visit its building. A red flag marks your destination. Arrow keys select icons when the minimap has focus; Enter travels.</dd>
+            <dt>Click / tap</dt><dd>Walk to a tile, visit a building, or choose actions for a Man or Woman</dd>
+            <dt>Right-click / long press</dt><dd>Choose an action or examine</dd>
+            <dt>← / →</dt><dd>Rotate the camera</dd>
+            <dt>↑ / ↓</dt><dd>Tilt the camera</dd>
+            <dt>E</dt><dd>Enter the nearest place, or climb Sutro Tower when nearby</dd>
+            <dt>Sutro Tower</dt><dd>Click or right-click the tower and choose Climb Sutro Tower. At the top, use the arrows to look around. Climb down or E returns you to the trail.</dd>
+            <dt>S / Say</dt><dd>Say “yo” above your character’s head for three seconds</dd>
+            <dt>Coins & trades</dt><dd>Start with 25 coins. Buy startup equity at the Y Combinator house south of the airport for 10 coins; the Secondary purchaser beside Venture exchange pays 20. The grain merchant beside Golden Gate Park sells duck grain for one coin.</dd>
+            <dt>Airship rope</dt><dd>Hover over clear ground and use Rope to drop a line, climb down, or climb back up. A traveler can pay five coins to climb aboard. Retract the rope before flying.</dd>
+            <dt>Tax headquarters</dt><dd>Follow Second Street south. The officials accept all your coins in taxes, or you can question them about the empty high-speed rail pit behind their office.</dd>
+            <dt>Tahoe</dt><dd>Follow the highway across the Bay Bridge and northeast to Tahoe, or board a reusable SpaceX rocket for one coin each way. Follow the pier from the jet terminal onto the spaceport in the bay. The airship also flies to Tahoe. Ride the gondola up, rent skis for one coin, then use Ski down. Click to steer and press Space in the air to flip.</dd>
+            <dt>Zoo</dt><dd>Visit the zoo west of Lake Merced. Open the tiger’s gate, then keep moving! Animal control will try to return it to its cage. If it catches you, you respawn at UCSF Hospital in the southeast.</dd>
+            <dt>Conversations</dt><dd>Use the arrow keys to select a response and Enter to continue. Tax officials return to their choices after each reply; choose Leave or press Escape to finish.</dd>
+            <dt>B / bicycle</dt><dd>Find, ride, or park the bicycle</dd>
+            <dt>A / Airship</dt><dd>Walk to the private jet terminal south of the city and rent an airship. Click the ground or minimap to fly; A returns you to the terminal.</dd>
+            <dt>F / Windsurf</dt><dd>Borrow a board at Crissy Field; sail anywhere on open water, click a humpback whale to jump over it, and press F to return to shore</dd>
+            <dt>Slider / scroll / pinch</dt><dd>Zoom the world</dd>
+            <dt>Escape</dt><dd>Close a panel or stop walking</dd>
+        </dl>
+        <p>A yellow X confirms a click; a red X means that action is unavailable. Talk to people for local tips. Attacking or stealing starts a police chase; capture means detention in Marin, where you can walk within your cell.</p>
+        <p class="sf-help-note">Use the top-right switch to return to the classic homepage. Streets and distances are simplified for exploring.</p>
+        <button id="sf-help-start" class="sf-primary">Let's wander ↗</button>
+    </section>
+</section>
+<!-- SF-ENTRY:START -->
+<!-- Development sources: sf/README.md. Generate explore.html with node sf/build.mjs. -->
+<script>
+document.getElementById('sf-toggle').addEventListener('click',()=>{
+    window.location.href=new URL('./explore.html',window.location.href).href;
+});
+</script>
+<!-- SF-ENTRY:END -->
 </body>
 </html>

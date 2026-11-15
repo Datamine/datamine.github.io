@@ -1,0 +1,256 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Shingles</title>
+  <desc>Pitched residential roofs; overlapping shingle courses. Neutral relief is tinted by the model color.</desc>
+  <!-- Editable source for material 'shingles'. Rebuild with node sf/build.mjs. -->
+  <defs>
+    <pattern id="shingles" width="128" height="128" patternUnits="userSpaceOnUse">
+      <g id="shingles-background">
+        <rect x="0.00" y="0.00" width="128.00" height="128.00" fill="#9fa99b" />
+      </g>
+      <!-- Surface relief: texture marks, highlights and seams. -->
+      <g id="shingles-detail">
+        <rect x="-17.00" y="1.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M-16,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-13,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="1.00" y="1.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M2,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M5,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="19.00" y="1.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M20,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M23,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="37.00" y="1.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M38,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M41,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="55.00" y="1.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M56,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M59,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="73.00" y="1.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M74,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M77,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="91.00" y="1.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M92,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M95,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="109.00" y="1.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M110,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M113,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="127.00" y="1.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M128,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M131,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="145.00" y="1.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M146,15h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M149,3l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="-8.00" y="17.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M-7,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-4,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="10.00" y="17.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M11,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M14,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="28.00" y="17.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M29,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M32,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="46.00" y="17.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M47,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M50,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="64.00" y="17.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M65,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M68,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="82.00" y="17.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M83,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M86,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="100.00" y="17.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M101,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M104,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="118.00" y="17.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M119,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M122,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="136.00" y="17.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M137,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M140,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="154.00" y="17.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M155,31h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M158,19l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="-17.00" y="33.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M-16,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-13,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="1.00" y="33.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M2,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M5,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="19.00" y="33.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M20,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M23,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="37.00" y="33.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M38,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M41,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="55.00" y="33.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M56,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M59,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="73.00" y="33.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M74,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M77,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="91.00" y="33.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M92,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M95,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="109.00" y="33.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M110,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M113,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="127.00" y="33.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M128,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M131,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="145.00" y="33.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M146,47h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M149,35l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="-8.00" y="49.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M-7,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-4,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="10.00" y="49.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M11,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M14,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="28.00" y="49.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M29,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M32,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="46.00" y="49.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M47,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M50,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="64.00" y="49.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M65,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M68,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="82.00" y="49.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M83,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M86,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="100.00" y="49.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M101,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M104,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="118.00" y="49.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M119,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M122,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="136.00" y="49.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M137,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M140,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="154.00" y="49.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M155,63h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M158,51l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="-17.00" y="65.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M-16,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-13,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="1.00" y="65.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M2,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M5,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="19.00" y="65.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M20,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M23,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="37.00" y="65.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M38,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M41,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="55.00" y="65.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M56,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M59,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="73.00" y="65.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M74,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M77,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="91.00" y="65.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M92,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M95,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="109.00" y="65.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M110,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M113,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="127.00" y="65.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M128,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M131,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="145.00" y="65.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M146,79h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M149,67l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="-8.00" y="81.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M-7,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-4,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="10.00" y="81.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M11,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M14,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="28.00" y="81.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M29,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M32,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="46.00" y="81.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M47,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M50,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="64.00" y="81.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M65,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M68,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="82.00" y="81.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M83,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M86,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="100.00" y="81.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M101,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M104,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="118.00" y="81.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M119,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M122,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="136.00" y="81.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M137,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M140,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="154.00" y="81.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M155,95h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M158,83l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="-17.00" y="97.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M-16,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-13,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="1.00" y="97.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M2,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M5,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="19.00" y="97.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M20,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M23,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="37.00" y="97.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M38,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M41,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="55.00" y="97.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M56,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M59,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="73.00" y="97.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M74,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M77,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="91.00" y="97.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M92,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M95,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="109.00" y="97.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M110,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M113,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="127.00" y="97.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M128,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M131,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="145.00" y="97.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M146,111h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M149,99l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="-8.00" y="113.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M-7,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M-4,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="10.00" y="113.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M11,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M14,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="28.00" y="113.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M29,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M32,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="46.00" y="113.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M47,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M50,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="64.00" y="113.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M65,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M68,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="82.00" y="113.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M83,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M86,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="100.00" y="113.00" width="16.00" height="15.00" fill="#dfe1cc" />
+        <path d="M101,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M104,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="118.00" y="113.00" width="16.00" height="15.00" fill="#b8c2b0" />
+        <path d="M119,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M122,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="136.00" y="113.00" width="16.00" height="15.00" fill="#cad0bf" />
+        <path d="M137,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M140,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+        <rect x="154.00" y="113.00" width="16.00" height="15.00" fill="#d0d2c0" />
+        <path d="M155,127h14" fill="none" stroke="#727f72" stroke-width="1.15" />
+        <path d="M158,115l1,8m7,-5v5" fill="none" stroke="#a0ad9b" stroke-width="0.7" />
+      </g>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" fill="url(#shingles)" />
+</svg>

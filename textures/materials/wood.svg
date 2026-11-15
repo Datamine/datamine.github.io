@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Timber</title>
+  <desc>Wooden stairs, balconies and fixtures; long timber grain. Neutral relief is tinted by the model color.</desc>
+  <!-- Editable source for material 'wood'. Rebuild with node sf/build.mjs. -->
+  <defs>
+    <pattern id="wood" width="128" height="128" patternUnits="userSpaceOnUse">
+      <g id="wood-background">
+        <rect x="0.00" y="0.00" width="128.00" height="128.00" fill="#d9d1b9" />
+      </g>
+      <!-- Surface relief: texture marks, highlights and seams. -->
+      <g id="wood-detail">
+        <path d="M0,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M6,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M6,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M6,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M16,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M22,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M22,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M22,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M32,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M38,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M38,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M38,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M48,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M54,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M54,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M54,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M64,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M70,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M70,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M70,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M80,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M86,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M86,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M86,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M96,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M102,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M102,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M102,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M112,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M118,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M118,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M118,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M128,0V128" fill="none" stroke="#9c9e8b" stroke-width="1.2" />
+        <path d="M134,3q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M134,42q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <path d="M134,87q-4,10 1,23t-1,16" fill="none" stroke="#b2af97" stroke-width="0.7" />
+        <ellipse cx="24" cy="31" rx="2.8" ry="5.5" fill="none" stroke="#aca58e" stroke-width=".8"/>
+        <ellipse cx="72" cy="94" rx="2.8" ry="5.5" fill="none" stroke="#aca58e" stroke-width=".8"/>
+        <ellipse cx="105" cy="60" rx="2.8" ry="5.5" fill="none" stroke="#aca58e" stroke-width=".8"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" fill="url(#wood)" />
+</svg>

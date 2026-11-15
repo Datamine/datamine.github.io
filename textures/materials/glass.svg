@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Glass</title>
+  <desc>Windows and glazed towers; subtle reflections and pane detail. Neutral relief is tinted by the model color.</desc>
+  <!-- Editable source for material 'glass'. Rebuild with node sf/build.mjs. -->
+  <defs>
+    <pattern id="glass" width="128" height="128" patternUnits="userSpaceOnUse">
+      <g id="glass-background"><rect width="128" height="128" fill="#d0dad7"/></g>
+      <g id="glass-detail">
+        <path d="M-32 96L96-32M32 160L160 32" stroke="#edf1e9" stroke-width="25" opacity=".09"/>
+        <path d="M0 36H128M0 99H128" stroke="#a8bcb9" stroke-width=".6" opacity=".16"/>
+        <path d="M21 0V128M87 0V128" stroke="#e1e8df" stroke-width=".7" opacity=".14"/>
+      </g>
+    </pattern>
+  </defs>
+  <rect width="256" height="256" fill="url(#glass)"/>
+</svg>
