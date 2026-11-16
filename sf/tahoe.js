@@ -2,6 +2,8 @@ import {Mesh,pose,unit,rayTriangle} from './geometry.js';
 import {drawCharacter} from './characters.js';
 import {drawPlaque} from './southern-district.js';
 import {drawRocketPad} from './rocket.js';
+import {EAST_BAY_COAST_X} from './geography.js';
+import {drawFacadeWindow} from './windows.js';
 
 // Mid-lake coordinates: https://waterdata.usgs.gov/monitoring-location/USGS-390618120021101/
 // SF's approximately seven-mile span maps to the existing 96-tile city.
@@ -10,6 +12,29 @@ const tahoeLatitude=39.10490758,tahoeLongitude=-120.0374088,tahoeSfLat=37.7749,t
 const tahoeLakeX=48+(tahoeLongitude-tahoeSfLon)*111.195*Math.cos((tahoeLatitude+tahoeSfLat)*Math.PI/360)/REGIONAL_KM_PER_TILE;
 const tahoeLakeZ=48-(tahoeLatitude-tahoeSfLat)*111.195/REGIONAL_KM_PER_TILE;
 export const TAHOE=Object.freeze({x:tahoeLakeX,z:tahoeLakeZ,base:{x:tahoeLakeX-42,z:tahoeLakeZ+34},peak:{x:tahoeLakeX-232,z:tahoeLakeZ-1},lakeLevel:10,peakHeight:240});
+// One village plan separates arrival road, gas forecourt, gondola and rocket.
+// Rendering, NPC approaches and walking rules all consume these coordinates.
+export const TAHOE_VILLAGE=Object.freeze({
+    arrival:Object.freeze({x:TAHOE.base.x,z:TAHOE.base.z+10}),
+    fuel:Object.freeze({x:TAHOE.base.x-5.5,z:TAHOE.base.z+4.5,w:4.8,d:3.8,entry:Object.freeze({x:TAHOE.base.x-6,y:TAHOE.base.z+6.5})}),
+    spaceport:Object.freeze({x:TAHOE.base.x+7,z:TAHOE.base.z+1.5,entry:Object.freeze({x:TAHOE.base.x+6.5,y:TAHOE.base.z-1.8})})
+});
+export const TAHOE_VILLAGE_PAVING=Object.freeze([
+    [-2.5,1.7,2.5,10.8],[-5.5,6.2,-2.5,7.2],[-.65,.9,.65,1.7],[2,-1.8,3,1.7],[3,-1.8,7.5,-.8]
+].map(([west,north,east,south])=>Object.freeze({west:TAHOE.base.x+west,north:TAHOE.base.z+north,east:TAHOE.base.x+east,south:TAHOE.base.z+south})));
+export function tahoeVillagePavingAt(x,z){return TAHOE_VILLAGE_PAVING.find(r=>x>=r.west&&x<=r.east&&z>=r.north&&z<=r.south)||null;}
+
+function clipTahoePaving(poly,axis,value,positive){
+    const out=[],sign=positive?1:-1;
+    for(let i=0;i<poly.length;i++){
+        const a=poly[i],b=poly[(i+1)%poly.length],da=(a.p[axis]-value)*sign,db=(b.p[axis]-value)*sign;
+        if(da>=-1e-9)out.push(a);
+        if((da>=0)!==(db>=0)){const t=da/(da-db);out.push({p:a.p.map((v,k)=>v+(b.p[k]-v)*t),n:unit(a.n.map((v,k)=>v+(b.n[k]-v)*t)),groom:a.groom+(b.groom-a.groom)*t});}
+    }return out;
+}
+// The gondola approaches from the east/southeast. Keep the hut west of the
+// station and use this same footprint for rendering, collision and rental access.
+export const TAHOE_SKI_HUT=Object.freeze({x:TAHOE.peak.x-4.5,z:TAHOE.peak.z-2.5,w:2.6,d:3,rotation:-Math.PI/2,entry:Object.freeze({x:TAHOE.peak.x-3.1,y:TAHOE.peak.z-3})});
 export const TAHOE_BOUNDS=Object.freeze({west:TAHOE.base.x-384,east:TAHOE.base.x+144,north:TAHOE.base.z-216,south:TAHOE.base.z+216,step:1.5});
 const tahoeClamp=(v,a,b)=>Math.max(a,Math.min(b,v)),tahoeMix=(a,b,t)=>a+(b-a)*t,tahoeSmooth=t=>t*t*(3-2*t);
 const tahoeLakeValue=(x,z)=>((x-TAHOE.x)/35)**2+((z-TAHOE.z)/70)**2;
@@ -34,7 +59,7 @@ export function nearTahoe(x,z,radius){
 }
 export function regionalGroundHeight(x,z){
     if(nearTahoe(x,z))return tahoeHeight(x,z);
-    if(x<160)return -.65;
+    if(x<EAST_BAY_COAST_X)return -.65;
     const foothills=14*Math.exp(-(((x-(TAHOE.x-260))/160)**2+((z-TAHOE.z)/210)**2));
     return 1.15+foothills+Math.sin(x*.01)*Math.sin(z*.013)*.2;
 }
@@ -79,7 +104,7 @@ const tahoeDistanceSegment=(x,z,a,b)=>{const dx=b.x-a.x,dz=b.z-a.z,t=tahoeClamp(
 
 export function createTahoe(){
     const state={mode:'ground',position:null,rented:false,travel:0,up:true,progress:0,speed:0,offset:0,steer:0,airTime:0,flipping:false,flipAngle:0,flips:0,ramps:new Set(),angle:0};
-    const spaceport={x:TAHOE.base.x+4.4,z:TAHOE.base.z+3.5,base:tahoeHeight(TAHOE.base.x+4.4,TAHOE.base.z+3.5),entry:{x:TAHOE.base.x+3.9,y:TAHOE.base.z+.2}},baseEntry={x:TAHOE.base.x-.5,y:TAHOE.base.z-.5},summitEntry={x:TAHOE.peak.x-.5,y:TAHOE.peak.z-.5};
+    const spaceport={...TAHOE_VILLAGE.spaceport,base:tahoeHeight(TAHOE_VILLAGE.spaceport.x,TAHOE_VILLAGE.spaceport.z)},baseEntry={x:TAHOE.base.x-.5,y:TAHOE.base.z-.5},summitEntry={x:TAHOE.peak.x-.5,y:TAHOE.peak.z-.5};
     // The cabin and wire share this sampled path. Check the entire cabin
     // footprint against terrain, including the steep shoulder near the summit.
     const cabinAngle=Math.atan2(TAHOE.peak.z-TAHOE.base.z,TAHOE.peak.x-TAHOE.base.x),co=Math.cos(cabinAngle),si=Math.sin(cabinAngle),cablePath=[];
@@ -91,10 +116,16 @@ export function createTahoe(){
     }
     const cableDistances=[0];for(let i=1;i<cablePath.length;i++){const a=cablePath[i-1],b=cablePath[i];cableDistances.push(cableDistances.at(-1)+Math.hypot(b.x-a.x,b.y-a.y,b.z-a.z));}
     function contains(x,z){return x>=TAHOE_BOUNDS.west&&x<=TAHOE_BOUNDS.east&&z>=TAHOE_BOUNDS.north&&z<=TAHOE_BOUNDS.south;}
-    function walkable(x,z){return contains(x,z)&&tahoeLakeValue(x,z)>1.03&&(Math.hypot(x-TAHOE.base.x,z-TAHOE.base.z)<11||Math.hypot(x-TAHOE.peak.x,z-TAHOE.peak.z)<7||tahoeSmoothRoute.slice(1).some((b,i)=>tahoeDistanceSegment(x,z,tahoeSmoothRoute[i],b)<3.5));}
+    function walkable(x,z){
+        const hut=TAHOE_SKI_HUT;if(Math.abs(x-hut.x)<hut.w/2+.18&&Math.abs(z-hut.z)<hut.d/2+.18)return false;
+        if(Math.hypot(x-spaceport.x,z-spaceport.z)<.92)return false;
+        for(const site of [TAHOE.base,TAHOE.peak])for(const dx of [-1.5,1.5])for(const dz of [-.9,.9])if(Math.hypot(x-site.x-dx,z-site.z-dz)<.17)return false;
+        const fuel=TAHOE_VILLAGE.fuel;for(const dx of [-.8,.8])if(Math.abs(x-fuel.x-dx)<.3&&Math.abs(z-fuel.z-.08)<.32)return false;
+        return contains(x,z)&&tahoeLakeValue(x,z)>1.03&&(Math.hypot(x-TAHOE.base.x,z-TAHOE.base.z)<11.5||Math.hypot(x-TAHOE.peak.x,z-TAHOE.peak.z)<7||tahoeSmoothRoute.slice(1).some((b,i)=>tahoeDistanceSegment(x,z,tahoeSmoothRoute[i],b)<3.5));
+    }
     function segment(a,b){const n=Math.max(1,Math.ceil(Math.hypot(b.x-a.x,b.y-a.y)/.3));for(let i=0;i<=n;i++)if(!walkable(tahoeMix(a.x,b.x,i/n)+.5,tahoeMix(a.y,b.y,i/n)+.5))return false;return true;}
     function path(from,to){
-        if(!walkable(from.x+.5,from.y+.5)||!walkable(to.x+.5,to.y+.5))return null;if(segment(from,to))return [{...to}];
+        if(!walkable(from.x+.5,from.y+.5)||!walkable(to.x+.5,to.y+.5))return null;if(Math.hypot(from.x-to.x,from.y-to.y)<1e-7)return [];if(segment(from,to))return [{...to}];
         const nodes=[from,to,...tahoeSmoothRoute.filter((p,i)=>i%4===0||i===tahoeSmoothRoute.length-1).map(p=>({x:p.x-.5,y:p.z-.5}))],cost=nodes.map(()=>Infinity),parents=nodes.map(()=>-1),used=new Set();cost[0]=0;
         for(let k=0;k<nodes.length;k++){let next=-1;for(let i=0;i<nodes.length;i++)if(!used.has(i)&&(next<0||cost[i]<cost[next]))next=i;if(next<0||!Number.isFinite(cost[next]))return null;
             if(next===1){const result=[];for(let i=1;i!==0;i=parents[i])result.push(nodes[i]);return result.reverse();}used.add(next);
@@ -132,9 +163,26 @@ export function drawTahoeTerrain(m){
     for(let j=0;j<rows;j++)for(let i=0;i<width;i++){
         const x=b.west+i*s,z=b.north+j*s;let distance=Infinity;
         for(let k=1;k<tahoeSmoothRoute.length;k++)distance=Math.min(distance,tahoeDistanceSegment(x,z,tahoeSmoothRoute[k-1],tahoeSmoothRoute[k]));
-        vertices.push({p:[x,rawTahoeHeight(x,z),z],n:tahoeNormal(x,z),groom:1-tahoeSmooth(tahoeClamp((distance-1.8)/1.5,0,1))});
+        // A broad, connected finish apron meets the gondola platform. Leave
+        // enough full snow at the edges for steering and terrain interpolation.
+        distance=Math.min(distance,Math.max(0,Math.hypot(x-TAHOE.base.x,z-TAHOE.base.z)-2));
+        vertices.push({p:[x,rawTahoeHeight(x,z),z],n:tahoeNormal(x,z),groom:1-tahoeSmooth(tahoeClamp((distance-3)/1.5,0,1))});
     }
-    const triangle=(a,c,d)=>{const start=m.data.length;m.tri(a.p,c.p,d.p,'#ffffff',{snow:true});for(const [i,v] of [a,c,d].entries()){for(let k=0;k<3;k++)m.data[start+i*11+3+k]=v.n[k];m.data[start+i*11+10]=v.groom;}};
+    const emit=(poly,paved)=>{for(let j=1;j<poly.length-1;j++){
+        const vertices=[poly[0],poly[j],poly[j+1]],start=m.data.length;m.tri(...vertices.map(v=>v.p),paved?'#b3b8aa':'#ffffff',paved?'cobble':{snow:true});
+        for(const [i,v] of vertices.entries()){for(let k=0;k<3;k++)m.data[start+i*11+3+k]=v.n[k];if(!paved)m.data[start+i*11+10]=v.groom;}
+    }};
+    const triangle=(a,c,d)=>{
+        const tri=[a,c,d],minX=Math.min(...tri.map(v=>v.p[0])),maxX=Math.max(...tri.map(v=>v.p[0])),minZ=Math.min(...tri.map(v=>v.p[2])),maxZ=Math.max(...tri.map(v=>v.p[2]));
+        const cuts=TAHOE_VILLAGE_PAVING.filter(r=>maxX>r.west&&minX<r.east&&maxZ>r.north&&minZ<r.south);if(!cuts.length){emit(tri,false);return;}
+        // Partition the original terrain faces. Paving replaces snow/grass;
+        // it never sits in a second coplanar layer above it.
+        let remaining=[tri];for(const r of cuts){const outside=[];
+            for(const poly of remaining){let inside=poly;for(const [axis,value,positive] of [[0,r.west,true],[0,r.east,false],[2,r.north,true],[2,r.south,false]]){
+                if(inside.length<3)break;const part=clipTahoePaving(inside,axis,value,!positive);if(part.length>=3)outside.push(part);inside=clipTahoePaving(inside,axis,value,positive);
+            }if(inside.length>=3)emit(inside,true);}remaining=outside;
+        }for(const poly of remaining)emit(poly,false);
+    };
     for(let j=0;j<rows-1;j++)for(let i=0;i<width-1;i++){const a=vertices[j*width+i],c=vertices[(j+1)*width+i+1];triangle(a,c,vertices[j*width+i+1]);triangle(a,vertices[(j+1)*width+i],c);}
     const shore=[];for(let i=0;i<96;i++){const a=i*Math.PI/48;shore.push([TAHOE.x+Math.cos(a)*35,TAHOE.lakeLevel+.025,TAHOE.z+Math.sin(a)*70]);}
     for(let i=0;i<shore.length;i++)m.tri([TAHOE.x,TAHOE.lakeLevel+.025,TAHOE.z],shore[(i+1)%shore.length],shore[i],'#ffffff',{water:2});
@@ -151,8 +199,15 @@ export function drawTahoeStructures(m,tahoe,signs){
         const h=tahoeHeight(site.x,site.z);
         add(up?'gondola-base':'gondola-summit',up?'Mountain gondola':'Summit gondola','gondola',up?tahoe.baseEntry:tahoe.summitEntry,()=>{
             m.box(site.x-1.8,h,site.z-1.5,3.6,.12,3,'#b3b6a6','stone');
-            for(const dx of [-1.5,1.5]){m.box(site.x+dx-.08,h+.12,site.z-.9,.16,3.4,.16,'#627a76',{metal:.3});m.box(site.x+dx-.08,h+.12,site.z+.9,.16,3.4,.16,'#627a76',{metal:.3});}
+            for(const dx of [-1.5,1.5]){m.box(site.x+dx-.08,h+.12,site.z-.9,.16,3.4,.16,'#a15b54',{metal:.3});m.box(site.x+dx-.08,h+.12,site.z+.9,.16,3.4,.16,'#a15b54',{metal:.3});}
             for(const dz of [-1.2,1])m.box(site.x-1.85,h+3.5,site.z+dz,3.7,.15,.2,'#6e7775','roof');drawPlaque(m,signs,'GONDOLA',site.x,h+2.9,site.z-1.22,2.8,.35,false);
+            for(const side of [-1,1]){
+                const roof=[[site.x-2,h+3.65,site.z+side*1.55],[site.x+2,h+3.65,site.z+side*1.55],[site.x+2,h+4.15,site.z],[site.x-2,h+4.15,site.z]];if(side<0)roof.reverse();m.quad(...roof,'#e6ece6',{snow:true,groom:1});
+                m.rod([site.x-2,h+3.6,site.z+side*1.55],[site.x+2,h+3.6,site.z+side*1.55],.04,'#8a7966',10,'wood');
+                m.sphere(site.x+side*.78,h+2.82,site.z,.3,.3,.045,'#596b70',24,12,{metal:.4});
+                for(let i=0;i<8;i++){const a=i*Math.PI/4;m.rod([site.x+side*.78,h+2.82,site.z-.05],[site.x+side*.78+Math.cos(a)*.27,h+2.82+Math.sin(a)*.27,site.z-.05],.014,'#c4cdc5',6);}
+            }
+            for(const dx of [-1.65,1.65])for(let i=0;i<5;i++)m.box(site.x+dx-.035,h+.15,site.z-1.25+i*.53,.07,.075,.34,'#e5e9df',{snow:true});
         });
     }
     for(let i=0;i<tahoe.cablePath.length;i++){
@@ -160,11 +215,23 @@ export function drawTahoeStructures(m,tahoe,signs){
         if(i){const q=tahoe.cablePath[i-1];m.rod([q.x,q.y+2.4,q.z],cable,.023,'#687571',8);}
         if(i%32===0){const ground=tahoeHeight(p.x,p.z);for(const dx of [-.55,.55])m.rod([p.x+dx,ground,p.z],[p.x+dx,p.y+2.7,p.z],.08,'#6b827b',10);m.rod([p.x-.8,p.y+2.5,p.z],[p.x+.8,p.y+2.5,p.z],.065,'#aab5aa',10);}
     }
-    const p=TAHOE.peak,h=tahoeHeight(p.x,p.z);
-    add('ski-rental','Summit ski rental','ski-rental',{x:p.x+3,y:p.z-2.3},()=>{
-        m.box(p.x+2.2,h,p.z-1.5,2.6,1.8,3,'#8b6e52','wood');m.box(p.x+2.08,h+1.8,p.z-1.62,2.84,.15,3.24,'#e2e5d9');
-        drawPlaque(m,signs,'SKIS · 1 COIN',p.x+3.5,h+1.25,p.z-1.525,2.4,.33,false);
-        for(let i=0;i<5;i++)m.rod([p.x+2.5+i*.4,h+.1,p.z-1.65],[p.x+2.35+i*.4,h+1.1,p.z-1.7],.035,i%2?'#d0a05d':'#668e9c',6);
+    const hut=TAHOE_SKI_HUT,h=tahoeHeight(hut.x,hut.z);
+    add('ski-rental','Summit ski rental','ski-rental',{...hut.entry},()=>{
+        pose(m,hut.x,h,hut.z,hut.rotation,()=>{
+            const w=hut.d,d=hut.w;
+            m.box(-w/2,0,-d/2,w,1.8,d,'#977958','wood');
+            for(const side of [-1,1]){
+                const roof=[[-w/2-.15,1.81,side*(d/2+.15)],[w/2+.15,1.81,side*(d/2+.15)],[w/2+.15,2.4,0],[-w/2-.15,2.4,0]];if(side<0)roof.reverse();m.quad(...roof,'#e5ece8',{snow:true,groom:1});
+                m.rod([-w/2-.16,1.77,side*(d/2+.16)],[w/2+.16,1.77,side*(d/2+.16)],.045,'#5b6e71',10);
+                m.tri([side*w/2,1.8,-d/2],[side*w/2,1.8,d/2],[side*w/2,2.4,0],'#ad9172','wood');
+            }
+            for(const x of [-1.18,.67])drawFacadeWindow(m,{plane:d/2+.015,along:x,y:.45,w:.49,h:.59,trim:'#e2d2b5',seed:x});
+            m.box(-.28,.03,d/2+.02,.56,1.12,.035,'#526b72','wood');m.sphere(.18,.62,d/2+.07,.025,.025,.025,'#bca56e',10,6,{metal:.3});
+            m.box(-1.1,1.8,-.75,.25,.85,.3,'#9b8877','stone');m.box(-1.13,2.64,-.78,.31,.08,.36,'#dde5de');
+            for(const x of [-w/2+.04,w/2-.1])m.box(x,.05,-d/2,.065,1.72,d,'#b49a74','wood');
+            drawPlaque(m,signs,'SKIS · 1 COIN',0,1.25,d/2+.025,2.4,.33);
+            for(let i=0;i<5;i++)m.rod([-1+i*.4,.1,d/2+.15],[-1.15+i*.4,1.1,d/2+.2],.035,i%2?'#d0a05d':'#668e9c',6);
+        });
     });
     // Groomed piste markers and four raised ramps follow the same route as the skier.
     for(let d=0;d<tahoeCourseLength;d+=7){const p=tahoeCourseAt(d);for(const side of [-1,1]){const x=p.x-Math.sin(p.angle)*side*2.5,z=p.z+Math.cos(p.angle)*side*2.5,h=tahoeHeight(x,z);m.cylinder(x,h,z,.018,.65,'#a7715b',6);m.tri([x,h+.6,z],[x+.22,h+.52,z],[x,h+.4,z],side<0?'#be7058':'#6d8ca3');}}
@@ -185,9 +252,9 @@ export function drawGondolaCabin(m,p,angle){
     });
 }
 
-export function drawSkiRider(m,state,time,reduced=false){
+export function drawSkiRider(m,state,time,reduced=false,appearance={}){
     const p=state.position,start=m.data.length;
-    drawCharacter(m,0,0,.13,0,0,false,'#bd9369','#6c8a97',{mode:'surf',backpack:false,pants:'#53646b',time:reduced?0:time*.001});
+    drawCharacter(m,0,0,.13,0,0,false,appearance.skin||'#bd9369',appearance.shirt||'#6c8a97',{pants:'#53646b',...appearance,mode:'surf',backpack:false,time:reduced?0:time*.001});
     for(const side of [-1,1]){
         m.box(-1.05,.02,side*.14-.055,2.1,.045,.11,'#c08058',{metal:.1});m.rod([1.02,.065,side*.14],[1.2,.16,side*.14],.048,'#d4b282',8);
         m.rod([.32,.9,side*.45],[-.25,.04,side*.6],.012,'#acbcb9',8);m.sphere(-.25,.04,side*.6,.06,.014,.06,'#637b79',10,4);
@@ -202,7 +269,8 @@ export function drawRegionalBackdrop(m,x,z,viewerHeight=0){
     const altitude=Math.max(viewerHeight,regionalGroundHeight(x,z)),step=altitude>80?32:16,r=Math.max(192,Math.min(800,altitude*3+180)),minX=Math.floor((x-r)/step)*step,minZ=Math.floor((z-r)/step)*step,b=TAHOE_BOUNDS;
     const rect=(x0,z0,x1,z1)=>{if(x1-x0<1e-8||z1-z0<1e-8)return;const points=[[x0,z0],[x0,z1],[x1,z1],[x1,z0]].map(([u,v])=>[u,regionalGroundHeight(u,v),v]);m.quad(...points,'#a7ac87','grass');};
     for(let zz=minZ;zz<z+r;zz+=step)for(let xx=minX;xx<x+r;xx+=step){
-        if(xx+step<=160)continue;const x0=Math.max(160,xx),x1=xx+step,z1=zz+step;
+        if(xx+step<=EAST_BAY_COAST_X)continue;const x0=Math.max(EAST_BAY_COAST_X,xx),x1=xx+step,z1=zz+step;
+        if(x0===EAST_BAY_COAST_X)m.quad([x0,-.65,zz],[x0,-.65,z1],[x0,regionalGroundHeight(x0,z1),z1],[x0,regionalGroundHeight(x0,zz),zz],'#929c7d','dirt');
         if(x0>=b.east||x1<=b.west||zz>=b.south||z1<=b.north){rect(x0,zz,x1,z1);continue;}
         rect(x0,zz,x1,Math.min(z1,b.north));rect(x0,Math.max(zz,b.south),x1,z1);
         const top=Math.max(zz,b.north),bottom=Math.min(z1,b.south);rect(x0,top,Math.min(x1,b.west),bottom);rect(Math.max(x0,b.east),top,x1,bottom);
@@ -214,6 +282,7 @@ export function drawTahoeMinimap(ctx,projection,viewer){
     const polygon=(points,color)=>{ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=color;ctx.fill();};
     const step=4,startX=Math.floor((viewer[0]-48)/step)*step,startZ=Math.floor((viewer[1]-48)/step)*step;
     for(let z=startZ;z<viewer[1]+48;z+=step)for(let x=startX;x<viewer[0]+48;x+=step){const h=tahoeHeight(x+2,z+2),wet=tahoeLakeValue(x+2,z+2)<1;polygon([[x,z],[x+step,z],[x+step,z+step],[x,z+step]].map(p=>projection.point(...p)),wet?'#548fa9':h>150?'#f1f1e5':h>60?'#d4dfd4':'#9bb395');}
+    for(const r of TAHOE_VILLAGE_PAVING)polygon([[r.west,r.north],[r.east,r.north],[r.east,r.south],[r.west,r.south]].map(p=>projection.point(...p)),'#b3b8aa');
     const line=(points,color)=>{ctx.beginPath();points.map(p=>projection.point(p.x,p.z)).forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=color;ctx.lineWidth=1.5;ctx.stroke();};
     line(tahoeSmoothRoute,'#7c99aa');line([TAHOE.base,TAHOE.peak],'#8b7b67');
 }

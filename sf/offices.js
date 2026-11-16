@@ -1,5 +1,6 @@
 import {pose} from './geometry.js';
 import {drawFacadeWindow} from './windows.js';
+import {drawCommercialRoof} from './rooftops.js';
 
 /** Prewar masonry office tower: ordered bays, framed glazing on all four
  * elevations, a stone base, and a stepped cornice instead of flat blue slots. */
@@ -17,10 +18,8 @@ export function drawBrickOfficeTower(m,cx,base,cz){
             }
         }
         for(const [y,w,h,color] of [[.18,1.5,.08,stone],[1.08,1.5,.055,stone],[5.18,1.51,.075,stone],[5.29,1.61,.09,'#d7cfb9'],[5.39,1.69,.065,stone]])m.box(-w/2,y,-w/2,w,h,w,color,'stone');
-        m.box(-.73,5.455,-.73,1.46,.03,1.46,'#74867f','roof');
+        drawCommercialRoof(m,{x:-.73,y:5.455,z:-.73,w:1.46,d:1.46,seed:cx*.7+cz*.3,parapets:false});
         for(const x of [-.79,.735])m.box(x,5.46,-.79,.055,.18,1.58,stone);
         for(const z of [-.79,.735])m.box(-.735,5.46,z,1.47,.18,.055,stone);
-        m.box(-.33,5.49,-.28,.58,.2,.48,'#a6b0a2','concrete');
-        for(const x of [-.18,.12]){m.cylinder(x,5.69,-.05,.095,.11,'#7c9188',16);m.cylinder(x,5.8,-.05,.11,.025,stone,16);}
     });
 }

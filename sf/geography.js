@@ -1,6 +1,8 @@
 /** Geographic coordinates use the original 64-unit drawing. Model sizes stay
  * fixed when the walking grid grows; these transforms only spread out sites. */
 export const WORLD_SIZE=96,REFERENCE_SIZE=64,STREET_LAYOUT_SIZE=83;
+// Compressed East Bay shore: a short crossing from the island to the shops.
+export const EAST_BAY_COAST_X=112;
 export const PARK_BOUNDS=Object.freeze({west:9,east:32,north:29,south:34});
 // Fell/Oak, Stanyan/Baker: a deliberately narrow continuation of the park.
 // The eastern boundary stops at the next north/south street's western curb.
@@ -61,11 +63,12 @@ export function sfHillCover(x,z){
 
 /** Level a building's small pad, retaining the surrounding street's hill grade.
  * At most a narrow collar is blended; never flatten an entire neighborhood. */
-export function levelHeightField(field,resolution,{cx,cz,w,d,angle=0,height}){
+export function levelHeightField(field,resolution,{cx,cz,w,d,angle=0,height},{protect=()=>false}={}){
     const c=Math.cos(angle),s=Math.sin(angle),reach=Math.hypot(w,d)/2+.65,n=field.length-1;
     let changed=0,maxChange=0;
     for(let iz=Math.max(0,Math.floor((cz-reach)*resolution));iz<=Math.min(n,Math.ceil((cz+reach)*resolution));iz++){
         for(let ix=Math.max(0,Math.floor((cx-reach)*resolution));ix<=Math.min(n,Math.ceil((cx+reach)*resolution));ix++){
+            if(protect(ix/resolution,iz/resolution))continue;
             const dx=ix/resolution-cx,dz=iz/resolution-cz,u=dx*c+dz*s,v=-dx*s+dz*c;
             const outside=Math.hypot(Math.max(0,Math.abs(u)-w/2),Math.max(0,Math.abs(v)-d/2));
             if(outside>=.6)continue;
@@ -78,10 +81,11 @@ export function levelHeightField(field,resolution,{cx,cz,w,d,angle=0,height}){
 
 /** Cut a private building plot into its hill. Keep public curbs untouched:
  * unlike destination pads, these plots never blend beyond their footprint. */
-export function cutBuildingPlot(field,resolution,{cx,cz,w,d,angle=0,height,onlyLower=false}){
+export function cutBuildingPlot(field,resolution,{cx,cz,w,d,angle=0,height,onlyLower=false},{protect=()=>false}={}){
     const c=Math.cos(angle),s=Math.sin(angle),reach=Math.hypot(w,d)/2,n=field.length-1;
     for(let iz=Math.max(0,Math.floor((cz-reach)*resolution));iz<=Math.min(n,Math.ceil((cz+reach)*resolution));iz++){
         for(let ix=Math.max(0,Math.floor((cx-reach)*resolution));ix<=Math.min(n,Math.ceil((cx+reach)*resolution));ix++){
+            if(protect(ix/resolution,iz/resolution))continue;
             const dx=ix/resolution-cx,dz=iz/resolution-cz;
             if(Math.abs(dx*c+dz*s)<=w/2&&Math.abs(-dx*s+dz*c)<=d/2)field[iz][ix]=onlyLower?Math.min(field[iz][ix],height):height;
         }

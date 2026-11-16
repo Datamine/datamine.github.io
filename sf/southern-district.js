@@ -3,10 +3,10 @@ import {drawFacadeWindow} from './windows.js';
 import {SECOND_STREET_X,AIRSHIP_TERMINAL,AIRPORT_SPACEPORT} from './airship.js';
 import {drawRocketPad} from './rocket.js';
 
-export const TAX_HQ=Object.freeze({x:SECOND_STREET_X,z:135.1,entry:{x:SECOND_STREET_X-.5,y:131.4}});
+export const TAX_HQ=Object.freeze({x:SECOND_STREET_X-10,z:135.1,entry:{x:SECOND_STREET_X-10.5,y:131.4}});
 export const SF_SPACEPORT=AIRPORT_SPACEPORT;
-export const SPACEPORT_HOUSES=Object.freeze({x:SECOND_STREET_X-10,z:132.8,w:6,d:4.2});
-export const RAIL_PIT=Object.freeze({west:SECOND_STREET_X-3,east:SECOND_STREET_X+3,north:139,south:147,floor:.12});
+export const SPACEPORT_HOUSES=Object.freeze({x:SECOND_STREET_X-2.7,z:133,w:5.4,d:3.4});
+export const RAIL_PIT=Object.freeze({west:SECOND_STREET_X-12,east:SECOND_STREET_X-8,north:139,south:143.5,floor:.12});
 export function inRailPit(x,z){return x>RAIL_PIT.west&&x<RAIL_PIT.east&&z>RAIL_PIT.north&&z<RAIL_PIT.south;}
 
 export function drawPlaque(m,signs,text,x,y,z,w,h,front=true){
@@ -15,7 +15,7 @@ export function drawPlaque(m,signs,text,x,y,z,w,h,front=true){
     m.quad(...(front?p:[p[1],p[0],p[3],p[2]]),'#ffffff',uv);
 }
 
-export function drawSouthernDistrict(m,signs){
+export function drawSouthernDistrict(m,signs,{terrain=null,includeRailPit=true}={}){
     const base=AIRSHIP_TERMINAL.base,buildings=[];
     let start=m.data.length;const {x,z}=TAX_HQ;
     pose(m,x,base,z,0,()=>{
@@ -34,16 +34,30 @@ export function drawSouthernDistrict(m,signs){
     drawPlaque(m,signs,'TAX AUTHORITY',x,base+2.6,z-1.65,3.2,.34,false);
     buildings.push({id:'tax-hq',label:'Tax Authority Headquarters',kind:'tax-hq',entry:TAX_HQ.entry,start,count:m.data.length-start,lo:[x-2.7,base,z-1.75],hi:[x+2.7,base+4.2,z+1.7]});
     const pad=drawRocketPad(m,SF_SPACEPORT,signs);buildings.push({id:'sf-spaceport',label:'SpaceX spaceport',kind:'spaceport',entry:SF_SPACEPORT.entry,...pad});
-    start=m.data.length;const p=RAIL_PIT;
-    m.quad([p.west,p.floor,p.north],[p.west,p.floor,p.south],[p.east,p.floor,p.south],[p.east,p.floor,p.north],'#9a8668','dirt');
-    const corners=[[p.west,p.north],[p.east,p.north],[p.east,p.south],[p.west,p.south]];
-    for(let i=0;i<4;i++){const a=corners[i],b=corners[(i+1)%4];m.quad([a[0],base,a[1]],[b[0],base,b[1]],[b[0],p.floor,b[1]],[a[0],p.floor,a[1]],'#ac9571','dirt');
-        const n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1]));for(let j=0;j<=n;j++){const xx=a[0]+(b[0]-a[0])*j/n,zz=a[1]+(b[1]-a[1])*j/n;m.cylinder(xx,base,zz,.023,.7,'#7e8d80',8);if(j)m.rod([xx,base+.55,zz],[a[0]+(b[0]-a[0])*(j-1)/n,base+.55,a[1]+(b[1]-a[1])*(j-1)/n],.012,'#9a9e89',6);}
-    }
-    for(const xx of [x-1.8,x+1.8])m.box(xx,base,p.north-.17,.07,1.3,.08,'#8d7351','wood');
-    drawPlaque(m,signs,'California high-speed rail',x,base+.9,p.north-.22,4.4,.45,false);
-    buildings.push({id:'rail-pit',label:'California high-speed rail',kind:'rail-pit',navigationAccess:'observe-only',entry:{x:x-.5,y:p.north-1},start,count:m.data.length-start,lo:[p.west,p.floor,p.north-.3],hi:[p.east,base+1.5,p.south]});
+    if(includeRailPit)buildings.push(drawRailPit(m,signs,terrain));
     return buildings;
+}
+
+/** The excavation closes against the final graded land, after nearby house
+ * plots have been cut. The rim vertices are shared with the terrain boundary. */
+export function drawRailPit(m,signs,terrain=null){
+    const start=m.data.length,p=RAIL_PIT,base=AIRSHIP_TERMINAL.base,x=TAX_HQ.x;
+    const corners=[[p.west,p.north],[p.east,p.north],[p.east,p.south],[p.west,p.south]];
+    const ground=(x,z)=>terrain?terrain.height(x,z):base;
+    const rim=terrain?terrain.pitRim():corners.map(([x,z])=>[x,base,z]);
+    m.quad([p.west,p.floor,p.north],[p.west,p.floor,p.south],[p.east,p.floor,p.south],[p.east,p.floor,p.north],'#9a8668','dirt');
+    for(const [i,a] of rim.entries()){
+        const b=rim[(i+1)%rim.length];
+        m.quad(a,[a[0],p.floor,a[2]],[b[0],p.floor,b[2]],b,'#ac9571','dirt');
+        m.rod([a[0],a[1]+.55,a[2]],[b[0],b[1]+.55,b[2]],.012,'#9a9e89',6);
+    }
+    for(let i=0;i<4;i++){
+        const a=corners[i],b=corners[(i+1)%4],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1]));
+        for(let j=0;j<n;j++){const x=a[0]+(b[0]-a[0])*j/n,z=a[1]+(b[1]-a[1])*j/n;m.cylinder(x,ground(x,z),z,.023,.7,'#7e8d80',8);}
+    }
+    for(const xx of [x-1.8,x+1.8])m.box(xx,ground(xx,p.north-.17),p.north-.17,.07,1.3,.08,'#8d7351','wood');
+    drawPlaque(m,signs,'California high-speed rail',x,ground(x,p.north-.22)+.9,p.north-.22,4.4,.45,false);
+    return {id:'rail-pit',label:'California high-speed rail',kind:'rail-pit',navigationAccess:'observe-only',entry:{x:x-.5,y:p.north-1},start,count:m.data.length-start,lo:[p.west,p.floor,p.north-.3],hi:[p.east,Math.max(...rim.map(p=>p[1]))+1.5,p.south]};
 }
 
 export function taxDialogue(economy){

@@ -8,7 +8,7 @@ function footingFixture(kind,angle,slope=0){
     const x=kind==='urban'?70:50,z=kind==='urban'?45:30;
     const mesh=new Mesh(),height=(u,v)=>1+(u-x)*slope+(v-z)*slope*.3;
     const housing=createHousing({terrainHeight:height,naturalHeight:height,cutHousePlot:()=>{},getSceneMesh:()=>mesh,registerObject:(_m,_start,object)=>object,rectangle:()=>[],sashWindow:()=>{}});
-    const object=kind==='shop'?housing.makeCurbShop(x,z,1.2,1.8,angle,.8):housing.makeTownhomeRow(x,z,kind==='urban'?3.4:1.45,2.7,2,.8,angle);
+    const object=kind==='parkside'?housing.makeParksideTownhome(x,z,1.5,.75,angle,.6):kind==='shop'?housing.makeCurbShop(x,z,1.2,1.8,angle,.8):housing.makeTownhomeRow(x,z,kind==='urban'?3.4:1.45,2.7,2,.8,angle);
     assert.equal(object.arch,kind==='urban'?'urbanBlock':kind==='shop'?'shopfront':'townhomes');
     const triangles=[];
     for(let i=0;i<mesh.data.length;i+=33){
@@ -21,7 +21,7 @@ function footingFixture(kind,angle,slope=0){
 }
 
 test('foundation and wall materials meet without overlapping coplanar faces',()=>{
-    for(const kind of ['townhome','urban','shop'])for(const angle of [0,Math.PI/4,Math.PI/2])for(const slope of [0,.45,-.45]){
+    for(const kind of ['townhome','urban','shop','parkside'])for(const angle of [0,Math.PI/4,Math.PI/2])for(const slope of [0,.45,-.45]){
         const {mesh,triangles}=footingFixture(kind,angle,slope);assert.ok(mesh.data.every(Number.isFinite));
         for(let i=0;i<triangles.length;i++)for(let j=i+1;j<triangles.length;j++){
             // Opposing faces at joined solids (a step meeting a wall) are valid.

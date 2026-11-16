@@ -1,0 +1,13 @@
+/** Native prop footprints are shared by the renderer and walking graph. */
+export const TIMES_SQUARE_PROPS=Object.freeze([
+    {id:'coffee',x:61,z:156.5,w:1.05,d:.8},
+    {id:'books',x:65,z:152,w:.8,d:.6},
+    {id:'table',x:63.5,z:156.7,w:1.15,d:1.3},
+    {id:'garden',x:63,z:160,w:3.2,d:2.6},
+    {id:'planter',x:65.6,z:158.1,w:.55,d:.7},
+    {id:'west-planter',x:59.8,z:153,w:.46,d:.6},
+    {id:'east-planter',x:69.4,z:155.8,w:.46,d:.6},
+    {id:'west-bin',x:57.2,z:155.7,w:.22,d:.22},
+    {id:'east-bin',x:69.5,z:153,w:.22,d:.22}
+].map(Object.freeze));
+export function timesSquarePropAt(x,z,padding=.1){return TIMES_SQUARE_PROPS.find(p=>Math.abs(x-p.x)<p.w/2+padding&&Math.abs(z-p.z)<p.d/2+padding)||null;}

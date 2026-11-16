@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Celestial ceramic mosaic</title>
+  <desc>Glazed teal and lapis tiles, cream eight-pointed stars, copper grout and small irregular highlights.</desc>
+  <defs>
+    <pattern id="research-ceramic-repeat" width="64" height="64" patternUnits="userSpaceOnUse">
+      <rect width="64" height="64" fill="#b2986b"/>
+      <path d="M1 1H63V63H1Z" fill="#395c70" stroke="#ddc08a" stroke-width="1.2"/>
+      <path d="M32 2L43 21L62 32L43 43L32 62L21 43L2 32L21 21Z" fill="#91b6aa" stroke="#d4bc86"/>
+      <path d="M32 12L37 25L50 20L45 32L50 44L37 39L32 52L27 39L14 44L19 32L14 20L27 25Z" fill="#e6d7ae"/>
+      <path d="M32 23L41 32L32 41L23 32Z" fill="#617c89" stroke="#bf9f65"/>
+      <path d="M4 4H20M4 4V20M45 5H59V19" fill="none" stroke="#9fb4b0" opacity=".45"/>
+      <path d="M3 60H18M60 46V60H45M28 4L30 8M5 31L10 32" fill="none" stroke="#293f56" opacity=".55"/>
+      <circle cx="6" cy="6" r="1.5" fill="#dac18b"/>
+      <circle cx="58" cy="58" r="1.5" fill="#dac18b"/>
+    </pattern>
+  </defs>
+  <rect width="256" height="256" fill="url(#research-ceramic-repeat)"/>
+  <path d="M2 2H254V254H2Z" fill="none" stroke="#e6cfa0" stroke-width="4"/>
+</svg>

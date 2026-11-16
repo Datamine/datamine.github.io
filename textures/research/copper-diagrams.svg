@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Patinated copper instrument panel</title>
+  <desc>Oxidized copper, incised orbital diagrams, impossible measuring scales and unlabeled constellations.</desc>
+  <defs>
+    <linearGradient id="research-copper-patina" x2="1" y2="1">
+      <stop stop-color="#698f85"/><stop offset=".46" stop-color="#416e6a"/>
+      <stop offset=".72" stop-color="#7b9a86"/><stop offset="1" stop-color="#4a736e"/>
+    </linearGradient>
+    <pattern id="research-copper-hatching" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M0 2H16M0 6H16M0 10H16M0 14H16" stroke="#b0be9d" opacity=".1"/>
+      <path d="M3 1V4M11 9V12" stroke="#213f41" opacity=".2"/>
+    </pattern>
+  </defs>
+  <rect width="256" height="256" fill="url(#research-copper-patina)"/>
+  <rect width="256" height="256" fill="url(#research-copper-hatching)"/>
+  <g fill="none" stroke="#dbc49a" stroke-width="1.2" opacity=".85">
+    <path d="M8 8H248V248H8ZM14 14H242V242H14"/>
+    <circle cx="128" cy="128" r="87"/><circle cx="128" cy="128" r="69"/>
+    <circle cx="128" cy="128" r="32"/><ellipse cx="128" cy="128" rx="92" ry="36" transform="rotate(-32 128 128)"/>
+    <ellipse cx="128" cy="128" rx="43" ry="91" transform="rotate(-32 128 128)"/>
+    <path d="M128 24V67M128 189V232M24 128H67M189 128H232M54 54L77 77M179 179L202 202M54 202L77 179M179 77L202 54"/>
+    <path d="M125 37H131M125 219H131M37 125V131M219 125V131M84 44L88 51M168 205L172 212M44 172L51 168M205 88L212 84"/>
+    <path d="M120 128L128 116L136 128L128 140ZM27 27H47V47H27ZM209 209H229V229H209Z"/>
+  </g>
+  <g fill="#e0cd9d"><circle cx="82" cy="73" r="4"/><circle cx="197" cy="160" r="3"/><circle cx="99" cy="191" r="3"/></g>
+  <g fill="#a7ba9e" stroke="#345a56"><circle cx="10" cy="10" r="2"/><circle cx="246" cy="10" r="2"/><circle cx="10" cy="246" r="2"/><circle cx="246" cy="246" r="2"/></g>
+</svg>

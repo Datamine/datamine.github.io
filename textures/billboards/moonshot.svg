@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title">
+  <title id="title">Moonshot: retrofuturistic rocket travel poster</title>
+  <defs><linearGradient id="space" x2="1" y2="1"><stop stop-color="#0a3149"/><stop offset="1" stop-color="#127a80"/></linearGradient></defs>
+  <path fill="url(#space)" d="M0 0h640v400H0z"/>
+  <circle cx="491" cy="147" r="89" fill="#ffe2a5"/>
+  <path d="m353 336 99-131 20 75z" fill="#ff8f59"/><path d="m335 367 104-103-18 56z" fill="#facc75"/>
+  <g transform="translate(449 158) rotate(36)"><path d="M-26 90V0Q0-70 26 0v90z" fill="#f0f5ef"/><circle cy="15" r="13" fill="#3d87a0"/><path d="m-26 54-25 43h25m52-43 25 43H26" fill="#ff654c"/></g>
+  <g fill="#eaffef" font-family="sans-serif" font-weight="bold"><text x="25" y="86" font-size="64">MOONSHOT</text><text x="28" y="143" font-size="28" letter-spacing="6">GO SOMEWHERE.</text></g>
+  <g fill="#b8eeed"><circle cx="67" cy="225" r="3"/><circle cx="287" cy="193" r="4"/><circle cx="570" cy="326" r="3"/><circle cx="148" cy="300" r="3"/></g>
+  <text x="27" y="371" fill="white" font-family="sans-serif" font-size="19" letter-spacing="4">YOUR NEXT CHAPTER STARTS HERE.</text>
+</svg>

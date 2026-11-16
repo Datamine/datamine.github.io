@@ -20,9 +20,9 @@ test('round columns gain detail while deliberately square structures retain thei
 });
 
 test('lamp glass and metal use separate GPU styles and their lights rotate with the actual fixtures',()=>{
-    for(let style=0;style<3;style++){
+    for(let style=0;style<5;style++){
         const mesh=new Mesh(),rotated=new Mesh(),a=drawStreetLamp(mesh,8,2,9,0,style),b=drawStreetLamp(rotated,8,2,9,Math.PI/2,style);
-        assert.equal(a.length,style===0?2:1);
+        assert.equal(a.length,style===0||style===4?2:1);
         for(let i=0;i<a.length;i++){
             assert.ok(Math.abs(b[i].x-(8-(a[i].z-9)))<1e-8);
             assert.ok(Math.abs(b[i].z-(9+(a[i].x-8)))<1e-8);
@@ -31,5 +31,7 @@ test('lamp glass and metal use separate GPU styles and their lights rotate with 
         const tags=new Set();for(let i=0;i<mesh.data.length;i+=11)tags.add(mesh.data[i+9]);
         assert.ok(tags.has(-1.25)&&tags.has(-1.4));
         assert.ok(mesh.data.every(Number.isFinite));assert.ok(mesh.data.length/33<5000);
+        if(style>=3)assert.ok(mesh.data.length/33<1200,'modern silhouettes should keep the expanded lighting mesh inexpensive');
+        if(style===3)assert.ok(a[0].color[2]>a[0].color[0],'cobra heads use a distinct cool-white light');
     }
 });

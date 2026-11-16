@@ -7,7 +7,7 @@ export const WINDSURF_LAUNCH=Object.freeze({shore:[29.2,11.2],water:[29.2,8.7]})
  * give exact segment checks and a small, lazily cached visibility graph. */
 export function createWindsurfing({scale,isSea=()=>true,obstacles=[]}){
     const launch={x:WINDSURF_LAUNCH.water[0]*scale-.5,y:WINDSURF_LAUNCH.water[1]*scale-.5};
-    const state={riding:false,launch,shore:null,jump:null};
+    const state={riding:false,mode:'windsurf',launch,shore:null,jump:null};
     const inside=(x,y,poly)=>{let found=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])found=!found;}return found;};
     const edges=obstacles.flatMap(poly=>poly.map((p,i)=>[p,poly[(i+1)%poly.length]]));
     let graph=null;
@@ -105,11 +105,11 @@ export function createWindsurfing({scale,isSea=()=>true,obstacles=[]}){
         if(targetSea){const approach=landPath(shore,from),tail=path(launch,to);return approach&&tail?[...approach,{...launch},...tail]:null;}
         return landPath(to,from);
     }
-    return {state,water,path,pursuitRoute,jumpApproach,jumpOver,updateJump,cancelJump};
+    return {state,water,segment,path,pursuitRoute,jumpApproach,jumpOver,updateJump,cancelJump};
 }
 
 /** Rounded board, actual sail panels, rigging, and a rider holding the boom. */
-export function drawWindsurfer(m,x,z,base,angle,time,{rider=true,moving=false,police=false,reduced=false,pitch=0}={}){
+export function drawWindsurfer(m,x,z,base,angle,time,{rider=true,moving=false,police=false,reduced=false,pitch=0,appearance={}}={}){
     const bob=reduced?0:Math.sin(time*.0017+x)*.025;
     pose(m,x,base+bob,z,angle,()=>{
         const start=m.data.length;
@@ -124,8 +124,8 @@ export function drawWindsurfer(m,x,z,base,angle,time,{rider=true,moving=false,po
         for(const [a,b] of [[mast,clew],[clew,tack],[tack,mast],[mid,clew]])m.rod(a,b,.014,'#e8e2ca',6);
         m.rod([.2,1.28,-.03],[-.93,1.05,.23],.026,'#424f50',8);
         for(const u of [-.48,-.22])m.rod([u,.15,-.14],[u,.15,.05],.024,'#4b5856',6);
-        if(rider)drawCharacter(m,-.49,-.28,.14,0,0,false,'#bd9369',police?'#304b66':'#485c64',{
-            mode:'surf',time:reduced?0:time*.001,pants:police?'#2d4055':'#485c64',cap:police,uniform:police,backpack:false
+        if(rider)drawCharacter(m,-.49,-.28,.14,0,0,false,appearance.skin||'#bd9369',police?'#304b66':appearance.shirt||'#485c64',{
+            pants:police?'#2d4055':'#485c64',...appearance,mode:'surf',time:reduced?0:time*.001,cap:police,uniform:police,backpack:false
         });
         if(moving)for(const side of [-1,1])for(let i=0;i<3;i++)m.rod([-1.05-i*.4,.025,side*(.17+i*.12)],[-1.35-i*.4,.025,side*(.2+i*.14)],.017,'#bad5cd',4);
         // The rider, rather than the center of the board, is the camera anchor.

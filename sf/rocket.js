@@ -1,6 +1,24 @@
 import {pose} from './geometry.js';
 
 export const ROCKET_CABIN_HEIGHT=4.7;
+// Rotate around the rider's visual center, which is also the camera target.
+// The hull and rider share this frame; rotating cannot displace the avatar.
+export const ROCKET_RIDER_CENTER=.9;
+export function rocketFlightPoint(point,vehicle,{pitch=0,heading=0}={}){
+    const pivot=vehicle.y+ROCKET_CABIN_HEIGHT+ROCKET_RIDER_CENTER,c=Math.cos(pitch),s=Math.sin(pitch),hx=Math.cos(heading),hz=Math.sin(heading);
+    const x=point.x-vehicle.x,y=point.y-pivot,z=point.z-vehicle.z,forward=x*hx+z*hz,side=-x*hz+z*hx,tilted=forward*c+y*s;
+    return {x:vehicle.x+tilted*hx-side*hz,y:pivot+y*c-forward*s,z:vehicle.z+tilted*hz+side*hx};
+}
+export function tiltRocketMesh(mesh,start,vehicle,{pitch=0,heading=0}={}){
+    if(!pitch)return;
+    const pivot=vehicle.y+ROCKET_CABIN_HEIGHT+ROCKET_RIDER_CENTER,c=Math.cos(pitch),s=Math.sin(pitch),hx=Math.cos(heading),hz=Math.sin(heading),data=mesh.data;
+    for(let i=start;i<data.length;i+=11){
+        const x=data[i]-vehicle.x,y=data[i+1]-pivot,z=data[i+2]-vehicle.z,forward=x*hx+z*hz,side=-x*hz+z*hx,tilted=forward*c+y*s;
+        data[i]=vehicle.x+tilted*hx-side*hz;data[i+1]=pivot+y*c-forward*s;data[i+2]=vehicle.z+tilted*hz+side*hx;
+        const nx=data[i+3],ny=data[i+4],nz=data[i+5],nf=nx*hx+nz*hz,ns=-nx*hz+nz*hx,nt=nf*c+ny*s;
+        data[i+3]=nt*hx-ns*hz;data[i+4]=ny*c-nf*s;data[i+5]=nt*hz+ns*hx;
+    }
+}
 const rocketEase=t=>t*t*(3-2*t),rocketLerp=(a,b,t)=>a+(b-a)*t;
 const rocketClamp=t=>Math.max(0,Math.min(1,t));
 // The pad mesh and the rider share these measurements. The ladder is outside
@@ -39,13 +57,13 @@ function rocketAccessPose(site,elapsed,descending=false,start=null){
 /** A reusable shuttle physically follows the regional coordinates. The rider
  * occupies an open viewing cabin; the camera stays anchored to the rider. */
 export function createRocketTravel({groundHeight=()=>0}={}){
-    const state={active:false,phase:'ground',elapsed:0,from:null,to:null,position:null,vehicle:null,thrust:0,pose:null,hatch:0,occupied:false};
+    const state={active:false,phase:'ground',elapsed:0,from:null,to:null,position:null,vehicle:null,thrust:0,pose:null,hatch:0,occupied:false,pitch:0,heading:0};
     const durations={boarding:rocketBoardingDuration,ascending:6,cruising:24,descending:6,disembarking:rocketBoardingDuration};
     let boardingEntry=null;
     function start(from,to,entry=null){
         if(state.active)return false;
         boardingEntry=entry?{...entry}:null;const access=rocketAccessPose(from,0,false,boardingEntry);
-        Object.assign(state,{active:true,phase:'boarding',elapsed:0,from,to,...access,vehicle:{x:from.x,y:from.base+.14,z:from.z},thrust:0});return true;
+        Object.assign(state,{active:true,phase:'boarding',elapsed:0,from,to,...access,vehicle:{x:from.x,y:from.base+.14,z:from.z},thrust:0,pitch:0,heading:Math.atan2(to.z-from.z,to.x-from.x)});return true;
     }
     function update(dt){
         if(!state.active)return null;
@@ -54,14 +72,16 @@ export function createRocketTravel({groundHeight=()=>0}={}){
             const duration=durations[state.phase],step=Math.min(remaining,duration-state.elapsed);state.elapsed+=step;remaining-=step;
             const f=rocketEase(state.elapsed/duration),a=state.from,b=state.to,cabin=ROCKET_CABIN_HEIGHT,baseA=a.base+.14,baseB=b.base+.14;
             if(state.phase==='boarding'){
-                Object.assign(state,rocketAccessPose(a,state.elapsed,false,boardingEntry));
+                Object.assign(state,rocketAccessPose(a,state.elapsed,false,boardingEntry));state.pitch=0;
             }else if(state.phase==='disembarking'){
-                Object.assign(state,rocketAccessPose(b,duration-state.elapsed,true));
+                Object.assign(state,rocketAccessPose(b,duration-state.elapsed,true));state.pitch=0;
             }else{
                 let x=a.x,z=a.z,y=baseA;
                 if(state.phase==='ascending')y=rocketLerp(baseA,baseA+120,f);
                 if(state.phase==='cruising'){x=rocketLerp(a.x,b.x,f);z=rocketLerp(a.z,b.z,f);y=Math.max(groundHeight(x,z)+14,rocketLerp(baseA,baseB,f)+120+Math.sin(Math.PI*f)*240);}
                 if(state.phase==='descending'){x=b.x;z=b.z;y=rocketLerp(baseB+120,baseB,f);}
+                const progress=state.elapsed/duration;
+                state.pitch=state.phase==='ascending'?Math.PI/2*rocketEase(rocketClamp((progress-.5)/.5)):state.phase==='cruising'?Math.PI/2*(1-rocketEase(rocketClamp((progress-.85)/.15))):0;
                 state.vehicle={x,y,z};state.position={x,y:y+cabin,z};state.pose={mode:'idle',motion:0,angle:Math.PI/2,phase:0,stage:'cabin'};state.hatch=0;state.occupied=true;
             }
             state.thrust=state.phase==='ascending'?1:state.phase==='descending'?.6:state.phase==='cruising'?.35:0;
@@ -72,7 +92,7 @@ export function createRocketTravel({groundHeight=()=>0}={}){
         }
         return null;
     }
-    function cancel(){state.active=false;state.phase='ground';state.position=null;state.vehicle=null;state.thrust=0;state.pose=null;state.hatch=0;state.occupied=false;}
+    function cancel(){state.active=false;state.phase='ground';state.position=null;state.vehicle=null;state.thrust=0;state.pose=null;state.hatch=0;state.occupied=false;state.pitch=0;state.heading=0;}
     return {state,start,update,cancel,duration:Object.values(durations).reduce((a,b)=>a+b,0)};
 }
 
@@ -102,7 +122,14 @@ export function drawRocketPad(m,site,signs){
     return {start,count:m.data.length-start,lo:[x-2.8,base,z-2.95],hi:[x+2.5,base+8.5,z+2.5]};
 }
 
-export function drawReusableRocket(m,position,time,{occupied=false,cameraAngle=0,thrust=0,hatch=0}={}){
+export function drawReusableRocket(m,position,time,{occupied=false,cameraAngle=0,cameraPosition=null,thrust=0,hatch=0,pitch=0,heading=0}={}){
+    const start=m.data.length;
+    if(cameraPosition){
+        // Choose the cabin cutaway in the unpitched frame, so it continues to
+        // face the viewer as both the rocket and the camera rotate.
+        const eye=rocketFlightPoint({x:cameraPosition[0],y:cameraPosition[1],z:cameraPosition[2]},position,{pitch:-pitch,heading});
+        cameraAngle=Math.atan2(eye.z-position.z,eye.x-position.x);
+    }
     pose(m,position.x,position.y,position.z,0,()=>{
         m.cylinder(0,.3,0,.66,4.35,'#e4e8e5',40,.66,{metal:.2});
         m.cylinder(0,3.7,0,.675,.55,'#303e44',40,.675,{metal:.3});
@@ -136,4 +163,5 @@ export function drawReusableRocket(m,position,time,{occupied=false,cameraAngle=0
             if(thrust){const length=(1.2+Math.sin(time*.04+i)*.16)*thrust;m.cylinder(x,-.15-length,z,.025,length,'#f3bf68',16,.18,{emissive:.8});m.cylinder(x,-.14-length*.7,z,.02,length*.7,'#d7eaf2',12,.09,{emissive:.9});}
         }
     });
+    tiltRocketMesh(m,start,position,{pitch,heading});
 }

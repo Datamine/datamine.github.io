@@ -5,10 +5,12 @@ import {Script} from 'node:vm';
 import {renderMaterialAssets,writeMaterialAssets} from './build-materials.mjs';
 import {createWorldModel} from './world.js';
 import {auditWorldNavigation} from './navigation-audit.js';
+import {BILLBOARD_ART} from './billboards.js';
+import {RESEARCH_ART} from './research-art.js';
 
 const root=new URL('../',import.meta.url);
 const entry=/<!-- SF-ENTRY:START -->[\s\S]*?<!-- SF-ENTRY:END -->/;
-const modules=['material-catalog.mjs','materials.js','alpine-materials.js','geometry.js','windows.js','city-hall.js','offices.js','tiles.js','navigation.js','water-tiles.js','geography.js','southern-layout.js','southern-terrain.js','coastline.js','economy.js','dialogue.js','descriptions.js','wildlife.js','bunny.js','skate-dog.js','downtown.js','transamerica.js','soma-pyramid.js','housing.js','sutro.js','environment.js','lighting.js','characters.js','life.js','restaurants.js','shipping.js','airship.js','airship-rope.js','commerce-world.js','rocket.js','southern-district.js','southern-neighborhood.js','zoo-encounter.js','zoo.js','tahoe.js','regional-road.js','prometheus.js','windsurfing.js','encounters.js','wayfinding.js','models.js','world.js'];
+const modules=['billboards.js','material-catalog.mjs','materials.js','alpine-materials.js','geometry.js','street-ground.js','shadows.js','windows.js','rooftops.js','city-hall.js','offices.js','tiles.js','navigation.js','regional-navigation.js','minimap-navigation.js','water-tiles.js','geography.js','city-edge.js','map-colors.js','institute-interiors.js','research-layout.js','fitness-layout.js','square-construction-layout.js','peninsula-urbanism.js','southern-expansion.js','times-square-layout.js','southern-layout.js','estate-layout.js','southern-terrain.js','coastline.js','economy.js','strength.js','forward-roll.js','ai-lab.js','ai-interview-ui.js','combat.js','deli.js','street-traffic.js','airport-billboards.js','dialogue.js','they-live.js','quests.js','quest-menu.js','building-interactions.js','descriptions.js','wildlife.js','bunny.js','skate-dog.js','downtown.js','transamerica.js','soma-pyramid.js','housing.js','sutro.js','environment.js','lighting.js','characters.js','character-config.js','sunglasses.js','capture-animation.js','inebriation.js','rehabilitation.js','fishing.js','companions.js','life.js','western-coast-details.js','npc-roaming.js','restaurants.js','shipping.js','nightlife.js','airship-basket.js','airship.js','airship-rope.js','commerce-world.js','rocket.js','southern-district.js','rail-works.js','square-construction.js','times-square.js','times-square-life.js','research-dialogue.js','research-art.js','research-architecture.js','research-campuses.js','street-light-layout.js','peninsula-details.js','woodland-park.js','estate-architecture.js','southern-neighborhood.js','zoo-encounter.js','monkey-escape.js','motorcycle.js','zoo.js','zoo-animals.js','tahoe.js','regional-road.js','ferrari.js','fuel.js','adventure-sites.js','berkeley-campus.js','alien-sites.js','shipyard.js','parrots.js','skateboard.js','gym-exercises.js','prometheus.js','windsurfing.js','surfing.js','encounters.js','wayfinding.js','models.js','world.js'];
 
 function replaceEntry(html,runtime){
     if(!entry.test(html))throw new Error('index.html is missing its SF-ENTRY markers');
@@ -28,8 +30,17 @@ export async function renderExplore(html,materialAtlas=null){
     // while embedding a compact copy of the same image in the production page.
     const svg=artwork.replace(/<!--[\s\S]*?-->/g,'').replace(/>\s+</g,'><').trim();
     const alpineArtwork=await readFile(new URL('textures/alpine-materials.svg',root),'utf8');
+    const billboardFiles=BILLBOARD_ART.map(art=>art.file);
+    const embeddedBillboards=Object.fromEntries(await Promise.all(billboardFiles.map(async file=>[file,await readFile(new URL('textures/billboards/'+file,root),'utf8')])));
+    const embeddedResearchArt=Object.fromEntries(await Promise.all(RESEARCH_ART.map(async art=>[art.file,await readFile(new URL('textures/research/'+art.file,root),'utf8')])));
     const sources=await Promise.all(modules.map(name=>readFile(new URL('sf/'+name,root),'utf8')));
     const bundled=sources.map((source,i)=>{
+        if(modules[i]==='billboards.js'){
+            source=source.replace("const billboardAssetURL=name=>new URL('../textures/billboards/'+name,import.meta.url).href;",()=>`const embeddedBillboards=${JSON.stringify(embeddedBillboards)};\nconst billboardAssetURL=name=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(embeddedBillboards[name]);`);
+        }
+        if(modules[i]==='research-art.js'){
+            source=source.replace("const researchAssetURL=name=>new URL('../textures/research/'+name,import.meta.url).href;",()=>`const embeddedResearchArt=${JSON.stringify(embeddedResearchArt)};\nconst researchAssetURL=name=>'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(embeddedResearchArt[name]);`);
+        }
         if(modules[i]==='alpine-materials.js'){
             const alpine=alpineArtwork;
             source=source.replace("const alpineAtlasURL=new URL('../textures/alpine-materials.svg',import.meta.url);",()=>`const alpineAtlasURL={href:'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(${JSON.stringify(alpine)})};`);

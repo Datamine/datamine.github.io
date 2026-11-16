@@ -9,11 +9,11 @@ import {drawStartupHQ} from '../commerce-world.js';
 import {RESTAURANTS,createRestaurantPatio} from '../restaurants.js';
 
 test('equity and grain trades conserve inventory and never overdraw the purse',()=>{
-    const saved=[],e=createEconomy({},s=>saved.push(s));assert.deepEqual(e.state,{coins:25,equity:0,grain:0});
+    const saved=[],e=createEconomy({},s=>saved.push(s));assert.deepEqual(e.state,{coins:25,equity:0,grain:0,fuelCans:0,fish:0});
     assert.equal(e.trade('secondary').ok,false);assert.equal(e.state.coins,25);
-    assert.equal(e.trade('equity').ok,true);assert.deepEqual(e.state,{coins:15,equity:1,grain:0});
-    assert.equal(e.trade('secondary').ok,true);assert.deepEqual(e.state,{coins:35,equity:0,grain:0});
-    assert.equal(e.trade('grain').ok,true);assert.deepEqual(e.state,{coins:34,equity:0,grain:1});
+    assert.equal(e.trade('equity').ok,true);assert.deepEqual(e.state,{coins:15,equity:1,grain:0,fuelCans:0,fish:0});
+    assert.equal(e.trade('secondary').ok,true);assert.deepEqual(e.state,{coins:35,equity:0,grain:0,fuelCans:0,fish:0});
+    assert.equal(e.trade('grain').ok,true);assert.deepEqual(e.state,{coins:34,equity:0,grain:1,fuelCans:0,fish:0});
     assert.equal(e.trade('feed').ok,true);assert.equal(e.trade('feed').ok,false);assert.equal(e.state.grain,0);
     const restored=createEconomy(saved.at(-1));assert.deepEqual(restored.state,e.state);
     const poor=createEconomy({coins:0});assert.equal(poor.trade('grain').ok,false);assert.equal(poor.trade('equity').ok,false);assert.equal(poor.state.coins,0);

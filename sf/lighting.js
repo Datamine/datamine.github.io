@@ -2,7 +2,7 @@ import {pose} from './geometry.js';
 
 /** Turned metal profiles, curved arms and opal globes, kept in the static mesh. */
 export function drawStreetLamp(m,x,base,z,angle,style=0){
-    const green='#426d65',edge='#65877a',brass='#bca36a',metal={metal:.24},glass={emissive:.85},heads=[];
+    const modern=style>=3,green=style===3?'#526773':style===4?'#8b9c99':'#426d65',edge=modern?'#bcc9c5':'#65877a',brass=modern?'#c1cbc4':'#bca36a',metal={metal:.24},glass={emissive:.85},heads=[];
     const profile=(cx,cz,points,color=green)=>{
         for(let i=1;i<points.length;i++){const [y,r]=points[i-1],[yy,rr]=points[i];m.cylinder(cx,y,cz,r,yy-y,color,24,rr,metal);}
     };
@@ -11,9 +11,14 @@ export function drawStreetLamp(m,x,base,z,angle,style=0){
         for(let i=1;i<=16;i++){const t=i/16,s=1-t,p=a.map((v,k)=>s*s*s*v+3*s*s*t*b[k]+3*s*t*t*c[k]+t*t*t*d[k]);m.rod(previous,p,r,green,12,metal);previous=p;}
     };
     pose(m,x,base,z,angle,()=>{
-        profile(0,0,[[0,.105],[.035,.115],[.09,.105],[.12,.09],[.18,.085],[.22,.07],[.29,.066],[.34,.054],[.43,.048],[1.86,.035],[1.9,.053],[1.96,.053],[2.0,.035]]);
-        for(let i=0;i<12;i++){const a=i*Math.PI/6;m.rod([Math.cos(a)*.047,.43,Math.sin(a)*.047],[Math.cos(a)*.036,1.82,Math.sin(a)*.036],.0055,edge,5);}
-        profile(0,0,[[.20,.071],[.22,.073],[.235,.067]],brass);
+        if(modern){
+            profile(0,0,[[0,.095],[.08,.095],[.15,.057],[.24,.052],[2.42,.026]]);
+            m.box(-.031,.65,-.061,.062,.19,.025,edge,metal);
+        }else{
+            profile(0,0,[[0,.105],[.035,.115],[.09,.105],[.12,.09],[.18,.085],[.22,.07],[.29,.066],[.34,.054],[.43,.048],[1.86,.035],[1.9,.053],[1.96,.053],[2.0,.035]]);
+            for(let i=0;i<12;i++){const a=i*Math.PI/6;m.rod([Math.cos(a)*.047,.43,Math.sin(a)*.047],[Math.cos(a)*.036,1.82,Math.sin(a)*.036],.0055,edge,5);}
+            profile(0,0,[[.20,.071],[.22,.073],[.235,.067]],brass);
+        }
         if(style===0){
             for(const side of [-1,1]){
                 curve([0,1.94,0],[side*.05,2.24,0],[side*.34,2.04,.045],[side*.3,2.22,.045],.028);
@@ -35,6 +40,21 @@ export function drawStreetLamp(m,x,base,z,angle,style=0){
             }
             m.sphere(0,2.0,.49,.036,.055,.036,brass,12,6,metal);
             heads.push({x:0,y:2.235,z:.49,radius:.51,strength:.13,poolStrength:.04});
+        }else if(style===3){
+            // Slim contemporary cobra head, with a recessed cool-white lens.
+            curve([0,2.35,0],[0,2.68,.08],[0,2.67,.55],[0,2.61,.86],.026);
+            m.sphere(0,2.59,.89,.12,.055,.26,green,18,8,metal);
+            m.box(-.089,2.536,.72,.178,.014,.34,'#e9f2ed',glass);
+            for(const z of [.76,.84,.92,1])m.box(-.07,2.533,z,.14,.004,.008,'#c8dee0',glass);
+            heads.push({x:0,y:2.53,z:.89,radius:.48,strength:.105,poolStrength:.037});
+        }else if(style===4){
+            // Brushed steel twin pendants: compact heads and swept crossarms.
+            for(const side of [-1,1]){
+                m.rod([0,2.41,0],[side*.34,2.53,.025],.024,green,10,metal);
+                m.cylinder(side*.34,2.47,.025,.11,.065,green,16,.085,metal);
+                m.sphere(side*.34,2.46,.025,.086,.025,.086,'#f7e8ca',16,6,glass);
+                heads.push({x:side*.34,y:2.445,z:.025,radius:.43,strength:.09,poolStrength:.024});
+            }
         }else{
             profile(0,0,[[2.0,.035],[2.04,.095],[2.08,.12],[2.12,.105]]);
             m.sphere(0,2.32,0,.21,.245,.21,'#ffebc7',24,14,glass);
@@ -43,7 +63,7 @@ export function drawStreetLamp(m,x,base,z,angle,style=0){
         }
     });
     const c=Math.cos(angle),s=Math.sin(angle);
-    return heads.map(p=>({...p,x:x+p.x*c-p.z*s,y:base+p.y,z:z+p.x*s+p.z*c,color:[1,.71,.34]}));
+    return heads.map(p=>({...p,x:x+p.x*c-p.z*s,y:base+p.y,z:z+p.x*s+p.z*c,color:style===3?[.78,.89,1]:style===4?[1,.86,.64]:[1,.71,.34]}));
 }
 
 /** One additive, depth-tested draw for all soft halos and terrain-following

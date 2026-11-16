@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Mesh} from '../geometry.js';
-import {AIRSHIP_TERMINAL,AIRSHIP_ACCESS,AIRPORT_RUNWAY,STARTUP_HQ,airportGate,airportRoadDistance,airportRoadTiles,createAirship,drawAirportRoad,drawAirship,drawAirshipTerminal} from '../airship.js';
+import {AIRSHIP_TERMINAL,AIRPORT_TERMINAL_BUILDING,AIRSHIP_ACCESS,AIRPORT_RUNWAY,STARTUP_HQ,SOUTHERN_ROAD_END,airportGate,airportRoadDistance,airportRoadTiles,createAirship,drawAirportRoad,drawAirship,drawAirshipTerminal} from '../airship.js';
+import {AIRSHIP_BASKET} from '../airship-basket.js';
 import {buildSurfaceTile} from '../tiles.js';
 import {WORLD_SIZE,STREET_LAYOUT_SIZE} from '../geography.js';
 
@@ -18,22 +19,37 @@ test('the southern apron connects to the city in both directions without a telep
 });
 
 test('the airport road continues Third Street and reaches the apron without the old walkway',()=>{
-    const a=createAirship(),gate=airportGate();
+    const a=createAirship(),gate=airportGate(),apron={x:AIRPORT_RUNWAY.x-2.1,y:109.5};
     assert.deepEqual(AIRSHIP_ACCESS.points[0],[70.5*WORLD_SIZE/STREET_LAYOUT_SIZE,77.5*WORLD_SIZE/STREET_LAYOUT_SIZE]);
     assert.ok(a.contains(gate.x+.5,gate.y+.5));
     const bends=AIRSHIP_ACCESS.points.slice(1).map(([x,y])=>({x:x-.5,y:y-.5}));
     for(let i=1;i<bends.length;i++)assert.ok(a.segment(bends[i-1],bends[i]),'the route must follow each road bend');
-    assert.ok(a.segment({x:airportGate().x,y:109.5},boarding),'the road opens directly onto the boarding apron');
+    assert.ok(a.segment({x:airportGate().x,y:109.5},apron),'the road opens directly onto the apron west of the parked jets');
     assert.ok(a.path(boarding,{x:STARTUP_HQ.x-.5,y:131.5},()=>null)?.length,'the street continues beyond the airport to the startup house');
     assert.ok(AIRSHIP_ACCESS.points.every(p=>p[0]===AIRSHIP_ACCESS.points[0][0]),'the road is straight south');
     assert.ok(AIRPORT_RUNWAY.z+AIRPORT_RUNWAY.depth>145,'the runway extends south from the center of the airport');
     assert.ok(Math.abs(AIRPORT_RUNWAY.x+AIRPORT_RUNWAY.width/2-87.9)<1,'the runway aligns below the airplanes');
     assert.ok(a.contains(AIRPORT_RUNWAY.x+1,148),'the continuous apron remains walkable to the southern threshold');
-    assert.equal(a.contains(92,126),false,'the hangar east of the runway blocks walking through its walls');
+    assert.equal(a.contains(92,126),false,'the terminal east of the runway blocks walking through its walls');
     assert.equal(a.contains(65.875,99.5),true,'the new Bayview street connects the southern neighborhood');
     assert.equal(a.contains(65.875,101.5),false,'private lots beside the street remain blocked');
-    assert.equal(a.contains(80,102),false,'the access road does not cross the runway');
-    assert.equal(a.segment(gate,boarding),false,'walking follows the road instead of cutting across the grass');
+    assert.equal(a.contains(80,102),true,'open grass beside the airport is walkable');
+    assert.equal(a.segment(gate,apron),true,'walking may cut across unobstructed dry ground');
+});
+
+test('the relocated terminal, entrance and airship mooring use the eastern building and connected clear ground',()=>{
+    const a=createAirship(),b=AIRPORT_TERMINAL_BUILDING,s=AIRSHIP_TERMINAL;
+    assert.ok(b.x>AIRPORT_RUNWAY.x+AIRPORT_RUNWAY.width);
+    assert.ok(s.x>b.x&&s.x<b.x+b.w&&s.z>b.z&&s.z<b.z+b.d);
+    assert.ok(a.contains(s.entry.x+.5,s.entry.y+.5));
+    for(const [from,to] of [[{x:AIRPORT_RUNWAY.x-2.1,y:109.5},s.entry],[s.entry,boarding],[boarding,s.entry]]){
+        const path=a.path(from,to,()=>null);assert.ok(path?.length);let previous=from;
+        for(const next of path){assert.ok(a.segment(previous,next),'the route must avoid jets and terminal walls');previous=next;}
+        assert.deepEqual(path.at(-1),to);
+    }
+    for(const x of [AIRSHIP_BASKET.left,AIRSHIP_BASKET.right])for(const z of [AIRSHIP_BASKET.north,AIRSHIP_BASKET.south])assert.ok(a.contains(a.home.x+z,a.home.z-x),'the whole parked basket must clear buildings, jets and water');
+    const m=new Mesh(),model=drawAirshipTerminal(m);assert.ok(model.lo[0]>AIRPORT_RUNWAY.x+AIRPORT_RUNWAY.width);
+    for(let i=0;i<m.data.length;i+=11)if(m.data[i]>75.6&&m.data[i]<81&&m.data[i+2]>104.9&&m.data[i+2]<111.1)assert.ok(m.data[i+1]<s.base+.5,'the old western terminal has been removed');
 });
 
 test('airport road and curb tiles exactly match the city edge, with no overlapping materials',()=>{
@@ -43,8 +59,8 @@ test('airport road and curb tiles exactly match the city edge, with no overlappi
         assert.deepEqual(tile.edges[0],buildSurfaceTile('grass',values).edges[2]);
     }
     for(const {tile} of tiles)assert.ok(Math.abs(Object.values(tile.areas).reduce((a,b)=>a+b,0)-1)<1e-8);
-    const mesh=new Mesh();drawAirportRoad(mesh);assert.ok(mesh.data.length>0);assert.ok(mesh.data.length/33<30000,'the connected neighborhood roads and trails stay inexpensive to render');
-    for(let i=0;i<mesh.data.length;i+=11){assert.ok(mesh.data[i+2]>=WORLD_SIZE);assert.ok(mesh.data[i+2]<=AIRSHIP_ACCESS.points.at(-1)[1]+1e-8);}
+    const mesh=new Mesh();drawAirportRoad(mesh);assert.ok(mesh.data.length>0);assert.ok(mesh.data.length/33<36000,'the connected neighborhood roads and trails stay inexpensive to render');
+    for(let i=0;i<mesh.data.length;i+=11){assert.ok(mesh.data[i+2]>=WORLD_SIZE);assert.ok(mesh.data[i+2]<=SOUTHERN_ROAD_END+1e-8);}
 });
 
 test('renting ascends smoothly, then flies at a fixed height above the skyline',()=>{
@@ -91,11 +107,11 @@ test('walking around the terminal apron never passes through the parked jets',()
 test('airship and private terminal models have valid materials and bounded mesh sizes',()=>{
     const ship=new Mesh();drawAirship(ship,{x:0,y:0,z:0},0,0,true);
     const terminal=new Mesh();drawAirshipTerminal(terminal);
-    for(const [mesh,limit] of [[ship,12000],[terminal,40000]]){assert.ok(mesh.data.every(Number.isFinite));assert.ok(mesh.data.length/33>500);assert.ok(mesh.data.length/33<limit);}
+    for(const [mesh,limit] of [[ship,12000],[terminal,46000]]){assert.ok(mesh.data.every(Number.isFinite));assert.ok(mesh.data.length/33>500);assert.ok(mesh.data.length/33<limit);}
     const envelope=[],deck=[];
     for(let i=0;i<ship.data.length;i+=11){
         if(ship.data[i+9]===-1&&ship.data[i+10]===-8)envelope.push(ship.data[i]);
-        if(Math.abs(ship.data[i+6]-179/255)<1e-8&&Math.abs(ship.data[i+7]-171/255)<1e-8&&Math.abs(ship.data[i+8]-140/255)<1e-8)deck.push(ship.data[i]);
+        if(Math.abs(ship.data[i+1]-.05)<1e-8&&Math.abs(ship.data[i+4]-1)<1e-8)deck.push(ship.data[i]);
     }
     const center=values=>(Math.min(...values)+Math.max(...values))/2;
     assert.ok(envelope.length&&deck.length);assert.ok(Math.abs(center(envelope)-center(deck))<.015,'the gondola must sit beneath the center of the envelope');

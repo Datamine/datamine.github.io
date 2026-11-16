@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 640" role="img" aria-labelledby="title">
+  <title id="title">The Startup: a Broadway musical poster</title>
+  <defs><radialGradient id="stage"><stop stop-color="#7c287e"/><stop offset="1" stop-color="#160e39"/></radialGradient></defs>
+  <path fill="url(#stage)" d="M0 0h400v640H0z"/>
+  <path d="M0 0h90L0 430zM400 0h-90l90 430z" fill="#fdb75a" opacity=".25"/>
+  <g stroke="#f8ce6d" fill="none"><path d="M16 16h368v608H16z" stroke-width="4"/><path d="M25 25h350v590H25z"/></g>
+  <g fill="#ffe3a2" text-anchor="middle" font-family="Georgia,serif">
+    <text x="200" y="83" font-size="18" letter-spacing="5">BROADWAY PRESENTS</text>
+    <text x="200" y="155" font-size="40">THE</text><text x="200" y="216" font-size="61" font-weight="bold">STARTUP</text>
+    <text x="200" y="253" font-size="20" font-style="italic">a very long run</text>
+    <text x="200" y="536" font-size="19" letter-spacing="3">EVERY NIGHT. FOREVER.</text>
+    <text x="200" y="577" font-size="16">★★★★★  “UNREASONABLY AMBITIOUS”</text>
+  </g>
+  <path d="M90 465h220M120 447h160M143 428h114" stroke="#d69850" stroke-width="8"/>
+  <g fill="#0b1127" stroke="#efac64" stroke-width="2">
+    <circle cx="200" cy="329" r="19"/><path d="m181 354-16 70h70l-16-70z"/>
+    <path d="m184 364-55-42-6 13 52 53m42-24 54-51 8 12-50 63"/>
+  </g>
+  <path d="m187 304 13-38 13 38z" fill="#ffdc74"/>
+</svg>

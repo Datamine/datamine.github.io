@@ -4,12 +4,12 @@ function chatHead(person){
     return `<svg viewBox="0 0 80 90" aria-hidden="true"><path fill="${shirt}" d="M7 90V74L24 64H56L73 74V90Z"/><path fill="${skin}" d="M30 55H50V70L40 76 30 70Z"/><path fill="#251e19" opacity=".22" d="M30 55H50V63L30 59Z"/><path fill="${skin}" d="M20 29L25 18H55L60 29V48L50 62H31L20 48Z"/><path fill="${hair}" d="M18 35V23L26 11 48 8 61 20 63 37 55 29 50 22 29 25 24 37Z"/><path fill="#272724" d="M28 35H34V39H28ZM47 35H53V39H47Z"/><path fill="#986447" d="M39 37L36 47H43Z"/><path fill="#714d39" d="M32 52H48L44 55H36Z"/><path fill="#fff4dc" opacity=".4" d="M25 28L29 25H47L50 28Z"/></svg>`;
 }
 
-export function createDialogue({element,journal,log,economy,announce,onClose=()=>{}}){
+export function createDialogue({element,journal,log,economy,announce,onClose=()=>{},getPlayer=()=>({})}){
     let current=null,root=null,stage='intro',committed=false,after=null;
     const close=()=>{const action=after;after=null;element.hidden=true;journal.classList.remove('sf-conversing');log.hidden=false;current=null;onClose();action?.();};
     function button(label,fn){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);return b;}
     function render(message){
-        element.replaceChildren();const player=stage==='choices',person=player?{name:'You'}:current;
+        element.replaceChildren();const player=stage==='choices',person=player?{...getPlayer(),name:'You'}:current;
         const portrait=document.createElement('div');portrait.className='sf-chat-head';portrait.innerHTML=chatHead(person);
         const copy=document.createElement('div');copy.className='sf-chat-copy';
         const name=document.createElement('strong');name.textContent=person.name;
@@ -27,7 +27,10 @@ export function createDialogue({element,journal,log,economy,announce,onClose=()=
             }));
             controls.append(button(current.decline||"Don't Purchase",()=>{announce('Maybe another time.','You');close();}));
         }else controls.append(button('OK',()=>{if(stage==='intro'){stage='choices';render();}else if(current.repeat){current=root;stage='choices';committed=false;render();}else close();}));
-        controls.append(button('Close',close));copy.append(controls);
+        // Choices already include a departure response. A final receipt's OK
+        // also ends the conversation; only continuing stages need Close.
+        if(stage==='intro'||stage==='receipt'&&current.repeat)controls.append(button('Close',close));
+        copy.append(controls);
         element.dataset.speaker=player?'player':'npc';element.append(portrait,copy);element.querySelector('button').focus({preventScroll:true});
     }
     function open(person){root=current=person;stage='intro';committed=false;after=null;log.hidden=true;element.hidden=false;journal.classList.add('sf-conversing');render();}

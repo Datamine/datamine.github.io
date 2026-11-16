@@ -14,13 +14,15 @@ const navInside=(x,z,polygon)=>{
 const navDistance=(x,z,a,b)=>{const dx=b[0]-a[0],dz=b[1]-a[1],t=Math.max(0,Math.min(1,((x-a[0])*dx+(z-a[1])*dz)/(dx*dx+dz*dz||1)));return Math.hypot(x-a[0]-t*dx,z-a[1]-t*dz);};
 const navRectangle=(cx,cz,w,d,angle=0)=>[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]].map(([x,z])=>[cx+x*Math.cos(angle)-z*Math.sin(angle),cz+x*Math.sin(angle)+z*Math.cos(angle)]);
 
-/** Four-way flood filling has exactly the same components as eight-way
- * movement with blocked-corner clearance. Shared by routing and the minimap. */
-export function navigationRegions(mask,width){
+/** Flood fill the actual adjacency edges when supplied. For a terrain mask,
+ * four-way filling has the same components as corner-safe eight-way movement.
+ * Routing and minimap reachability share these component IDs. */
+export function navigationRegions(mask,width,links=null){
     const regions=new Int32Array(mask.length);regions.fill(-1);const queue=new Int32Array(mask.length);let region=0;
     for(let start=0;start<mask.length;start++){
         if(!mask[start]||regions[start]!==-1)continue;let read=0,write=1;queue[0]=start;regions[start]=region;
-        while(read<write){const id=queue[read++],x=id%width;for(const n of [x?id-1:-1,x+1<width?id+1:-1,id-width,id+width]){
+        while(read<write){const id=queue[read++],x=id%width;for(const [direction,n] of links?NAVIGATION_DIRECTIONS.map((d,i)=>[i,id+d.dx+d.dz*width]):[[3,x?id-1:-1],[1,x+1<width?id+1:-1],[0,id-width],[2,id+width]]){
+            if(links&&!(links[id]&(1<<direction)))continue;
             if(n<0||n>=mask.length||!mask[n]||regions[n]!==-1)continue;regions[n]=region;queue[write++]=n;
         }}region++;
     }return regions;
@@ -28,15 +30,21 @@ export function navigationRegions(mask,width){
 
 /** Logical actor coordinates add offset to obtain world coordinates. Keeping
  * that conversion here avoids mixing tile centers and tile corners in callers. */
-export function createNavigationGrid({width,height=width,resolution=1,offset=0,mask}){
+export function createNavigationGrid({width,height=width,resolution=1,offset=0,mask,canTraverse=null,canLink=canTraverse}){
     if(!Number.isInteger(width)||width<=0||!Number.isInteger(height)||height<=0||mask.length!==width*height||!(resolution>0))throw new Error('Invalid navigation grid dimensions');
     mask=Uint8Array.from(mask,v=>v?1:0);
-    const count=mask.length,links=new Uint8Array(count),regions=navigationRegions(mask,width);
+    const count=mask.length,links=new Uint8Array(count);
     const freeCell=(x,z)=>x>=0&&z>=0&&x<width&&z<height&&!!mask[z*width+x];
     for(let id=0;id<count;id++)if(mask[id]){
         const x=id%width,z=Math.floor(id/width);
-        for(const [i,d] of NAVIGATION_DIRECTIONS.entries())if(freeCell(x+d.dx,z+d.dz)&&(!d.dx||!d.dz||freeCell(x+d.dx,z)&&freeCell(x,z+d.dz)))links[id]|=1<<i;
+        for(const [i,d] of NAVIGATION_DIRECTIONS.entries())if(freeCell(x+d.dx,z+d.dz)&&(!d.dx||!d.dz||freeCell(x+d.dx,z)&&freeCell(x,z+d.dz))){
+            const next=id+d.dz*width+d.dx;
+            if(next<id){if(links[next]&(1<<d.opposite))links[id]|=1<<i;continue;}
+            const a={x:(x+.5)/resolution-offset,y:(z+.5)/resolution-offset},b={x:(x+d.dx+.5)/resolution-offset,y:(z+d.dz+.5)/resolution-offset};
+            if(!canLink||canLink(a,b))links[id]|=1<<i;
+        }
     }
+    const regions=navigationRegions(mask,width,canLink?links:null);
     const cellAt=(x,y)=>{if(!Number.isFinite(x)||!Number.isFinite(y))return -1;const ix=Math.floor((x+offset)*resolution),iz=Math.floor((y+offset)*resolution);return ix>=0&&iz>=0&&ix<width&&iz<height?iz*width+ix:-1;};
     const pointAt=id=>({x:(id%width+.5)/resolution-offset,y:(Math.floor(id/width)+.5)/resolution-offset});
     const free=(x,y)=>{const id=cellAt(x,y);return id>=0&&!!mask[id];};
@@ -48,7 +56,11 @@ export function createNavigationGrid({width,height=width,resolution=1,offset=0,m
         let x=Math.floor(ox),z=Math.floor(oz);const endX=Math.floor((b.x+offset)*resolution),endZ=Math.floor((b.y+offset)*resolution),sx=dx>=0?1:-1,sz=dz>=0?1:-1;
         const stepX=Math.abs(1/dx),stepZ=Math.abs(1/dz);let tx=dx?((sx>0?x+1:x)-ox)/dx:Infinity,tz=dz?((sz>0?z+1:z)-oz)/dz:Infinity;
         for(let n=0;n<width+height+2;n++){
-            if(x===endX&&z===endZ)return true;
+            if(x===endX&&z===endZ)return !canTraverse||canTraverse(a,b);
+            // An exact boundary belongs to floor(endpoint). A negative-going
+            // ray must not step past that cell when the other axis reaches a
+            // corner at t=1 (minimap clicks often land on these boundaries).
+            if(x===endX)tx=Infinity;if(z===endZ)tz=Infinity;
             let edge;
             if(Math.abs(tx-tz)<1e-10){edge=sx>0?(sz<0?4:5):(sz<0?7:6);tx+=stepX;tz+=stepZ;}
             else if(tx<tz){edge=sx>0?1:3;tx+=stepX;}else{edge=sz>0?2:0;tz+=stepZ;}
@@ -98,10 +110,13 @@ export function navigationObstacles(objects){
     const result=[];
     for(const [index,o] of objects.entries()){
         const id=o.place?.id||o.sight?.id||o.arch||'object-'+index;
-        if(o.place){
+        if(o.navigationPolygons){
+            for(const [part,polygon] of o.navigationPolygons.entries())result.push({id:id+':part-'+part,polygon});
+        }else if(o.place){
             const p=o.place,x=p.x,z=p.y,w=p.w,d=p.d,door=p.localDoor,cx=x+w/2,cz=z+d/2,a=p.rotation||0;
             const rotate=([xx,zz])=>[cx+(xx-cx)*Math.cos(a)-(zz-cz)*Math.sin(a),cz+(xx-cx)*Math.sin(a)+(zz-cz)*Math.cos(a)];
             for(const [side,[xx,zz,ww,dd]] of [[x,z,w,.1],[x,z,.1,d],[x+w-.1,z,.1,d],[x,z+d-.1,door-x,.1],[door+1,z+d-.1,x+w-door-1,.1]].entries())if(ww>0&&dd>0)result.push({id:id+':wall-'+side,polygon:navRectangle(xx+ww/2,zz+dd/2,ww,dd).map(rotate)});
+            for(const [part,polygon] of (p.interiorObstacles||[]).entries())result.push({id:id+':furniture-'+part,polygon:polygon.map(rotate)});
         }else if(o.arch||o.solid)result.push({id,polygon:o.footprint||navRectangle(o.x+o.w/2,o.y+o.d/2,o.w,o.d)});
     }return result;
 }

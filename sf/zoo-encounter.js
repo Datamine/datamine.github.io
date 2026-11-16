@@ -1,6 +1,7 @@
 // Navigation positions use the same logical tile coordinates as the player.
 // Randomness is injected so dispatch and net attempts can be tested reliably.
-export function createTigerEncounter({player,home,exit,wardenStarts,routeTo,canCapture,canPursue=()=>true,onDeath=()=>{},onEvent=()=>{},random=Math.random,speed=4.6}){
+export const ZOO_PURSUIT_SPEED=4.6;
+export function createTigerEncounter({player,home,exit,wardenStarts,routeTo,canCapture,canPursue=()=>true,onDeath=()=>{},onEvent=()=>{},random=Math.random,speed=ZOO_PURSUIT_SPEED}){
     const tiger={...home,path:[],angle:Math.PI,travel:0,moving:false,repath:0,target:null};
     const state={phase:'caged',elapsed:0,gate:0,tiger,wardens:[],dispatchAt:0,attempts:0,deaths:0,grace:0};
     let transition=0,transitionStart=null,patrolDirection=1,lastTarget=null,dispatched=false;

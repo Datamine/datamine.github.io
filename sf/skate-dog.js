@@ -1,13 +1,13 @@
 import {pose} from './geometry.js';
 
-/** A short, prevalidated forecourt route. Greetings rearm only after the
+/** A short, prevalidated park-side route. Greetings rearm only after the
  * visitor leaves the area, so the patrol cannot repeatedly bark at a bystander. */
 export function createSkateDog(points,{onWoof=()=>{}}={}){
     if(points.length<2||points.every(p=>Math.hypot(p.x-points[0].x,p.z-points[0].z)<1e-6))throw new Error('The skateboarding dog needs a nonzero route');
     const center={x:points.reduce((v,p)=>v+p.x,0)/points.length,z:points.reduce((v,p)=>v+p.z,0)/points.length};
     const state={x:points[0].x,z:points[0].z,angle:Math.atan2(points[1].z-points[0].z,points[1].x-points[0].x),travel:0,elapsed:0,speechUntil:0,nextWoof:0,greeted:false,woofs:0,look:0};
     let target=1,direction=1;
-    const sight={id:'cityhall-skate-dog',kind:'skate-dog',label:'Skateboarding dog',hiddenFromDirectory:true,entry:{x:state.x-.5,y:state.z-.5},description:'Four paws, four wheels, and absolutely no municipal skateboarding permit. A very good dog.'};
+    const sight={id:'dolores-skate-dog',kind:'skate-dog',label:'Skateboarding dog',hiddenFromDirectory:true,entry:{x:state.x-.5,y:state.z-.5},description:'Four paws, four wheels, and absolutely no municipal skateboarding permit. A very good dog.'};
     function update(dt,time,visitor,{paused=false,canGreet=true}={}){
         if(paused||dt<=0)return;
         state.elapsed+=dt;let budget=dt*.95;

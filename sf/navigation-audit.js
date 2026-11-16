@@ -6,13 +6,16 @@ import {SF_ZOO} from './zoo.js';
  * browser session. They are evaluated against a freshly built production map. */
 export function auditWorldNavigation(world){
     const graph=auditNavigationGrid(world.navigation),errors=[...graph.errors],routes=[];
+    for(const [district,plan] of [['city',world.cityLightPlan],['south',world.southernNeighborhood?.lightPlan]])for(const gap of plan?.unlit||[])errors.push(district+' street lighting: '+gap.street+' has an unlit block '+gap.block);
     for(const s of world.sights)if(s.navigationAccess&&!['walk','observe-only'].includes(s.navigationAccess))errors.push(s.id+': unknown navigation access '+s.navigationAccess);
     const walkableSights=world.sights.filter(s=>s.navigationAccess!=='observe-only');
-    const destinations=[...world.places.flatMap(p=>[{id:p.id+':entrance',point:p.entry},{id:p.id+':inside',point:p.inside}]),...walkableSights.map(s=>({id:s.id,point:s.entry}))];
+    const destinations=[...world.places.flatMap(p=>[{id:p.id+':entrance',point:p.entry},{id:p.id+':inside',point:p.inside}]),...walkableSights.flatMap(s=>[{id:s.id,point:s.entry},...(s.inside?[{id:s.id+':inside',point:s.inside}]:[])])];
     destinations.push(...world.airship.gates.map((p,i)=>({id:'airport-gate-'+i,point:p})),{id:'bay-bridge-city-gate',point:world.regionalRoad.gate('city')},{id:'bay-bridge-tahoe-gate',point:world.regionalRoad.gate('tahoe')});
+    destinations.push({id:'airship-mooring',point:{x:world.airship.home.x-.5,y:world.airship.home.z-.5}});
     for(const [i,trail] of SOUTHERN_TRAILS.entries())for(const [j,[x,z]] of trail.points.entries())destinations.push({id:'southern-trail-'+i+'-'+j,point:{x:x-.5,y:z-.5}});
     destinations.push({id:'tiger-exit',point:SF_ZOO.exit},...SF_ZOO.wardens.map((point,i)=>({id:'animal-control-start-'+i,point})));
     const approaches=[{id:'bunny-petting',point:world.approaches.bunny(world.spawn)},{id:'sutro-ladder',point:world.approaches.sutro(world.spawn)},...world.merchants.map(npc=>({id:npc.id+'-conversation',point:world.approaches.merchant(npc)}))];
+    approaches.push(...(world.parrots||[]).map(npc=>({id:npc.id+'-conversation',point:npc.approach})));
     for(const a of approaches)if(a.point)destinations.push(a);else errors.push(a.id+': no valid interaction approach');
     function check(id,from,to){
         const route=world.pathTo(to.x,to.y,from);

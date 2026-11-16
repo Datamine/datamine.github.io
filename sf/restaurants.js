@@ -3,7 +3,9 @@ import {drawCharacter} from './characters.js';
 
 // Targets use the same 64-unit geographic drawing as the other landmarks.
 export const RESTAURANTS=Object.freeze([
-    Object.freeze({id:'cotogna',name:'cotogna',label:'Cotogna',target:[46,17],w:3,d:1.9,patioDepth:1.5,worldHeight:2.3,arch:'warehouse',roof:'flat',color:'#ad795d',trim:'#d8c5a5',roofColor:'#68776b',category:'North Beach · near Coit Tower',description:'A brick neighborhood restaurant near Coit Tower. Neighbors eat at a table outside beneath the cotogna sign.'}),
+    Object.freeze({id:'lucindas-deli',name:"Lucinda's Deli",label:'Lucinda’s Deli',target:[35.5,30.5],w:2.4,d:1.6,patioDepth:1.2,worldHeight:2.8,arch:'victorian',roof:'gable',color:'#819a76',trim:'#f0d9a4',roofColor:'#5a6a64',category:'Alamo Square · sandwiches',description:'Lucinda’s Deli, by Alamo Square. Pick up a sandwich for 3 coins, or order DoorDash for 4. A tiny cooler delivers it. Eat a sandwich to restore up to 18 hitpoints.'}),
+    Object.freeze({id:'shanghai-kelly',name:"Shanghai Kelly's",label:"Shanghai Kelly’s",target:[40,18.8],w:2.5,d:1.7,patioDepth:1,worldHeight:2.75,arch:'warehouse',roof:'gable',color:'#5c665c',trim:'#d7b677',roofColor:'#565f66',category:'North Beach · neighborhood bar',description:'Shanghai Kelly’s bar. A beer costs one coin and adds 10% inebriation. A little balance returns every three seconds.'}),
+    Object.freeze({id:'cotogna',name:'cotogna',label:'Cotogna',target:[46,17],w:3,d:1.9,patioDepth:1.5,worldHeight:2.3,arch:'warehouse',roof:'flat',color:'#ad795d',trim:'#d8c5a5',roofColor:'#68776b',category:'North Beach · near Coit Tower',description:'A brick neighborhood restaurant near Coit Tower. Neighbors eat at a table outside beneath the cotogna sign. The chef buys live fish from Fisherman’s Wharf for 5 coins each.'}),
     Object.freeze({id:'rich-table',name:'Rich Table',label:'Rich Table',target:[39,33.5],w:2.1,d:1.3,patioDepth:1.5,worldHeight:3.05,arch:'victorian',roof:'gable',color:'#597667',trim:'#e0d8bc',roofColor:'#7c6b66',category:'Hayes Valley · outdoor dining',description:'A little Hayes Valley house with a Rich Table sign. Neighbors share dinner at the tables outside.'})
 ]);
 
@@ -55,10 +57,10 @@ export function drawRestaurantDiners(m,diners,time,viewer,reduced=false,addTarge
     for(const diner of diners){
         if(Math.hypot(diner.x-viewer[0],diner.z-viewer[1])>28)continue;
         const start=m.data.length,gesture=!reduced&&diner.gesture&&time<diner.gesture.started+diner.gesture.duration?diner.gesture:null;
-        drawCharacter(m,diner.x,diner.z,diner.base,diner.angle,0,true,skins[diner.index],shirts[diner.index],{
-            mode:'sit',female:diner.label==='Woman',longHair:diner.index===1,hairstyle:diner.index===3?'curly':undefined,
+        drawCharacter(m,diner.x,diner.z,diner.base,diner.angle,0,!diner.club,diner.skin||skins[diner.index],diner.shirt||shirts[diner.index],{
+            mode:diner.club?'idle':'sit',female:diner.label==='Woman',longHair:diner.index===1,hairstyle:diner.index===3?'curly':undefined,
             backpack:false,pants:'#59605a',time:reduced?0:time*.001+diner.seed,
-            action:reduced?null:gesture?gesture.name:'eat',actionT:gesture?(time-gesture.started)/gesture.duration:(time*.00019+diner.seed)%1
+            action:reduced?null:gesture?gesture.name:diner.club?'dance':'eat',actionT:gesture?(time-gesture.started)/gesture.duration:(time*.00019+diner.seed)%1
         });
         addTarget(start,diner);
     }

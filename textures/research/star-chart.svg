@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Field station celestial chart</title>
+  <desc>Midnight enamel with brass celestial coordinates, hand-drawn constellations and an off-center moon.</desc>
+  <defs>
+    <radialGradient id="research-night-enamel"><stop stop-color="#56617f"/><stop offset="1" stop-color="#303f60"/></radialGradient>
+  </defs>
+  <rect width="256" height="256" fill="url(#research-night-enamel)"/>
+  <g fill="none" stroke="#a39683" stroke-width=".8" opacity=".65">
+    <circle cx="128" cy="128" r="112"/><circle cx="128" cy="128" r="92"/>
+    <circle cx="128" cy="128" r="60"/><circle cx="128" cy="128" r="28"/>
+    <ellipse cx="128" cy="128" rx="112" ry="36"/><ellipse cx="128" cy="128" rx="36" ry="112"/>
+    <path d="M16 128H240M128 16V240M49 49L207 207M49 207L207 49"/>
+  </g>
+  <g fill="none" stroke="#ccbda1" stroke-width="1.3">
+    <path d="M43 94L69 72L96 88L111 59M96 88L108 127L83 145L99 181L140 193L163 166L202 175M155 62L181 84L175 112L206 135"/>
+    <path d="M7 7H249V249H7Z" stroke-width="3"/>
+  </g>
+  <g fill="#eee0b8">
+    <circle cx="43" cy="94" r="2.8"/><circle cx="69" cy="72" r="2"/><circle cx="96" cy="88" r="3"/><circle cx="111" cy="59" r="2"/>
+    <circle cx="108" cy="127" r="2.4"/><circle cx="83" cy="145" r="2"/><circle cx="99" cy="181" r="3"/><circle cx="140" cy="193" r="2.5"/>
+    <circle cx="163" cy="166" r="2"/><circle cx="202" cy="175" r="2.5"/><circle cx="155" cy="62" r="2"/><circle cx="181" cy="84" r="3"/>
+    <circle cx="175" cy="112" r="2.3"/><circle cx="206" cy="135" r="2"/>
+    <path d="M157 127A14 14 0 1 0 171 146A12 12 0 0 1 157 127Z"/>
+    <path d="M56 164V178M49 171H63M148 91V101M143 96H153M184 204V214M179 209H189" stroke="#e0c89f" stroke-width="1.2"/>
+  </g>
+</svg>

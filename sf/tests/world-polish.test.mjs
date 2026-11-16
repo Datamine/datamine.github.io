@@ -21,7 +21,7 @@ test('character examinations are stable observations distinct from their dialogu
 
 test('scenery defaults to Examine while working destinations retain their real actions',()=>{
     for(const kind of ['monument','ferry','pyramid','museum','garden','bridge','hill','painted'])assert.equal(sightPrimaryVerb({kind}),'Examine');
-    assert.equal(sightPrimaryVerb({kind:'spaceport'}),'Launch rocket');assert.equal(sightPrimaryVerb({kind:'whale'}),'Jump over');assert.equal(sightPrimaryVerb({id:'sutro'}),'Climb');
+    assert.equal(sightPrimaryVerb({kind:'spaceport'}),'Examine');assert.equal(sightPrimaryVerb({kind:'whale'}),'Jump over');assert.equal(sightPrimaryVerb({id:'sutro'}),'Climb');
 });
 
 test('the entire gondola cabin footprint clears the mountain along the actual cable path',()=>{
@@ -39,8 +39,14 @@ test('the spaceport pier connects to the airport without an invisible water gap'
 });
 
 test('Prometheus has a detailed bronze figure and a permanently emissive animated torch',()=>{
-    const m=new Mesh(),s=drawPrometheus(m,new Map());assert.ok(m.data.every(Number.isFinite));assert.ok(s.count/33>8000&&s.count/33<40000);assert.ok(s.hi[1]>14);assert.equal(s.kind,'monument');
-    const a=new Mesh(),b=new Mesh();drawPrometheusFlame(a,0);drawPrometheusFlame(b,1100);assert.ok(a.data.every(Number.isFinite)&&b.data.every(Number.isFinite));assert.notDeepEqual(a.data,b.data);assert.ok(a.data.length/33<4000);
+    assert.equal(PROMETHEUS.z,2.5*1.5,'Prometheus must sit directly east of Alcatraz');assert.ok(PROMETHEUS.x>42*1.5);
+    assert.ok(Math.abs(PROMETHEUS.torch.z-(PROMETHEUS.z-1.25))<1e-9,'the fire moves with the statue');
+    const m=new Mesh(),s=drawPrometheus(m,new Map());assert.ok(m.data.every(Number.isFinite));assert.ok(s.count/33>28000&&s.count/33<36000,'the sculpted figure stays within its static geometry budget');assert.ok(s.hi[1]>14);assert.equal(s.kind,'monument');
+    for(let i=0;i<m.data.length;i+=11){
+        assert.ok(Math.abs(Math.hypot(...m.data.slice(i+3,i+6))-1)<1e-7,'curved surfaces need valid unit normals');
+        for(let axis=0;axis<3;axis++)assert.ok(m.data[i+axis]>=s.lo[axis]-1e-7&&m.data[i+axis]<=s.hi[axis]+1e-7,'sculpted details must fit the picking bounds');
+    }
+    const a=new Mesh(),b=new Mesh();drawPrometheusFlame(a,0);drawPrometheusFlame(b,1100);assert.ok(a.data.every(Number.isFinite)&&b.data.every(Number.isFinite));assert.notDeepEqual(a.data,b.data);assert.ok(a.data.length/33<2400,'the permanent flame keeps a small per-frame mesh');
     for(let i=0;i<a.data.length;i+=11){assert.equal(a.data[i+9],-1.25);assert.ok(a.data[i+10]>.9);assert.ok(a.data[i+1]>=PROMETHEUS.torch.y-.08);}
     const glow=prometheusTorchLight();assert.ok(glow.strength>0&&glow.radius>1);assert.equal(glow.poolStrength,0);
 });

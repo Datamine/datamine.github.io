@@ -11,6 +11,7 @@ export const PLACE_ICONS=Object.freeze({
     limit:{label:'Limit',detail:'Founding · Insurance technology',color:'#9cdbdf',path:'M12 2l9 4v6c0 6-9 10-9 10S3 18 3 12V6zM9 7v9h7'},
     rose:{label:'Rose',detail:'Founding · Healthy homes',color:'#eda7b4',path:'M12 5C4-3-1 11 6 12c-7 4 4 13 6 5c2 8 13-1 6-5c7-1 2-15-6-7ZM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6M12 18v5'},
     venture:{label:'Venture',detail:'Venture exchange · Companies',color:'#eab9f1',path:'M3 21V4M3 21h18M6 16l5-6 4 2 6-8M16 4h5v5'},
+    'ai-lab':{label:'AI Lab',detail:'SoMa · arithmetic interview & employment',color:'#9ddde4',path:'M7 7h10v10H7zM10 10h4v4h-4zM9 3v4m6-4v4M9 17v4m6-4v4M3 9h4m-4 6h4m10-6h4m-4 6h4'},
     etc:{label:'Etc.',detail:'Curiosity shop · Other corners',color:'#b7e0c7',path:'M12 2l3 7 7 3-7 3-3 7-3-7-7-3 7-3zM19 2v4m-2-2h4'}
 });
 const miniPaths=new Map();

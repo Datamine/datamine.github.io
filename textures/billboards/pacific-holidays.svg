@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-labelledby="title">
+  <title id="title">Pacific Holidays: take a break by the coast</title>
+  <!-- Original local artwork. The sunglasses replace this entire atlas cell. -->
+  <defs>
+    <linearGradient id="sea" x2="0" y2="1">
+      <stop stop-color="#548e99"/>
+      <stop offset="1" stop-color="#315a73"/>
+    </linearGradient>
+  </defs>
+  <path fill="#f0dfb8" d="M0 0h640v400H0z"/>
+  <circle cx="492" cy="107" r="61" fill="#d98763"/>
+  <path fill="#98ae8e" d="M341 203c72-33 113-70 167-47 55 23 77 14 132-15v152H341z"/>
+  <path fill="url(#sea)" d="M0 217c118-29 186 29 287 1s233-38 353-10v127H0z"/>
+  <path fill="#e2c694" d="M0 298c150-37 209 7 340-23s213-7 300 19v60H0z"/>
+  <g fill="none" stroke="#d9e9dd" stroke-width="3" opacity=".75">
+    <path d="M25 250c74-14 105 8 164-2m130-5c70-16 123-9 175-2m-268 38c49-15 94-5 129-13m164 5 90 3"/>
+  </g>
+  <g fill="#26555e" font-family="Arial,sans-serif" font-weight="bold">
+    <text x="30" y="91" font-size="72" letter-spacing="-2">TAKE A</text>
+    <text x="26" y="174" font-size="86" letter-spacing="-3">BREAK.</text>
+  </g>
+  <path fill="#26555e" d="M0 338h640v62H0z"/>
+  <text x="32" y="379" fill="#f7ebce" font-family="Arial,sans-serif" font-size="32" letter-spacing="4">PACIFIC HOLIDAYS</text>
+</svg>

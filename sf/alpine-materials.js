@@ -41,7 +41,8 @@ vec3 alpineSurface(vec3 p,vec3 n,float groom){
     vec3 powder=alpineSwatch(0.,p.xz*.18),piste=alpineSwatch(1.,p.xz*.35);
     vec3 forest=alpineSwatch(3.,p.xz*.26);
     float snowLine=smoothstep(24.,60.,p.y),cliff=1.-smoothstep(.48,.86,n.y);
-    float cover=max(snowLine*(1.-cliff*.88),groom*smoothstep(22.,40.,p.y));
+    // The maintained piste stays snowy all the way to the valley station.
+    float cover=max(snowLine*(1.-cliff*.88),groom);
     vec3 base=mix(forest,granite,smoothstep(18.,48.,p.y));
     vec3 snow=mix(powder,piste,clamp(groom,0.,1.)*.8);
     float detail=alpineSwatch(0.,p.xz*1.7).r; snow*=.985+detail*.02;

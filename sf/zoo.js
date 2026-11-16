@@ -6,7 +6,7 @@ import {drawPlaque} from './southern-district.js';
 export const SF_ZOO=Object.freeze({x:18.3,z:90,w:5.6,d:8.4,cage:{x:18.8,z:90.5,w:3.6,d:4.2},entry:{x:15.5,y:90},exit:{x:15.9,y:90},wardens:[{x:15.6,y:86},{x:15.3,y:86.9}]});
 export const UCSF_HOSPITAL=Object.freeze({x:78,z:90,w:4.5,d:5.6,entry:{x:74.7,y:89.5}});
 export const ZOO_PATHS=Object.freeze([
-    {name:'Zoo entrance',points:[[14.46,86.5],[16.2,86.5],[16.2,90.5],[16.2,93.4]],w:.32},
+    {name:'Zoo entrance',points:[[14.46,86.5],[16.2,86.5],[16.2,90.5],[16.2,95.4]],w:.32},
     {name:'Hospital approach',points:[[74.60240963855422,90],[75.6,90]],w:.36}
 ]);
 
@@ -51,17 +51,30 @@ export function drawZooAndHospital(m,ground,signs){
     }
     start=m.data.length;const s=UCSF_HOSPITAL,hospitalBase=ground(s.x,s.z);
     pose(m,s.x,hospitalBase,s.z,Math.PI/2,()=>{
-        m.box(-2.8,0,-2.25,5.6,3.5,4.5,'#d0d4c6','concrete');m.box(-1.2,3.5,-1.8,2.4,1.0,3.4,'#a6b4b0','concrete');
-        m.box(-2.9,3.45,-2.35,5.8,.13,4.7,'#85979a','stone');m.box(-1.28,4.48,-1.88,2.56,.12,3.56,'#748c91','stone');
+        m.box(-2.8,0,-2.25,5.6,3.5,4.5,'#f2f1e8','concrete');m.box(-1.2,3.5,-1.8,2.4,1.0,3.4,'#eee9e4','concrete');
+        m.box(-2.9,3.45,-2.35,5.8,.13,4.7,'#b84d4a','stone');m.box(-1.28,4.48,-1.88,2.56,.12,3.56,'#b84d4a','stone');
         for(const side of [-1,1])for(let floor=0;floor<3;floor++)for(let i=0;i<5;i++){
             if(side===1&&(floor===0&&i===2||floor===1&&i>=1&&i<=3))continue;
-            drawFacadeWindow(m,{plane:side*2.26,far:side<0,along:-2.45+i*1.05,y:.35+floor*1.02,w:.68,h:.66,style:'office',trim:'#dce3df',seed:floor*9+i});
+            drawFacadeWindow(m,{plane:side*2.26,far:side<0,along:-2.45+i*1.05,y:.35+floor*1.02,w:.68,h:.66,style:'office',trim:'#eee8df',seed:floor*9+i});
         }
-        for(const side of [-1,1])for(let floor=0;floor<3;floor++)for(let i=0;i<4;i++)drawFacadeWindow(m,{isX:true,plane:side*2.81,far:side<0,along:-1.9+i*.95,y:.35+floor*1.02,w:.6,h:.66,style:'office',trim:'#dce3df',seed:i+5});
+        for(const side of [-1,1])for(let floor=0;floor<3;floor++)for(let i=0;i<4;i++)drawFacadeWindow(m,{isX:true,plane:side*2.81,far:side<0,along:-1.9+i*.95,y:.35+floor*1.02,w:.6,h:.66,style:'office',trim:'#eee8df',seed:i+5});
         m.box(-.52,.02,2.26,1.04,1.45,.035,'#668b99','glass');m.box(-.035,.04,2.3,.07,1.4,.025,'#dce4dc');
-        m.box(-1.3,1.55,2.2,2.6,.12,.65,'#547a92',{metal:.1});
-        m.box(-1.3,1.7,2.275,2.6,.45,.04,'#496f8b');drawPlaque(m,signs,'UCSF HOSPITAL',0,1.75,2.32,2.45,.34);
-        m.box(-.13,3.83,1.62,.26,.5,.035,'#f0ede0');m.box(-.3,4,1.625,.6,.16,.04,'#f0ede0');
+        m.box(-1.3,1.55,2.2,2.6,.12,.65,'#b94743',{metal:.1});
+        m.box(-1.3,1.7,2.275,2.6,.45,.04,'#9c3838');drawPlaque(m,signs,'UCSF HOSPITAL',0,1.75,2.32,2.45,.34);
+        for(const y of [1.12,2.14])m.box(-2.82,y,-2.27,5.64,.1,4.54,'#bf514b');
+        // A red medical cross on a pale plaque above the entrance.
+        m.box(-.44,3.64,1.615,.88,.82,.025,'#f0ede0');
+        m.box(-.11,3.76,1.65,.22,.56,.035,'#ce443c');
+        for(const x of [-.28,.11])m.box(x,3.93,1.65,.17,.22,.035,'#ce443c');
+        // Compact rooftop landing pad: a painted ring, H and four edge lights.
+        m.cylinder(0,4.6,-.1,1.1,.06,'#526c68',48,1.1,'concrete');
+        for(let i=0;i<48;i++){
+            const a=i*Math.PI/24,b=(i+1)*Math.PI/24,at=(angle,r)=>[Math.cos(angle)*r,4.665,-.1+Math.sin(angle)*r];
+            m.quad(at(a,.96),at(a,.91),at(b,.91),at(b,.96),'#eee5bc');
+        }
+        for(const x of [-.34,.2])m.box(x,4.668,-.55,.14,.008,.9,'#eee5bc');
+        m.box(-.2,4.668,-.17,.4,.008,.14,'#eee5bc');
+        for(let i=0;i<4;i++){const a=i*Math.PI/2;m.sphere(Math.cos(a)*1.04,4.68,-.1+Math.sin(a)*1.04,.035,.025,.035,'#e7c77c',8,4,{emissive:.35});}
         for(const x of [-2.3,1.7]){m.box(x,3.62,-1.65,.65,.35,.8,'#7c8c8e',{metal:.15});for(let i=0;i<5;i++)m.box(x+.04,3.99,-1.6+i*.14,.57,.015,.025,'#b4c1bb');}
     });
     sites.push({id:'ucsf',kind:'hospital',label:'UCSF Hospital',entry:{...s.entry},description:'UCSF Hospital. Excellent emergency care, including the surprisingly common diagnosis “opened the tiger gate.”',base:hospitalBase,...zooBounds(m,start),footprint:[[s.x-s.w/2,s.z-s.d/2],[s.x+s.w/2,s.z-s.d/2],[s.x+s.w/2,s.z+s.d/2],[s.x-s.w/2,s.z+s.d/2]]});

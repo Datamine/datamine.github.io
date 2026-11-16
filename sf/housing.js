@@ -2,6 +2,7 @@ import {rand,tint,pose} from './geometry.js';
 import {marketSide} from './downtown.js';
 import {windowAppearance} from './materials.js';
 import {drawFacadeWindow} from './windows.js';
+import {drawCommercialRoof} from './rooftops.js';
 
 export const HOUSE_COLORS=Object.freeze(['#69ac9a','#db8b7a','#e7c46d','#73a9c8','#b099c7','#9ab878','#dda378','#82bcae','#8198c5','#d38fa5','#ead5a2','#c79170']);
 export function varyHousePaint(hex,seed){
@@ -12,14 +13,17 @@ export function varyHousePaint(hex,seed){
 export const ROOF_STYLES=Object.freeze(['gable','hip','mansard','flat']);
 
 /** Door height follows the public street, rather than the uphill back corner. */
-export function planHouse({left,width,depth,point,naturalHeight,seed}){
+export function planHouse({left,width,depth,point,naturalHeight,groundHeight=naturalHeight,seed}){
     const face=depth/2-Math.min(.55,depth*.25),entry=depth/2-.28,door=left+width*.1,dw=Math.min(.35,width*.25);
-    const entryHeight=naturalHeight(...point(door+dw/2,entry)),floor=entryHeight+.24;
+    const entryHeight=groundHeight(...point(door+dw/2,entry)),floor=entryHeight+.24;
     const fullBack=-depth/2+.08,available=face-fullBack;
     const grade=(naturalHeight(...point(left+width/2,fullBack))-naturalHeight(...point(left+width/2,face)))/Math.max(.5,available);
-    const back=Math.max(fullBack,face-Math.max(.95,2/(Math.abs(grade)+.2)));
+    let back=Math.max(fullBack,face-Math.max(.95,1.25/(Math.abs(grade)+.2)));
+    // Shorten the downhill body before resorting to a tall retaining skirt.
+    while(face-back>1&&floor-Math.min(...[left+.05,left+width-.05].map(u=>naturalHeight(...point(u,back))))>1.35)back+=.1;
+    const foundationExposure=floor-Math.min(...[left+.05,left+width-.05].flatMap(u=>[face,back].map(v=>naturalHeight(...point(u,v)))));
     const oneStorey=seed<.09,storeys=oneStorey?1:2,H=(oneStorey?1.48:2.42)+(seed% .17);
-    return {left,width,face,entry,door,dw,entryHeight,floor,fullBack,back,grade,H,storeys,roof:ROOF_STYLES[Math.min(3,Math.floor(seed*4))]};
+    return {left,width,face,entry,door,dw,entryHeight,floor,fullBack,back,grade,foundationExposure,H,storeys,roof:ROOF_STYLES[Math.min(3,Math.floor(seed*4))]};
 }
 
 /** Sunset rowhouses have two lived-in floors, broad bays and distinct roofs. */
@@ -32,9 +36,9 @@ export function sunsetHouseProfile(seed){
 export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHousePlot,getSceneMesh,registerObject,rectangle,sashWindow}){
     const lifts=[],housingDetails=[];
     const trim='#dcd9ca';
-    function bay(m,cx,y,z,w,h,panel,seed=0){
+    function bay(m,cx,y,z,w,h,panel,seed=0,projection=.16){
         const glazing=windowAppearance(cx,y,z,seed);
-        const outline=[[cx-w/2,z],[cx-w*.32,z+.16],[cx+w*.32,z+.16],[cx+w/2,z]];
+        const outline=[[cx-w/2,z],[cx-w*.32,z+projection],[cx+w*.32,z+projection],[cx+w/2,z]];
         for(let i=0;i<3;i++){
             const a=outline[i],b=outline[i+1],len=Math.hypot(b[0]-a[0],b[1]-a[1]),at=(t,yy,offset=0)=>[a[0]+(b[0]-a[0])*t-(b[1]-a[1])/len*offset,yy,a[1]+(b[1]-a[1])*t+(b[0]-a[0])/len*offset];
             m.quad(at(0,y-.07),at(1,y-.07),at(1,y+h+.07),at(0,y+h+.07),panel,'clapboard');
@@ -46,10 +50,10 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
     }
     function roof(m,style,x,y,z,w,d,seed,color){
         const rise=.32+seed*.14,material=style==='hip'&&seed>.55?'roofTile':'shingles',glazing=windowAppearance(x+w*.5,y+.2,z+d,seed);
-        const roofColor=style==='hip'&&seed>.55?'#ba7252':['#637e84','#7e6a7e','#5f7b68','#96765f'][Math.floor(seed*4)%4];
+        const roofColor=varyHousePaint(style==='hip'&&seed>.55?'#ba7252':['#637e84','#7e6a7e','#5f7b68','#96765f'][Math.floor(seed*4)%4],seed*173+x*7+z*.13);
         m.box(x-.025,y-.035,z-.025,w+.05,.04,d+.05,trim);
         if(style==='flat'){
-            m.box(x+.035,y+.035,z+.035,w-.07,.035,d-.07,'#828777','roof');
+            m.box(x+.035,y+.035,z+.035,w-.07,.035,d-.07,varyHousePaint('#828777',seed*131+x*9+z),'roof');
             for(const xx of [x,x+w-.035])m.box(xx,y+.055,z,.035,.13,d,trim);
             m.box(x-.02,y+.04,z+d-.02,w+.04,.16,.075,trim);
             m.box(x+w*.27,y+.08,z+d*.34,w*.42,.12,.35,'#d5cdb3');
@@ -94,6 +98,14 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
             }
         }
     }
+    function basementGarage(m,left,width,plane,floor,point,far=false){
+        const w=width*.55,x=left+(far?.2:.41)*width,center=x+w/2,ground=Math.max(naturalHeight(...point(center,plane)),terrainHeight(...point(center,plane)))+.04,top=floor-.08,h=Math.min(1.35,top-ground);
+        if(h<.62)return;const bottom=top-h,z=plane+(far?-.058:.058),trim='#b7b6a4';
+        const panel=(xx,yy,ww,hh,col)=>{const points=[[xx,yy,z],[xx+ww,yy,z],[xx+ww,yy+hh,z],[xx,yy+hh,z]];m.quad(...(far?points.reverse():points),col);};
+        panel(x-.025,bottom-.02,w+.05,h+.045,trim);
+        // Recessed horizontal garage panels sit in front of the single skirt.
+        for(let j=0;j<6;j++){const yy=bottom+.025+j*(h-.05)/6,zz=z+(far?-.008:.008),points=[[x+.02,yy,zz],[x+w-.02,yy,zz],[x+w-.02,yy+(h-.05)/6-.012,zz],[x+.02,yy+(h-.05)/6-.012,zz]];m.quad(...(far?points.reverse():points),j%2?'#697e7d':'#718684');}
+    }
     function gardenStair(m,u,from,to,w,point,angle,startHeight){
         const h0=startHeight,h1=naturalHeight(...point(u,to)),steps=Math.max(4,Math.ceil(Math.abs(h1-h0)/.13)),run=(to-from)/steps;
         let previous=null;
@@ -117,6 +129,8 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
         lifts.push({points,angle,seed,color:seed>.5?'#d48942':'#4eaa98'});
     }
     function district(x,z){
+        // Telegraph Hill keeps narrow Victorian frontages around Coit Tower.
+        if(x>41.5&&x<53&&z>8&&z<17.3)return 'telegraph';
         if(x>46&&z<29)return 'downtown';
         if(x>42&&z<43&&marketSide(x,z)>1)return 'soma';
         if(x>46&&z>=35&&z<55)return 'warehouse';
@@ -129,6 +143,7 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
         const floor=naturalHeight(...point(0,d/2-.15))+.13,storeys=kind==='downtown'?4+Math.floor(seed*2):kind==='mission'?3:2+Math.floor(seed*2),H=1.5+(storeys-1)*1.05;
         const back=-d/2+.08,face=d/2-.28,ww=w-.08,dd=face-back,material=kind==='soma'&&seed>.55?'concrete':'brick',color=(material==='brick'?['#a0826c','#a78e75','#907a6b','#b39c7d']:['#b3b9b0','#a3ada7','#bdbbb0','#9eaaa7'])[Math.floor(seed*4)];
         const center=point(0,(face+back)/2);cutHousePlot({cx:center[0],cz:center[1],w:ww,d:dd,angle,height:floor-.03,onlyLower:true});
+        let roofDetails;
         pose(m,cx,0,cz,angle,()=>{
             m.box(-ww/2,floor-.08,back,ww,H+.08,dd,color,material);
             groundSkirt(m,-ww/2,back,ww,dd,floor-.08,point,color);
@@ -141,6 +156,16 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
                 }
             }
             for(let level=1;level<storeys;level++)for(const side of [-1,1])m.box(-ww/2,floor+1.34+(level-1)*1.05,side<0?back-.045:face,ww,.055,.045,'#bdbfae','stone');
+            if(kind==='soma'||kind==='mission'){
+                const awning=['#548e83','#a86c61','#687ca0','#b38c4c'][Math.floor(seed*4)%4];
+                for(let stripe=0;stripe<10;stripe++){
+                    const x=-ww*.43+stripe*ww*.086;
+                    m.quad([x,floor+1.32,face+.015],[x+ww*.086,floor+1.32,face+.015],[x+ww*.086,floor+1.17,face+.255],[x,floor+1.17,face+.255],stripe%2?awning:'#e2d8b7');
+                    m.box(x,floor+1.09,face+.252,ww*.086,.08,.02,stripe%2?awning:'#e2d8b7');
+                }
+                m.box(-.19,floor+.03,face+.035,.38,1.03,.03,'#3c6665','glass');
+                m.rod([.13,floor+.42,face+.08],[.13,floor+.65,face+.08],.012,'#d4b67b',6);
+            }
             // Piers and corner masonry establish complete bays on every face.
             for(const side of [-1,1])for(let column=0;column<=columns;column+=2){
                 const u=Math.min(ww/2-.045,-ww/2+column*gap);
@@ -151,35 +176,37 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
                 const width=Math.min(.42,sideGap*.57);
                 drawFacadeWindow(m,{isX:true,plane:side*ww/2,along:back+(j+.5)*sideGap-width/2,y:floor+(level?1.5+(level-1)*1.05:.15),w:width,h:level?.72:1.12,far:side<0,trim:'#c5c6b7',seed:seed*113+j+level*13+side*5,style:level?(kind==='warehouse'?'industrial':'office'):'storefront'});
             }
-            m.box(-ww/2-.015,floor+H,back-.015,ww+.03,.07,dd+.03,'#bfc1b1');m.box(-ww/2+.05,floor+H+.07,back+.05,ww-.1,.025,dd-.1,'#7f8980','roof');
-            m.box(-ww*.22,floor+H+.1,back+dd*.25,ww*.42,.23,dd*.42,'#a7ada1','concrete');
-            for(let i=0;i<3;i++)m.box(-ww*.17+i*ww*.11,floor+H+.34,back+dd*.3,ww*.08,.055,dd*.27,'#6b7f7a','glass');
+            m.box(-ww/2-.015,floor+H,back-.015,ww+.03,.07,dd+.03,'#bfc1b1');
+            roofDetails=drawCommercialRoof(m,{x:-ww/2+.03,y:floor+H+.07,z:back+.03,w:ww-.06,d:dd-.06,seed:seed+cx*.271+cz*.137});
             if(seed>.6){m.box(-ww*.28,floor+1.35,face+.025,ww*.56,.06,.28,'#7c8875','wood');for(const u of [-ww*.26,ww*.26])m.rod([u,floor+.03,face+.22],[u,floor+1.35,face+.22],.018,'#5d7169',6);}
         });
-        return registerObject(m,start,{x,y:z,w,d,h:H+.6,base:floor-.08,arch:'urbanBlock',rotation:angle,footprint:rectangle(cx,cz,w,d,angle),homes:0,storeys,district:kind});
+        return registerObject(m,start,{x,y:z,w,d,h:H+.1+roofDetails.height,base:floor-.08,arch:'urbanBlock',rotation:angle,footprint:rectangle(cx,cz,w,d,angle),homes:0,storeys,district:kind,roofDetails});
     }
     function makeTownhomeRow(x,z,w,d,front,seed,rotation=null,districtOverride=null){
         const m=getSceneMesh(),start=m.data.length,angle=rotation??[Math.PI,-Math.PI/2,0,Math.PI/2][front],cx=x+w/2,cz=z+d/2;
         const kind=districtOverride||district(cx/MAP_SCALE,cz/MAP_SCALE);
         if(w>=2.9&&(['downtown','soma','warehouse'].includes(kind)||kind==='mission'&&w>4.2&&seed>.6))return urbanBlock(x,z,w,d,front,seed,angle,kind);
-        const frontage=front%2?d:w,depth=front%2?w:d,homes=Math.max(1,Math.round((frontage-.08)/1.45)),unit=(frontage-.08)/homes;
+        const frontage=front%2?d:w,depth=front%2?w:d,homes=Math.max(1,Math.round((frontage-.08)/(kind==='telegraph'?1.05:1.45))),unit=(frontage-.08)/homes;
         const point=(u,v)=>[cx+u*Math.cos(angle)-v*Math.sin(angle),cz+u*Math.sin(angle)+v*Math.cos(angle)];
         const plans=[];let high=-Infinity,low=Infinity;
         pose(m,cx,0,cz,angle,()=>{
             for(let home=0;home<homes;home++){
-                const shape=rand(x+home*.73,z,71),p=planHouse({left:-frontage/2+.04+home*unit,width:unit-.025,depth,point,naturalHeight,seed:shape});
+                const shape=rand(x+home*.73,z,71),p=planHouse({left:-frontage/2+.04+home*unit,width:unit-.025,depth,point,naturalHeight,groundHeight:terrainHeight,seed:shape});
                 if(kind==='west')Object.assign(p,sunsetHouseProfile(shape));
+                if(kind==='bayview')Object.assign(p,{H:3.75+shape*.25,storeys:3,roof:shape>.55?'mansard':'gable'});
+                if(kind==='telegraph')Object.assign(p,{H:1.65+shape*.14,storeys:1,roof:shape<.6?'gable':'hip'});
+                if(p.foundationExposure>1.45&&kind!=='telegraph')Object.assign(p,{H:1.65+shape*.15,storeys:1});
                 if(kind==='mission'||kind==='soma'||kind==='downtown')p.roof=shape<.8?'flat':'hip';
                 const {left,width:ww,face,entry,door,dw,floor,H,storeys}=p;
                 const hasLift=home===homes-1&&depth>2.8&&Math.abs(p.grade)>.32&&shape>.48&&lifts.length<6;
                 if(hasLift)p.back=Math.max(p.fullBack+1.25,face-1.05);
-                const back=p.back,dd=face-back,palette=kind==='west'?['#8cbcc1','#d2a18a','#b6bc88','#d8ba7d','#a6b6cf','#c5a6bd','#89b7a6','#d5b69b']:kind==='mission'?['#bda58e','#a9b6a0','#c0ad91','#ad9d8f','#9eada8']:HOUSE_COLORS,color=varyHousePaint(tint(palette[(Math.floor(seed*palette.length)+(kind==='west'?home:Math.floor(home/2)))%palette.length],Math.floor(shape*12)-6),shape*107+seed),panel=kind==='west'||kind==='mission'?'stucco':shape>.5?'clapboard':'stucco',roofStyle=p.roof;
+                const back=p.back,dd=face-back,palette=kind==='telegraph'?['#9bbfaf','#dca6b3','#b4acd1','#e7c78f','#91b7d0']:kind==='west'?['#8cbcc1','#d2a18a','#b6bc88','#d8ba7d','#a6b6cf','#c5a6bd','#89b7a6','#d5b69b']:kind==='mission'?['#bda58e','#a9b6a0','#c0ad91','#ad9d8f','#9eada8']:HOUSE_COLORS,color=varyHousePaint(tint(palette[(Math.floor(seed*palette.length)+(kind==='west'||kind==='telegraph'?home:Math.floor(home/2)))%palette.length],Math.floor(shape*12)-6),shape*107+seed),panel=kind==='west'||kind==='mission'?'stucco':shape>.5?'clapboard':'stucco',roofStyle=p.roof;
                 const center=point(left+ww/2,(back+face)/2);cutHousePlot({cx:center[0],cz:center[1],w:ww,d:dd,angle,height:floor-.025,onlyLower:true});
                 const stairCenter=point(door+dw/2,(face+entry)/2);cutHousePlot({cx:stairCenter[0],cz:stairCenter[1],w:dw+.1,d:entry-face,angle,height:p.entryHeight});
                 m.box(left,floor+.125,back,ww,H-.125,dd,color,panel);
                 groundSkirt(m,left,back,ww,dd,floor+.125,point,[-14,-10,-10,-8].map(shade=>tint(color,shade)));
                 m.box(left-.006,floor+.15,face-.015,.028,H-.15,.04,trim);
-                for(let storey=1;storey<storeys;storey++)m.box(left,floor+(kind==='west'?1.66:1.45),face+.008,ww,.05,.04,tint(color,22));
+                for(let storey=1;storey<storeys;storey++)m.box(left,floor+(kind==='west'?1.66:1.45+(storey-1)*1.12),face+.008,ww,.05,.04,tint(color,22));
                 const doorColor=['#306f6c','#925d69','#435d91','#9c613a'][home%4];m.box(door-.028,floor+.09,face+.02,dw+.056,1.45,.055,trim);m.box(door,floor+.11,face+.078,dw,1.4,.026,doorColor);
                 m.box(door+.035,floor+1.03,face+.108,dw-.07,.31,.014,'#85b9ba');m.box(door+.03,floor+.29,face+.11,dw-.06,.48,.014,tint(doorColor,12));m.sphere(door+dw-.04,floor+.8,face+.13,.016,.016,.016,'#d8b45e',5,3);
                 for(let step=0;step<4;step++){const zz=entry-(step+1)*(entry-face)/4,top=p.entryHeight+.055+(step+1)*.06;m.box(door-.045,p.entryHeight-.03,zz,dw+.09,top-p.entryHeight+.03,(entry-face)/4+.012,'#d0bd99','stone');}
@@ -193,7 +220,7 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
                 const bx=left+ww*.7,bw=ww*.47;
                 for(let storey=0;storey<storeys;storey++){
                     const yy=floor+(kind==='west'?.66:.57)+storey*(kind==='west'?1.38:1.12),windowH=kind==='west'?.73:.55;
-                    if(kind==='victorian'&&shape>.25||kind==='west'&&(storey||shape>.38)){
+                    if((kind==='victorian'||kind==='bayview')&&shape>.25||kind==='west'&&(storey||shape>.38)){
                         bay(m,bx,yy,face+.018,bw,windowH,tint(color,storey?8:-5),seed*997+home);
                         if(kind==='west')m.box(bx-bw/2-.025,yy+windowH+.07,face-.005,bw+.05,.055,.22,trim);
                     }else sashWindow(m,false,face+.02,bx-bw/2,yy,bw,windowH,false,false,trim,seed*997+home);
@@ -204,6 +231,7 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
                         if(home===homes-1)sashWindow(m,true,left+ww,at,yy,kind==='west'?.32:.22,kind==='west'?.62:.45,false,false,trim,home);
                     }
                 }
+                basementGarage(m,left,ww,face,floor,point);basementGarage(m,left,ww,back,floor,point,true);
                 // Downhill façades become walk-out basements, with doors and
                 // windows, rather than a featureless block of retaining brick.
                 const rearGround=Math.max(naturalHeight(...point(left+.08,back)),naturalHeight(...point(left+ww-.08,back))),basement=floor-rearGround;
@@ -234,7 +262,43 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
                 low=Math.min(low,p.entryHeight-.08,floor-.08);high=Math.max(high,floor+H+rise,naturalHeight(...point(left+ww/2,p.fullBack))+1.05);
             }
         });
-        return registerObject(m,start,{x,y:z,w,d,h:high-low,base:low,arch:'townhomes',district:kind,orientation:front,rotation:angle,footprint:rectangle(cx,cz,frontage,depth,angle),homes,storeys:2,houses:plans});
+        return registerObject(m,start,{x,y:z,w,d,h:high-low,base:low,arch:'townhomes',district:kind,orientation:front,rotation:angle,footprint:rectangle(cx,cz,frontage,depth,angle),homes,storeys:Math.max(...plans.map(p=>p.storeys)),houses:plans});
+    }
+    /** Lincoln Way has shallow lots beside the park. Give them residential
+     * proportions and details while keeping bays and steps within the parcel. */
+    function makeParksideTownhome(cx,cz,w,d,angle,seed){
+        const m=getSceneMesh(),start=m.data.length,point=(u,v)=>[cx+u*Math.cos(angle)-v*Math.sin(angle),cz+u*Math.sin(angle)+v*Math.cos(angle)];
+        const left=-w/2+.04,ww=w-.08,back=-d/2+.04,face=d/2-.14,dd=face-back,entry=d/2-.015;
+        const entryHeight=naturalHeight(...point(left+.26,entry)),floor=entryHeight+.18,H=3.15+seed*.25;
+        const color=varyHousePaint(['#87b9b2','#d9a5b5','#e2c181','#a5b2d4','#b7c894','#c8a5ce'][Math.floor(seed*6)],seed*197),doorColor=['#4b6f87','#8d5266','#436d59'][Math.floor(seed*3)];
+        const roofStyle=seed<.36?'gable':seed<.7?'hip':'mansard';
+        cutHousePlot({cx,cz,w:w-.08,d:d-.1,angle,height:floor-.025,onlyLower:true});
+        pose(m,cx,0,cz,angle,()=>{
+            m.box(left,floor+.12,back,ww,H-.12,dd,color,'clapboard');
+            groundSkirt(m,left,back,ww,dd,floor+.12,point,tint(color,-12));
+            for(const y of [.2,1.66,H-.12])m.box(left,floor+y,face+.003,ww,.065,.055,trim);
+            for(const x of [left+.015,left+ww-.045])m.box(x,floor+.267,face+.01,.03,H-.367,.035,tint(color,20));
+            const door=left+.075,dw=Math.min(.36,ww*.28),bx=left+ww*.71,bw=ww*.46;
+            m.box(door-.025,floor+.06,face+.02,dw+.05,1.47,.04,trim);
+            m.box(door,floor+.08,face+.061,dw,1.41,.018,doorColor);
+            m.box(door+.035,floor+1.03,face+.081,dw-.07,.31,.009,'#a1c6c5',{window:.22});
+            m.sphere(door+dw-.045,floor+.76,face+.092,.014,.014,.012,'#d9ba73',8,5);
+            for(let i=0;i<3;i++){const z=entry-(i+1)*(entry-face)/3;m.box(door-.025,entryHeight-.015,z,dw+.05,.075+i*.055,(entry-face)/3+.003,'#c7bba6','stone');}
+            m.box(door-.04,floor+1.59,face-.015,dw+.08,.065,.12,trim);
+            for(const y of [.62,2.03]){
+                bay(m,bx,floor+y,face+.005,bw,.72,color,seed*401+y,.055);
+                sashWindow(m,false,back,bx-bw/2,floor+y,bw,.67,true,false,trim,seed+y);
+            }
+            sashWindow(m,false,face+.015,door+.015,floor+2.06,dw-.03,.65,false,false,trim,seed);
+            for(let x=left+.09;x<left+ww-.05;x+=.2)m.box(x,floor+H-.24,face+.025,.04,.13,.065,trim);
+            m.box(bx-bw*.42,floor+.44,face+.06,bw*.84,.1,.07,'#9c775e','wood');
+            for(let i=0;i<3;i++){
+                const x=bx-bw*.28+i*bw*.28;m.sphere(x,floor+.57,face+.09,.045,.045,.035,'#71984f',8,5);
+                m.sphere(x,floor+.61,face+.09,.025,.025,.022,seed>.5?'#e1b96c':'#cf8ba6',8,5);
+            }
+            roof(m,roofStyle,left,floor+H,back,ww,dd,seed,color);
+        });
+        return registerObject(m,start,{x:cx-w/2,y:cz-d/2,w,d,h:H+.8,base:floor-.08,arch:'townhomes',district:'parkside',rotation:angle,footprint:rectangle(cx,cz,w,d,angle),homes:1,storeys:2,houses:[{width:ww,H,storeys:2,roof:roofStyle,color,entryHeight,floor,frontRise:.18}]});
     }
     function makeCurbShop(cx,cz,w,d,angle,seed){
         const m=getSceneMesh(),start=m.data.length,poly=rectangle(cx,cz,w,d,angle),point=(u,v)=>[cx+u*Math.cos(angle)-v*Math.sin(angle),cz+u*Math.sin(angle)+v*Math.cos(angle)];
@@ -262,5 +326,5 @@ export function createHousing({MAP_SCALE=1.5,terrainHeight,naturalHeight,cutHous
             });
         }
     }
-    return {makeTownhomeRow,makeCurbShop,drawHillsideLifts,housingDetails};
+    return {makeTownhomeRow,makeParksideTownhome,makeCurbShop,drawHillsideLifts,housingDetails};
 }

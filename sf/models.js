@@ -1,9 +1,11 @@
+import {drawAILabInterior} from './ai-lab.js';
 import {Mesh,rand,tint,unit,pose} from './geometry.js';
 import {createRestaurantPatio} from './restaurants.js';
 import {createHousing} from './housing.js';
 import {drawFacadeWindow} from './windows.js';
 import {CITY_HALL,drawCityHall} from './city-hall.js';
 import {drawBrickOfficeTower} from './offices.js';
+import {drawCommercialRoof} from './rooftops.js';
 import {drawCharacter} from './characters.js';
 import {SUTRO_SITE,drawSutroTower} from './sutro.js';
 import {DOWNTOWN,drawFerryBuilding,drawSalesforce,drawCoitTower,drawBayBridge} from './downtown.js';
@@ -30,6 +32,7 @@ export function createModels({
     function furniture(m,b,base){
         const {x,y:z,w,d,id}=b;
         const residents=[];
+        if(id==='ai-lab'){drawAILabInterior(m,b,base);return residents;}
         m.box(x+.6,base+.025,z+.5,w-1.2,.035,Math.max(.6,d-1),'#88533c');
         if(id==='writing'||id==='books'){
             for(let i=0;i<w-1;i++){m.box(x+.2+i*.85,base,z+.18,.72,1.15,.25,'#60482f');for(let row=0;row<3;row++)for(let j=0;j<5;j++)m.box(x+.24+i*.85+j*.12,base+.12+row*.32,z+.4,.08,.23+(j%2)*.04,.07,['#8e503f','#5d7449','#b69d55','#697b82','#bd8c63'][(j+row)%5]);}
@@ -90,12 +93,16 @@ export function createModels({
             if(b.name&&side===3)sign(m,x+w+.105,base+H-.53,z+d/2,Math.min(d-.14,2.7),.32,b.name,'side');
             walls.push({side,start:begin/11,count:(m.data.length-begin)/11});
         }
+        let roofDetails;
         const roofStart=m.data.length,roof=b.roof||(arch==='office'||arch==='warehouse'||arch==='rowhouse'||arch==='civic'||arch==='beauxarts'?'flat':arch==='victorian'?'gable':'hip'),roofColor=b.roofColor||(arch==='newsstand'?'#9e6247':arch==='presidio'?'#b56e50':arch==='office'?'#82928e':'#82796b'),rise=roof==='gable'?.65:roof==='hip'?.4:.18;
         m.box(x-.065,base+H,z-.065,w+.13,.09,d+.13,trim);
         if(roof==='flat'){
+            if(w>=1.6&&d>=.9)roofDetails=drawCommercialRoof(m,{x:x+.015,y:base+H+.09,z:z+.015,w:w-.03,d:d-.03,seed:rand(x,z,17)+x*.19+z*.37,surfaceColor:b.roofColor||null});
+            else{
             m.box(x+.03,base+H+.09,z+.03,w-.06,.045,d-.06,roofColor,'roof');
             for(const [xx,zz,ww,dd] of [[x-.04,z-.04,w+.08,.065],[x-.04,z+d-.025,w+.08,.065],[x-.04,z,.065,d],[x+w-.025,z,.065,d]])m.box(xx,base+H+.09,zz,ww,.18,dd,trim);
             m.box(x+w*.3,base+H+.13,z+d*.3,Math.min(.32,w*.35),.11,Math.min(.4,d*.4),'#a9b8ae');m.box(x+w*.35,base+H+.24,z+d*.35,Math.min(.22,w*.25),.035,Math.min(.28,d*.28),'#729491');
+            }
         }else if(roof==='gable'){
             gable(m,x-.09,base+H+.09,z-.09,w+.18,d+.18,rise,roofColor);
             for(let i=.23;i<d;i+=.3){m.rod([x-.08,base+H+.1,z+i],[x+w/2,base+H+.09+rise,z+i],.009,tint(roofColor,-15),4);m.rod([x+w/2,base+H+.09+rise,z+i],[x+w+.08,base+H+.1,z+i],.009,tint(roofColor,-15),4);}
@@ -104,11 +111,11 @@ export function createModels({
         }else{
             const top=[x+w/2,base+H+.09+rise,z+d/2],a=[x-.08,base+H+.09,z-.08],b=[x+w+.08,base+H+.09,z-.08],c=[x+w+.08,base+H+.09,z+d+.08],e=[x-.08,base+H+.09,z+d+.08];m.tri(a,top,b,roofColor);m.tri(b,top,c,tint(roofColor,-12));m.tri(c,top,e,roofColor);m.tri(e,top,a,tint(roofColor,8));
         }
-        m.box(x+w*.2,base+H+.06,z+d*.22,.14,.48,.18,'#9f8a70');m.box(x+w*.2-.025,base+H+.52,z+d*.22-.025,.19,.06,.23,'#bba88a');
+        if(!roofDetails){m.box(x+w*.2,base+H+.06,z+d*.22,.14,.48,.18,'#9f8a70');m.box(x+w*.2-.025,base+H+.52,z+d*.22-.025,.19,.06,.23,'#bba88a');}
         const roofRange={start:roofStart/11,count:(m.data.length-roofStart)/11};
         if((arch==='cafe'||arch==='shop'||arch==='bookshop'||arch==='newsstand')&&w>1.3){for(let i=0;i<12;i++){const xx=x+i*w/12;m.quad([xx,base+1.93,z+d+.025],[xx+w/12,base+1.93,z+d+.025],[xx+w/12,base+1.7,z+d+.42],[xx,base+1.7,z+d+.42],i%2?'#f1e3c8':arch==='cafe'?'#486e72':'#658267');m.quad([xx,base+1.7,z+d+.42],[xx+w/12,base+1.7,z+d+.42],[xx+w/12,base+1.6,z+d+.42],[xx,base+1.6,z+d+.42],i%2?'#f1e3c8':'#527868');}}
         if(b.rotation){const c=Math.cos(b.rotation),s=Math.sin(b.rotation),cx=x+w/2,cz=z+d/2;for(let i=start;i<m.data.length;i+=11){const dx=m.data[i]-cx,dz=m.data[i+2]-cz,nx=m.data[i+3],nz=m.data[i+5];m.data[i]=cx+dx*c-dz*s;m.data[i+2]=cz+dx*s+dz*c;m.data[i+3]=nx*c-nz*s;m.data[i+5]=nx*s+nz*c;if(m.data[i+9]<-1.5)m.data[i+10]+=b.rotation;}}
-        const o=registerObject(m,start,{x,y:z,w,d,h:H+rise+.65,place:enterable?b:null,sight:b.sight||null,base,arch,rotation:b.rotation||0,footprint:b.footprint||null});
+        const o=registerObject(m,start,{x,y:z,w,d,h:H+Math.max(rise+.65,(roofDetails?.height||0)+.2),place:enterable?b:null,sight:b.sight||null,base,arch,rotation:b.rotation||0,footprint:b.footprint||null,roofDetails});
         for(const resident of residents){
             const angle=b.rotation||0,c=Math.cos(angle),s=Math.sin(angle),cx=x+w/2,cz=z+d/2,point=(xx,zz)=>[cx+(xx-cx)*c-(zz-cz)*s,cz+(xx-cx)*s+(zz-cz)*c],at=point(resident.x,resident.z),fixture=resident.fixture,center=point(fixture.cx,fixture.cz);
             const sight=sightById('nia'),entry=point(x+1.5,resident.z);sight.entry={x:entry[0]-.5,y:entry[1]-.5};sight.mapPoint={x:at[0],y:at[1]};
@@ -154,6 +161,7 @@ export function createModels({
     function bench(x,z){occupy(x,z);const object=addScenery(null,x,z,1,1,.65,(m,h)=>{m.box(x+.1,h+.35,z+.2,.8,.1,.35,'#9c7850');m.box(x+.1,h+.4,z+.18,.8,.32,.08,'#a58558');for(const xx of [x+.2,x+.75])m.box(xx,h,z+.24,.07,.36,.23,'#525c4c');},true);object.preserveGround=true;return object;}
     function human(...args){return drawCharacter(...args);}
     function bicycle(m,x,z,y,angle=0,phase=0){
+        phase=-phase; // Forward wheel rotation and cranks match the rider's feet.
         const f=[Math.cos(angle),Math.sin(angle)],r=[-f[1],f[0]],at=(u,h,v)=>[x+f[0]*u+r[0]*v,y+h,z+f[1]*u+r[1]*v];
         for(const u of [-.52,.52]){for(let i=0;i<12;i++){const a=i*Math.PI/6,b=(i+1)*Math.PI/6;m.rod(at(u+Math.cos(a)*.31,.34+Math.sin(a)*.31,0),at(u+Math.cos(b)*.31,.34+Math.sin(b)*.31,0),.034,'#343d35',5);if(i%3===0)m.rod(at(u,.34,0),at(u+Math.cos(a+phase)*.29,.34+Math.sin(a+phase)*.29,0),.012,'#b0b7a3',4);}}
         const a=at(-.52,.34,0),b=at(.52,.34,0),crank=at(0,.35,0),seat=at(-.18,.87,0),bar=at(.35,.9,0);for(const [p,q] of [[a,seat],[seat,crank],[a,crank],[crank,bar],[bar,seat],[bar,b]])m.rod(p,q,.035,'#ad5139',5);m.rod(at(-.28,.9,0),at(-.04,.9,0),.05,'#403b2c');m.rod(bar,at(.4,1.02,0),.03,'#bac0a8');m.rod(at(.4,1.02,-.18),at(.4,1.02,.18),.03,'#454d3f');
@@ -214,7 +222,7 @@ export function createModels({
         const addScenery=mapScenery,occupy=mapOccupy,makeBuilding=mapBuilding;
         addScenery('pyramid',48,19,TRANSAMERICA_PYRAMID.width,TRANSAMERICA_PYRAMID.depth,TRANSAMERICA_PYRAMID.height,(m,h)=>drawTransamericaPyramid(m,49,h,20),true);
         const bridge=(id,a,b,w,tower,color)=>addScenery(id,Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.abs(a[0]-b[0])+1,Math.abs(a[1]-b[1])+1,tower+3,(m)=>{
-            const dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz),nx=-dz/len,nz=dx/len,at=(t,side,h=2)=>[a[0]+dx*t+nx*side,h,a[1]+dz*t+nz*side];m.quad(at(0,-w/2),at(0,w/2),at(1,w/2),at(1,-w/2),'#8e9381');for(const side of [-w*.46,w*.46]){for(const t of [.25,.75]){m.rod(at(t,side,0),at(t,side,tower+2),.09,color,6);for(const h of [tower*.5+2,tower*.8+2])m.rod(at(t,-w*.55,h),at(t,w*.55,h),.06,color,5);}let last=null;for(let i=0;i<=40;i++){const t=i/40,h=2+tower*(t<.25?t*4:t>.75?(1-t)*4:.22+.78*((t-.5)/.25)**2),p=at(t,side,h);if(last)m.rod(last,p,.027,color,5);if(i%2===0)m.rod(at(t,side),p,.015,color,4);last=p;}}});
+            const dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz),nx=-dz/len,nz=dx/len,at=(t,side,h=2)=>[a[0]+dx*t+nx*side,h,a[1]+dz*t+nz*side];for(const side of [-w*.46,w*.46]){for(const t of [.25,.75]){m.rod(at(t,side,0),at(t,side,tower+2),.09,color,6);for(const h of [tower*.5+2,tower*.8+2])m.rod(at(t,-w*.55,h),at(t,w*.55,h),.06,color,5);}let last=null;for(let i=0;i<=40;i++){const t=i/40,h=2+tower*(t<.25?t*4:t>.75?(1-t)*4:.22+.78*((t-.5)/.25)**2),p=at(t,side,h);if(last)m.rod(last,p,.027,color,5);if(i%2===0)m.rod(at(t,side),p,.015,color,4);last=p;}}});
         bridge('golden',[18.8,.5],[18.8,10],1.35,4.3,'#b75c3f');
         addScenery('chinatown',45,22,4,1,3.4,(m,h)=>{for(const x of [45.15,48.7])m.box(x,h,22.25,.22,1.9,.3,'#a34c35');m.box(45,h+1.8,22.2,4,.28,.45,'#9c5839');for(let i=0;i<3;i++)gable(m,44.75+i*.12,h+2.05+i*.15,22.05+i*.03,4.5-i*.24,.75-i*.06,.15,'#486b4d');sign(m,47,h+1.8,22.72,2.2,.3,'CHINATOWN');});occupy(45,22);occupy(48,22,1,1,[45,22]);
         const barracks=(x,z)=>{occupy(x,z,2,1);makeBuilding({x,y:z,w:1.8,d:.9,h:18,color:'#c5bc9d',style:'barracks',name:''});};for(const x of [22,27])for(const z of [13,15])barracks(x,z);
@@ -251,12 +259,10 @@ export function createModels({
             for(let i=0;i<points.length;i++){const [x,z]=points[i],base=referenceHeight(x,z);m.cylinder(x,base,z,.1,1.55,'#d6bd91',8);m.cylinder(x,base+1.5,z,.15,.14,'#dfc89e',8);if(i){const p=points[i-1];m.rod([p[0],referenceHeight(...p)+1.65,p[1]],[x,base+1.65,z],.085,'#cbb68e',6);}}
         });
         addScenery('golden',18,0,2,10,6.8,(m)=>{
-            m.box(18.12,1.78,.5,1.36,.19,9.5,'#9a7963');
             for(const z of [2.875,7.625]){
                 for(const x of [18.18,19.42]){m.box(x-.12,0,z-.18,.24,6.3,.36,'#b96848');m.box(x-.09,6.3,z-.14,.18,.22,.28,'#c47a54');m.box(x-.18,.08,z-.25,.36,.48,.5,'#969989');}
-                for(const h of [3.1,4.25,5.4,6.1])m.box(18.12,h,z-.12,1.36,.14,.24,'#c1714d');
+                for(const h of [4.25,5.4,6.1])m.box(18.12,h,z-.12,1.36,.14,.24,'#c1714d');
             }
-            for(let z=.7;z<9.8;z+=.45){m.rod([18.12,1.78,z],[18.12,1.98,z+.4],.018,'#a85d42',4);m.rod([19.48,1.78,z],[19.48,1.98,z+.4],.018,'#a85d42',4);}
         });
         addScenery('deyoung',26,29,2,1,3.7,(m,h)=>{
             for(let row=0;row<5;row++)for(let i=0;i<18;i++)m.box(26.06+i*.104,h+.08+row*.115,30.013,.025,.035,.012,'#5c513c');
@@ -283,8 +289,8 @@ export function createModels({
         for(const [x,z,r] of [[5.8,25,.35],[6.7,22,.28],[8,19,.3],[7.2,24.1,.2]])m.sphere(mapPosition(x),.1,mapPosition(z),r,.17,r*.7,'#879387',16,8);
 
     }
-    const {makeTownhomeRow,makeCurbShop,drawHillsideLifts,housingDetails}=createHousing({
+    const {makeTownhomeRow,makeParksideTownhome,makeCurbShop,drawHillsideLifts,housingDetails}=createHousing({
         MAP_SCALE,terrainHeight,naturalHeight,cutHousePlot,getSceneMesh,registerObject,rectangle,sashWindow
     });
-    return {makeBuilding,makeRestaurantPatio:site=>createRestaurantPatio(getSceneMesh(),site,registerObject),addScenery,tree,bench,human,bicycle,makeLandmarks,enhanceLandmarks,addPanhandleDetails,detailedGround,mapTree,mapCanPlace,makeTownhomeRow,makeCurbShop,drawHillsideLifts,housingDetails,WATERFRONT_PIERS};
+    return {makeBuilding,makeRestaurantPatio:site=>createRestaurantPatio(getSceneMesh(),site,registerObject),addScenery,tree,bench,human,bicycle,makeLandmarks,enhanceLandmarks,addPanhandleDetails,detailedGround,mapTree,mapCanPlace,makeTownhomeRow,makeParksideTownhome,makeCurbShop,drawHillsideLifts,housingDetails,WATERFRONT_PIERS};
 }

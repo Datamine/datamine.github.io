@@ -7,7 +7,7 @@ function tint(hex,n){return '#'+rgb(hex).map(v=>Math.max(0,Math.min(255,Math.rou
 const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((v,n,i)=>v+n*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],unit=a=>{const n=Math.hypot(...a)||1;return a.map(v=>v/n);};
 class Mesh {
     constructor(){this.data=[];}
-    tri(a,b,c,color,uv=null){const normal=unit(cross(sub(b,a),sub(c,a))),col=typeof color==='string'?rgb(color):color,material=typeof uv==='string'?[-2-MATERIAL_IDS[uv],0]:uv?.material?[-2-MATERIAL_IDS[uv.material],uv.angle||0]:uv?.snow?[-.75,0]:uv?.water!==undefined?[-1.75,uv.water]:uv?.envelope?[-1,-8]:uv?.window!==undefined?[-1.05,uv.window]:uv?.emissive?[-1.25,uv.emissive]:uv?.metal?[-1.4,uv.metal]:null;for(const [i,v] of [a,b,c].entries())this.data.push(...v,...normal,...col,...(material|| (uv?uv[i]:[-1,-1])));}
+    tri(a,b,c,color,uv=null){const normal=unit(cross(sub(b,a),sub(c,a))),col=typeof color==='string'?rgb(color):color,material=typeof uv==='string'?[-2-MATERIAL_IDS[uv],0]:uv?.material?[-2-MATERIAL_IDS[uv.material],uv.angle||0]:uv?.snow?[-.75,uv.groom||0]:uv?.water!==undefined?[-1.75,uv.water]:uv?.envelope?[-1,-8]:uv?.window!==undefined?[-1.05,uv.window]:uv?.emissive?[-1.25,uv.emissive]:uv?.metal?[-1.4,uv.metal]:null;for(const [i,v] of [a,b,c].entries())this.data.push(...v,...normal,...col,...(material|| (uv?uv[i]:[-1,-1])));}
     quad(a,b,c,d,color,uv=null){this.tri(a,b,c,color,uv&&!Array.isArray(uv)?uv:uv&&[uv[0],uv[1],uv[2]]);this.tri(a,c,d,color,uv&&!Array.isArray(uv)?uv:uv&&[uv[0],uv[2],uv[3]]);}
     box(x,y,z,w,h,d,color,material=null){
         const a=[x,y,z],b=[x+w,y,z],c=[x+w,y,z+d],e=[x,y,z+d],A=[x,y+h,z],B=[x+w,y+h,z],C=[x+w,y+h,z+d],E=[x,y+h,z+d];

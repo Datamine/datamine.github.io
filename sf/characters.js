@@ -1,4 +1,5 @@
 import {rgb} from './geometry.js';
+import {sampleForwardRoll} from './forward-roll.js';
 
 // Original meshes and clips. Research notes: sf/README.md. The joint groups,
 // indexed bind mesh and reusable poses follow the approach of classic clients;
@@ -6,7 +7,7 @@ import {rgb} from './geometry.js';
 export const CHARACTER_CLIPS=Object.freeze({
     walk:{stride:.92,stance:.56,lift:.15,hip:.855,arm:.34},
     run:{stride:2,stance:.35,lift:.32,hip:.795,arm:.62},
-    cycle:{stride:Math.PI*.62},climb:{stride:.56,stance:.6,lift:.1},sit:{},surf:{},idle:{}
+    cycle:{stride:Math.PI*.62},climb:{stride:.56,stance:.6,lift:.1},sit:{},surf:{},skate:{stride:2.4},motorcycle:{},idle:{}
 });
 export const CHARACTER_BONES=Object.freeze({
     pelvis:0,spine:1,chest:2,head:3,leftArm:4,leftForearm:5,leftHand:6,
@@ -87,24 +88,39 @@ export function sampleCharacterPose(mode='idle',phase=0,options={},out=createCha
     const stride=charMix(walk.stride,jog.stride,run),stance=charMix(walk.stance,jog.stance,run),lift=charMix(walk.lift,jog.lift,run);
     let hip=charMix(.86,charMix(walk.hip,jog.hip,run),motion),rootX=0,rootZ=0,lean=.025,roll=0,twist=0;
     const gesture=options.action,gestureT=charClamp(options.actionT||0,0,1),gestureWeight=gestureT===0||gestureT===1?0:Math.sin(Math.PI*gestureT);
+    const danceBeat=time*7.2,rollTuck=gesture==='forward-roll'?sampleForwardRoll(gestureT).tuck:0;
     const feet=[];
     for(let side=0;side<2;side++){
         const f=(cycle+side*.5)%1,step=charStep(f,stride,stance,lift),sign=side?1:-1,climbing=mode==='climb'?charStep(f,CHARACTER_CLIPS.climb.stride,CHARACTER_CLIPS.climb.stance,CHARACTER_CLIPS.climb.lift):null;
-        let x=sign*.11,y=charMix(.1,step.y,motion),z=step.z*motion,pitch=step.pitch*motion;
-        if(mode==='cycle'){x=sign*.13;y=.11+Math.sin(phase+side*Math.PI)*.17;z=.01+Math.cos(phase+side*Math.PI)*.17;pitch=-.1;}
+        let x=sign*.11,y=charMix(.1,step.y,motion),z=step.z*motion,pitch=step.pitch*motion,danceLift=0;
+        if(mode==='cycle'){x=sign*.13;y=.11+Math.sin(-phase+side*Math.PI)*.17;z=.01+Math.cos(-phase+side*Math.PI)*.17;pitch=-.1;}
+        else if(mode==='motorcycle'){x=sign*.18;y=.16;z=.08;pitch=0;}
         else if(mode==='sit'){y=.1;z=.36;pitch=0;}
+        else if(mode==='skate'){x=side?.08:-.13;y=.1;z=side?-.24:.22;pitch=0;if(side&&motion){const push=Math.max(0,Math.sin(phase));y-=push*.20;z-=push*.25;x+=push*.15;}}
         else if(mode==='surf'){x=side?-.10:-.27;y=.1;z=side?.17:-.18;pitch=0;}
+        else if(mode==='surfboard'){x=sign*.13;y=.1;z=side?-.3:.28;pitch=0;}
         else if(climbing){y=charMix(.1,.25+climbing.z,motion);z=charMix(0,.2-(climbing.y-.1),motion);pitch=-.1*motion;}
+        if(rollTuck){x=charMix(x,sign*.13,rollTuck);y=charMix(y,.29,rollTuck);z=charMix(z,.22,rollTuck);pitch=charMix(pitch,-.6,rollTuck);}
+        if(gesture==='squat')x=sign*.16;
+        if(gesture==='skate-trick'){y+=.17*gestureWeight;z=side?-.2:.22;pitch=-.1*gestureWeight;}
+        if(gesture==='dance'){
+            const beat=danceBeat+side*Math.PI;danceLift=Math.max(0,Math.sin(beat));
+            x=sign*(.16+.09*danceLift);y=.1+.23*danceLift**2;
+            z=.045*Math.cos(beat)+.18*danceLift;pitch=-.23*danceLift;
+        }
         if(options.ground&&(mode==='idle'||mode==='move')){
             y+=options.ground(x,z);
             pitch-=charClamp(Math.atan((options.ground(x,z+.14)-options.ground(x,z-.1))/.24),-.35,.35);
         }
         if(mode==='move')y+=Math.sin(Math.abs(step.pitch*motion))*(step.pitch>0?.22:.09);
-        feet.push({point:[x,y,z],pitch,contact:climbing?!motion||climbing.contact:mode!=='move'||!motion||step.contact});
+        feet.push({point:[x,y,z],pitch,contact:gesture==='dance'?danceLift<1e-6:climbing?!motion||climbing.contact:mode!=='move'||!motion||step.contact});
     }
     if(mode==='cycle'){hip=.57;rootZ=-.16;lean=.44;}
+    else if(mode==='motorcycle'){hip=.60;rootZ=-.09;lean=.24;}
     else if(mode==='sit'){hip=.57;lean=.035;}
+    else if(mode==='skate'){hip=.79;lean=.12;twist=.27;}
     else if(mode==='surf'){hip=.80;rootX=.035;rootZ=-.025;lean=.12;roll=-.12;}
+    else if(mode==='surfboard'){hip=.73;lean=.1;twist=.5;roll=Math.sin(time*2)*.035;}
     else if(mode==='climb'){hip=charMix(.86,.84,motion);rootZ=-.02*motion;lean=.12*motion;roll=Math.sin(phase)*.018*motion;}
     else{
         const half=cycle*2%1,duty=stance*2;
@@ -115,9 +131,18 @@ export function sampleCharacterPose(mode='idle',phase=0,options={},out=createCha
         twist=Math.sin(cycle*CHAR_TAU)*.055*motion;lean+=run*motion*.14;
     }
     lean+=.009*Math.sin(time*1.7)*(1-motion);
+    if(rollTuck){hip-=.24*rollTuck;lean+=.65*rollTuck;twist*=1-rollTuck;roll*=1-rollTuck;}
     if(gesture==='attack')twist+=.18*gestureWeight;
     if(gesture==='pet'){hip-=.34*gestureWeight;lean+=.28*gestureWeight;rootZ+=.1*gestureWeight;}
     if(gesture==='flinch'){lean-=.15*gestureWeight;hip-=.02*gestureWeight;}
+    if(gesture==='skate-trick'){hip-=.16*gestureWeight;lean=.08;twist=.2;}
+    if(gesture==='dance'){
+        // Alternating knee lifts and broad arm pumps over a double-time bounce.
+        // Shift weight toward the planted leg; IK keeps every limb connected.
+        hip=.78+.065*Math.cos(danceBeat*2);rootX=Math.sin(danceBeat)*.095;rootZ=.035*Math.sin(danceBeat*2);
+        twist=Math.sin(danceBeat)*.34;roll=Math.cos(danceBeat)*.10;lean=.06+.055*Math.sin(danceBeat*2);
+    }
+    if(gesture==='squat'){const depth=(1+Math.sin(time))/2;hip-=depth*.27;lean=.04+depth*.18;rootZ=-depth*.035;}
     // Lower the pelvis when a downhill foot needs more reach. All contacts
     // remain attached to the terrain instead of dangling above the road.
     const pelvisRotation=charEuler(0,twist,roll);
@@ -128,7 +153,7 @@ export function sampleCharacterPose(mode='idle',phase=0,options={},out=createCha
     charFrame(out,0,[rootX,hip,rootZ],pelvisRotation);
     charChild(out,1,0,charEuler(lean*.6,0,0));
     charChild(out,2,1,charEuler(lean*.4,-twist*.7,0));
-    charChild(out,3,2,charEuler(-lean*.35,.035*Math.sin(time*.65)*(1-motion),0));
+    charChild(out,3,2,charEuler(-lean*.35+(gesture==='dance'?.07*Math.sin(danceBeat*2):0),gesture==='dance'?.12*Math.sin(danceBeat):.035*Math.sin(time*.65)*(1-motion),0));
     for(let side=0;side<2;side++){
         const thigh=side?13:10,shin=thigh+1,footBone=thigh+2,offset=charRotate(out.rotations[0],charSub(CHAR_BIND[thigh],CHAR_BIND[0])),start=charJoint(out,0).map((v,i)=>v+offset[i]);
         const leg=charIK(start,feet[side].point,.41,.38,[0,0,1]);
@@ -140,7 +165,28 @@ export function sampleCharacterPose(mode='idle',phase=0,options={},out=createCha
         const arm=side?7:4,forearm=arm+1,hand=arm+2,sign=side?1:-1;
         const shoulder=charRotate(out.rotations[2],charSub(CHAR_BIND[arm],CHAR_BIND[2])).map((v,i)=>v+out.joints[2*3+i]);
         let wrist=null;
-        if(mode==='cycle')wrist=[sign*.18,.73,.40];
+        if(rollTuck)wrist=[sign*.17,charMix(.77,.61,rollTuck),.33*rollTuck];
+        else if(gesture==='fish')wrist=[sign*.13,.97+.13*Math.sin(gestureT*Math.PI),.4];
+        else if(gesture==='curl')wrist=[sign*.28,.78+.44*(1+Math.sin(time))/2,.18+.06*Math.cos(time)];
+        else if(gesture==='press')wrist=[sign*.27,1.25+.46*(1+Math.sin(time))/2,.12];
+        else if(gesture==='squat')wrist=[sign*.33,1.3-.27*(1+Math.sin(time))/2,-.11];
+        else if(gesture==='bench')wrist=[sign*.28,1.3,.28+.12*Math.sin(time)];
+        else if(gesture==='dance'){
+            const beat=danceBeat+side*Math.PI;
+            wrist=[sign*(.33+.105*(1+Math.cos(beat))),1.22+.40*Math.sin(beat),.10+.20*Math.cos(beat)];
+        }
+        else if(gesture==='skate-trick')wrist=[sign*(.36+.2*gestureWeight),1.02+.15*gestureWeight,.06];
+        else if(gesture==='caught'){
+            const raise=charClamp(options.actionT||0,0,1);
+            wrist=[sign*charMix(.24,.35,raise),charMix(.81,1.7,raise),charMix(.04,.12,raise)];
+        }
+        else if(!side&&options.carryingFish)wrist=[-.3,.86,.12];
+        else if(options.pushingStroller)wrist=[sign*.23,.94,.34];
+        else if(mode==='paddle')wrist=[sign*.32,1.03+.14*Math.sin(time*3+side*Math.PI),.12+.18*Math.cos(time*3+side*Math.PI)];
+        else if(mode==='surfboard')wrist=[sign*.43,1.03+.04*Math.sin(time*2),side?.2:-.05];
+        else if(mode==='skate')wrist=[sign*.36,.9+Math.sin(phase)*sign*.04,.10];
+        else if(mode==='motorcycle')wrist=[sign*.21,.83,.40];
+        else if(mode==='cycle')wrist=[sign*.18,.73,.40];
         else if(mode==='sit'){wrist=[sign*.15,.81,.34];if(gesture==='eat'&&side)wrist=wrist.map((v,i)=>charMix(v,[.1,1.17,.19][i],gestureWeight));}
         else if(mode==='surf')wrist=[-.30,side?1.12:1.04,side?.38:.10];
         else if(mode==='climb'){
@@ -194,7 +240,7 @@ class CharacterMeshBuilder{
 const charMeshCache=new Map();
 function charBlend(a,b,t){return [a,b,charClamp(t,0,1)];}
 function charTorsoRig(p){return p[1]<1.12?charBlend(0,1,(p[1]-.91)/.21):charBlend(1,2,(p[1]-1.12)/.19);}
-function charBuildMesh({female,longHair,curly,cap,topHat,backpack,coat,uniform}){
+function charBuildMesh({female,longHair,curly,cap,topHat,chef,backpack,coat,uniform,sunglasses,alien,bayonet}){
     const m=new CharacterMeshBuilder(),S=CHAR_SLOT,waist=female?.142:.164,shoulder=female?.222:.238;
     m.loft([[0,coat?.78:.87,0,.18,.119],[0,.96,0,waist,.112],[0,1.10,0,waist+.017,.125],[0,1.25,0,shoulder,.137],[0,1.34,0,shoulder*.94,.115],[0,1.39,0,.10,.078]],S.shirt,charTorsoRig,8);
     m.loft([[0,.82,0,.167,.106],[0,.90,0,.172,.119],[0,.95,0,.16,.11]],S.pants,0,8);
@@ -223,6 +269,20 @@ function charBuildMesh({female,longHair,curly,cap,topHat,backpack,coat,uniform})
     }
     // Smaller head, cheek and jaw contours, separate ears, and a modeled nose.
     m.loft([[0,1.46,.015,.069,.072],[0,1.50,.007,.104,.101],[0,1.59,0,.123,.111],[0,1.68,-.006,.112,.105],[0,1.727,-.014,.074,.074]],S.skin,3,10);
+    if(alien){
+        // The human disguise becomes an articulated skull, with deep eye
+        // sockets, cheek ridges, exposed teeth and a narrow nasal opening.
+        for(const side of [-1,1]){
+            const x=side*.055;
+            m.box(x-.036,1.579,.105,.072,.051,.024,S.eye,3,.7);
+            m.loft([[side*.086,1.542,.102,.033,.028],[side*.10,1.569,.101,.039,.025]],S.white,3,6);
+            m.box(x-.037,1.635,.096,.074,.021,.031,S.skin,3,1.12);
+        }
+        m.tri([0,1.583,.14],[-.018,1.548,.142],[.018,1.548,.142],S.eye,3);
+        m.box(-.052,1.496,.113,.104,.039,.02,S.eye,3,.7);
+        for(let i=0;i<7;i++)m.box(-.047+i*.014,1.503,.135,.01,.023,.008,S.white,3);
+        m.loft([[0,1.46,.03,.065,.071],[0,1.49,.023,.08,.089]],S.skin,3,8);
+    }else{
     for(const side of [-1,1]){
         m.loft([[side*.12,1.54,0,.018,.023],[side*.126,1.58,0,.024,.026],[side*.118,1.62,-.003,.018,.02]],S.skin,3,6);
         const x=side*.047;
@@ -234,6 +294,17 @@ function charBuildMesh({female,longHair,curly,cap,topHat,backpack,coat,uniform})
     m.tri([-.024,1.60,.111],[-.022,1.536,.119],[0,1.536,.168],S.skin,3,.93);
     m.tri([.024,1.60,.111],[0,1.536,.168],[.022,1.536,.119],S.skin,3,.98);
     m.box(-.026,1.516,.108,.052,.008,.009,S.belt,3,.9);
+    }
+    if(sunglasses){
+        for(const side of [-1,1]){
+            const x=side*.061;
+            m.box(x-.052,1.575,.122,.104,.064,.018,S.eye,3,.65);
+            m.box(x-.042,1.584,.142,.084,.045,.005,S.eye,3,1.15);
+            m.box(side<0?-.132:.117,1.610,-.035,.015,.016,.17,S.eye,3,.7);
+            m.box(x-.031,1.615,.149,.025,.006,.003,S.white,3,.5);
+        }
+        m.box(-.014,1.609,.141,.028,.014,.014,S.eye,3,.6);
+    }
     // Hair is a fitted polygon cap. Longer styles have side and back locks.
     m.loft([[0,1.655,-.024,.124,.104],[0,1.713,-.022,.112,.102],[0,1.758,-.024,.076,.075],[0,1.773,-.027,.016,.02]],S.hair,3,10);
     m.box(-.108,1.626,-.106,.216,.077,.035,S.hair,3);
@@ -251,16 +322,27 @@ function charBuildMesh({female,longHair,curly,cap,topHat,backpack,coat,uniform})
         m.loft([[0,1.79,-.02,.13,.11],[0,2.1,-.02,.145,.12]],S.hair,3,16);
         m.loft([[0,1.8,-.02,.133,.113],[0,1.87,-.02,.137,.116]],S.metal,3,16);
     }
+    if(chef){
+        m.loft([[0,1.71,-.02,.13,.12],[0,1.81,-.02,.14,.12],[0,1.9,-.02,.19,.16],[0,2.02,-.02,.17,.15],[0,2.055,-.02,.06,.06]],S.white,3,16);
+        for(const side of [-1,1])for(let row=0;row<3;row++)m.box(side*.07-.012,1.08+row*.085,.138,.024,.024,.012,S.belt,2);
+    }
     if(backpack){
         m.loft([[0,1.00,-.19,.145,.06],[0,1.13,-.205,.157,.085],[0,1.27,-.185,.125,.065]],S.bag,1,8);
         for(const side of [-1,1])m.box(side*.147-.017,1.01,.116,.034,.27,.02,S.bag,charTorsoRig,.8);
         m.box(-.09,1.04,-.294,.18,.1,.025,S.bag,1,.85);
     }
+    if(bayonet){
+        m.box(.223,.59,-.027,.044,.18,.055,S.belt,9);
+        m.box(.177,.765,-.039,.136,.018,.078,S.metal,9);
+        m.box(.232,.783,-.012,.027,.27,.033,S.metal,9);
+        m.tri([.232,1.053,-.012],[.259,1.053,-.012],[.245,1.15,.004],S.white,9);
+        m.tri([.259,1.053,.021],[.232,1.053,.021],[.245,1.15,.004],S.metal,9);
+    }
     if(uniform){m.box(-.13,1.214,.137,.071,.086,.018,S.metal,2);m.box(.07,1.14,.14,.09,.065,.012,S.pants,2,.8);}
     return m.finish();
 }
 export function getCharacterMesh(appearance={}){
-    const flags={female:!!appearance.female,longHair:!!appearance.longHair,curly:appearance.hairstyle==='curly',cap:!!appearance.cap,topHat:!!appearance.topHat,backpack:appearance.backpack!==false,coat:!!appearance.coat,uniform:!!appearance.uniform};
+    const flags={female:!!appearance.female,longHair:!!appearance.longHair,curly:appearance.hairstyle==='curly',cap:!!appearance.cap,topHat:!!appearance.topHat,chef:!!appearance.chef,backpack:appearance.backpack!==false,coat:!!appearance.coat,uniform:!!appearance.uniform,sunglasses:!!appearance.sunglasses,alien:!!appearance.alien,bayonet:!!appearance.bayonet};
     const key=Object.values(flags).map(Number).join('');
     if(!charMeshCache.has(key))charMeshCache.set(key,charBuildMesh(flags));
     return charMeshCache.get(key);
@@ -273,8 +355,8 @@ export function drawCharacter(m,x,z,base,angle=0,phase=0,seated=false,skin='#bd9
     const mesh=getCharacterMesh(appearance),height=appearance.height||1,co=Math.cos(angle),si=Math.sin(angle);
     const mode=appearance.mode||(seated?'sit':phase?'move':'idle');
     const ground=appearance.ground&&(mode==='idle'||mode==='move')?((lx,lz)=>(appearance.ground(x+lx*si+lz*co,z-lx*co+lz*si)-base)/height-.015):null;
-    const pose=sampleCharacterPose(mode,phase,{motion:appearance.motion,run:appearance.run,time:appearance.time,action:appearance.action,actionT:appearance.actionT,ground},charScratch),mat=pose.matrices,v=mesh.vertices,work=mesh.deformed;
-    const palette=[skin,shirt,appearance.pants||'#626955',appearance.hair||'#453a30',appearance.shoes||'#3c3d36',appearance.trim||'#c9c7b4','#282c29','#e1dfca','#c7aa67','#45483c',appearance.bag||'#886d4b'].map(rgb);
+    const pose=sampleCharacterPose(mode,phase,{motion:appearance.motion,run:appearance.run,time:appearance.time,action:appearance.action,actionT:appearance.actionT,carryingFish:appearance.carryingFish,pushingStroller:appearance.pushingStroller,ground},charScratch),mat=pose.matrices,v=mesh.vertices,work=mesh.deformed;
+    const palette=[appearance.alien?'#a4b797':skin,shirt,appearance.pants||'#626955',appearance.hair||'#453a30',appearance.shoes||'#3c3d36',appearance.trim||'#c9c7b4','#282c29','#e1dfca','#c7aa67','#45483c',appearance.bag||'#886d4b'].map(rgb);
     for(let id=0;id<mesh.bonesA.length;id++){
         const i=id*6,a=mesh.bonesA[id]*12,b=mesh.bonesB[id]*12,w=mesh.weights[id],q=1-w;
         for(let row=0;row<3;row++){

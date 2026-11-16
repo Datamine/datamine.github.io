@@ -66,3 +66,11 @@ test('disconnected queries do not search, and reused search buffers do not leak 
         const from={x:.5,y:.5},to={x:1.5,y:4.5};assert.ok(g.path(from,to));assert.equal(g.path(from,{x:4.5,y:.5}),null);assert.equal(g.stats.expanded,0);
     }assert.equal(g.stats.disconnected,100);
 });
+
+test('negative-going clicks ending at an exact grid corner remain reversible',()=>{
+    const g=createNavigationGrid({width:8,height:8,resolution:4,mask:new Uint8Array(64).fill(1)});
+    for(const [from,to] of [[{x:1.375,y:.875},{x:1,y:1}],[{x:.875,y:1.375},{x:1,y:1}],[{x:1.375,y:1.375},{x:1,y:1}]]){
+        assert.ok(g.segment(from,to));assert.ok(g.segment(to,from));
+        assert.deepEqual(g.path(from,to).at(-1),to);
+    }
+});

@@ -72,7 +72,6 @@ body.sf-mode > .maintable { visibility: hidden; }
 .sf-custody span { display: block; margin-top: 5px; font: 11px Tahoma, sans-serif; }
 .sf-wanted { position: absolute; z-index: 5; top: 70px; left: 50%; transform: translateX(-50%); padding: 7px 12px; color: #ffd1b1; background: #582e29e8; border: 1px solid #c07a5b; font: bold 11px Tahoma, sans-serif; pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .sf-police-arrow { animation: none; } }
-#sf-canvas:focus-visible { outline: 2px solid #c7b57a; outline-offset: -5px; }
 .sf-eyebrow { font: 10px/1.4 'Courier New', monospace; letter-spacing: 1.4px; font-weight: 600; }
 .sf-live-dot { display: inline-block; width: 6px; height: 6px; background: #66866a; border-radius: 50%; box-shadow: 0 0 0 3px #738c6720; flex-shrink: 0; }
 .sf-map-panel { position: absolute; top: 88px; right: 24px; width: 208px; padding: 11px; border: 1px solid #8e9278; background: #ece9d5ee; box-shadow: 0 3px 12px #2f473017, inset 0 0 0 3px #f8f1da70; }
@@ -158,8 +157,8 @@ body.sf-mode > .maintable { visibility: hidden; }
 
 /* Old-school game chrome: stone bevels, timber, parchment, and gold lettering. */
 #sf-world { color: #ede0b8; background: #456c72; font-family: Tahoma, Verdana, sans-serif; }
-body.sf-mode .sf-toggle { background: #5d5140; color: #ffe29b; border: 2px solid; border-color: #b39b6b #302a21 #302a21 #b39b6b; border-radius: 0; box-shadow: inset 0 0 0 1px #3b3429; text-shadow: 1px 1px #211d17; }
-body.sf-mode .sf-toggle-icon { color: #ead189; }
+html[data-sf-entry="explore"] .sf-toggle,
+body.sf-mode .sf-toggle { display: none; }
 .sf-map-panel, .sf-help {
   background: repeating-linear-gradient(105deg,#ffffff03 0 3px,#00000004 3px 6px),#554e3e;
   border: 3px solid; border-color: #a39370 #2e2a22 #2e2a22 #a39370;
@@ -375,6 +374,7 @@ img {
 
 /* Compact exploration controls share one card in the bottom-right corner. */
 .sf-actions {
+  max-height:calc(100dvh - 120px);overflow-y:auto;
   display:grid;grid-template-columns:minmax(0,1fr);justify-content:stretch;align-items:stretch;gap:8px;width:264px;margin-left:auto;flex:0 0 auto;max-width:100%;padding:10px;
   background:repeating-linear-gradient(105deg,#ffffff03 0 3px,#00000004 3px 6px),#554e3e;
   border:3px solid;border-color:#a39370 #2e2a22 #2e2a22 #a39370;
@@ -383,11 +383,22 @@ img {
 .sf-actions .sf-zoom { border:0;background:none;box-shadow:none;padding:0;gap:8px; }
 .sf-actions .sf-zoom-control { width:auto;flex:1; }
 .sf-travel-controls { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px; }
+.sf-speech-controls { grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px; }
+.sf-skate-tricks { grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px; }
+.sf-skate-tricks[hidden] { display:none; }
+.sf-skate-tricks .sf-bike-button { padding-inline:3px;font-size:11px; }
 #sf-world .sf-actions .sf-bike-button { min-width:0;height:34px;padding:0 8px;font-size:11px;gap:6px; }
 #sf-airship-button, #sf-climb-button { grid-column:1 / -1; }
 #sf-say-button .sf-key { display:inline-block; }
-.sf-purse { display:flex;justify-content:space-between;gap:8px;color:#f0d79c;font:11px Tahoma,sans-serif;padding-bottom:6px;border-bottom:1px solid #a3937060; }
+.sf-purse { display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:#f0d79c;font:11px Tahoma,sans-serif;padding-bottom:6px;border-bottom:1px solid #a3937060; }
 .sf-purse strong { color:#ffe29a; }
+.sf-strength { display:grid;gap:4px;color:#e7d4a6;font:11px Tahoma,sans-serif; }
+.sf-strength progress { width:100%;height:7px;accent-color:#8aaf75; }
+.sf-fuel-card { padding:7px;background:#343e3c;border:1px solid #8c947b;color:#e8dfba;font:11px Tahoma,sans-serif; }
+.sf-fuel-card label { display:flex;flex-wrap:wrap;justify-content:space-between;gap:5px; }
+.sf-fuel-card meter { width:100%;height:12px; }
+.sf-fuel-card>div { display:flex;flex-wrap:wrap;gap:4px;margin-top:6px; }
+#sf-world .sf-fuel-card button { font:10px Tahoma,sans-serif;padding:5px;background:#736346;border:1px solid #b29b6b;color:#ffedbf; }
 #sf-inventory { color:#d4c7a4;font-size:10px; }
 #sf-rope-button, #sf-ski-button { grid-column:1 / -1; }
 .sf-dialogue { display:flex;gap:10px;align-items:center;min-height:112px; }
@@ -403,6 +414,14 @@ img {
 .sf-dialogue[data-speaker="player"] .sf-chat-head { order:2; }
 .sf-conversing #sf-log { display:none; }
 .sf-player-speech { position:absolute;z-index:4;transform:translate(-50%,-100%);pointer-events:none;color:#fff9dc;font:14px Tahoma,sans-serif;white-space:nowrap;text-shadow:1px 1px 2px #171b15,-1px -1px 2px #171b15; }
+.sf-character { width:min(420px,calc(100% - 32px)); }
+#sf-world .sf-character-close { position:absolute;right:17px;top:10px;background:none;border:0;font-size:26px; }
+.sf-character-body { display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;align-items:center; }
+#sf-character-preview { display:block;width:110px;height:110px;margin:0;border:1px solid #8b7853; }
+.sf-character-fields { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.sf-character-fields label { display:flex;flex-direction:column;align-items:flex-start;gap:5px;font:12px Tahoma,sans-serif; }
+.sf-character-fields select { min-width:0;max-width:92px;background:#dfceaa;color:#332d23;border:1px solid #8b7853;padding:4px; }
+.sf-character-fields input[type="color"] { width:44px;height:28px;padding:2px;border:1px solid #8b7853;background:#dfceaa;cursor:pointer; }
 @media (max-width: 760px) {
   .sf-actions { width:236px;margin-left:auto;padding:8px; }
   .sf-bottom-bar { display:grid;grid-template-columns:minmax(0,1fr);gap:12px; }
@@ -414,3 +433,50 @@ img {
   .sf-reader { bottom:246px; }
   .sf-map-panel { top:76px; }
 }
+
+.sf-quests { width:min(440px,calc(100% - 32px)); }
+.sf-quest-card { margin:14px 0;padding:16px;background:#e4d6b7;border:1px solid #a38b5c;text-align:left;color:#473b2b; }
+#sf-world .sf-quest-card h3 { margin:5px 0 10px;padding:0;border:0;font:22px Georgia,serif;color:#624c32; }
+#sf-world .sf-quest-card p { font:14px/1.6 Tahoma,sans-serif;color:#473b2b; }
+.sf-quest-status { font:12px Tahoma,sans-serif;color:#876b43; }
+.sf-quest-card[data-stage="completed"] .sf-quest-status { color:#3c704d; }
+.sf-quest-card[data-stage="carrying"] .sf-quest-status { color:#925b21; }
+#sf-world .sf-quest-card .sf-quest-reward { color:#705322;font-weight:bold; }
+#sf-quests-button[data-quest="carrying"] { color:#ffe196; }
+#sf-quests-button[data-quest="completed"] { color:#bce0a5; }
+#sf-close-quests { position:absolute;right:17px;top:10px;background:none;border:0;font-size:26px; }
+
+#sf-world .sf-character-fields .sf-sunglasses-option { grid-column:1 / -1;flex-direction:row;align-items:center;gap:8px; }
+#sf-world .sf-sunglasses-option input { width:16px;height:16px;accent-color:#8ca477; }
+.sf-sunglasses-hint { grid-column:1 / -1;font:11px/1.5 Tahoma,sans-serif;color:#d8c8a3; }
+
+#sf-world .sf-quest-card ul { margin:10px 0;padding-left:18px;color:#473b2b;font:14px/1.8 Tahoma,sans-serif; }
+.sf-purse > span:first-child { white-space:nowrap; }
+.sf-quest-inventory { display:block;flex-basis:100%;max-width:280px;color:#d3c49c;font:11px/1.5 Tahoma,sans-serif; }
+.sf-quest-inventory[hidden] { display:none; }
+
+/* Health and food share the compact exploration control card. */
+.sf-hitpoints { display:flex; flex-wrap:wrap; gap:4px 10px; font-size:12px; color:#f1e1c3; }
+.sf-hitpoints label { display:flex; align-items:center; gap:8px; }
+.sf-hitpoints meter { width:70px; height:10px; accent-color:#8bbd83; }
+#sf-enemy-health { color:#edb39d; }
+.sf-food-controls { display:flex; flex-wrap:wrap; gap:5px; }
+
+/* The lab interview remains usable with a keyboard and a phone number pad. */
+.sf-interview-layer { position:absolute;inset:0;z-index:40;display:grid;place-items:center;padding:18px;background:#152324b8; }
+.sf-interview-layer[hidden] { display:none; }
+.sf-interview-card { box-sizing:border-box;width:min(540px,100%);max-height:calc(100dvh - 36px);overflow:auto;padding:24px;background:#e5d9b9;color:#353a32;border:3px solid;border-color:#a39370 #3f4035 #3f4035 #a39370;box-shadow:0 15px 70px #12222988;font:14px/1.5 Tahoma,sans-serif; }
+.sf-interview-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:#5a6f6c; }
+.sf-interview-card h2 { font:28px Georgia,serif;margin:18px 0 10px; }
+.sf-interview-stats { display:flex;justify-content:space-between;margin:22px 0 12px;font-size:15px; }
+.sf-interview-stats strong { font-variant-numeric:tabular-nums; }
+.sf-interview-equation { display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;min-height:110px;padding:12px 0;font:clamp(24px,5vw,38px) Tahoma,sans-serif; }
+#sf-interview-answer { width:115px;min-width:0;box-sizing:border-box;padding:9px 7px;border:2px solid #8b997e;background:#f6f2df;color:#253f3e;font:inherit;text-align:center; }
+#sf-interview-answer[aria-invalid="true"] { border-color:#b17857; }
+#sf-interview-answer:focus-visible { outline:3px solid #508e96;outline-offset:3px; }
+.sf-interview-result { padding:12px;background:#c5d3b7;border-left:3px solid #658264; }
+.sf-interview-note { font-size:12px;color:#667264;margin:20px 0 0; }
+#sf-employment { color:#bce1d3; }
+.sf-wave-controls { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; padding: 5px 0; border-top: 1px solid #b4a174; }
+.sf-wave-controls[hidden] { display: none; }
+#sf-wave-status { grid-column: 1 / -1; color: #eadfbc; font-size: 11px; }
