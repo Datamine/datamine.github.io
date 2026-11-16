@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Limewashed plaster</title>
+  <desc>Broad overlapping brush strokes, soft mineral clouds and fine pores. Model paint supplies the color.</desc>
+  <defs><pattern id="limewash" width="128" height="128" patternUnits="userSpaceOnUse">
+    <rect width="128" height="128" fill="#eee9db"/>
+    <path d="M-20 24Q30 4 77 23T154 18M-17 73Q42 48 101 69T153 62M-9 121Q37 98 86 115T146 111" fill="none" stroke="#c1bcae" stroke-width="17" opacity=".16"/>
+    <path d="M-16 46Q29 28 76 42T151 37M-7 94Q61 70 148 88" fill="none" stroke="#fffaf1" stroke-width="13" opacity=".43"/>
+    <g fill="#aaa79c" opacity=".27"><circle cx="12" cy="12" r=".6"/><circle cx="57" cy="34" r=".8"/><circle cx="103" cy="18" r=".5"/><circle cx="27" cy="74" r=".7"/><circle cx="92" cy="63" r=".8"/><circle cx="63" cy="104" r=".6"/><circle cx="113" cy="117" r=".6"/></g>
+    <path d="M19 43l7-1m42 26 10-1m-45 43 9-2" stroke="#b5b1a2" stroke-width=".7" opacity=".35"/>
+  </pattern></defs><rect width="256" height="256" fill="url(#limewash)"/>
+</svg>

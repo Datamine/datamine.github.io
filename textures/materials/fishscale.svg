@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Scalloped shingles</title>
+  <desc>Layered rounded shingles for coastal gables, with paired nail heads and fine timber grain.</desc>
+  <defs><pattern id="fishscale" width="64" height="48" patternUnits="userSpaceOnUse">
+    <rect width="64" height="48" fill="#b6b6a9"/>
+    <g fill="#e3e1d1" stroke="#9c9f94" stroke-width="1"><path d="M0-12h32V0a16 16 0 0 1-32 0ZM32-12h32V0a16 16 0 0 1-32 0ZM-16 12h32v12a16 16 0 0 1-32 0ZM16 12h32v12a16 16 0 0 1-32 0ZM48 12h32v12a16 16 0 0 1-32 0ZM0 36h32v12a16 16 0 0 1-32 0ZM32 36h32v12a16 16 0 0 1-32 0Z"/></g>
+    <path d="M4 0q12 23 24 0M20 24q12 23 24 0M52 24q12 23 24 0" fill="none" stroke="#fff6df" stroke-width="1"/>
+    <g fill="#9eaa9d"><circle cx="5" cy="3" r=".7"/><circle cx="27" cy="3" r=".7"/><circle cx="21" cy="27" r=".7"/><circle cx="43" cy="27" r=".7"/></g>
+  </pattern></defs><rect width="256" height="256" fill="url(#fishscale)"/>
+</svg>

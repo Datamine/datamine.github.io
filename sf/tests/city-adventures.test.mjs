@@ -6,6 +6,7 @@ import {createInebriation,swayCharacter} from '../inebriation.js';
 import {createRehabilitation,REHABILITATION_DURATION,scrambleAppearance,rehabilitationDialogue,drawRehabilitationLaser} from '../rehabilitation.js';
 import {CHARACTER_DEFAULTS} from '../character-config.js';
 import {createCityLife} from '../life.js';
+import {dogWalkerDialogue} from '../companions.js';
 import {drawCharacter} from '../characters.js';
 import {drawNavyShip} from '../shipyard.js';
 import {drawParrot} from '../parrots.js';
@@ -34,10 +35,14 @@ test('rehabilitation requires acceptance, discloses its reassuring reply and com
 
 test('street life includes child-sized pedestrians and animated dogs following checked walking routes',()=>{
     const calls=[],life=createCityLife({routes:Array.from({length:6},(_,i)=>({name:'Test street '+i,kind:'road',halfWidth:.5,points:[[0,2+i*3],[45,2+i*3]]})),surfaceType:()=> 'sidewalk',lamps:[],terrainHeight:()=>0,scale:1,human:(...a)=>{calls.push(a.at(-1));drawCharacter(...a);},bicycle:()=>{},maxWalkers:20,maxRiders:0,waterTraffic:false});
-    const mesh=new Mesh(),targets=[];life.update(1);life.draw(mesh,1000,[20,10],false,(_,npc)=>targets.push(npc));
+    const mesh=new Mesh(),targets=[],ranges=[];life.update(1);life.draw(mesh,1000,[20,10],false,(start,npc)=>{targets.push(npc);ranges.push({start,end:mesh.data.length,npc});});
     assert.ok(life.people.some(n=>n.child));assert.ok(life.people.some(n=>n.dogWalker));assert.ok(calls.some(a=>a.height<.75));assert.ok(targets.some(n=>n.dog===true));assert.ok(mesh.data.every(Number.isFinite));
     for(const owner of life.people.filter(n=>n.dogWalker)){
         assert.ok(owner.points.length>10);assert.equal(owner.dog,undefined,'owning a dog must never classify the human as a dog');assert.equal(owner.petDog.dog,true);assert.notEqual(owner,owner.petDog);
+        const dog=ranges.find(r=>r.npc===owner.petDog);let top=-Infinity;for(let i=dog.start;i<dog.end;i+=11)top=Math.max(top,mesh.data[i+1]);
+        assert.ok(top<.75,'the dog click target must not include the leash up to the human’s hand');
+        const conversation=dogWalkerDialogue({...owner,dog:true});assert.equal(conversation.name,owner.label);assert.equal(conversation.choices.length,3);assert.doesNotMatch(conversation.intro,/woof/i);
+        owner.waiting=true;const elapsed=owner.elapsed;life.update(5);assert.equal(owner.elapsed,elapsed,'an owner stays still throughout a conversation');owner.waiting=false;
     }
 });
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Board-formed concrete</title>
+  <desc>Weathered timber shutter marks, recessed tie holes and a fine mineral surface. Neutral relief is tinted by the model.</desc>
+  <defs><pattern id="boardConcrete" width="128" height="64" patternUnits="userSpaceOnUse">
+    <rect width="128" height="64" fill="#d6d5ca"/>
+    <rect y="1" width="128" height="29" fill="#dfdfd3"/>
+    <path d="M0 31.5H128M0 63.5H128" stroke="#a8aca2"/>
+    <path d="M0 4Q36 1 63 6T128 3M0 10Q55 7 96 12T140 9M0 24Q27 22 50 25T128 23M0 40Q31 36 63 41T128 39M0 53Q45 50 84 55T128 53" fill="none" stroke="#aeb5a9" stroke-width=".7" opacity=".45"/>
+    <path d="M0 17Q36 14 75 18T128 16M0 46Q44 42 84 47T128 45" fill="none" stroke="#f6f3e5" opacity=".7"/>
+    <g fill="#9aa297"><circle cx="22" cy="15" r="1.7"/><circle cx="102" cy="47" r="1.7"/></g>
+    <g fill="#eae9dc"><circle cx="22" cy="15.7" r=".9"/><circle cx="102" cy="47.7" r=".9"/></g>
+  </pattern></defs><rect width="256" height="256" fill="url(#boardConcrete)"/>
+</svg>

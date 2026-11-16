@@ -78,7 +78,7 @@ test('all new blocks and the ridge trail connect to the existing airport street 
 });
 
 test('the southern road mesh follows the same graded height field and has no steep steps',()=>{
-    const t=makeTerrain(),m=new Mesh();drawAirportRoad(m,96,(x,z)=>t.contains(x,z)?t.height(x,z):1.15);assert.ok(m.data.every(Number.isFinite));assert.ok(m.data.length/33<50000);
+    const t=makeTerrain(),m=new Mesh();drawAirportRoad(m,96,(x,z)=>t.contains(x,z)?t.height(x,z):1.15);assert.ok(m.data.every(Number.isFinite));assert.ok(m.data.length/33<60000,'includes the coastal garden lane and orchard loop');
     let rise=0;
     for(const r of SOUTHERN_ROADS)for(let i=1;i<r.points.length;i++){const a=r.points[i-1],b=r.points[i],count=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])*4);let previous=t.height(...a);for(let j=1;j<=count;j++){const x=a[0]+(b[0]-a[0])*j/count,z=a[1]+(b[1]-a[1])*j/count,height=t.height(x,z);rise=Math.max(rise,Math.abs(height-previous));previous=height;}}
     assert.ok(rise<.22,'road grading has an abrupt step: '+rise);

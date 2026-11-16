@@ -316,6 +316,7 @@
 <section id="sf-world" aria-label="Explore John's San Francisco" hidden>
     <canvas id="sf-canvas" tabindex="0" aria-label="3D San Francisco. Click to walk, right-click to examine. Left and right arrows rotate the camera; up and down arrows tilt it. E interacts. Use the slider, scroll, or pinch to zoom."></canvas>
     <div id="sf-actor-labels" class="sf-actor-labels" aria-hidden="true"></div>
+    <div id="sf-combat-overlay" class="sf-combat-overlay" aria-hidden="true"></div>
     <div id="sf-player-speech" class="sf-player-speech" role="status" aria-live="polite" hidden></div>
     <div id="sf-place-markers" class="sf-place-markers" aria-label="John's destinations"></div>
     <div id="sf-click-marker" class="sf-click-marker" aria-hidden="true" hidden></div>
@@ -327,11 +328,12 @@
     <div id="sf-hover" class="sf-hover" hidden></div>
     <div id="sf-context" class="sf-context" role="menu" aria-label="Choose an action" hidden></div>
     <div id="sf-status" class="sf-sr-only" role="status" aria-live="polite"></div>
+
     <div class="sf-bottom-bar">
         <div class="sf-journal"><div id="sf-log" role="log" aria-label="Adventure log"><div><time>Guide</time> Welcome to San Francisco. Make yourself at home.</div><div><time>Tip</time> Visit a storefront to discover what's inside.</div></div><div id="sf-dialogue" class="sf-dialogue" role="group" aria-label="Conversation" hidden></div></div>
         <div class="sf-actions" role="group" aria-label="Exploration controls" data-mode="ground">
             <div class="sf-purse" aria-live="polite"><span>◉ <strong id="sf-coins">25</strong> coins</span><span id="sf-inebriation" hidden></span><span id="sf-inventory">0 equity · 0 grain</span>
-            <span id="sf-employment" hidden></span><span id="sf-quest-inventory" class="sf-quest-inventory" hidden></span></div>
+            <span id="sf-sales-status" hidden></span><span id="sf-employment" hidden></span><span id="sf-phone-status" hidden></span><span id="sf-robotaxi-status" hidden></span><span id="sf-quest-inventory" class="sf-quest-inventory" hidden></span></div>
             <button id="sf-fuel-can-button" class="sf-bike-button" type="button" hidden>Use fuel can</button>
             <div class="sf-hitpoints"><label><span id="sf-hitpoints-text">Hitpoints 30/30</span><meter id="sf-hitpoints-meter" min="0" max="30" low="9" high="20" optimum="30" value="30" aria-label="Hitpoints"></meter></label><span id="sf-enemy-health" hidden></span></div>
             <div class="sf-food-controls"><button id="sf-order-doordash" class="sf-bike-button" type="button">DoorDash · 4 coins</button><button id="sf-eat-sandwich" class="sf-bike-button" type="button" hidden>Eat sandwich</button></div>
@@ -349,6 +351,7 @@
                 <button id="sf-climb-button" class="sf-bike-button" type="button" hidden>Climb down <span class="sf-key">E</span></button>
                 <button id="sf-surf-button" class="sf-bike-button" type="button" aria-pressed="false">Windsurf <span class="sf-key">F</span></button>
                 <button id="sf-pacifica-surf-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="U">Surf · U</button>
+                <button id="sf-railgun-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="G" hidden>Equip railgun · G</button>
                 <div id="sf-wave-controls" class="sf-wave-controls" role="group" aria-label="Pacifica surfing" hidden>
                     <span id="sf-wave-status" aria-live="polite">Paddling · 0 points</span>
                     <button id="sf-wave-catch" class="sf-bike-button" type="button" aria-keyshortcuts="Space">Catch wave · Space</button>
@@ -408,14 +411,19 @@
         <div class="sf-character-body"><canvas id="sf-character-preview" width="240" height="240" aria-label="Preview of your character"></canvas>
         <div class="sf-character-fields">
             <label>Gender <select data-character="gender"><option value="man">Man</option><option value="woman">Woman</option></select></label>
-            <label>Hairstyle <select data-character="hairstyle"><option value="short">Short</option><option value="long">Long</option><option value="curly">Curly</option></select></label>
             <label>Skin <input data-character="skin" type="color" value="#bd9369"></label>
             <label>Hair <input data-character="hair" type="color" value="#453a30"></label>
             <label>Shirt <input data-character="shirt" type="color" value="#707b4b"></label>
             <label>Trousers <input data-character="pants" type="color" value="#626955"></label>
             <label>Shoes <input data-character="shoes" type="color" value="#3c3d36"></label>
+            <label class="sf-hat-option">Hat <select data-character="hat" aria-describedby="sf-hat-hint"><option value="none">No hat</option></select></label>
+            <small id="sf-hat-hint" class="sf-sunglasses-hint">Visit the haberdasher just north of the GPU Factory to buy hats.</small>
+            <label class="sf-sunglasses-option"><input id="sf-iphone-equipped" type="checkbox" aria-describedby="sf-iphone-hint" disabled> Equip iPhone (+25% earnings)</label>
+            <small id="sf-iphone-hint" class="sf-sunglasses-hint">Buy an iPhone from Tim Apple’s southern donut campus.</small>
             <label class="sf-sunglasses-option"><input data-character="sunglasses" type="checkbox" aria-describedby="sf-sunglasses-hint" disabled> Wear sunglasses</label>
             <small id="sf-sunglasses-hint" class="sf-sunglasses-hint">Find a pair on Ocean Beach to unlock.</small>
+            <label class="sf-sunglasses-option sf-cape-option"><input data-character="cape" type="checkbox" aria-describedby="sf-cape-hint" disabled> Wear kraken cape</label>
+            <small id="sf-cape-hint" class="sf-sunglasses-hint">Defeat the kraken with Ahab to unlock.</small>
         </div></div>
         <p class="sf-help-note">Changes apply immediately and are saved in this browser.</p>
         <button id="sf-character-done" class="sf-primary" type="button">Done</button>
@@ -433,6 +441,7 @@
             <dt>They Live</dt><dd>Pick up the sunglasses at Ocean Beach. Wear them to uncover disguised aliens. The City Hall clerk needs evidence from the Berkeley Institute for Esoteric Studies across the Bay Bridge before issuing a permit. The American Industrial Center northeast of UCSF supplies a bayonet. Unpermitted attacks still attract police.</dd>
             <dt>Q · Quests</dt><dd>Open your Quest Menu. Professor Ada Meridian at the California Institute for Consciousness Research has an unusual assignment.</dd>
             <dt>Minimap</dt><dd>Your marker stays in the center while the map follows you. Click to travel; blocked areas snap to the nearest reachable spot. Content icons take you to their buildings. A red flag marks your destination. Arrow keys select icons when the minimap has focus; Enter travels.</dd>
+            <dt>:debug / :tp x,y</dt><dd>Press : to type a world command, then Enter. :debug shows live map coordinates; :tp x,y teleports to a walkable point at those coordinates. X increases east and Y increases south. Escape cancels a command.</dd>
             <dt>Click / tap</dt><dd>Walk to a tile, enter a storefront, or use the hovered action. Left-click people to Talk-To; revealed aliens default to Attack.</dd>
             <dt>Right-click / long press</dt><dd>Choose an action or examine</dd>
             <dt>← / →</dt><dd>Rotate the camera</dd>
@@ -453,10 +462,16 @@
             <dt>A / Airship</dt><dd>Rent an airship at the private jet terminal south of the city. Click the basket floor to walk around, or click the ground or minimap to fly. A returns you to the terminal.</dd>
             <dt>V / Forward roll</dt><dd>Tuck into a forward roll, moving 18% faster than walking. Roll along your walking route, or roll in the direction you are facing when standing still. Walls and water still block your path.</dd>
             <dt>D / Dance</dt><dd>Dance until you press D again or start walking. Try your moves at Nightlife in the South Mission.</dd>
-            <dt>C / Character</dt><dd>Choose your gender, hairstyle, and colors. Changes apply immediately and are saved in this browser.</dd>
+            <dt>C / Character</dt><dd>Choose your gender and colors. Men have short hair; women have long hair. Changes apply immediately and are saved in this browser.</dd>
             <dt>R / Ferrari</dt><dd>Borrow a Ferrari at the dealership beyond the Bay Bridge. Click the road or minimap to drive; R parks. Your tank lasts 56% of the drive to Tahoe. The two highway gas stations take all your coins; the dealership and Tahoe gondola refill for free.</dd>
             <dt>SF Fitness / Strength</dt><dd>Visit SF Fitness east of the zoo for bench presses, dumbbell curls, barbell squats, or overhead presses. Use the gym’s exercise options to switch while training; all earn the same strength XP. Level 10 takes about twenty minutes, with harder levels as you improve. Sand Hill Road Capital Partners offers a one-time 1,000-coin investment at level 10. Progress is saved in this browser.</dd>
             <dt>U / Pacifica surfing</dt><dd>Borrow a surfboard at Pacifica beach. Click the water to paddle, then press Space near a foam line to catch a wave. Click to steer while riding; 1 / 2 / 3 perform an Air 360, kickflip, or backflip. Land tricks to earn points. U or F returns you to the beach.</dd>
+            <dt>Twitter / sales conference</dt><dd>Three blocks south of SF Zoo: Twitter HQ’s bottle-post backend drains into the ocean. Being inside adds 3% inebriation per second. Next door, buy sales software for 10 coins and pitch it for 20. Buyers think for ten seconds; you can keep exploring. Success rises from 10% sober to 50% at full inebriation. A refusal leaves your copy intact.</dd>
+            <dt>Tim Apple / robotaxis</dt><dd>South of Coastal Gardens Road, Tim Apple’s donut campus sells iPhones for 100 coins. Equip yours in Character: all income rises 25%, including fractional bonuses on small payments, but you lose 5 HP every two equipped minutes. Unequipping pauses doomscrolling; death or arrest loses the phone. The nearby Tesla dealer sells one robotaxi business for 100 coins. It pays 20 coins each minute (25 with an equipped iPhone) while the world is open and visible. Partial timers are saved; there are no offline payouts.</dd>
+            <dt>Haberdasher</dt><dd>The hat shop just north of the GPU Factory sells nine hats, from a 1-coin folded paper hat to the 100,000-coin Crown of Excess. Talk to the haberdasher to buy and wear one. Purchases are permanent; open Character (C) to switch between owned hats or remove your hat.</dd>
+            <dt>Salt conservation</dt><dd>Visit the salt flats southeast of the southern consciousness research institutes. The conservationist offers repeatable courier work: carry one sealed letter to the City Hall clerk for 50 coins, then return for another. Your inventory and Quest Menu track the letter.</dd>
+            <dt>Sand / GPU Factory</dt><dd>Collect sacks of sand at the Ocean Beach sand pile. Take them to the GPU Factory beside the southern research institutes and talk to its buyer. Each sack sells for 20 coins. You can carry multiple sacks; your inventory is saved in this browser.</dd>
+            <dt>G / Railgun</dt><dd>Ask the scientist at Jurassic Biosciences, in the green belt at the city’s southern seam, for a quest. G equips or stows your railgun. Click a raptor, cow, or kraken to fire from up to five tiles away; click the ground to stop. Green spectres take zero railgun damage—stow it and use your bayonet. Firing at pedestrians brings the police. Cow sandwiches store in your food bag. Captain Ahab waits by the Pequod on the western coast; bring your railgun and food for his kraken hunt. Collect its deck loot for 100 coins and a cape you can wear in Character settings.</dd>
             <dt>F / Windsurf</dt><dd>Borrow a board at Crissy Field; sail anywhere on open water, click a humpback whale to jump over it, and press F to return to shore</dd>
             <dt>Slider / scroll / pinch</dt><dd>Zoom the world</dd>
             <dt>Escape</dt><dd>Close a panel or stop walking</dd>
@@ -466,6 +481,17 @@
         <button id="sf-help-start" class="sf-primary">Let's wander ↗</button>
     </section>
 </section>
+    <section id="sf-debug" class="sf-debug" aria-label="Debug menu" hidden>
+        <header><strong>Debug</strong><button type="button" data-debug-close aria-label="Close debug menu">×</button></header>
+        <dl><dt>X</dt><dd><output id="sf-debug-x">0.000</output></dd><dt>Y</dt><dd><output id="sf-debug-y">0.000</output></dd></dl>
+        <p>X increases east. Y increases south.</p>
+        <button type="button" data-debug-teleport>Teleport…</button>
+    </section>
+    <form id="sf-command" class="sf-command" aria-label="World command" autocomplete="off" hidden>
+        <label for="sf-command-input">World command</label>
+        <div><input id="sf-command-input" type="text" spellcheck="false" autocapitalize="off" aria-describedby="sf-command-status" placeholder=":debug or :tp x,y"><button type="submit">Run</button><button type="button" data-command-close aria-label="Cancel command">×</button></div>
+        <p id="sf-command-status" role="status">Enter runs the command. Escape cancels.</p>
+    </form>
 <!-- SF-ENTRY:START -->
 <!-- Development sources: sf/README.md. Generate explore.html with node sf/build.mjs. -->
 <script>

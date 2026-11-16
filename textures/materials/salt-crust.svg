@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Salt crust</title>
+  <desc>Cracked mineral crust with crystalline seams and fine grains. Neutral relief is tinted by the model.</desc>
+  <defs>
+    <pattern id="saltCrust" width="128" height="128" patternUnits="userSpaceOnUse">
+      <rect width="128" height="128" fill="#e8e6d8"/>
+      <path d="M0 24L23 17 41 31 55 9 82 0M41 31L47 58 25 78 0 70M47 58L76 52 91 72 123 64 128 37M25 78L35 109 19 128M35 109L62 104 78 128M62 104L76 79 91 72M91 72L99 102 128 117M76 52L85 28 112 18 128 24" fill="none" stroke="#c8cabc" stroke-width="1.3"/>
+      <path d="M1 26L23 19 39 32M49 58L76 54 89 73M27 79L37 109 62 106M87 29L112 20 127 26M101 102L127 115" fill="none" stroke="#fffdf0" stroke-width="2"/>
+      <g fill="#ffffff" opacity=".8"><path d="M12 49L15 43 18 49 15 51ZM68 28L71 24 74 28 71 30ZM110 87L113 82 116 87 113 89ZM51 87L53 84 56 88 53 90Z"/><circle cx="8" cy="99" r=".8"/><circle cx="97" cy="44" r="1"/><circle cx="56" cy="17" r=".7"/><circle cx="89" cy="115" r=".8"/></g>
+      <g fill="#b9c2b3" opacity=".45"><circle cx="62" cy="70" r=".7"/><circle cx="17" cy="31" r=".8"/><circle cx="107" cy="11" r=".7"/><circle cx="42" cy="119" r=".65"/><circle cx="121" cy="95" r=".9"/></g>
+    </pattern>
+  </defs><rect width="256" height="256" fill="url(#saltCrust)"/>
+</svg>

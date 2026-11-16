@@ -10,7 +10,7 @@ import {RESEARCH_ART} from '../research-art.js';
 
 test('the institutes have distinct authored models, façade signs, and shared collision footprints',()=>{
     const m=new Mesh(),signs=new Map([...RESEARCH_SIGNS,...RESEARCH_ART.map(a=>a.id)].map(s=>[s,[[0,0],[1,0],[1,1],[0,1]]])),sites=drawResearchCampuses(m,signs);
-    assert.equal(sites.length,2);assert.ok(m.data.every(Number.isFinite));assert.ok(m.data.length/33<18000);
+    assert.equal(sites.length,2);assert.ok(m.data.every(Number.isFinite));assert.ok(m.data.length/33<22000);
     assert.deepEqual(sites.map(s=>s.label),RESEARCH_CAMPUSES.map(c=>c.label));
     for(const [i,s] of sites.entries()){
         const c=RESEARCH_CAMPUSES[i];assert.equal(sightPrimaryVerb(s),'Enter');

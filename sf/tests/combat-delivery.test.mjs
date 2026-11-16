@@ -9,15 +9,16 @@ import {createTheyLiveQuest,ALIEN_TARGETS} from '../they-live.js';
 import {Mesh} from '../geometry.js';
 
 function fight(level,bayonet,step=.05){
-    const health=createHitpoints(),battle=createAlienBattle({health,level:()=>level,bayonet}),events=[];
+    const health=createHitpoints(),battle=createAlienBattle({health,level:()=>level,bayonet,random:()=>.5}),events=[];
     for(let i=0;i<2000&&!battle.state.ended;i++)events.push(...battle.update(step));
     return {health:health.state.hp,alien:battle.state.hp,events};
 }
-test('aliens outmatch a beginner unarmed; a bayonet and gym strength each change the outcome',()=>{
-    const bare=fight(1,false),armed=fight(1,true),strong=fight(10,false);
+test('spectres require a bayonet; gym strength improves armed combat',()=>{
+    const bare=fight(1,false),armed=fight(1,true),strong=fight(10,true);
     assert.equal(bare.health,0);assert.ok(bare.alien>0);assert.equal(bare.events.at(-1).type,'death');
     for(const result of [armed,strong]){assert.ok(result.health>0&&result.health<MAX_HITPOINTS);assert.equal(result.alien,0);assert.equal(result.events.at(-1).type,'victory');}
     assert.ok(combatStats(10,false).damage>combatStats(1,false).damage);assert.ok(combatStats(10,false).alienDamage<combatStats(1,false).alienDamage);
+    assert.equal(fight(10,false).alien,36,'strength alone cannot cut a spectre');
     for(const step of [1/120,.2,3]){const b=fight(1,true,step);assert.equal(b.health,armed.health);assert.deepEqual(b.events,armed.events);}
 });
 
@@ -27,7 +28,7 @@ test('health survives reloads, healing clamps, and a resolved fight cannot deal 
     const battle=createAlienBattle({health:hp,bayonet:true});battle.update(30);const end=hp.state.hp;assert.deepEqual(battle.update(30),[]);assert.equal(hp.state.hp,end);
 });
 
-test('legal strength-based unarmed victories survive quest reload; permits still gate attacks',()=>{
+test('legal spectre victories survive quest reload; permits still gate attacks',()=>{
     const q=createTheyLiveQuest();q.start();assert.equal(q.attack(ALIEN_TARGETS[0].id,{revealed:true}).illegal,true);q.certificate();q.permit();
     assert.equal(q.attack(ALIEN_TARGETS[0].id,{revealed:true}).ok,true);
     q.defeat(ALIEN_TARGETS[0].id,{revealed:true});const restored=createTheyLiveQuest(q.state);assert.equal(restored.isDefeated(ALIEN_TARGETS[0].id),true);

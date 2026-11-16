@@ -1,5 +1,12 @@
+import {AIRPORT_FIELD_ADS} from './airport-billboards.js';
+import {TWITTER_HQ,SALES_CONFERENCE} from './social-layout.js';
+import {APPLE_CAMPUS,ROBOTAXI_DEALER} from './tech-layout.js';
+import {HABERDASHER} from './haberdasher-layout.js';
+import {SALT_FLATS} from './salt-layout.js';
 import {WORLD_SIZE,STREET_LAYOUT_SIZE} from './geography.js';
 import {SQUARE_DIGSITE} from './square-construction-layout.js';
+import {JURASSIC,COW_PEN} from './jurassic-layout.js';
+import {GPU_FACTORY} from './gpu-layout.js';
 const peninsulaSecond=64.5*WORLD_SIZE/STREET_LAYOUT_SIZE,peninsulaThird=70.5*WORLD_SIZE/STREET_LAYOUT_SIZE;
 export const PENINSULA_TRUNK_STREETS=Object.freeze([
     {name:'Third Street south',points:[[peninsulaThird,77.5*WORLD_SIZE/STREET_LAYOUT_SIZE],[peninsulaThird,132.5]]},
@@ -48,6 +55,15 @@ export const PENINSULA_GREENS=Object.freeze([
 // Protected public land and existing facilities. A plot must clear both this
 // registry and every actual road/path, rather than assuming empty space is a lot.
 export const PENINSULA_RESERVATIONS=Object.freeze([
+    ...AIRPORT_FIELD_ADS.map(p=>[p.x-1.2,p.z-.6,p.x+1.2,p.z+.6]),
+    ...[TWITTER_HQ,SALES_CONFERENCE].map(s=>[s.x-s.w/2-.25,s.z-s.d/2-.3,s.x+s.w/2+.25,s.z+s.d/2+1.2]),
+    [APPLE_CAMPUS.x-3.9,APPLE_CAMPUS.z-4.3,APPLE_CAMPUS.x+3.9,APPLE_CAMPUS.z+3.9],
+    [ROBOTAXI_DEALER.x-1.8,ROBOTAXI_DEALER.z-2.2,ROBOTAXI_DEALER.x+1.8,ROBOTAXI_DEALER.z+2],
+    [HABERDASHER.x-HABERDASHER.w/2-.15,HABERDASHER.z-HABERDASHER.d/2-.15,HABERDASHER.x+HABERDASHER.w/2+.15,HABERDASHER.z+HABERDASHER.d/2+.15],
+    [SALT_FLATS.west,SALT_FLATS.north,SALT_FLATS.east,SALT_FLATS.south],
+    [GPU_FACTORY.x-GPU_FACTORY.w/2-.5,GPU_FACTORY.z-GPU_FACTORY.d/2-.4,GPU_FACTORY.x+GPU_FACTORY.w/2+.5,175.8],
+    [JURASSIC.x-JURASSIC.w/2-.4,JURASSIC.z-JURASSIC.d/2-.4,JURASSIC.x+JURASSIC.w/2+.4,JURASSIC.entry.y+1],
+    [COW_PEN.x-COW_PEN.w/2-.4,COW_PEN.z-COW_PEN.d/2-.4,COW_PEN.x+COW_PEN.w/2+.4,COW_PEN.z+COW_PEN.d/2+.8],
     [SQUARE_DIGSITE.west-.2,SQUARE_DIGSITE.north-.2,SQUARE_DIGSITE.east+.2,SQUARE_DIGSITE.south+.2],
     [22,128,28,135],
     [SAND_HILL_WOODS.west,SAND_HILL_WOODS.north,SAND_HILL_WOODS.east,SAND_HILL_WOODS.south],

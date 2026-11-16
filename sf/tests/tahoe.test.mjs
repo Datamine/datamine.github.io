@@ -98,7 +98,7 @@ test('the alpine camera clears steep slopes and preserves a centered, consistent
 
 test('one-coin travel and skis cannot overdraw the purse, while taxes take every coin',()=>{
     const e=createEconomy({coins:3,equity:1,grain:2,fuelCans:0,fish:0});assert.ok(e.trade('rocket').ok);assert.ok(e.trade('skis').ok);assert.ok(e.trade('rocket').ok);assert.equal(e.state.coins,0);assert.equal(e.trade('skis').ok,false);
-    e.state.coins=37;const tax=taxDialogue(e),paid=tax.choices[0].accept();assert.ok(paid.ok);assert.deepEqual(e.state,{coins:0,equity:1,grain:2,fuelCans:0,fish:0});assert.match(paid.message,/37 coins/);
+    e.state.coins=37;const tax=taxDialogue(e),paid=tax.choices[0].accept();assert.ok(paid.ok);assert.deepEqual(e.state,{coins:0,equity:1,grain:2,fuelCans:0,fish:0,sand:0,saltLetters:0,saltLettersDelivered:0,ownedHats:[],iphoneOwned:false,iphoneEquipped:false,robotaxiOwned:false,incomeQuarters:0,softwareCopies:0});assert.match(paid.message,/37 coins/);
     const questions=tax.choices[1].next.choices;assert.equal(questions.length,2);assert.match(questions[0].label,/Where is my money going/);assert.ok(questions.every(q=>q.receipt.includes('California high-speed rail')));
 });
 

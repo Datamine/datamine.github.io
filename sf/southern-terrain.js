@@ -1,3 +1,6 @@
+import {partitionRunoff} from './runoff-surface.js';
+import {BOTTLE_STREAM,TWITTER_HQ,SALES_CONFERENCE} from './social-layout.js';
+import {SALT_FLATS,SALT_PONDS,inSaltFlats,saltPondAt} from './salt-layout.js';
 import {estateGroundColor} from './estate-layout.js';
 import {minimapGroundColor} from './map-colors.js';
 import {unit,rayTriangle} from './geometry.js';
@@ -74,10 +77,9 @@ export function createSouthernTerrain({roads=[],trails=SOUTHERN_TRAILS,pads=[],p
     function drawLand(m){
         ensure();const domains=pit?[[b.west,b.north,b.east,pit.north],[b.west,pit.south,b.east,b.south],[b.west,pit.north,pit.west,pit.south],[pit.east,pit.north,b.east,pit.south]]:null;
         const draw=tri=>{
-            const cx=tri.reduce((n,p)=>n+p[0]/3,0),cz=tri.reduce((n,p)=>n+p[2]/3,0),h=height(cx,cz),n=normal(cx,cz),scrub=n[1]<.84&&h>5.5,color=estateGroundColor(scrub?'#a7a47b':h>7?'#91a16a':'#88a264',cx,cz),material=scrub?'dirt':'grass';
+            const cx=tri.reduce((n,p)=>n+p[0]/3,0),cz=tri.reduce((n,p)=>n+p[2]/3,0),h=height(cx,cz),n=normal(cx,cz),scrub=n[1]<.84&&h>5.5,pond=saltPondAt(cx,cz),salty=inSaltFlats(cx,cz),color=pond?.color||(salty?'#e1ddc9':estateGroundColor(scrub?'#a7a47b':h>7?'#91a16a':'#88a264',cx,cz)),material=pond?{water:10}:salty?'saltCrust':scrub?'dirt':'grass';
             const emitMaterial=(poly,color,material)=>{for(let j=1;j<poly.length-1;j++){const vertices=[poly[0],poly[j],poly[j+1]],start=m.data.length;m.tri(...vertices,color,material);for(const [v,p] of vertices.entries()){const nn=normal(p[0],p[2]);for(let k=0;k<3;k++)m.data[start+v*11+3+k]=nn[k];}}};
-            const emit=poly=>{
-                poly=southCoastClip(poly);if(poly.length<3)return;
+            const emitGround=poly=>{
                 if(poly.every(p=>p[0]-westernCoastX(p[2])>2.6)){emitMaterial(poly,color,material);return;}
                 // Cut material boundaries on the existing terrain faces. Whole
                 // triangle classification makes a conspicuous sawtooth beach.
@@ -87,6 +89,7 @@ export function createSouthernTerrain({roads=[],trails=SOUTHERN_TRAILS,pads=[],p
                 emitMaterial(southMaterialClip(beach,rocky,true),'#c6b98e','sand');
                 emitMaterial(southMaterialClip(beach,rocky,false),'#949b8c','stone');
             };
+            const emit=poly=>{poly=southCoastClip(poly);if(poly.length<3)return;partitionRunoff(poly,emitGround,water=>emitMaterial(water,'#789c9e',{water:10}));};
             if(!pit||tri.every(p=>p[0]<=pit.west)||tri.every(p=>p[0]>=pit.east)||tri.every(p=>p[2]<=pit.north)||tri.every(p=>p[2]>=pit.south)){emit(tri);return;}
             for(const [west,north,east,south] of domains){let p=southClip(tri,0,west,false);p=southClip(p,0,east,true);p=southClip(p,2,north,false);p=southClip(p,2,south,true);if(p.length>=3)emit(p);}
         };
@@ -120,6 +123,10 @@ export function createSouthernTerrain({roads=[],trails=SOUTHERN_TRAILS,pads=[],p
         const polygon=(points,color)=>{ctx.beginPath();points.map(p=>project(...p)).forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.fillStyle=color;ctx.fill();};
         for(let z=b.north;z<b.south;z+=2)for(let x=b.west;x<b.east;x+=2){const h=height(x+1,z+1),poly=southCoastClip([[x,0,z],[x+2,0,z],[x+2,0,z+2],[x,0,z+2]]);if(poly.length>=3)polygon(poly.map(p=>[p[0],p[2]]),estateGroundColor(minimapGroundColor('grass',h),x+1,z+1));}
         for(let z=b.north;z<b.south;z+=2){const x=westernCoastX(z),xx=westernCoastX(z+2),w=westernBeachWidth(z),ww=westernBeachWidth(z+2);polygon([[x,z],[xx,z+2],[xx+ww,z+2],[x+w,z]],w<.65?'#91988a':'#c7b98d');}
+        polygon([[SALT_FLATS.west,SALT_FLATS.north],[SALT_FLATS.east,SALT_FLATS.north],[SALT_FLATS.east,SALT_FLATS.south],[SALT_FLATS.west,SALT_FLATS.south]],'#dfdcc7');
+        for(const p of SALT_PONDS)polygon([[p.x,p.z],[p.x+p.w,p.z],[p.x+p.w,p.z+p.d],[p.x,p.z+p.d]],p.color);
+        for(let i=1;i<BOTTLE_STREAM.points.length;i++){const a=BOTTLE_STREAM.points[i-1],q=BOTTLE_STREAM.points[i],dx=q[0]-a[0],dz=q[1]-a[1],length=Math.hypot(dx,dz),nx=-dz/length*.23,nz=dx/length*.23;const p=southCoastClip([[a[0]+nx,0,a[1]+nz],[q[0]+nx,0,q[1]+nz],[q[0]-nx,0,q[1]-nz],[a[0]-nx,0,a[1]-nz]]);if(p.length>=3)polygon(p.map(v=>[v[0],v[2]]),'#789c9e');}
+        for(const room of [TWITTER_HQ,SALES_CONFERENCE])polygon([[room.x-room.w/2,room.z-room.d/2],[room.x+room.w/2,room.z-room.d/2],[room.x+room.w/2,room.z+room.d/2],[room.x-room.w/2,room.z+room.d/2]],room.id==='twitter-hq'?'#789394':'#b29a80');
         ctx.strokeStyle='#667b5140';ctx.lineWidth=.7;
         for(const level of [3,5,7,9])for(let z=b.north;z<b.south;z+=2)for(let x=b.west;x<b.east;x+=2){const corners=[[x,z],[x+2,z],[x+2,z+2],[x,z+2]],points=[];for(let i=0;i<4;i++){const a=corners[i],q=corners[(i+1)%4],ha=height(...a),hq=height(...q);if((ha<level)!==(hq<level)){const t=(level-ha)/(hq-ha);points.push(project(a[0]+(q[0]-a[0])*t,a[1]+(q[1]-a[1])*t));}}if(points.length===2){ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);ctx.lineTo(points[1].x,points[1].y);ctx.stroke();}}
     }

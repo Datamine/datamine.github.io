@@ -1,3 +1,4 @@
+import {drawPiercedWall} from './wall-openings.js';
 import {Mesh,pose,cutawayWallMask,rayTriangle} from './geometry.js';
 
 export const INSTITUTE_DOOR_WIDTH=1.5;
@@ -34,12 +35,17 @@ export function instituteWalkable(room,x,z,clearance=.16){
     return !obstacles.some(o=>p.u>o.x-clearance&&p.u<o.x+o.w+clearance&&p.v>o.z-clearance&&p.v<o.z+o.d+clearance);
 }
 export function recordInstitutePart(m,parts,kind,side,draw){const start=m.data.length;draw();parts.push({kind,side,start,count:m.data.length-start});}
-export function drawInstituteWall(m,room,side,height,color,trim){
+export function instituteWindowOpenings(room,side,style='research'){
+    if(style==='berkeley')return (side<2?[-2.85,-1.85,1.15,2.15]:[-1.8,-.62,.56,1.74].map(u=>side===2?-u:u)).map(x=>({x:x-(side<2?.64:.65)/2,y:side<2?.45:.55,w:side<2?.64:.65,h:side<2?1.65:1.5,arch:true,segments:20}));
+    return (side<2?[-room.w*.39,-room.w*.23,room.w*.23,room.w*.39]:[-1.28,1.28]).map(x=>({x:x-(side<2?.62:.57)/2,y:side<2?.48:.51,w:side<2?.62:.57,h:side<2?1.23:1.29,arch:true,segments:12}));
+}
+export function drawInstituteWall(m,room,side,height,color,trim,{openings=[],cornices=[1.94,height-.02]}={}){
     pose(m,room.x,room.base,room.z,0,()=>{
-        for(const r of instituteWallRects(room,side))m.box(r.x,.2,r.z,r.w,height-.2,r.d,color,'stone');
+        const isX=side>=2,far=side%2===0,plane=isX?(far?-room.w/2:room.w/2):(far?-room.d/2:room.d/2);
+        for(const r of instituteWallRects(room,side))drawPiercedWall(m,{isX,plane,along:isX?r.z:r.x,y:.2,w:isX?r.d:r.w,h:height-.2,depth:.12,far,color,material:'stone',openings});
         if(side===(room.front===-1?0:1))m.box(-INSTITUTE_DOOR_WIDTH/2,2.15,side===0?-room.d/2:room.d/2-.12,INSTITUTE_DOOR_WIDTH,height-2.15,.12,color,'stone');
         // Perimeter cornices, never full slabs across the room.
-        for(const y of [1.94,height-.02]){
+        for(const y of cornices){
             if(side<2){if(side===(room.front===-1?0:1)&&y<2.15){for(const r of instituteWallRects(room,side))m.box(r.x,y,side===0?-room.d/2-.07:room.d/2-.03,r.w,.1,.1,trim,'stone');}else m.box(-room.w/2-.06,y,side===0?-room.d/2-.07:room.d/2-.03,room.w+.12,.1,.1,trim,'stone');}
             else m.box(side===2?-room.w/2-.07:room.w/2-.03,y,-room.d/2,.1,.1,room.d,trim,'stone');
         }

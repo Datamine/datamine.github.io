@@ -22,21 +22,23 @@ export function createDialogue({element,journal,log,economy,announce,onClose=()=
                 if(committed)return;committed=true;
                 const result=choice.accept?choice.accept():choice.trade?economy.trade(choice.trade):{ok:true};
                 if(result.ok&&result.after)after=result.after;
-                stage='receipt';const receipt=result.ok?result.message||choice.receipt||current.receipt:result.message;
-                announce(receipt,current.name);render(receipt);
+                stage=result.pending?'pending':'receipt';const receipt=result.ok?result.message||choice.receipt||current.receipt:result.message;
+                const text=receipt+(result.ok&&result.bonus?' iPhone bonus: +'+result.bonus+' coins.':'');
+                announce(text,current.name);render(text);
             }));
             controls.append(button(current.decline||"Don't Purchase",()=>{announce('Maybe another time.','You');close();}));
-        }else controls.append(button('OK',()=>{if(stage==='intro'){stage='choices';render();}else if(current.repeat){current=root;stage='choices';committed=false;render();}else close();}));
+        }else if(stage==='pending'){const thinking=button('Thinking…',()=>{});thinking.disabled=true;controls.append(thinking,button('Keep exploring',close));}
+        else controls.append(button('OK',()=>{if(stage==='intro'){stage='choices';render();}else if(current.repeat){current=root;stage='choices';committed=false;render();}else close();}));
         // Choices already include a departure response. A final receipt's OK
         // also ends the conversation; only continuing stages need Close.
         if(stage==='intro'||stage==='receipt'&&current.repeat)controls.append(button('Close',close));
         copy.append(controls);
-        element.dataset.speaker=player?'player':'npc';element.append(portrait,copy);element.querySelector('button').focus({preventScroll:true});
+        element.dataset.speaker=player?'player':'npc';element.append(portrait,copy);element.querySelector('button:not([disabled])').focus({preventScroll:true});
     }
     function open(person){root=current=person;stage='intro';committed=false;after=null;log.hidden=true;element.hidden=false;journal.classList.add('sf-conversing');render();}
     function handleKey(event){
         if(!current)return false;
-        const key=event.key.toLowerCase(),buttons=[...element.querySelectorAll('button')],index=buttons.indexOf(document.activeElement);
+        const key=event.key.toLowerCase(),buttons=[...element.querySelectorAll('button:not([disabled])')],index=buttons.indexOf(document.activeElement);
         if(['arrowup','arrowdown','arrowleft','arrowright'].includes(key)){
             event.preventDefault();const step=key==='arrowup'||key==='arrowleft'?-1:1;buttons[index<0?0:(index+step+buttons.length)%buttons.length]?.focus({preventScroll:true});return true;
         }
@@ -46,5 +48,6 @@ export function createDialogue({element,journal,log,economy,announce,onClose=()=
         }
         return false;
     }
-    return {open,close,handleKey,get active(){return !!current;}};
+    function resolvePending(id,message){if(current?.id!==id||stage!=='pending')return false;stage='receipt';render(message);return true;}
+    return {open,close,handleKey,resolvePending,get active(){return !!current;}};
 }

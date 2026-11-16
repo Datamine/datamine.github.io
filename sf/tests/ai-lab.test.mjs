@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {arithmeticProblem,createArithmeticInterview,createAILabJob,drawAILabInterior,AI_INTERVIEW_SECONDS} from '../ai-lab.js';
 import {createEconomy} from '../economy.js';
 import {Mesh} from '../geometry.js';
+import {drawNeuralLabAnimation,neuralBrainMesh} from '../ai-lab-interior.js';
+import {createRegionalNavigation} from '../regional-navigation.js';
 
 test('the normal interview uses all four operations, default operand ranges and exact inverse problems',()=>{
     for(let operation=0;operation<4;operation++)for(const [u,v] of [[0,0],[.999999,.999999],[.4,.7]]){
@@ -65,6 +67,20 @@ test('employment and best score survive reload without banking offline wages or 
 
 test('the lab furniture is a finite native mesh with a clear central aisle and doorway',()=>{
     const mesh=new Mesh(),lab={x:10,y:20,w:3.5,d:3};drawAILabInterior(mesh,lab,1);
-    assert.ok(mesh.data.length>0&&mesh.data.every(Number.isFinite));assert.ok(mesh.data.length/33<6000);assert.ok(lab.interiorObstacles.length>=3);
-    for(const polygon of lab.interiorObstacles)assert.ok(polygon.every(p=>p[0]<lab.x+lab.w/2-.3)||polygon.every(p=>p[1]<lab.y+1));
+    assert.ok(mesh.data.length>0&&mesh.data.every(Number.isFinite));assert.ok(mesh.data.length/33<9000);assert.equal(lab.interiorObstacles.length,5);
+    const nav=createRegionalNavigation({west:lab.x,east:lab.x+lab.w,north:lab.y,south:lab.y+lab.d,walkable:()=>true});nav.setObstacles(lab.interiorObstacles);
+    const start={x:lab.x+lab.w/2-.5,y:lab.y+lab.d-.85};
+    for(const dx of [-.25,0,.25]){const to={x:lab.x+lab.w/2+dx-.5,y:lab.y+1.65-.5};assert.ok(nav.path(start,to),'neural equipment blocks the working aisle');}
+    for(const polygon of lab.interiorObstacles)for(const [x,z] of polygon){assert.ok(x>lab.x+.1&&x<lab.x+lab.w-.1);assert.ok(z>lab.y+.1&&z<lab.y+lab.d-.1);}
+});
+
+
+test('the folded brain and containment effects use cached geometry, animate, and respect reduced motion',()=>{
+    const lab={id:'ai-lab',x:10,y:20,w:3.5,d:3,rotation:.7},staticMesh=new Mesh();drawAILabInterior(staticMesh,lab,1);
+    const brain=neuralBrainMesh(),before=brain.data.slice();assert.equal(neuralBrainMesh(),brain);assert.ok(brain.data.every(Number.isFinite));
+    const a=new Mesh(),b=new Mesh(),stillA=new Mesh(),stillB=new Mesh(),other=new Mesh();
+    drawNeuralLabAnimation(a,lab,1,1000);drawNeuralLabAnimation(b,lab,1,4000);
+    drawNeuralLabAnimation(stillA,lab,1,1000,{reduced:true});drawNeuralLabAnimation(stillB,lab,1,4000,{reduced:true});drawNeuralLabAnimation(other,{...lab,id:'other'},1,1000);
+    assert.ok(a.data.length/33>3000&&a.data.length/33<5500);assert.ok(a.data.every(Number.isFinite));assert.notDeepEqual(a.data,b.data);assert.deepEqual(stillA.data,stillB.data);assert.equal(other.data.length,0);assert.deepEqual(brain.data,before,'animation mutated the cached brain');
+    for(let i=1;i<a.data.length;i+=11)assert.ok(a.data[i]>1&&a.data[i]<3.7,'animated equipment clips the ceiling or floor');
 });

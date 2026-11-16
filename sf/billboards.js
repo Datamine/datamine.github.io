@@ -8,8 +8,8 @@ export const BILLBOARD_ART=Object.freeze([
     {id:'ts-think',message:'DO NOT\nQUESTION',file:'think-big.svg',color:'#7050ba'},
     {id:'ts-moonshot',message:'STAY\nASLEEP',file:'moonshot.svg',color:'#177582'},
     {id:'ts-night',message:'SUBMIT',file:'late-nights.svg',color:'#bc4a9d'},
-    {id:'ai-openai',message:'OUTSOURCE\nTHOUGHT',file:'ai-openai.svg',color:'#42746b'},
-    {id:'ai-anthropic',message:'TRUST\nTHE MACHINE',file:'ai-anthropic.svg',color:'#c07d60'},
+    {id:'ai-openai',message:'BUY',file:'ai-openai.svg',color:'#42746b'},
+    {id:'ai-anthropic',message:"DON'T\nTHINK",file:'ai-anthropic.svg',color:'#c07d60'},
     {id:'ai-xai',message:'BELIEVE',file:'ai-xai.svg',color:'#263444'},
     {id:'beach-getaway',message:'OBEY',file:'pacific-holidays.svg',color:'#548e99'}
 ].map(a=>Object.freeze({...a,src:billboardAssetURL(a.file)})));

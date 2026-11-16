@@ -1,3 +1,4 @@
+import {drawPiercedWall} from './wall-openings.js';
 import {drawAILabInterior} from './ai-lab.js';
 import {Mesh,rand,tint,unit,pose} from './geometry.js';
 import {createRestaurantPatio} from './restaurants.js';
@@ -54,9 +55,7 @@ export function createModels({
         if(isX)m.box(plane-(far?depth:0),y,along,depth,h,w,color,material);
         else m.box(along,y,plane-(far?depth:0),w,h,depth,color,material);
     }
-    function sashWindow(m,isX,plane,along,y,w,h,far,bay=false,trim='#e9ddc4',seed=0){
-        drawFacadeWindow(m,{isX,plane,along,y,w,h,far,bay,trim,seed});
-    }
+    function sashWindow(m,isX,plane,along,y,w,h,far,bay=false,trim='#e9ddc4',seed=0){drawFacadeWindow(m,{isX,plane,along,y,w,h,far,bay,trim,seed});}
     function makeBuilding(b,enterable=false){
         const {x,y:z,w,d,color,style}=b,arch=b.arch||(style==='bank'?'beauxarts':style==='victorian'?'victorian':style==='cafe'?'cafe':style==='library'?'bookshop':style==='kiosk'?'newsstand':style==='civic'?'civic':style==='barracks'?'presidio':'shop');
         const bodyMaterial=arch==='warehouse'?'brick':arch==='office'||arch==='civic'||arch==='beauxarts'?'stone':'clapboard';
@@ -68,21 +67,27 @@ export function createModels({
         const permanent={start:start/11,count:(m.data.length-start)/11},walls=[];
         for(let side=0;side<4;side++){
             const begin=m.data.length,isX=side>=2,far=side%2===0,plane=isX?(far?x:x+w):(far?z:z+d),span=isX?d:w,along=isX?z:x,wx=isX?(far?x:x+w-.1):x,wz=isX?z:(far?z:z+d-.1);
-            if(enterable&&side===1){const gap=door-x;if(gap>0)m.box(x,base+.31,wz,gap,H-.31,.1,color,bodyMaterial);if(gap+1<w)m.box(door+1,base+.31,wz,w-gap-1,H-.31,.1,color,bodyMaterial);m.box(door,base+1.72,wz,1,Math.max(.1,H-1.72),.1,color,bodyMaterial);}
-            else m.box(wx,base+(enterable?.31:0),wz,isX?.1:w,H-(enterable?.31:0),isX?d:.1,color,bodyMaterial);
+            const openings=[],windowSpecs=[];
             const floors=arch==='office'?Math.max(2,Math.floor(H/.7)):H>2.45?2:1,spacing=arch==='office'?.7:1.05;
             for(let floor=0;floor<floors;floor++){
                 const count=Math.max(1,Math.floor((span-.12)/.68)),ww=Math.min(.39,(span-.22)/count*.65),gap=span/count;
                 for(let i=0;i<count;i++){const at=along+gap*(i+.5)-ww/2;if(side===1&&at+ww>door&&at<door+doorWidth&&floor===0)continue;
                     const yy=base+.65+floor*spacing,hh=arch==='office'?.43:.57;
                     if(yy+hh>base+H-.2)continue;
-                    sashWindow(m,isX,plane+(far?-.006:.006),at,yy,ww,hh,far,(arch==='victorian'||arch==='rowhouse')&&floor>0,trim,i+floor);
+                    windowSpecs.push({isX,plane:plane+(far?-.006:.006),along:at,y:yy,w:ww,h:hh,far,bay:!enterable&&(arch==='victorian'||arch==='rowhouse')&&floor>0,trim,seed:i+floor,transparent:enterable,wallDepth:.112});
+                    openings.push({x:at,y:yy,w:ww,h:hh});
                 }
-                if(arch==='victorian'||arch==='rowhouse'||arch==='beauxarts'||arch==='civic')facadeBox(m,isX,plane,along-.025,base+.48+floor*spacing,span+.05,.045,.045,trim,far);
+
             }
+            if(enterable){
+                if(side===1)openings.push({x:door,y:base+.31,w:1,h:1.41});
+                drawPiercedWall(m,{isX,plane,along,y:base+.31,w:span,h:H-.31,depth:.1,far,color,material:bodyMaterial,openings});
+            }else m.box(wx,base,wz,isX?.1:w,H,isX?d:.1,color,bodyMaterial);
+            for(const spec of windowSpecs)drawFacadeWindow(m,spec);
+            if(arch==='victorian'||arch==='rowhouse'||arch==='beauxarts'||arch==='civic')for(let floor=0;floor<floors;floor++)facadeBox(m,isX,plane,along-.025,base+.48+floor*spacing,span+.05,.045,.045,trim,far);
             facadeBox(m,isX,plane,along-.04,base+H-.12,span+.08,.1,.09,trim,far);
             if(arch==='victorian'||arch==='beauxarts'||arch==='civic')for(let i=.13;i<span-.05;i+=.33)facadeBox(m,isX,plane,along+i,base+H-.26,.055,.14,.075,trim,far);
-            if(arch==='beauxarts'||arch==='civic')for(let i=.12;i<span;i+=.72)facadeBox(m,isX,plane,along+i,base+.2,.085,H-.4,.075,tint(trim,-8),far);
+            if(arch==='beauxarts'||arch==='civic')for(let i=.12;i<span;i+=.72)if(!enterable||!openings.some(o=>along+i<o.x+o.w&&along+i+.085>o.x))facadeBox(m,isX,plane,along+i,base+.2,.085,H-.4,.075,tint(trim,-8),far);
             if(side===1){
                 for(const xx of [door-.055,door+doorWidth])m.box(xx,base,z+d+.008,.055,1.73,.065,trim);
                 m.box(door-.06,base+1.7,z+d+.008,doorWidth+.12,.08,.075,trim);
@@ -91,7 +96,7 @@ export function createModels({
                 if(b.name)sign(m,x+w/2,base+H-.53,z+d+.105,Math.min(w-.14,2.7),.32,b.name);
             }
             if(b.name&&side===3)sign(m,x+w+.105,base+H-.53,z+d/2,Math.min(d-.14,2.7),.32,b.name,'side');
-            walls.push({side,start:begin/11,count:(m.data.length-begin)/11});
+            walls.push({side,windows:windowSpecs,start:begin/11,count:(m.data.length-begin)/11});
         }
         let roofDetails;
         const roofStart=m.data.length,roof=b.roof||(arch==='office'||arch==='warehouse'||arch==='rowhouse'||arch==='civic'||arch==='beauxarts'?'flat':arch==='victorian'?'gable':'hip'),roofColor=b.roofColor||(arch==='newsstand'?'#9e6247':arch==='presidio'?'#b56e50':arch==='office'?'#82928e':'#82796b'),rise=roof==='gable'?.65:roof==='hip'?.4:.18;

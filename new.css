@@ -479,4 +479,36 @@ img {
 #sf-employment { color:#bce1d3; }
 .sf-wave-controls { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; padding: 5px 0; border-top: 1px solid #b4a174; }
 .sf-wave-controls[hidden] { display: none; }
+.sf-actions:has(#sf-wave-controls:not([hidden])) { max-height:calc(100dvh - 320px); }
 #sf-wave-status { grid-column: 1 / -1; color: #eadfbc; font-size: 11px; }
+
+#sf-world .sf-character-fields .sf-hat-option { grid-column:1 / -1;align-items:stretch; }
+#sf-world .sf-hat-option select { max-width:none;width:100%; }
+
+/* Opt-in world commands and live map coordinates. */
+.sf-debug, .sf-command { position:fixed;z-index:120;background:#3d3b30f5;color:#f1dfb7;border:2px solid;border-color:#a39370 #29271f #29271f #a39370;box-shadow:2px 3px 0 #17201966;font:12px/1.5 Tahoma,sans-serif; }
+.sf-debug { left:16px;top:16px;width:220px;padding:12px; }
+.sf-debug header { display:flex;align-items:center;justify-content:space-between; }
+.sf-debug header button { border:0;background:none;color:#f1dfb7;font-size:22px;line-height:1;padding:0 4px; }
+.sf-debug dl { display:grid;grid-template-columns:24px 1fr;gap:3px 8px;margin:8px 0;font:15px/1.5 ui-monospace,monospace; }
+.sf-debug dd { margin:0;text-align:right;color:#d5e4bd;font-variant-numeric:tabular-nums; }
+.sf-debug p, .sf-command p { margin:6px 0 0;color:#cabb9a;font:11px/1.5 Tahoma,sans-serif; }
+.sf-debug > button, .sf-command button { border:1px solid #a39370;padding:5px 9px;background:#645b47;color:#f1dfb7; }
+.sf-command { left:16px;bottom:112px;width:min(480px,calc(100% - 32px));padding:12px;box-sizing:border-box; }
+.sf-command label { display:block;margin-bottom:5px;font-weight:bold; }
+.sf-command > div { display:flex;gap:6px; }
+#sf-command-input { flex:1;min-width:0;border:1px solid #a39370;background:#242a25;color:#e5eacb;padding:6px 8px;font:16px/1.4 ui-monospace,monospace;caret-color:#f4d68c; }
+.sf-command p[data-error="true"] { color:#efb8a4; }
+@media(max-width:600px) { .sf-debug { top:12px;left:12px;width:180px; }.sf-command { left:12px;bottom:120px;width:calc(100% - 24px); } }
+
+.sf-debug button, .sf-command button { font:inherit;cursor:pointer; }
+.sf-debug button:focus-visible, .sf-command button:focus-visible, #sf-command-input:focus-visible { outline:2px solid #dfc285;outline-offset:2px; }
+
+.sf-combat-overlay { position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4; }
+.sf-combat-actor { position:absolute;top:0;left:0;will-change:transform; }
+.sf-combat-bar { position:absolute;left:-26px;top:-5px;width:52px;height:7px;box-sizing:border-box;background:#ab292b;border:1px solid #191c17;box-shadow:0 1px 2px #0008; }
+.sf-combat-bar > span { display:block;height:100%;background:#38c348;box-shadow:inset 0 1px #a7f19b88; }
+.sf-hitsplat { position:absolute;left:-14px;top:0;width:28px;height:28px;display:grid;place-items:center;isolation:isolate;color:#fff;font:bold 15px/1 Tahoma,sans-serif;text-shadow:1px 1px #301017,-1px -1px #301017;filter:drop-shadow(0 1px 1px #000b); }
+.sf-hitsplat::before { content:"";position:absolute;inset:0;z-index:-1;background:#b91f29;box-shadow:inset 0 0 0 2px #e97a6b;clip-path:polygon(50% 0,62% 13%,80% 6%,84% 25%,100% 34%,89% 51%,98% 69%,80% 77%,73% 96%,54% 88%,37% 100%,27% 82%,7% 80%,13% 59%,0 44%,18% 32%,18% 12%,39% 17%); }
+.sf-hitsplat[data-miss="true"]::before { background:#335eaa;box-shadow:inset 0 0 0 2px #86b3ec; }
+@media(prefers-reduced-motion:reduce) { .sf-combat-actor { will-change:auto; } }

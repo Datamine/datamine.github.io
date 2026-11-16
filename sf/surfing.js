@@ -2,7 +2,7 @@ import {pose} from './geometry.js';
 import {drawCharacter} from './characters.js';
 import {westernCoastX} from './coastline.js';
 
-export const PACIFICA_SURF_SPOT=Object.freeze({z:121.5,launchDistance:4.2,north:108,south:143});
+export const PACIFICA_SURF_SPOT=Object.freeze({z:121.5,launchDistance:1.6,north:108,south:143});
 export const SURF_TRICKS=Object.freeze([{id:'air-360',label:'Air 360',key:'1',duration:1.05,points:120},{id:'kickflip',label:'Kickflip',key:'2',duration:1.1,points:150},{id:'backflip',label:'Backflip',key:'3',duration:1.2,points:180}].map(Object.freeze));
 export function sampleSurfWave(seconds,index,z=PACIFICA_SURF_SPOT.z){
     const offshore=1.4+((index*2.4-seconds*.22)%9.6+9.6)%9.6,fade=Math.max(0,Math.min(1,(offshore-1.4)/.55,(11-offshore)/.6));
@@ -10,23 +10,23 @@ export function sampleSurfWave(seconds,index,z=PACIFICA_SURF_SPOT.z){
 }
 /** Riding a wave follows the authored coastline, with the same water segment
  * rule used for paddling. Tricks never alter collision or teleport the rider. */
-export function createSurfing({water,segment=(a,b)=>water(a.x,a.z)&&water(b.x,b.z)}={}){
-    const state={active:false,phase:'paddling',ride:null,trick:null,position:null,angle:Math.PI/2,score:0,landed:0};
-    function stop(){state.active=false;state.phase='paddling';state.ride=null;state.trick=null;state.position=null;}
+export function createSurfing({water=(x,z)=>x<westernCoastX(z),segment=(a,b)=>water(a.x,a.z)&&water(b.x,b.z)}={}){
+    const state={active:false,phase:'paddling',ride:null,trick:null,position:null,angle:Math.PI/2,score:0,landed:0,settle:0};
+    function stop(){state.active=false;state.phase='paddling';state.ride=null;state.trick=null;state.position=null;state.settle=0;}
     function start(position){stop();state.active=true;state.position={...position};state.score=0;state.landed=0;}
     function nearby(position,seconds){
         if(!state.active||position.z<PACIFICA_SURF_SPOT.north||position.z>PACIFICA_SURF_SPOT.south||!water(position.x,position.z))return null;
         return Array.from({length:4},(_,i)=>sampleSurfWave(seconds,i,position.z)).filter(w=>w.height>.08&&Math.abs(w.x-position.x)<1.7).sort((a,b)=>Math.abs(a.x-position.x)-Math.abs(b.x-position.x))[0]||null;
     }
     function catchWave(position,seconds){
-        if(state.ride)return false;const wave=nearby(position,seconds);if(!wave)return false;
+        if(state.ride||state.settle>0)return false;const wave=nearby(position,seconds);if(!wave)return false;
         state.position={...position};state.phase='riding';state.angle=Math.PI/2;state.ride={elapsed:0,duration:6.4,startZ:position.z,offshore:wave.offshore,fromOffshore:westernCoastX(position.z)-position.x,direction:1};return true;
     }
-    function cancelRide(){state.ride=null;state.trick=null;state.phase='paddling';}
+    function cancelRide(){if(state.ride)state.settle=.4;state.ride=null;state.trick=null;state.phase='paddling';}
     function steer(x,z){if(!state.ride||!Number.isFinite(x)||!Number.isFinite(z))return false;if(Math.abs(z-state.position.z)>.5)state.ride.direction=z>state.position.z?1:-1;return true;}
     function trick(id){const t=SURF_TRICKS.find(t=>t.id===id),r=state.ride;if(!t||!r||state.trick||r.elapsed<.4||r.duration-r.elapsed<t.duration+.1)return false;state.trick={...t,elapsed:0};return true;}
     function update(dt){
-        const events=[],r=state.ride;if(!r||!Number.isFinite(dt)||dt<=0)return events;
+        const events=[],r=state.ride;if(!Number.isFinite(dt)||dt<=0)return events;if(!r){state.settle=Math.max(0,state.settle-dt);return events;}
         // Small steps preserve the same shoreline collision at any frame rate.
         let remaining=Math.min(dt,30);
         while(remaining>1e-8&&state.ride){
@@ -40,7 +40,7 @@ export function createSurfing({water,segment=(a,b)=>water(a.x,a.z)&&water(b.x,b.
         }
         return events;
     }
-    const poseAt=()=>{const r=state.ride,t=state.trick,p=t?t.elapsed/t.duration:0,stand=r?Math.min(1,r.elapsed/.4):0;return {stand,height:(r?.16+.18*Math.sin(Math.PI*r.elapsed/r.duration):0)+(t?Math.sin(Math.PI*p)*1.55:0),yaw:t?.id==='air-360'?Math.PI*2*p:0,roll:t?.id==='kickflip'?Math.PI*2*p:0,pitch:t?.id==='backflip'?-Math.PI*2*p:0,trickProgress:p};};
+    const poseAt=()=>{const r=state.ride,t=state.trick,p=t?t.elapsed/t.duration:0,stand=r?Math.min(1,r.elapsed/.4):state.settle/.4;return {stand,height:(r?.16*stand+.18*Math.sin(Math.PI*r.elapsed/r.duration):.16*stand)+(t?Math.sin(Math.PI*p)*1.55:0),yaw:t?.id==='air-360'?Math.PI*2*p:0,roll:t?.id==='kickflip'?Math.PI*2*p:0,pitch:t?.id==='backflip'?-Math.PI*2*p:0,trickProgress:p};};
     return {state,start,stop,nearby,catchWave,cancelRide,steer,trick,update,get pose(){return poseAt();}};
 }
 
@@ -73,15 +73,19 @@ export function drawWaveSurfer(m,x,z,base,angle,time,surfPose,{appearance={},mov
         if(moving&&!surfPose.pitch)for(const side of [-1,1])m.rod([-1.1,.02,side*.2],[-1.6,.015,side*.32],.013,'#c9e0d8',4);
     });
 }
-export function drawPacificaWaves(m,time,viewer,{reduced=false}={}){
+export function drawPacificaWaves(m,time,viewer){
     if(viewer.z<80||viewer.z>170||viewer.x>40)return;
-    const seconds=(reduced?12000:time)*.001;
-    for(let wave=0;wave<4;wave++)for(let z=PACIFICA_SURF_SPOT.north;z<PACIFICA_SURF_SPOT.south;z+=.7){
-        const a=sampleSurfWave(seconds,wave,z),b=sampleSurfWave(seconds,wave,z+.7);if(Math.hypot(a.x-viewer.x,z-viewer.z)>36)continue;
-        const endFade=Math.min(1,(z-PACIFICA_SURF_SPOT.north)/3,(PACIFICA_SURF_SPOT.south-z)/3),h=a.height*Math.max(0,endFade);
-        if(h<.02)continue;
-        m.quad([a.x-.8,.025,z],[b.x-.8,.025,z+.7],[b.x,.06+h,z+.7],[a.x,.06+h,z],'#7daeb0',{water:.25});
-        m.quad([a.x,.06+h,z],[b.x,.06+h,z+.7],[b.x+.4,.025,z+.7],[a.x+.4,.025,z],'#94c0bb',{water:.25});
-        m.quad([a.x-.035,.07+h,z],[b.x-.035,.07+h,z+.7],[b.x+.045,.07+h,z+.7],[a.x+.045,.07+h,z],'#d1e6dd');
+    // These crests are gameplay targets, so they follow the simulation clock
+    // even when decorative character motion is reduced.
+    const seconds=time*.001,slices=Math.ceil((PACIFICA_SURF_SPOT.south-PACIFICA_SURF_SPOT.north)/.7);
+    // Both sides of a slice use the same endpoint profile as their neighbors.
+    // Taper the width as well as the height so the ends dissolve into the sea.
+    const endpoint=(wave,z)=>{const w=sampleSurfWave(seconds,wave,z),t=Math.max(0,Math.min(1,(z-PACIFICA_SURF_SPOT.north)/3,(PACIFICA_SURF_SPOT.south-z)/3)),fade=t*t*(3-2*t);return {...w,fade,y:.025+(.035+w.height)*fade};};
+    for(let wave=0;wave<4;wave++)for(let i=0;i<slices;i++){
+        const z=PACIFICA_SURF_SPOT.north+i*.7,zz=Math.min(PACIFICA_SURF_SPOT.south,PACIFICA_SURF_SPOT.north+(i+1)*.7),a=endpoint(wave,z),b=endpoint(wave,zz);
+        if(Math.hypot(a.x-viewer.x,z-viewer.z)>36||a.height<.02)continue;
+        m.quad([a.x-.8*a.fade,.025,z],[b.x-.8*b.fade,.025,zz],[b.x,b.y,zz],[a.x,a.y,z],'#7daeb0',{water:.25});
+        m.quad([a.x,a.y,z],[b.x,b.y,zz],[b.x+.4*b.fade,.025,zz],[a.x+.4*a.fade,.025,z],'#94c0bb',{water:.25});
+        m.quad([a.x-.035*a.fade,a.y+.01*a.fade,z],[b.x-.035*b.fade,b.y+.01*b.fade,zz],[b.x+.045*b.fade,b.y+.01*b.fade,zz],[a.x+.045*a.fade,a.y+.01*a.fade,z],'#d1e6dd');
     }
 }

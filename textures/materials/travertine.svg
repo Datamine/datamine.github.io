@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Honed travertine</title>
+  <desc>Long-cut limestone with soft mineral bedding, pores and tightly honed joints. Neutral relief is tinted by the model.</desc>
+  <defs>
+    <pattern id="travertine" width="256" height="64" patternUnits="userSpaceOnUse">
+      <rect width="256" height="64" fill="#e7dfcb"/>
+      <path d="M0 16Q37 10 70 18T142 14T215 19T280 13M-15 38Q25 31 63 37T151 35T270 39M0 51Q43 47 88 53T180 50T270 54" fill="none" stroke="#bdb69f" stroke-width="1.3" opacity=".44"/>
+      <path d="M0 22Q47 17 91 22T195 24T270 20M0 42Q52 38 102 44T206 42T270 45" fill="none" stroke="#fff9e9" stroke-width="2" opacity=".6"/>
+      <path d="M0 63H256M170 0V64" stroke="#a8a18d" stroke-width="1" opacity=".65"/>
+      <path d="M0 1H256M172 1V63" stroke="#fff7e7" stroke-width="1"/>
+      <g fill="#9e9986" opacity=".35"><ellipse cx="24" cy="29" rx="2" ry=".65"/><ellipse cx="119" cy="12" rx="3" ry=".6"/><ellipse cx="206" cy="48" rx="2" ry=".7"/><ellipse cx="91" cy="56" rx="1.7" ry=".7"/><ellipse cx="231" cy="26" rx="2.5" ry=".6"/></g>
+    </pattern>
+  </defs>
+  <rect width="256" height="256" fill="url(#travertine)"/>
+</svg>

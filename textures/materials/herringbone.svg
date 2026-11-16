@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Herringbone brick</title>
+  <desc>Small alternating fired pavers with narrow mortar, worn faces and a soft beveled edge.</desc>
+  <defs><pattern id="herringbone" width="64" height="64" patternUnits="userSpaceOnUse">
+    <rect width="64" height="64" fill="#a5a396"/>
+    <g stroke="#fff5dd" stroke-width=".7"><path d="M1 1h30v14H1Z" fill="#e9dfc5"/><path d="M33 1h14v30H33Z" fill="#d1c9b3"/><path d="M49 1h14v30H49Z" fill="#eee5d0"/><path d="M1 17h14v30H1Z" fill="#d9cfb6"/><path d="M17 17h14v30H17Z" fill="#f0e6cd"/><path d="M33 33h30v14H33Z" fill="#e0d7be"/><path d="M17 49h30v14H17Z" fill="#d1c9b4"/><path d="M49 49h14v14H49Z" fill="#e5dcc7"/><path d="M1 49h14v14H1Z" fill="#eee4ca"/></g>
+    <path d="m5 4 16 1m15 4v15m18-17v14M4 23v13m16-13v15m18 0 18 1M22 52l16 1" stroke="#aaa798" stroke-width=".6" opacity=".45"/>
+  </pattern></defs><rect width="256" height="256" fill="url(#herringbone)"/>
+</svg>

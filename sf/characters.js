@@ -1,3 +1,5 @@
+import {hatById} from './hat-catalog.js';
+import {getHatGeometry} from './hat-models.js';
 import {rgb} from './geometry.js';
 import {sampleForwardRoll} from './forward-roll.js';
 
@@ -7,7 +9,7 @@ import {sampleForwardRoll} from './forward-roll.js';
 export const CHARACTER_CLIPS=Object.freeze({
     walk:{stride:.92,stance:.56,lift:.15,hip:.855,arm:.34},
     run:{stride:2,stance:.35,lift:.32,hip:.795,arm:.62},
-    cycle:{stride:Math.PI*.62},climb:{stride:.56,stance:.6,lift:.1},sit:{},surf:{},skate:{stride:2.4},motorcycle:{},idle:{}
+    swim:{},cycle:{stride:Math.PI*.62},climb:{stride:.56,stance:.6,lift:.1},sit:{},surf:{},skate:{stride:2.4},motorcycle:{},idle:{}
 });
 export const CHARACTER_BONES=Object.freeze({
     pelvis:0,spine:1,chest:2,head:3,leftArm:4,leftForearm:5,leftHand:6,
@@ -21,7 +23,7 @@ const CHAR_BIND=[
     [-.11,.88,0],[-.11,.47,0],[-.11,.09,0],
     [.11,.88,0],[.11,.47,0],[.11,.09,0]
 ];
-const CHAR_SLOT={skin:0,shirt:1,pants:2,hair:3,shoe:4,trim:5,eye:6,white:7,metal:8,belt:9,bag:10};
+const CHAR_SLOT={skin:0,shirt:1,pants:2,hair:3,shoe:4,trim:5,eye:6,white:7,metal:8,belt:9,bag:10,hat:11,hatTrim:12,hatGem:13,phoneBody:14,phoneScreen:15,phoneGlyph:16};
 const CHAR_TAU=Math.PI*2;
 const charClamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const charMix=(a,b,t)=>a+(b-a)*t;
@@ -166,6 +168,8 @@ export function sampleCharacterPose(mode='idle',phase=0,options={},out=createCha
         const shoulder=charRotate(out.rotations[2],charSub(CHAR_BIND[arm],CHAR_BIND[2])).map((v,i)=>v+out.joints[2*3+i]);
         let wrist=null;
         if(rollTuck)wrist=[sign*.17,charMix(.77,.61,rollTuck),.33*rollTuck];
+        else if(gesture==='bottle-post')wrist=side?[.16,.94+.12*Math.sin(gestureT*Math.PI*2),.24+.22*Math.cos(gestureT*Math.PI*2)]:[-.17,1.0,.33];
+        else if(gesture==='ponder')wrist=side?[.10,1.34,.18]:[-.16,.96,.12];
         else if(gesture==='fish')wrist=[sign*.13,.97+.13*Math.sin(gestureT*Math.PI),.4];
         else if(gesture==='curl')wrist=[sign*.28,.78+.44*(1+Math.sin(time))/2,.18+.06*Math.cos(time)];
         else if(gesture==='press')wrist=[sign*.27,1.25+.46*(1+Math.sin(time))/2,.12];
@@ -180,8 +184,11 @@ export function sampleCharacterPose(mode='idle',phase=0,options={},out=createCha
             const raise=charClamp(options.actionT||0,0,1);
             wrist=[sign*charMix(.24,.35,raise),charMix(.81,1.7,raise),charMix(.04,.12,raise)];
         }
+        else if(options.railgun)wrist=[side?.11:-.12,1.05,side?.21:.49];
+        else if(side&&options.phone)wrist=[.23,1.06,.24];
         else if(!side&&options.carryingFish)wrist=[-.3,.86,.12];
         else if(options.pushingStroller)wrist=[sign*.23,.94,.34];
+        else if(mode==='swim')wrist=[sign*(.38+.10*Math.sin(time*1.8)),1.12+.045*Math.cos(time*1.8),.13+.11*Math.cos(time*1.8)];
         else if(mode==='paddle')wrist=[sign*.32,1.03+.14*Math.sin(time*3+side*Math.PI),.12+.18*Math.cos(time*3+side*Math.PI)];
         else if(mode==='surfboard')wrist=[sign*.43,1.03+.04*Math.sin(time*2),side?.2:-.05];
         else if(mode==='skate')wrist=[sign*.36,.9+Math.sin(phase)*sign*.04,.10];
@@ -240,7 +247,7 @@ class CharacterMeshBuilder{
 const charMeshCache=new Map();
 function charBlend(a,b,t){return [a,b,charClamp(t,0,1)];}
 function charTorsoRig(p){return p[1]<1.12?charBlend(0,1,(p[1]-.91)/.21):charBlend(1,2,(p[1]-1.12)/.19);}
-function charBuildMesh({female,longHair,curly,cap,topHat,chef,backpack,coat,uniform,sunglasses,alien,bayonet}){
+function charBuildMesh({female,longHair,curly,cap,topHat,chef,backpack,coat,uniform,sunglasses,alien,bayonet,hat,phone}){
     const m=new CharacterMeshBuilder(),S=CHAR_SLOT,waist=female?.142:.164,shoulder=female?.222:.238;
     m.loft([[0,coat?.78:.87,0,.18,.119],[0,.96,0,waist,.112],[0,1.10,0,waist+.017,.125],[0,1.25,0,shoulder,.137],[0,1.34,0,shoulder*.94,.115],[0,1.39,0,.10,.078]],S.shirt,charTorsoRig,8);
     m.loft([[0,.82,0,.167,.106],[0,.90,0,.172,.119],[0,.95,0,.16,.11]],S.pants,0,8);
@@ -312,19 +319,32 @@ function charBuildMesh({female,longHair,curly,cap,topHat,chef,backpack,coat,unif
         m.loft([[0,1.37,-.079,.116,.052],[0,1.51,-.071,.133,.063],[0,1.65,-.04,.131,.079]],S.hair,3,10,false);
         for(const side of [-1,1])m.loft([[side*.112,curly?1.35:1.40,-.027,.035,.055],[side*.132,1.48,-.019,curly?.053:.036,.060],[side*.13,1.63,-.022,.035,.059]],S.hair,3,curly?7:6);
     }
-    if(cap){
+    if(cap&&!hat){
         m.loft([[0,1.698,-.019,.13,.116],[0,1.75,-.023,.116,.109],[0,1.78,-.025,.076,.073]],uniform?S.pants:S.shirt,3,10);
         m.box(-.10,1.696,.06,.20,.024,.13,uniform?S.pants:S.shirt,3,.8);
         if(uniform)m.box(-.022,1.728,.103,.044,.03,.014,S.metal,3);
     }
-    if(topHat){
+    if(topHat&&!hat){
         m.loft([[0,1.755,-.02,.21,.17],[0,1.79,-.02,.21,.17]],S.hair,3,16);
         m.loft([[0,1.79,-.02,.13,.11],[0,2.1,-.02,.145,.12]],S.hair,3,16);
         m.loft([[0,1.8,-.02,.133,.113],[0,1.87,-.02,.137,.116]],S.metal,3,16);
     }
-    if(chef){
+    if(chef&&!hat){
         m.loft([[0,1.71,-.02,.13,.12],[0,1.81,-.02,.14,.12],[0,1.9,-.02,.19,.16],[0,2.02,-.02,.17,.15],[0,2.055,-.02,.06,.06]],S.white,3,16);
         for(const side of [-1,1])for(let row=0;row<3;row++)m.box(side*.07-.012,1.08+row*.085,.138,.024,.024,.012,S.belt,2);
+    }
+    if(hat){
+        const model=getHatGeometry(hat),data=model.mesh.data;
+        for(let i=0;i<data.length;i+=33){
+            const points=[0,11,22].map(k=>[data[i+k],data[i+k+1]+1.715,data[i+k+2]-.02]);
+            m.tri(...points,[S.hat,S.hatTrim,S.hatGem][model.channels[i/33]],3);
+        }
+    }
+    if(phone){
+        m.box(.20,.64,.038,.09,.18,.016,S.phoneBody,9);
+        m.box(.207,.656,.056,.076,.14,.004,S.phoneScreen,9);
+        for(let i=0;i<4;i++)m.box(.214,.677+i*.024,.061,.052-(i%2)*.016,.006,.002,S.phoneGlyph,9);
+        m.box(.233,.787,.062,.026,.005,.002,S.phoneBody,9);
     }
     if(backpack){
         m.loft([[0,1.00,-.19,.145,.06],[0,1.13,-.205,.157,.085],[0,1.27,-.185,.125,.065]],S.bag,1,8);
@@ -342,8 +362,8 @@ function charBuildMesh({female,longHair,curly,cap,topHat,chef,backpack,coat,unif
     return m.finish();
 }
 export function getCharacterMesh(appearance={}){
-    const flags={female:!!appearance.female,longHair:!!appearance.longHair,curly:appearance.hairstyle==='curly',cap:!!appearance.cap,topHat:!!appearance.topHat,chef:!!appearance.chef,backpack:appearance.backpack!==false,coat:!!appearance.coat,uniform:!!appearance.uniform,sunglasses:!!appearance.sunglasses,alien:!!appearance.alien,bayonet:!!appearance.bayonet};
-    const key=Object.values(flags).map(Number).join('');
+    const flags={phone:!!appearance.phone,hat:hatById(appearance.hat)?.id||'',female:!!appearance.female,longHair:!!appearance.longHair,curly:appearance.hairstyle==='curly',cap:!!appearance.cap,topHat:!!appearance.topHat,chef:!!appearance.chef,backpack:appearance.backpack!==false,coat:!!appearance.coat,uniform:!!appearance.uniform,sunglasses:!!appearance.sunglasses,alien:!!appearance.alien,bayonet:!!appearance.bayonet};
+    const key=Object.values(flags).map(v=>typeof v==='boolean'?Number(v):v).join('|');
     if(!charMeshCache.has(key))charMeshCache.set(key,charBuildMesh(flags));
     return charMeshCache.get(key);
 }
@@ -355,8 +375,9 @@ export function drawCharacter(m,x,z,base,angle=0,phase=0,seated=false,skin='#bd9
     const mesh=getCharacterMesh(appearance),height=appearance.height||1,co=Math.cos(angle),si=Math.sin(angle);
     const mode=appearance.mode||(seated?'sit':phase?'move':'idle');
     const ground=appearance.ground&&(mode==='idle'||mode==='move')?((lx,lz)=>(appearance.ground(x+lx*si+lz*co,z-lx*co+lz*si)-base)/height-.015):null;
-    const pose=sampleCharacterPose(mode,phase,{motion:appearance.motion,run:appearance.run,time:appearance.time,action:appearance.action,actionT:appearance.actionT,carryingFish:appearance.carryingFish,pushingStroller:appearance.pushingStroller,ground},charScratch),mat=pose.matrices,v=mesh.vertices,work=mesh.deformed;
-    const palette=[appearance.alien?'#a4b797':skin,shirt,appearance.pants||'#626955',appearance.hair||'#453a30',appearance.shoes||'#3c3d36',appearance.trim||'#c9c7b4','#282c29','#e1dfca','#c7aa67','#45483c',appearance.bag||'#886d4b'].map(rgb);
+    const pose=sampleCharacterPose(mode,phase,{motion:appearance.motion,run:appearance.run,time:appearance.time,action:appearance.action,actionT:appearance.actionT,carryingFish:appearance.carryingFish,pushingStroller:appearance.pushingStroller,railgun:appearance.railgun,phone:appearance.phone,ground},charScratch),mat=pose.matrices,v=mesh.vertices,work=mesh.deformed;
+    const hat=hatById(appearance.hat);
+    const palette=[appearance.alien?'#a4b797':skin,shirt,appearance.pants||'#626955',appearance.hair||'#453a30',appearance.shoes||'#3c3d36',appearance.trim||'#c9c7b4','#282c29','#e1dfca','#c7aa67','#45483c',appearance.bag||'#886d4b',...(hat?.colors||['#888888','#aaaaaa','#cccccc']),'#485961','#91bdc5','#e4ece1'].map(rgb);
     for(let id=0;id<mesh.bonesA.length;id++){
         const i=id*6,a=mesh.bonesA[id]*12,b=mesh.bonesB[id]*12,w=mesh.weights[id],q=1-w;
         for(let row=0;row<3;row++){
@@ -367,7 +388,7 @@ export function drawCharacter(m,x,z,base,angle=0,phase=0,seated=false,skin='#bd9
     }
     for(const id of mesh.indices){
         const i=id*6,px=work[i],py=work[i+1]*height,pz=work[i+2],nx=work[i+3],ny=work[i+4]/height,nz=work[i+5],color=palette[mesh.slots[id]],shade=mesh.shades[id];
-        const gilded=appearance.gilded&&[CHAR_SLOT.shirt,CHAR_SLOT.pants,CHAR_SLOT.metal].includes(mesh.slots[id]);
-        m.data.push(x+px*si+pz*co,base+py,z-px*co+pz*si,nx*si+nz*co,ny,-nx*co+nz*si,color[0]*shade,color[1]*shade,color[2]*shade,gilded?-1.4:-1,gilded?.4:-1);
+        const slot=mesh.slots[id],gilded=appearance.gilded&&[CHAR_SLOT.shirt,CHAR_SLOT.pants,CHAR_SLOT.metal].includes(slot)||hat&&(slot===CHAR_SLOT.hat&&hat.metal||slot===CHAR_SLOT.hatTrim&&hat.trimMetal||slot===CHAR_SLOT.hatGem);
+        m.data.push(x+px*si+pz*co,base+py,z-px*co+pz*si,nx*si+nz*co,ny,-nx*co+nz*si,color[0]*shade,color[1]*shade,color[2]*shade,gilded?-1.4:slot===CHAR_SLOT.phoneScreen?-1.25:-1,gilded?.4:slot===CHAR_SLOT.phoneScreen?.22:-1);
     }
 }

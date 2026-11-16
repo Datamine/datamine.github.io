@@ -1,5 +1,14 @@
+import {inAirportFieldBillboards} from './airport-billboards.js';
+import {drawSouthernStreetGardens} from './southern-street-gardens.js';
+import {southernHousingStyle} from './neighborhood-palette.js';
+import {SOUTHERN_CRAFT,inSouthernCraft} from './southern-craft-layout.js';
+import {CRAFT_SHOPS,drawSouthernCraftSite,drawSouthernPocketGardens} from './southern-craft.js';
+import {inSocialGrounds} from './social-layout.js';
+import {inTechGrounds} from './tech-layout.js';
+import {inHaberdasherGrounds} from './haberdasher-layout.js';
 import {inEstateDistrict} from './estate-layout.js';
 import {makeEstateHouse} from './estate-architecture.js';
+import {createEstateResidents} from './estate-life.js';
 import {drawWoodlandParks} from './woodland-park.js';
 import {rand} from './geometry.js';
 import {inPacificaPark,PACIFICA_PARK} from './southern-expansion.js';
@@ -11,22 +20,32 @@ import {SOUTHERN_HOUSING,inSouthernHousePlot,southernTrailDistance,inTimesSquare
 import {SOUTHERN_ROADS,airportSurfaceTypeAt} from './airship.js';
 import {planBlockStreetLights,houseDoorPositions,SOUTHERN_STREET_LIGHT_POLICY} from './street-light-layout.js';
 import {inSquareConstruction} from './square-construction-layout.js';
+import {inCivicGrounds} from './southern-district.js';
+import {inJurassicGrounds,inCowPen} from './jurassic-layout.js';
+import {inGPUFactoryGrounds} from './gpu-layout.js';
 
 export function populateSouthernNeighborhood({mesh,terrain,makeTownhomeRow,tree,bench,roadDistance,signs,entrances=[],cityRoads=[],cityBuildings=[],surfaceType=airportSurfaceTypeAt,registerEstate=()=>{}}){
-    const houses=[];
-    for(const [i,p] of SOUTHERN_HOUSING.entries())if(inEstateDistrict(p.x,p.z)){const house=makeEstateHouse(mesh,p,terrain);registerEstate(house);houses.push(house);}else houses.push(makeTownhomeRow(p.x-p.w/2,p.z-p.d/2,p.w,p.d,2,p.seed??(.17+i*.083)%1,p.rotation,p.district||(i%3===2?'victorian':'west')));
+    const houses=[],craftSites=[];
+    for(const [i,p] of SOUTHERN_HOUSING.entries()){
+        if(inEstateDistrict(p.x,p.z)){const house=makeEstateHouse(mesh,p,terrain);registerEstate(house);houses.push(house);}
+        else if(p.infill&&p.w>=3.15&&i%4===1){
+            const shop=CRAFT_SHOPS[craftSites.length%CRAFT_SHOPS.length],plot={...p,index:craftSites.length,id:'southern-corner-'+i,kind:shop.kind,palette:['#a4b8a1','#d5ad90','#9fbabc','#c2a7b0','#ddc58e']},entry=[p.x-Math.sin(p.rotation)*(p.d/2+.28),p.z+Math.cos(p.rotation)*(p.d/2+.28)];plot.entry={x:entry[0]-.5,y:entry[1]-.5};
+            const site=drawSouthernCraftSite(mesh,plot,terrain,signs,shop);craftSites.push(site);houses.push({...site,houses:[],homes:0});
+        }else houses.push(makeTownhomeRow(p.x-p.w/2,p.z-p.d/2,p.w,p.d,2,p.seed??(.17+i*.083)%1,p.rotation,p.district&&['coastal','craftsman'].includes(p.district)?p.district:southernHousingStyle(p)));
+    }
+    craftSites.push(...drawSouthernPocketGardens(mesh,terrain,signs));
     // Coastal pines and broadleaf trees frame the streets and hill contours.
     // Every tree inherits the terrain below it; none brings a square of turf.
     const trees=[];
     for(let i=0;i<185;i++){
         const x=21+rand(i,11,2)*50,z=99+rand(i,13,7)*70;
-        if(inSquareConstruction(x,z,.6)||inPacificaPark(x,z)||researchCampusAt(x,z)||gymAccess(x,z)||inTimesSquare(x,z)||roadDistance(x,z)<1.3||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,1)||x>60&&z<107||x>64&&z>128||x>74)continue;
+        if(inAirportFieldBillboards(x,z,1)||inSouthernCraft(x,z,.65)||inSocialGrounds(x,z,1)||inTechGrounds(x,z,1)||inHaberdasherGrounds(x,z,1)||inGPUFactoryGrounds(x,z,1)||inJurassicGrounds(x,z,1)||inCowPen(x,z,1)||inCivicGrounds(x,z,1.2)||inSquareConstruction(x,z,.6)||inPacificaPark(x,z)||researchCampusAt(x,z)||gymAccess(x,z)||inTimesSquare(x,z)||roadDistance(x,z)<1.3||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,1)||x>60&&z<107||x>64&&z>128||x>74)continue;
         if(terrain.height(x,z)<2.5&&i%3)continue;
         tree(x-.5,z-.5,i%3===0?true:i%7===0?3:false);trees.push({x,z});
     }
     for(let i=0;i<360;i++){
         const x=54+rand(i,21,4)*26,z=117+rand(i,19,8)*30;
-        if(roadDistance(x,z)<1.15||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,.5)||entrances.some(p=>Math.hypot(p.x-x,p.z-z)<1.3))continue;
+        if(inAirportFieldBillboards(x,z,1)||inSouthernCraft(x,z,.65)||inCivicGrounds(x,z,1.2)||roadDistance(x,z)<1.15||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,.5)||entrances.some(p=>Math.hypot(p.x-x,p.z-z)<1.3))continue;
         tree(x-.5,z-.5,true,true);trees.push({x,z,evergreen:true});
     }
     for(const [x,z] of [[44.3,112.1],[47.6,113.6],[52.2,109.4]])bench(x,z);
@@ -37,8 +56,9 @@ export function populateSouthernNeighborhood({mesh,terrain,makeTownhomeRow,tree,
         for(let j=0;j<3;j++)mesh.sphere(x+.32+j*.1,h+.1,z+.18,.12,.13,.11,'#7a9252',8,5);
     }
     const woods=drawWoodlandParks(mesh,{terrain,tree,bench,roadDistance,signs});trees.push(...woods.trees);
-    const avoid=[...entrances,...[NIGHTLIFE.entry,PACIFICA_PARK.entry].map(p=>({x:p.x+.5,z:p.y+.5}))];
+    const avoid=[...entrances,...craftSites.map(s=>({x:s.entry.x+.5,z:s.entry.y+.5})),...[NIGHTLIFE.entry,PACIFICA_PARK.entry].map(p=>({x:p.x+.5,z:p.y+.5}))];
     avoid.push(...houseDoorPositions([...houses,...cityBuildings]));
     const lightPlan=planBlockStreetLights({roads:[...cityRoads,...SOUTHERN_ROADS],surfaceType,avoid,minZ:78,...SOUTHERN_STREET_LIGHT_POLICY}),lamps=lightPlan.lamps;
-    return {houses,trees,lamps,lightPlan,sights:[drawTimesSquare(mesh,signs),drawPeninsulaDetails(mesh,terrain,signs,tree),...woods.sites],diners:[]};
+    const streetGardens=drawSouthernStreetGardens(mesh,{terrain,entrances:avoid,lamps,register:registerEstate});
+    return {streetGardens,craftSites,houses,residents:createEstateResidents(houses),trees,lamps,lightPlan,sights:[...craftSites,drawTimesSquare(mesh,signs),drawPeninsulaDetails(mesh,terrain,signs,tree),...woods.sites],diners:[]};
 }

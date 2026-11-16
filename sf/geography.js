@@ -7,6 +7,8 @@ export const PARK_BOUNDS=Object.freeze({west:9,east:32,north:29,south:34});
 // Fell/Oak, Stanyan/Baker: a deliberately narrow continuation of the park.
 // The eastern boundary stops at the next north/south street's western curb.
 export const PANHANDLE=Object.freeze({west:32,east:37.65,north:30.95,south:32.2});
+// A wider Mission lawn, contained within the neighboring street curbs.
+export const DOLORES_PARK=Object.freeze({west:35.35,east:37.15,north:42.8,south:45.4});
 export function inBounds(x,z,b){return x>=b.west&&x<=b.east&&z>=b.north&&z<=b.south;}
 export function boundsPolygon(b){return [[b.west,b.north],[b.east,b.north],[b.east,b.south],[b.west,b.south]];}
 

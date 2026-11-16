@@ -1,3 +1,4 @@
+import {GLASS_UV} from './glazing.js';
 import {MATERIAL_IDS} from './materials.js';
 
 const rand=(x,y,salt=0)=>{const n=Math.sin(x*127.1+y*311.7+salt*19.3)*43758.5453;return n-Math.floor(n);};
@@ -7,7 +8,7 @@ function tint(hex,n){return '#'+rgb(hex).map(v=>Math.max(0,Math.min(255,Math.rou
 const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((v,n,i)=>v+n*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],unit=a=>{const n=Math.hypot(...a)||1;return a.map(v=>v/n);};
 class Mesh {
     constructor(){this.data=[];}
-    tri(a,b,c,color,uv=null){const normal=unit(cross(sub(b,a),sub(c,a))),col=typeof color==='string'?rgb(color):color,material=typeof uv==='string'?[-2-MATERIAL_IDS[uv],0]:uv?.material?[-2-MATERIAL_IDS[uv.material],uv.angle||0]:uv?.snow?[-.75,uv.groom||0]:uv?.water!==undefined?[-1.75,uv.water]:uv?.envelope?[-1,-8]:uv?.window!==undefined?[-1.05,uv.window]:uv?.emissive?[-1.25,uv.emissive]:uv?.metal?[-1.4,uv.metal]:null;for(const [i,v] of [a,b,c].entries())this.data.push(...v,...normal,...col,...(material|| (uv?uv[i]:[-1,-1])));}
+    tri(a,b,c,color,uv=null){const normal=unit(cross(sub(b,a),sub(c,a))),col=typeof color==='string'?rgb(color):color,material=typeof uv==='string'?[-2-MATERIAL_IDS[uv],0]:uv?.material?[-2-MATERIAL_IDS[uv.material],uv.angle||0]:uv?.snow?[-.75,uv.groom||0]:uv?.water!==undefined?[-1.75,uv.water]:uv?.envelope?[-1,-8]:uv?.glass!==undefined?[GLASS_UV,uv.glass]:uv?.window!==undefined?[-1.05,uv.window]:uv?.emissive?[-1.25,uv.emissive]:uv?.metal?[-1.4,uv.metal]:null;for(const [i,v] of [a,b,c].entries())this.data.push(...v,...normal,...col,...(material|| (uv?uv[i]:[-1,-1])));}
     quad(a,b,c,d,color,uv=null){this.tri(a,b,c,color,uv&&!Array.isArray(uv)?uv:uv&&[uv[0],uv[1],uv[2]]);this.tri(a,c,d,color,uv&&!Array.isArray(uv)?uv:uv&&[uv[0],uv[2],uv[3]]);}
     box(x,y,z,w,h,d,color,material=null){
         const a=[x,y,z],b=[x+w,y,z],c=[x+w,y,z+d],e=[x,y,z+d],A=[x,y+h,z],B=[x+w,y+h,z],C=[x+w,y+h,z+d],E=[x,y+h,z+d];
@@ -43,7 +44,7 @@ class Mesh {
 function matrixMultiply(a,b){const out=new Float32Array(16);for(let col=0;col<4;col++)for(let row=0;row<4;row++)for(let i=0;i<4;i++)out[col*4+row]+=a[i*4+row]*b[col*4+i];return out;}
 function rayBox(ray,lo,hi){let near=0,far=220;for(let i=0;i<3;i++){if(Math.abs(ray.dir[i])<1e-9){if(ray.origin[i]<lo[i]||ray.origin[i]>hi[i])return null;}else{let a=(lo[i]-ray.origin[i])/ray.dir[i],b=(hi[i]-ray.origin[i])/ray.dir[i];if(a>b)[a,b]=[b,a];near=Math.max(near,a);far=Math.min(far,b);if(near>far)return null;}}return near;}
 function rayTriangle(ray,a,b,c){const e1=sub(b,a),e2=sub(c,a),p=cross(ray.dir,e2),det=dot(e1,p);if(Math.abs(det)<1e-8)return null;const inv=1/det,t=sub(ray.origin,a),u=dot(t,p)*inv;if(u<-.0001||u>1.0001)return null;const q=cross(t,e1),v=dot(ray.dir,q)*inv;if(v<-.0001||u+v>1.0001)return null;const d=dot(e2,q)*inv;return d>.01?d:null;}
-function pose(m,x,y,z,angle,draw){const start=m.data.length;draw(m);const c=Math.cos(angle),s=Math.sin(angle);for(let i=start;i<m.data.length;i+=11){const xx=m.data[i],zz=m.data[i+2],nx=m.data[i+3],nz=m.data[i+5];m.data[i]=x+xx*c-zz*s;m.data[i+1]+=y;m.data[i+2]=z+xx*s+zz*c;m.data[i+3]=nx*c-nz*s;m.data[i+5]=nx*s+nz*c;if(m.data[i+9]<-1.5)m.data[i+10]+=angle;}}
+function pose(m,x,y,z,angle,draw){const start=m.data.length;draw(m);const c=Math.cos(angle),s=Math.sin(angle);for(let i=start;i<m.data.length;i+=11){const xx=m.data[i],zz=m.data[i+2],nx=m.data[i+3],nz=m.data[i+5];m.data[i]=x+xx*c-zz*s;m.data[i+1]+=y;m.data[i+2]=z+xx*s+zz*c;m.data[i+3]=nx*c-nz*s;m.data[i+5]=nx*s+nz*c;if(m.data[i+9]<=-2)m.data[i+10]+=angle;}}
 
 // Wall indices match makeBuilding: north, south, west, east in building space.
 // Rotate each outward normal into world space and compare it with the actual

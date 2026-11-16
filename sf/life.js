@@ -1,5 +1,5 @@
 import {rand,pose} from './geometry.js';
-import {drawWalkingDog,drawBabyStroller} from './companions.js';
+import {drawWalkingDog,drawDogLeash,drawBabyStroller} from './companions.js';
 import {CHARACTER_CLIPS} from './characters.js';
 
 export const NOE_VALLEY_BOUNDS=Object.freeze({west:49,east:64,north:68,south:84});
@@ -32,7 +32,7 @@ export function drawSeagull(m,bird){
 
 /** Short, checked pavement routes prevent background people walking through
  * buildings. Routes and appearances are prepared once, never pathfound per frame. */
-export function createCityLife({routes,surfaceType,lamps,terrainHeight,groundHeight=terrainHeight,scale,human,bicycle,maxWalkers=26,maxRiders=4,waterTraffic=true,prefix='citizen',regional=false,walkerQuotas=[],strollers=false,walkable=()=>true}){
+export function createCityLife({routes,surfaceType,lamps,terrainHeight,groundHeight=terrainHeight,scale,human,bicycle,maxWalkers=26,maxRiders=4,waterTraffic=true,prefix='citizen',regional=false,walkerQuotas=[],strollers=false,walkable=()=>true,visible=()=>true}){
     const candidates=[],gulls=[];
     for(const [index,r] of routes.entries()){
         const [a,b]=r.points,len=Math.hypot(b[0]-a[0],b[1]-a[1]),ux=(b[0]-a[0])/len,uz=(b[1]-a[1])/len;
@@ -52,7 +52,7 @@ export function createCityLife({routes,surfaceType,lamps,terrainHeight,groundHei
     people.forEach((p,i)=>Object.assign(p,{child:!strollers&&!p.rider&&i%11===3,dogWalker:!strollers&&!p.rider&&i%9===4,stroller:strollers&&!p.rider,id:prefix+'-'+i,label:!strollers&&!p.rider&&i%11===3?'Child':i%2?'Woman':'Man',regional:typeof regional==='function'?regional(p):regional,elapsed:0,hold:0,phase:p.seed*Math.PI*2,motion:0}));
     function update(dt){
         for(const p of people){
-            const held=p.hold>0;if(held)p.hold=Math.max(0,p.hold-dt);else p.elapsed+=dt;
+            const held=p.hold>0||p.waiting;if(held)p.hold=Math.max(0,p.hold-dt);else p.elapsed+=dt;
             const speed=p.rider?1.8:.75+p.seed*.25,state=routePhase(p.elapsed,p.length,speed,p.seed),at=pointOn(p.points,state.fraction),moving=state.moving&&!held;
             p.x=at.x;p.z=at.z;
             p.motion+=(Number(moving)-p.motion)*(1-Math.exp(-dt*12));
@@ -77,10 +77,12 @@ export function createCityLife({routes,surfaceType,lamps,terrainHeight,groundHei
     function draw(m,time,viewer,reduced,addTarget=()=>{}){
         const seconds=reduced?12:time*.001;
         for(const [i,p] of people.entries()){
+            if(p.expeditionDead)continue;
             const state=routePhase(reduced?12:p.elapsed,p.length,p.rider?1.8:.75+p.seed*.25,p.seed),at=pointOn(p.points,state.fraction);
             p.x=at.x;p.z=at.z;
             if(Math.hypot(at.x-viewer[0],at.z-viewer[1])>26)continue;
             const angle=reduced?at.angle+(state.direction<0?Math.PI:0):p.angle??at.angle,base=(p.stroller?groundHeight:terrainHeight)(at.x,at.z)+.075,phase=reduced?0:p.phase,start=m.data.length;
+            if(!visible(at.x,at.z,base))continue;
             const appearance={pants:i%2?'#475259':'#5a574d',hair:['#3c352f','#5d4e3c','#907657'][i%3],female:p.label==='Woman',cap:i%7===0,longHair:p.label==='Woman'&&i%3!==0,backpack:i%4===0,coat:i%3===0,height:p.stroller?1:p.child?.65+p.seed*.05:.92+p.seed*.16,carryingFish:p.dogWalker,pushingStroller:p.stroller,mode:p.rider?'cycle':'move',motion:reduced?0:p.motion,time:reduced?0:seconds+p.seed*13,ground:p.rider?null:groundHeight};
             if(!reduced&&p.gesture&&time<p.gesture.started+p.gesture.duration){appearance.action=p.gesture.name;appearance.actionT=(time-p.gesture.started)/p.gesture.duration;}
             p.base=base+(p.rider?.3:0);p.height=(p.rider?1.48:1.83)*appearance.height+.1;
@@ -96,7 +98,8 @@ export function createCityLife({routes,surfaceType,lamps,terrainHeight,groundHei
                 const behind=pointOn(p.points,Math.max(0,Math.min(1,state.fraction-state.direction*.65/p.length)));
                 const dog=p.petDog||(p.petDog={id:p.id+'-dog',label:'Dog',dog:true,regional:p.regional,description:'A very good dog taking a human out for some much-needed exercise.',height:.75,hold:0});
                 Object.assign(dog,{x:behind.x,z:behind.z,angle:angle,base:groundHeight(behind.x,behind.z),moving:state.moving&&!p.hold,phase:phase*1.5,color:i%2?'#bca37d':'#7d6857'});
-                const dogStart=m.data.length;drawWalkingDog(m,dog,time,groundHeight,{x:p.x,z:p.z,base,angle});addTarget(dogStart,dog);
+                const dogStart=m.data.length;drawWalkingDog(m,dog,time,groundHeight);addTarget(dogStart,dog);
+                drawDogLeash(m,dog,groundHeight,{x:p.x,z:p.z,base,angle});
             }
         }
         if(!waterTraffic)return;

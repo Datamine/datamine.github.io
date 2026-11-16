@@ -9,6 +9,11 @@ export const SPACEPORT_HOUSES=Object.freeze({x:SECOND_STREET_X-2.7,z:133,w:5.4,d
 export const RAIL_PIT=Object.freeze({west:SECOND_STREET_X-12,east:SECOND_STREET_X-8,north:139,south:143.5,floor:.12});
 export function inRailPit(x,z){return x>RAIL_PIT.west&&x<RAIL_PIT.east&&z>RAIL_PIT.north&&z<RAIL_PIT.south;}
 
+// Keep the officials' forecourt, headquarters, rail sign, and excavation open.
+// Tree planting adds a canopy margin beyond these public grounds.
+export const CIVIC_GROUNDS=Object.freeze({west:TAX_HQ.x-3.5,east:TAX_HQ.x+3.5,north:TAX_HQ.entry.y-3,south:RAIL_PIT.south+.2});
+export function inCivicGrounds(x,z,margin=0){const p=CIVIC_GROUNDS;return x>=p.west-margin&&x<=p.east+margin&&z>=p.north-margin&&z<=p.south+margin;}
+
 export function drawPlaque(m,signs,text,x,y,z,w,h,front=true){
     const uv=signs.get(text);if(!uv)return;
     const p=[[x-w/2,y,z],[x+w/2,y,z],[x+w/2,y+h,z],[x-w/2,y+h,z]];
@@ -64,7 +69,7 @@ export function taxDialogue(economy){
     const reply='We are building California high-speed rail right here in our backyard.';
     return {name:'Tax authority',repeat:true,skin:'#b99b75',hair:'#342f27',shirt:'#d4b85d',intro:'Welcome to the Tax Authority Headquarters. How may we serve you?',question:'What would you like to do?',decline:'Leave',choices:[
         {label:'Pay taxes · all coins',accept:()=>{const amount=economy.state.coins,result=economy.trade('tax');return {...result,message:'You pay '+amount+' coins in taxes. Thank you for your contribution.'};}},
-        {label:'Berate them',next:{skipIntro:true,question:'What would you like to say?',choices:[{label:'Where is my money going?',receipt:reply},{label:'What goods and services are being provided to me?',receipt:reply}]}}
+        {label:'Question them',next:{skipIntro:true,question:'What would you like to say?',choices:[{label:'Where is my money going?',receipt:reply},{label:'What goods and services are being provided to me?',receipt:reply}]}}
     ]};
 }
 

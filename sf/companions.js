@@ -1,5 +1,15 @@
 import {pose} from './geometry.js';
 
+export function dogWalkerDialogue(npc){
+    return {...npc,name:npc.named||npc.label,repeat:true,
+        intro:'Good afternoon! We’re stretching our legs. He’s already inspected every tree on this block.',
+        question:'What would you like to ask?',decline:'Enjoy your walk.',choices:[
+            {label:'Where are you headed?',receipt:'A loop around the neighborhood, then coffee. He’s in charge of the route; I just hold the leash.'},
+            {label:'What’s your dog’s name?',receipt:'Biscuit. He regards this as a standing offer.'},
+            {label:'Any advice for exploring the city?',receipt:'Take the scenic route. Golden Gate Park is lovely, and nearly every block has something worth stopping for.'}
+        ]};
+}
+
 /** Local +X is forward, matching the adult character's heading. */
 export function drawBabyStroller(m,parent,time,ground){
     const {x,z,angle}=parent,co=Math.cos(angle),si=Math.sin(angle),base=ground(x+.7*co,z+.7*si)+.025;
@@ -52,5 +62,12 @@ export function drawWalkingDog(m,dog,time,ground,owner=null){
         m.rod([-.28,.42,0],[-.48,.58,Math.sin(time*.005)*.09],.035,fur,8);
         m.rod([.21,.36,-.13],[.24,.6,-.09],.02,'#9d515b',8);
     });
-    if(owner){const hand=[owner.x-Math.sin(owner.angle)*.3+Math.cos(owner.angle)*.12,owner.base+.86,owner.z+Math.cos(owner.angle)*.3+Math.sin(owner.angle)*.12],collar=[dog.x,base+.47,dog.z],mid=hand.map((v,i)=>(v+collar[i])*.5-(i===1?.18:0));m.rod(hand,mid,.008,'#8f5457',4);m.rod(mid,collar,.008,'#8f5457',4);}
+    if(owner)drawDogLeash(m,dog,ground,owner);
+}
+
+/** Decorative leash geometry must not enlarge the dog's interaction target
+ * to include the owner's hand and torso. Register the dog before drawing it. */
+export function drawDogLeash(m,dog,ground,owner){
+    const base=ground(dog.x,dog.z)+.025,hand=[owner.x-Math.sin(owner.angle)*.3+Math.cos(owner.angle)*.12,owner.base+.86,owner.z+Math.cos(owner.angle)*.3+Math.sin(owner.angle)*.12],collar=[dog.x,base+.47,dog.z],mid=hand.map((v,i)=>(v+collar[i])*.5-(i===1?.18:0));
+    m.rod(hand,mid,.008,'#8f5457',4);m.rod(mid,collar,.008,'#8f5457',4);
 }

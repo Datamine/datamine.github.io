@@ -12,14 +12,17 @@ test('tile coverage, connections, curbs, junctions and exact boundaries pass the
 
 test('the generated material atlas puts each named source in its catalog GPU slot',async()=>{
     const svg=await readFile(new URL('../../textures/sf-materials.svg',import.meta.url),'utf8');
-    assert.match(svg,/<svg[^>]*width="1024"[^>]*height="1024"/);
+    assert.match(svg,new RegExp('<svg[^>]*width="'+MATERIAL_ATLAS.columns*MATERIAL_ATLAS.cellSize+'"[^>]*height="'+MATERIAL_ATLAS.rows*MATERIAL_ATLAS.cellSize+'"'));
     const {columns,rows,cellSize}=MATERIAL_ATLAS;
     for(const [name,id] of Object.entries(MATERIAL_IDS)){
         assert.ok(svg.includes(`id="${name}"`),`missing ${name} texture`);
         const swatch=`<g id="swatch-${name}" data-material="${name}" data-slot="${id}" transform="translate(${id%columns*cellSize} ${Math.floor(id/columns)*cellSize})">`;
         assert.ok(svg.includes(swatch),`${name} is in the wrong GPU atlas slot`);
     }
-    assert.equal(new Set(Object.values(MATERIAL_IDS)).size,columns*rows);
+    assert.equal(new Set(Object.values(MATERIAL_IDS)).size,MATERIAL_CATALOG.length);
+    assert.ok(MATERIAL_CATALOG.length<=columns*rows);
+    for(const dimension of [columns*cellSize,rows*cellSize])assert.equal(dimension&(dimension-1),0,'mipmapped textures require power-of-two dimensions');
+    assert.equal(MATERIAL_IDS.concrete,15,'existing vertex material IDs must remain stable');
 });
 
 test('each material has a labeled standalone SVG and a visual reference entry',async()=>{

@@ -11,7 +11,7 @@ export function createCaptureAnimation(){
         if(!state.active)return;
         state.elapsed=Math.min(CAPTURE_DURATION,state.elapsed+Math.max(0,dt));
         if(state.elapsed>=CAPTURE_DURATION){state.active=false;const done=finish;finish=null;done?.();}
-    },get pose(){return {hands:captureSmooth(state.elapsed/.5),fall:captureSmooth((state.elapsed-.65)/.85)};}};
+    },cancel(){state.active=false;state.elapsed=0;finish=null;},get pose(){return {hands:captureSmooth(state.elapsed/.5),fall:captureSmooth((state.elapsed-.65)/.85)};}};
 }
 
 /** Rotate the already skinned body forward, leaving the camera and tile fixed. */

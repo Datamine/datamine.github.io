@@ -4,6 +4,7 @@ const TILE_CONFIG={resolution:4,curbWidth:.25,overrides:[]};
 const TILE_TYPES=Object.freeze({
     sea:{color:'#77a8ad',height:0,group:'water',walkable:false},water:{color:'#6f9f9b',height:0,group:'water',walkable:false},
     courtyard:{color:'#a6ad87',height:.012,group:'ground',texture:'grass',walkable:true},grass:{color:'#88a264',height:0,group:'ground',texture:'grass',walkable:true},sand:{color:'#d8c89c',height:0,group:'ground',texture:'sand',walkable:true},
+    salt:{color:'#e1ddc9',height:0,group:'ground',texture:'saltCrust',walkable:true},
     scrub:{color:'#a5a075',height:0,group:'ground',texture:'dirt',walkable:true},rock:{color:'#b4b09b',height:0,group:'ground',texture:'dirt',walkable:true},
     plaza:{color:'#c5bda6',height:.012,group:'ground',texture:'cobble',walkable:true},building:{color:'#b2ac97',height:.012,group:'ground',texture:'cobble',walkable:true},
     road:{color:'#7d827b',height:.018,group:'road',texture:'asphalt',walkable:true},path:{color:'#c4af85',height:.018,group:'path',texture:'dirt',walkable:true},

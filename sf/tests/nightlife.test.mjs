@@ -8,7 +8,8 @@ import {NIGHTLIFE,nightlifeWalkable,nightlifeRebuff,drawNightlife} from '../nigh
 test('saved appearance accepts valid colors and gender while recovering from corrupt preferences',()=>{
     assert.deepEqual(normalizeCharacter(null),CHARACTER_DEFAULTS);
     const settings=normalizeCharacter({gender:'woman',skin:'#804f36',shirt:'#ff2288',pants:'#245566',hair:'#221144',shoes:'#ffeedd',hairstyle:'curly'}),appearance=characterAppearance(settings);
-    assert.equal(appearance.female,true);assert.equal(appearance.longHair,true);assert.equal(appearance.hairstyle,'curly');
+    assert.equal(appearance.female,true);assert.equal(appearance.longHair,true);assert.equal(appearance.hairstyle,'long');
+    const man=normalizeCharacter({...settings,gender:'man',hairstyle:'long'});assert.equal(man.hairstyle,'short');assert.equal(characterAppearance(man).longHair,false);
     assert.equal(normalizeCharacter({shirt:'red',gender:'invalid'}).shirt,CHARACTER_DEFAULTS.shirt);
     const a=new Mesh(),b=new Mesh();drawCharacter(a,0,0,0,0,0,false,settings.skin,settings.shirt,appearance);drawCharacter(b,0,0,0);
     assert.ok(a.data.every(Number.isFinite));assert.notDeepEqual(a.data,b.data);

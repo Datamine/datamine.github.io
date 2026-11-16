@@ -15,7 +15,7 @@ export function createDeli({economy,health,origin,routeTo,canTravel,saved={},onS
         if(Math.hypot(previous.x-target.x,previous.y-target.y)>.01)return false;
         state.path=path.map(p=>({...p}));lastGoal={...target};return true;
     };
-    return {state,pickup(){const result=economy.trade('sandwich-pickup');if(!result.ok)return result;state.sandwiches++;save();return {ok:true,message:'A fresh Lucinda’s sandwich, yours for 3 coins. Eat it to restore up to 18 hitpoints.'};},
+    return {state,storeSandwich(amount=1){if(!Number.isSafeInteger(amount)||amount<1||!Number.isSafeInteger(state.sandwiches+amount))return false;state.sandwiches+=amount;save();return true;},pickup(){const result=economy.trade('sandwich-pickup');if(!result.ok)return result;state.sandwiches++;save();return {ok:true,message:'A fresh Lucinda’s sandwich, yours for 3 coins. Eat it to restore up to 18 hitpoints.'};},
         order(target){
             if(state.pending)return {ok:false,message:'Your DoorDash cooler is already on its way.'};
             state.position={...origin};if(!findRoute(target))return {ok:false,message:'The cooler needs a route to you. Order from a street, park, or other walkable ground.'};
@@ -25,7 +25,7 @@ export function createDeli({economy,health,origin,routeTo,canTravel,saved={},onS
         eat(){
             if(!state.sandwiches)return {ok:false,message:'You do not have a sandwich. Visit Lucinda’s Deli or order DoorDash.'};
             if(health.state.hp>=health.state.max)return {ok:false,message:'You already have full hitpoints. Save the sandwich for later.'};
-            const healed=health.heal();state.sandwiches--;save();return {ok:true,message:'You eat your Lucinda’s sandwich and restore '+healed+' hitpoints.'};
+            const healed=health.heal();state.sandwiches--;save();return {ok:true,message:'You eat a sandwich and restore '+healed+' hitpoints.'};
         },
         update(dt,target,{deliverable=true}={}){
             if(!state.pending||!Number.isFinite(dt)||dt<=0)return;

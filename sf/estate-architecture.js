@@ -1,5 +1,7 @@
 import {pose} from './geometry.js';
 import {drawFacadeWindow} from './windows.js';
+import {planEstate,estateStyleFor,estatePoint,estateRectangle} from './estate-design.js';
+import {drawEstateHome,drawEstateGarden} from './estate-homes.js';
 
 function estateHipRoof(m,w,d,y,rise,color){
     const a=[-w/2,y,-d/2],b=[w/2,y,-d/2],c=[w/2,y,d/2],e=[-w/2,y,d/2],left=[-w*.24,y+rise,0],right=[w*.24,y+rise,0];
@@ -8,7 +10,7 @@ function estateHipRoof(m,w,d,y,rise,color){
 
 /** Restrained country-house architecture: limestone, slate, bronze, recessed
  * glazing and a shallow colonnade. All details stay inside the authored lot. */
-export function drawEstateArchitecture(m,{w,d,seed=0,capital=false},signs=null,title=null){
+function drawCapitalEstate(m,{w,d,seed=0,capital=false},signs=null,title=null){
     const width=w-.18,depth=d-.45,h=capital?3.25:2.35+seed*.45,wall=capital?'#ded4bb':['#c7c3af','#d8ccb5','#b8c5bc'][Math.floor(seed*3)%3],trim='#e9e0cb',roof=seed>.65?'#586565':'#3e5057',front=depth/2;
     m.box(-width/2,0,-depth/2,width,h,depth,wall,capital||seed<.45?'stone':'stucco');
     for(const y of [.12,h-.18])m.box(-width/2-.025,y,-depth/2-.025,width+.05,.11,depth+.05,trim,'stone');
@@ -40,10 +42,34 @@ export function drawEstateArchitecture(m,{w,d,seed=0,capital=false},signs=null,t
     }
 }
 
+/** The capital partners retain their formal country-house frontage. Residential
+ * estates use independent massing, materials and gardens for each style. */
+export function drawEstateArchitecture(m,options,signs=null,title=null){
+    if(options.capital)return drawCapitalEstate(m,options,signs,title);
+    const plan=planEstate(options);drawEstateGarden(m,plan);drawEstateHome(m,plan);return plan;
+}
+
+function drawGardenFooting(m,plot,base,terrain){
+    const w=plot.w-.08,d=plot.d-.08,corners=[[-w/2,-d/2],[w/2,-d/2],[w/2,d/2],[-w/2,d/2]];
+    for(let side=0;side<4;side++){
+        const a=corners[side],b=corners[(side+1)%4],steps=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])*4);
+        for(let i=0;i<steps;i++){
+            const at=t=>{const x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t,[wx,wz]=estatePoint(plot,x,z);return [x,Math.min(-.03,terrain.height(wx,wz)-base-.025),z];};
+            const p=at(i/steps),q=at((i+1)/steps);
+            m.quad(p,q,[q[0],-.025,q[2]],[p[0],-.025,p[2]],'#bdb9a3','boardConcrete');
+        }
+    }
+}
+
 export function makeEstateHouse(m,plot,terrain){
     const start=m.data.length,base=terrain.height(plot.x,plot.z)+.04;
+    const plan=planEstate({...plot,style:estateStyleFor(plot)});
     terrain.cutPlot({cx:plot.x,cz:plot.z,w:plot.w-.05,d:plot.d-.05,angle:plot.rotation,height:base-.04,onlyLower:true});
-    pose(m,plot.x,base,plot.z,plot.rotation,()=>drawEstateArchitecture(m,{w:plot.w,d:plot.d,seed:plot.seed??.4}));
+    pose(m,plot.x,base,plot.z,plot.rotation,()=>{drawGardenFooting(m,plot,base,terrain);drawEstateGarden(m,plan);drawEstateHome(m,plan);});
     const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(let i=start;i<m.data.length;i+=11)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],m.data[i+k]);hi[k]=Math.max(hi[k],m.data[i+k]);}
-    return {mesh:m,start:start/11,count:(m.data.length-start)/11,lo,hi,x:plot.x-plot.w/2,y:plot.z-plot.d/2,w:plot.w,d:plot.d,rotation:plot.rotation,base,arch:'mansion',solid:true,preserveGround:true,homes:1,storeys:2,houses:[{door:-.32,dw:.64,entry:plot.d/2}]};
+    const footprint=estateRectangle(plot,{x:-plot.w/2,z:-plot.d/2,w:plot.w,d:plot.d});
+    const navigationPolygons=[estateRectangle(plot,plan.house)];
+    if(plan.pool)navigationPolygons.push(estateRectangle(plot,{...plan.pool,x:plan.pool.x-.1,z:plan.pool.z-.1,w:plan.pool.w+.2,d:plan.pool.d+.2}));
+    const pool=plan.pool?{...plan.pool,center:estatePoint(plot,plan.pool.x+plan.pool.w/2,plan.pool.z+plan.pool.d/2),base:base+plan.pool.water}:null;
+    return {mesh:m,start:start/11,count:(m.data.length-start)/11,lo,hi,x:plot.x-plot.w/2,y:plot.z-plot.d/2,w:plot.w,d:plot.d,rotation:plot.rotation,base,arch:'mansion',estateStyle:plan.style,plan,plot,pool,footprint,navigationPolygons,solid:true,preserveGround:true,homes:1,storeys:plan.storeys,houses:[{door:plan.entry.x-.32,dw:.64,entry:plot.d/2}]};
 }

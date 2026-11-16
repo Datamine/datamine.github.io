@@ -1,8 +1,19 @@
+import {WORLD_SIZE,STREET_LAYOUT_SIZE} from './geography.js';
 import {pose} from './geometry.js';
 
 const airportAdvertisers=[{id:'airport-openai',art:'ai-openai',z:81.9},{id:'airport-anthropic',art:'ai-anthropic',z:83.25},{id:'airport-xai',art:'ai-xai',z:84.6}];
 export const AIRPORT_ADS=Object.freeze(['east','west'].flatMap(side=>airportAdvertisers.map(ad=>Object.freeze({id:ad.id+(side==='west'?'-west':''),art:ad.art,side,near:Object.freeze([side==='east'?84:79,ad.z])}))));
 export const AIRPORT_BILLBOARD_PLOT=Object.freeze({width:2.3,depth:.8,clearingWidth:2.4,clearingDepth:1.2});
+const airportFieldRoadX=70.5*WORLD_SIZE/STREET_LAYOUT_SIZE;
+const airportAdRect=(x,z,w,d)=>[[x-w/2,z-d/2],[x+w/2,z-d/2],[x+w/2,z+d/2],[x-w/2,z+d/2]];
+/** Authored openings in the green strip immediately west of the terminal
+ * approach. Keep the cross streets and the existing estate frontage clear. */
+export const AIRPORT_FIELD_ADS=Object.freeze(['ai-openai','ai-anthropic','ai-xai'].map((art,i)=>{
+    const x=airportFieldRoadX-2.2,z=[106.8,115.6,128][i];
+    return Object.freeze({id:'airport-field-ad-'+i,art,x,z,angle:0,side:'west',area:'airport-field',street:'Third Street south',roadX:airportFieldRoadX,polygon:airportAdRect(x,z,2.3,.8),clearing:airportAdRect(x,z,2.4,1.2)});
+}));
+export function inAirportFieldBillboards(x,z,margin=0){return AIRPORT_FIELD_ADS.some(p=>Math.abs(x-p.x)<1.2+margin&&Math.abs(z-p.z)<.6+margin);}
+
 
 /** Panels always run east–west, across the direction of arriving traffic.
  * Reserve their clearings before houses are placed, on both road verges. */

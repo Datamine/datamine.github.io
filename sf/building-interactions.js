@@ -4,6 +4,7 @@ const buildingNPCsByID=Object.freeze({
     cityhall:'clerk','lucindas-deli':'deli',cotogna:'chef','shanghai-kelly':'bartender','ai-lab':'recruiter'
 });
 const buildingNPCsByKind=Object.freeze({
+    'apple-campus':'tim-apple','robotaxi-dealer':'robotaxi-sales',haberdasher:'haberdasher','salt-flats':'salt-activist','gpu-factory':'gpu-buyer',
     'industrial-center':'armorer','esoteric-institute':'esoteric','research-institute':'researcher',
     'tax-hq':'tax',startup:'founder',capital:'capital',spaceport:'crew','ski-rental':'lift',
     fuel:'fuel-attendant',dealership:'fuel-attendant'

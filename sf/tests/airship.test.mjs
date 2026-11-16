@@ -59,7 +59,7 @@ test('airport road and curb tiles exactly match the city edge, with no overlappi
         assert.deepEqual(tile.edges[0],buildSurfaceTile('grass',values).edges[2]);
     }
     for(const {tile} of tiles)assert.ok(Math.abs(Object.values(tile.areas).reduce((a,b)=>a+b,0)-1)<1e-8);
-    const mesh=new Mesh();drawAirportRoad(mesh);assert.ok(mesh.data.length>0);assert.ok(mesh.data.length/33<36000,'the connected neighborhood roads and trails stay inexpensive to render');
+    const mesh=new Mesh();drawAirportRoad(mesh);assert.ok(mesh.data.length>0);assert.ok(mesh.data.length/33<42500,'includes the coastal garden lane and orchard loop');
     for(let i=0;i<mesh.data.length;i+=11){assert.ok(mesh.data[i+2]>=WORLD_SIZE);assert.ok(mesh.data[i+2]<=SOUTHERN_ROAD_END+1e-8);}
 });
 
@@ -107,7 +107,7 @@ test('walking around the terminal apron never passes through the parked jets',()
 test('airship and private terminal models have valid materials and bounded mesh sizes',()=>{
     const ship=new Mesh();drawAirship(ship,{x:0,y:0,z:0},0,0,true);
     const terminal=new Mesh();drawAirshipTerminal(terminal);
-    for(const [mesh,limit] of [[ship,12000],[terminal,46000]]){assert.ok(mesh.data.every(Number.isFinite));assert.ok(mesh.data.length/33>500);assert.ok(mesh.data.length/33<limit);}
+    for(const [mesh,limit] of [[ship,12000],[terminal,53000]]){assert.ok(mesh.data.every(Number.isFinite));assert.ok(mesh.data.length/33>500);assert.ok(mesh.data.length/33<limit);}
     const envelope=[],deck=[];
     for(let i=0;i<ship.data.length;i+=11){
         if(ship.data[i+9]===-1&&ship.data[i+10]===-8)envelope.push(ship.data[i]);

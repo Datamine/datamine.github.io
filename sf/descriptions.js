@@ -1,6 +1,15 @@
 import {buildingNPCService} from './building-interactions.js';
 /** Observation text stays separate from dialogue and its trading side effects. */
 const merchantDescriptions=Object.freeze({
+    'twitter-worker':'A backend engineer with impeccable bottle discipline. Every cork is a deployment.',
+    'twitter-poster':'A poster staring into a phone. Someone, somewhere, has made a statement that cannot be allowed to stand.',
+    'software-vendor':'A redheaded salesman selling the software that sells the software. His business card has a business card.',
+    'software-buyer':'A conference delegate considering a sales funnel within a sales funnel. The lanyard is doing most of the work.',
+    'tim-apple':'Tim Apple, surrounded by very round architecture. His pockets contain one thousand songs and several hundred unread notifications.',
+    'robotaxi-sales':'An autonomous-income salesperson. The car has no driver, but the invoice has excellent handwriting.',
+    haberdasher:'A meticulous milliner who can estimate your net worth to the nearest brim. Considers a crown sensible everyday wear.',
+    'salt-activist':'A salt conservationist with muddy boots, a stack of envelopes, and several strongly worded opinions about the phrase vacant land.',
+    'gpu-buyer':'A clean-room procurement specialist. Has found a way to expense a trip to the beach.',
     chef:'An immaculate chef with a very tall hat and very exacting standards. Will accept a fish story, but only pays for the fish.',
     capital:'A venture capitalist who interprets “strong fundamentals” as a personal bench-press record. Their term sheet doubles as a workout plan.',
     crew:'An attendant with a flight manifest and immaculate coveralls. The clipboard says “Reusable” with a reassuring number of check marks.',
@@ -21,6 +30,8 @@ const citizenDescriptions=Object.freeze([
     'Seems suspiciously well rested for someone living in a city with this much coffee.'
 ]);
 export function describeCharacter(person){
+    if(person.neighborhood)return person.description;
+    if(person.estateResident)return person.description;
     if(person.baby)return 'A tiny Noe Valley resident, being chauffeured between naps. The stroller has excellent suspension and no concept of rent.';
     if(person.stroller)return 'A Noe Valley parent steering a very small passenger through a very large afternoon. The coffee is mostly structural.';
     if(person.parrot)return person.description;
@@ -49,6 +60,8 @@ export function describeCharacter(person){
 
 /** Scenery has observations; actionable sites retain their actual activities. */
 export function sightPrimaryVerb(sight){
+    if(sight.kind==='sand')return 'Collect sand at';
+    if(sight.kind==='loot')return 'Pick up';
     if(sight.enterableInstitute)return 'Enter';
     if(buildingNPCService(sight))return 'Examine';
     if(sight.kind==='surfing')return 'Paddle out';

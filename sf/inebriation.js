@@ -5,7 +5,7 @@ export function createInebriation(saved=0,onChange=()=>{}){
     return {state,set,drink(economy){
         if(state.percent>=100)return {ok:false,message:'The bartender suggests a glass of water. You are already 100% inebriated.'};
         const result=economy.trade('beer');if(!result.ok)return result;set(Math.min(100,state.percent+10));return {ok:true,message:'A cold beer, one coin. You are '+Math.round(state.percent)+'% inebriated.'};
-    },update(dt){if(!Number.isFinite(dt)||dt<=0)return;state.percent=Math.max(0,state.percent-dt/3);if(Math.floor(state.percent)!==stored){stored=Math.floor(state.percent);onChange(state.percent);}},get intensity(){return state.percent/100;}};
+    },update(dt,{gainPerSecond=0}={}){if(!Number.isFinite(dt)||dt<=0)return;const rate=Number.isFinite(gainPerSecond)&&gainPerSecond>0?gainPerSecond:-1/3;state.percent=Math.max(0,Math.min(100,state.percent+dt*rate));if(Math.floor(state.percent)!==stored){stored=Math.floor(state.percent);onChange(state.percent);}},get intensity(){return state.percent/100;}};
 }
 
 export function swayCharacter(m,start,x,base,z,time,intensity){

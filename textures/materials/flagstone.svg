@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Garden flagstone</title>
+  <desc>Hand-laid irregular sandstone paving with recessed joints and softly worn edges. Neutral relief is tinted by the model.</desc>
+  <defs><pattern id="flagstone" width="128" height="128" patternUnits="userSpaceOnUse">
+    <rect width="128" height="128" fill="#aaa896"/>
+    <g stroke="#e8dfc8" stroke-width="1.2" stroke-linejoin="round">
+      <path d="M2 2H45L57 32 31 54 2 40Z" fill="#d6ccb2"/>
+      <path d="M48 2H91L97 26 62 33Z" fill="#dfd4bb"/>
+      <path d="M94 2H126V48L104 52 99 27Z" fill="#c7c3ac"/>
+      <path d="M3 44L30 58 40 96 2 108Z" fill="#c9c1a6"/>
+      <path d="M60 36L99 30 102 65 79 84 43 76 34 57Z" fill="#e0d3b7"/>
+      <path d="M106 56L126 51V107L107 104 83 87Z" fill="#d6cbb3"/>
+      <path d="M45 80L79 89 102 108 92 126H36L42 100Z" fill="#c5bda6"/>
+      <path d="M2 112L36 102 31 126H2ZM106 109L126 112V126H97Z" fill="#e2d9bf"/>
+    </g>
+    <path d="M9 11L37 9M54 10L83 9M48 59L67 44M49 109L76 112M111 71L119 64M10 74L21 79" stroke="#f3e9d0" opacity=".5"/>
+  </pattern></defs><rect width="256" height="256" fill="url(#flagstone)"/>
+</svg>

@@ -1,5 +1,6 @@
+import {drawPiercedWall} from './wall-openings.js';
 import {pose} from './geometry.js';
-import {recordInstitutePart,drawInstituteFloor,drawInstituteWall} from './institute-interiors.js';
+import {recordInstitutePart,drawInstituteFloor,drawInstituteWall,instituteWindowOpenings} from './institute-interiors.js';
 import {drawPlaque} from './southern-district.js';
 
 // The same parcels place the models, exclude solid ground, and color the map.
@@ -21,12 +22,12 @@ function berkeleyGable(m,x,z,w,d,y,color='#9c6855'){
     for(const side of [-1,1])m.quad([x-w/2-.1,y,z+side*(d/2+.12)],[x+w/2+.1,y,z+side*(d/2+.12)],[x+w/2+.1,y+.65,z],[x-w/2-.1,y+.65,z],color,'roofTile');
     for(const side of [-1,1])m.tri([x+side*w/2,y,z-d/2],[x+side*w/2,y,z+d/2],[x+side*w/2,y+.65,z],berkeleyStone,'stone');
 }
-function berkeleyPortal(m,x,y,z,w,h,{open=false}={}){
+function berkeleyPortal(m,x,y,z,w,h,{open=false,transparent=false}={}){
     const shoulder=y+h-w/2;
-    if(!open)m.box(x-w/2,y,z-.025,w,h-w/2,.045,'#3e6267','glass');
+    if(!open){if(transparent)m.quad([x-w/2,y,z],[x+w/2,y,z],[x+w/2,shoulder,z],[x-w/2,shoulder,z],'#b9d2d5',{glass:.1});else m.box(x-w/2,y,z-.025,w,h-w/2,.045,'#3e6267','glass');}
     for(let i=0;i<20;i++){
         const a=i*Math.PI/20,b=(i+1)*Math.PI/20,at=(t,r)=>[x+Math.cos(t)*r,shoulder+Math.sin(t)*r,z];
-        if(!open)m.tri([x,shoulder,z],at(a,w/2),at(b,w/2),'#496e72','glass');
+        if(!open)m.tri([x,shoulder,z],at(a,w/2),at(b,w/2),transparent?'#b9d2d5':'#496e72',transparent?{glass:.1}:'glass');
         m.quad(at(a,w/2),at(b,w/2),at(b,w/2+.075),at(a,w/2+.075),berkeleyTrim,'stone');
     }
     for(const side of [-1,1])m.box(x+side*w/2-.04,y,z-.015,.08,h-w/2,.08,berkeleyTrim,'stone');
@@ -53,10 +54,10 @@ export function drawBerkeleyCampus(m,signs,title){
     const instituteStart=m.data.length,parts=[],room=BERKELEY_INSTITUTE_ROOM;
     recordInstitutePart(m,parts,'floor',null,()=>drawInstituteFloor(m,room,2));
     for(let side=0;side<4;side++)recordInstitutePart(m,parts,'wall',side,()=>{
-        drawInstituteWall(m,room,side,2.75,'#b1bfb2',berkeleyTrim);
+        drawInstituteWall(m,room,side,2.75,'#b1bfb2',berkeleyTrim,{openings:instituteWindowOpenings(room,side,'berkeley'),cornices:[2.24,2.73]});
         if(side<2){
             const front=side===0,z=front?5.675:10.625;
-            for(const x of [-2.85,-1.85,1.15,2.15])berkeleyPortal(m,x,.45,z,.64,1.65);
+            for(const x of [-2.85,-1.85,1.15,2.15])berkeleyPortal(m,x,.45,z,.64,1.65,{transparent:true});
             if(front){
                 berkeleyPortal(m,0,.015,5.675,1.5,2.12,{open:true});
                 for(const x of [-.95,.95]){m.cylinder(x,0,5.22,.085,2.18,berkeleyTrim,20);m.cylinder(x,2.09,5.22,.14,.1,berkeleyTrim,20);}
@@ -64,24 +65,24 @@ export function drawBerkeleyCampus(m,signs,title){
                 m.box(-3.22,2.3,5.64,6.44,.35,.04,'#354e59');drawPlaque(m,signs,title,0,2.31,5.62,6.1,.32,false);
             }
         }else{
-            const sign=side===2?-1:1;pose(m,sign*3.61,0,8.15,sign*Math.PI/2,()=>{for(let i=0;i<4;i++)berkeleyPortal(m,-1.8+i*1.18,.55,0,.65,1.5);});
+            const sign=side===2?-1:1;pose(m,sign*3.61,0,8.15,sign*Math.PI/2,()=>{for(let i=0;i<4;i++)berkeleyPortal(m,-1.8+i*1.18,.55,0,.65,1.5,{transparent:true});});
         }
     });
     recordInstitutePart(m,parts,'roof',null,()=>{
     m.box(-3.72,2.75,5.58,7.44,.09,5.14,berkeleyTrim,'stone');
     // A shifted upper study, pierced by a watchful circular stained-glass eye.
-    m.box(-2.25,2.84,6.45,3.6,1.55,2.9,'#8da8a6','stone');
+    for(const isX of [false,true])for(const far of [false,true])drawPiercedWall(m,{isX,far,plane:isX?(far?-2.25:1.35):(far?6.45:9.35),along:isX?6.45:-2.25,y:2.84,w:isX?2.9:3.6,h:1.55,depth:.1,color:'#8da8a6',openings:!isX?[{x:-1.05,y:3.1,w:1.2,h:1.04,ellipse:true,segments:24}]:[]});
     m.box(-2.4,4.38,6.3,3.9,.12,3.2,berkeleyTrim,'stone');
     for(const side of [-1,1])pose(m,-.45,3.62,side<0?6.415:9.385,side<0?0:Math.PI,()=>{
-        m.sphere(0,0,0,.6,.52,.025,'#426c7a',40,20,'glass');
+        for(let i=0;i<48;i++){const a=i*Math.PI/24,b=(i+1)*Math.PI/24;m.tri([0,0,0],[Math.cos(a)*.6,Math.sin(a)*.52,0],[Math.cos(b)*.6,Math.sin(b)*.52,0],'#a6c8cc',{glass:.13});}
         for(let i=0;i<48;i++){const a=i*Math.PI/24,b=(i+1)*Math.PI/24;m.rod([Math.cos(a)*.61,Math.sin(a)*.53,-.035],[Math.cos(b)*.61,Math.sin(b)*.53,-.035],.032,berkeleyBrass,8,{metal:.4});}
-        m.sphere(0,0,-.04,.15,.21,.018,'#95bbb7',24,14,'glass');
+        for(let i=0;i<24;i++){const a=i*Math.PI/12,b=(i+1)*Math.PI/12;m.tri([0,0,-.04],[Math.cos(a)*.15,Math.sin(a)*.21,-.04],[Math.cos(b)*.15,Math.sin(b)*.21,-.04],'#95bbb7',{glass:.22});}
         for(let i=0;i<8;i++){const a=i*Math.PI/4;m.rod([Math.cos(a)*.16,Math.sin(a)*.2,-.065],[Math.cos(a+.3)*.58,Math.sin(a+.3)*.5,-.065],.014,berkeleyBrass,6,{metal:.3});}
     });
     pose(m,1.9,2.84,8.35,Math.PI/8,()=>{
-        m.cylinder(0,0,0,1.3,1.9,'#a5b8aa',8,1.3,'stone');
+        for(let face=0;face<8;face++)pose(m,0,0,0,face*Math.PI/4,()=>drawPiercedWall(m,{plane:1.205,along:-.5,y:0,w:1,h:1.9,depth:.1,color:'#a5b8aa',openings:[{x:-.3,y:.45,w:.6,h:1.2,arch:true,segments:20}]}));
         m.cylinder(0,1.78,0,1.42,.12,berkeleyTrim,8);
-        for(let face=0;face<8;face++)pose(m,0,0,0,face*Math.PI/4,()=>berkeleyPortal(m,0,.45,1.205,.6,1.2));
+        for(let face=0;face<8;face++)pose(m,0,0,0,face*Math.PI/4,()=>berkeleyPortal(m,0,.45,1.215,.6,1.2,{transparent:true}));
         // Twisted, terraced crown and an off-center armillary instrument.
         for(let i=0;i<4;i++)pose(m,0,0,0,i*.075,()=>m.cylinder(0,1.9+i*.19,0,1.44-i*.24,.2,berkeleyCopper,8,1.2-i*.24,{metal:.25}));
         m.cylinder(0,2.65,0,.085,.45,berkeleyBrass,20,.04,{metal:.4});

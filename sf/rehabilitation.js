@@ -2,7 +2,7 @@ import {pose} from './geometry.js';
 
 export const REHABILITATION_DURATION=4.8;
 export function createRehabilitation(onComplete){
-    const state={active:false,elapsed:0};return {state,start(){if(state.active)return false;state.active=true;state.elapsed=0;return true;},update(dt){if(!state.active)return;state.elapsed+=Math.max(0,dt);if(state.elapsed>=REHABILITATION_DURATION){state.active=false;onComplete();}},get beam(){return state.active&&state.elapsed>=1.35&&state.elapsed<3.65;}};
+    const state={active:false,elapsed:0};return {state,start(){if(state.active)return false;state.active=true;state.elapsed=0;return true;},update(dt){if(!state.active)return;state.elapsed+=Math.max(0,dt);if(state.elapsed>=REHABILITATION_DURATION){state.active=false;onComplete();}},cancel(){state.active=false;state.elapsed=0;},get beam(){return state.active&&state.elapsed>=1.35&&state.elapsed<3.65;}};
 }
 export function detentionStaff(site){return [
     {id:'rehabilitation-specialist',label:'Rehabilitation specialist',name:'Rehabilitation specialist',rehabilitation:true,x:site.x+3.05,z:site.z+.4,skin:'#bf9777',shirt:'#f3f2e9',hair:'#5b4c41',coat:true,medical:true,height:1.95,angle:Math.PI},
@@ -11,7 +11,7 @@ export function detentionStaff(site){return [
 export function rehabilitationDialogue(npc,start){return {...npc,decline:'Decline',intro:'The court offers complimentary rehabilitation and transport back to San Francisco. Our specialist can begin immediately.',question:'Accept rehabilitation and return to the city?',choices:[{label:'Accept rehabilitation',next:{skipIntro:true,question:'Are there any side effects of rehabilitation?',decline:'Decline rehabilitation',choices:[{label:'Ask about side effects',accept:()=>({ok:true,message:'“Not at all.” The specialist reaches for a rather large overhead apparatus.',after:start})}]}}]};}
 
 export function scrambleAppearance(current,random=Math.random){
-    const palettes={skin:['#bd9369','#9d7254','#d1ae8b','#79563f'],shirt:['#a44c7b','#498c9b','#e1b45a','#567c58','#8462ac'],pants:['#4a5478','#916a48','#b8afa0','#476b67'],hair:['#352e2b','#bd9568','#7a4f38','#b4b3ad'],shoes:['#4d3d3a','#b1a98e','#455d6b']},result={...current,gender:current.gender==='woman'?'man':'woman',hairstyle:current.hairstyle==='long'?'curly':'long'};
+    const palettes={skin:['#bd9369','#9d7254','#d1ae8b','#79563f'],shirt:['#a44c7b','#498c9b','#e1b45a','#567c58','#8462ac'],pants:['#4a5478','#916a48','#b8afa0','#476b67'],hair:['#352e2b','#bd9568','#7a4f38','#b4b3ad'],shoes:['#4d3d3a','#b1a98e','#455d6b']},result={...current,gender:current.gender==='woman'?'man':'woman',hairstyle:current.gender==='woman'?'short':'long'};
     for(const [key,colors] of Object.entries(palettes)){const available=colors.filter(c=>c!==current[key]);result[key]=available[Math.min(available.length-1,Math.floor(random()*available.length))];}return result;
 }
 

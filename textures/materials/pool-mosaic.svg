@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Pool mosaic</title>
+  <desc>Small glazed ceramic tesserae with alternating tones, pale grout and rippling caustics. Neutral relief is tinted by the model.</desc>
+  <defs><pattern id="poolMosaic" width="32" height="32" patternUnits="userSpaceOnUse">
+    <rect width="32" height="32" fill="#c6dedb"/>
+    <path d="M1 1H15V15H1ZM17 17H31V31H17Z" fill="#79bbb9"/>
+    <path d="M17 1H31V15H17ZM1 17H15V31H1Z" fill="#a4d3c9"/>
+    <path d="M2 13V2H13M18 29V18H29" fill="none" stroke="#e3f3db" opacity=".6"/>
+  </pattern></defs><rect width="256" height="256" fill="url(#poolMosaic)"/>
+  <path d="M-20 30Q30 4 65 40T142 34T211 40T280 26M-20 108Q29 75 69 111T143 108T219 113T280 99M-20 190Q30 161 65 195T142 191T211 197T280 182" fill="none" stroke="#eaffdf" stroke-width="3" opacity=".3"/>
+</svg>

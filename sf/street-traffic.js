@@ -1,9 +1,11 @@
 import {pose} from './geometry.js';
+import {advanceSignalledVehicle} from './traffic-signals.js';
 
 const trafficCross=(a,b)=>a[0]*b[1]-a[1]*b[0];
 /** Split authored road centerlines at intersections once, then drive through
  * their adjacency graph. Neither pixels nor pedestrian paths define a road. */
 export function createStreetTraffic({routes,isRoad,ground,count=4,spawnPoints=[]}){
+    let signals=null,elapsed=0;
     const segments=routes.filter(r=>r.kind==='road').flatMap(r=>r.points.slice(1).map((b,i)=>({a:r.points[i],b,cuts:[0,1],street:r.name||'street'})));
     for(let i=0;i<segments.length;i++)for(let j=i+1;j<segments.length;j++){
         const a=segments[i],b=segments[j],u=[a.b[0]-a.a[0],a.b[1]-a.a[1]],v=[b.b[0]-b.a[0],b.b[1]-b.a[1]],w=[b.a[0]-a.a[0],b.a[1]-a.a[1]],cross=trafficCross(u,v);
@@ -58,10 +60,13 @@ export function createStreetTraffic({routes,isRoad,ground,count=4,spawnPoints=[]
         const from=circuit.tour[tourIndex],to=circuit.tour[tourIndex+1],a=nodes[from],b=nodes[to],id='waymo-'+(i+1);
         return {id,circuit,tourIndex,from,to,distance,turn:0,angle:Math.atan2(b.z-a.z,b.x-a.x),speed:1.7+i*.16,x:a.x,z:a.z,travel:0,sight:{id,kind:'waymo',label:'Waymo',description:'An autonomous white taxi with a spinning rooftop sensor and absolutely no driver to ask for directions. It is patiently touring the whole city, one impeccably calculated turn at a time.'}};
     });
-    function update(dt){for(const car of cars){
-        let budget=Number.isFinite(dt)?Math.max(0,dt)*car.speed:0;
-        while(budget>0){const a=nodes[car.from],b=nodes[car.to],length=Math.hypot(b.x-a.x,b.z-a.z),step=Math.min(budget,length-car.distance);car.distance+=step;car.travel+=step;budget-=step;
-            if(car.distance>=length-1e-8){car.tourIndex=(car.tourIndex+1)%car.circuit.lengths.length;car.from=car.circuit.tour[car.tourIndex];car.to=car.circuit.tour[car.tourIndex+1];car.distance=0;car.turn++;}else break;
+    const nextCar=car=>{car.tourIndex=(car.tourIndex+1)%car.circuit.lengths.length;car.from=car.circuit.tour[car.tourIndex];car.to=car.circuit.tour[car.tourIndex+1];car.distance=0;car.turn++;};
+    function update(dt){dt=Number.isFinite(dt)?Math.max(0,dt):0;for(const car of cars){
+        if(signals)advanceSignalledVehicle(car,dt,elapsed,{nodes,signals,next:nextCar});
+        else{let budget=dt*car.speed;
+            while(budget>0){const a=nodes[car.from],b=nodes[car.to],length=Math.hypot(b.x-a.x,b.z-a.z),step=Math.min(budget,length-car.distance);car.distance+=step;car.travel+=step;budget-=step;
+                if(car.distance>=length-1e-8)nextCar(car);else break;
+            }
         }
         const a=nodes[car.from],b=nodes[car.to],length=Math.hypot(b.x-a.x,b.z-a.z),t=car.distance/length,heading=Math.atan2(b.z-a.z,b.x-a.x);
         // Lane offset tapers at intersections to keep every turn on the road.
@@ -69,9 +74,9 @@ export function createStreetTraffic({routes,isRoad,ground,count=4,spawnPoints=[]
         if(!isRoad(a.x+(b.x-a.x)*t-Math.sin(heading)*lane,a.z+(b.z-a.z)*t+Math.cos(heading)*lane))lane=0;
         car.x=a.x+(b.x-a.x)*t-Math.sin(heading)*lane;car.z=a.z+(b.z-a.z)*t+Math.cos(heading)*lane;
         car.angle+=Math.max(-dt*3.5,Math.min(dt*3.5,Math.atan2(Math.sin(heading-car.angle),Math.cos(heading-car.angle))));
-    }}
+    }elapsed+=dt;}
     update(0);
-    return {nodes,edges,components,cars,update,draw(m,viewer,addTarget=()=>{}){for(const car of cars)if(Math.hypot(car.x-viewer.x,car.z-viewer.z)<32){const start=m.data.length;drawWaymo(m,{...car,y:ground(car.x,car.z)+.045});addTarget(start,car);}}};
+    return {nodes,edges,components,cars,update,get elapsed(){return elapsed;},setSignals(value){signals=value;for(const car of cars){const a=nodes[car.from],b=nodes[car.to],length=Math.hypot(b.x-a.x,b.z-a.z);car.crossingCleared=car.distance>length-Math.min(1.25,length*.45);}},draw(m,viewer,addTarget=()=>{}){for(const car of cars)if(Math.hypot(car.x-viewer.x,car.z-viewer.z)<32){const start=m.data.length;drawWaymo(m,{...car,y:ground(car.x,car.z)+.045});addTarget(start,car);}}};
 }
 
 export function drawWaymo(m,car){

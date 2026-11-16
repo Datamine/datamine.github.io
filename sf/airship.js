@@ -1,3 +1,5 @@
+import {inBottleStream} from './social-layout.js';
+import {saltSurfaceAt,saltPondAt} from './salt-layout.js';
 import {CITY_EDGE_GATES} from './city-edge.js';
 import {westernCoastX,westernShoreType} from './coastline.js';
 import {PENINSULA_TRUNK_STREETS} from './peninsula-urbanism.js';
@@ -47,7 +49,7 @@ export function onAirportApron(x,z){
     const p=SPACEPORT_PIER,q=p.pad;
     return x>=80&&x<=94.8&&z>=103.2&&z<=117.5||x>=82.4&&x<=94.8&&z>=117.5&&z<=150.5||x>=p.west&&x<=p.east&&z>=p.north&&z<=p.south||x>=q.west&&x<=q.east&&z>=q.north&&z<=q.south;
 }
-export function airportSurfaceTypeAt(x,z){if(z>=WORLD_SIZE&&z<=SOUTHERN_BOUNDS.south&&x<westernCoastX(z))return 'sea';const road=airportRoadDistance(x,z),path=southernTrailDistance(x,z);return road<0?'road':path<0?'path':Math.min(road,path)<TILE_CONFIG.curbWidth?'sidewalk':z>=WORLD_SIZE&&z<=SOUTHERN_BOUNDS.south?westernShoreType(x,z):'grass';}
+export function airportSurfaceTypeAt(x,z){if(z>=WORLD_SIZE&&z<=SOUTHERN_BOUNDS.south&&x<westernCoastX(z))return 'sea';const salt=saltSurfaceAt(x,z);if(salt==='water')return salt;const road=airportRoadDistance(x,z),path=southernTrailDistance(x,z);return road<0?'road':path<0?'path':Math.min(road,path)<TILE_CONFIG.curbWidth?'sidewalk':inBottleStream(x,z)?'water':salt|| (z>=WORLD_SIZE&&z<=SOUTHERN_BOUNDS.south?westernShoreType(x,z):'grass');}
 /** The extension uses the city's exact quarter-tile material partitioner. */
 const airportTileCache=new Map();
 export function airportRoadTiles(worldSize=WORLD_SIZE){
@@ -69,6 +71,8 @@ export function createAirship({worldSize=96,groundHeight=()=>-.65}={}){
     const terminal=AIRPORT_TERMINAL_BUILDING,airportObstacles=[[85.6,103.3,91,108.5],[84.7,111.7,90.2,117],[terminal.x,terminal.z,terminal.x+terminal.w,terminal.z+terminal.d]];
     const gates=()=>[gate,{x:SECOND_STREET_X-.5,y:gate.y},...(worldSize===WORLD_SIZE?CITY_EDGE_GATES:[])];
     function dryGround(x,z){
+        if(inBottleStream(x,z,.16))return false;
+        if(saltPondAt(x,z,.16))return false;
         if(z>=worldSize&&z<=SOUTHERN_BOUNDS.south&&x<westernCoastX(z)+.16)return false;
         if(inPacificaPark(x,z))return pacificaParkWalkable(x,z);
         if(researchCampusAt(x,z))return researchCampusWalkable(x,z);

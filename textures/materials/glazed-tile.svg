@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Decorative glazed tile</title>
+  <desc>Hand-painted blue and ivory ceramic stars for Mediterranean courtyard accents. Neutral relief is tinted by the model.</desc>
+  <defs><pattern id="glazedTile" width="64" height="64" patternUnits="userSpaceOnUse">
+    <rect width="64" height="64" fill="#ded9bf"/>
+    <rect x="1" y="1" width="62" height="62" fill="#eee4c9" stroke="#c0bca7"/>
+    <path d="M32 7L38 20 52 16 47 31 57 39 43 44 42 57 30 50 19 57 18 43 6 38 17 29 12 16 26 20Z" fill="#7a9eab"/>
+    <path d="M32 16L37 27 48 32 37 37 32 48 27 37 16 32 27 27Z" fill="#ede4c6"/>
+    <path d="M32 25L39 32 32 39 25 32Z" fill="#799879"/>
+    <g fill="#a78f63"><circle cx="7" cy="7" r="2"/><circle cx="57" cy="7" r="2"/><circle cx="7" cy="57" r="2"/><circle cx="57" cy="57" r="2"/></g>
+  </pattern></defs><rect width="256" height="256" fill="url(#glazedTile)"/>
+</svg>

@@ -1,3 +1,8 @@
+import {isGlassVertex,meshGlassTriangles} from '../glazing.js';
+import {rayTriangle} from '../geometry.js';
+import {instituteWindowOpenings} from '../institute-interiors.js';
+import {TWITTER_HQ,SALES_CONFERENCE,BOTTLE_STREAM,inStreamCulvert} from '../social-layout.js';
+import {streamSample} from '../bottle-post.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createWorldModel} from '../world.js';
@@ -15,10 +20,49 @@ import {NOE_VALLEY_BOUNDS} from '../life.js';
 import {tilePolygonOverlap} from '../tiles.js';
 import {SQUARE_DIGSITE} from '../square-construction-layout.js';
 import {inTimesSquare} from '../southern-layout.js';
+import {SF_FITNESS} from '../fitness-layout.js';
+import {SF_ZOO} from '../zoo.js';
+import {JURASSIC,COW_PEN,inJurassicGrounds,inCowPen} from '../jurassic-layout.js';
+import {NIGHTLIFE} from '../nightlife.js';
+import {GPU_FACTORY,inGPUFactoryGrounds} from '../gpu-layout.js';
 
 // One real production layout per process. No browser, WebGL, image loading,
 // snapshots, substitute cityPath, or simulated walking is involved.
-const world=createWorldModel();
+const world=createWorldModel({retainInteriors:true});
+
+test('sand collection, the GPU Factory and its buyer connect through real city and South Bay paths',()=>{
+    const sand=world.sandSite,factory=world.sights.find(s=>s.id==='gpu-factory'),buyer=world.merchants.find(n=>n.kind==='gpu-buyer');assert.ok(sand&&factory&&buyer);assert.equal(world.navigation.describe(sand.entry.x,sand.entry.y).type,'sand');assert.ok(buyer.roam);
+    const counter=world.approaches.merchant(buyer);for(const [from,to] of [[world.spawn,sand.entry],[sand.entry,counter],[counter,sand.entry],[factory.entry,counter]]){const path=world.pathTo(to.x,to.y,from);assert.ok(path);let previous=from;for(const point of path){assert.ok(world.canTravel(previous.x,previous.y,point.x,point.y));previous=point;}assert.deepEqual(previous,to);}
+    assert.equal(world.clearAt(GPU_FACTORY.x-.5,GPU_FACTORY.z-.5),false,'the factory building is solid');for(const tree of world.southernNeighborhood.trees)assert.equal(inGPUFactoryGrounds(tree.x,tree.z,.9),false,'the buyer and factory sign remain clear of trees');
+});
+
+test('the slow bus connects the street behind Nightlife to Market and every road crossing has visible signals',()=>{
+    const b=world.slowBus;assert.equal(b.route.originStreet,'Alemany Boulevard');assert.equal(b.route.destinationStreet,'Market Street');assert.ok(b.route.points[0].z<NIGHTLIFE.z-NIGHTLIFE.d/2);assert.ok(Math.abs(b.route.points[0].x-NIGHTLIFE.x)<.1);assert.equal(b.bus.speed,4.6/2);assert.equal(b.bus.sight.description,"the world's slowest bus");
+    for(let i=1;i<b.route.points.length;i++){const a=b.route.points[i-1],p=b.route.points[i],steps=Math.ceil(Math.hypot(p.x-a.x,p.z-a.z)/.1);for(let n=0;n<=steps;n++){const x=a.x+(p.x-a.x)*n/steps,z=a.z+(p.z-a.z)*n/steps;assert.equal(world.groundSurfaceAt(x,z),'road');assert.ok(world.landClearAt(x-.5,z-.5));}}
+    assert.ok(b.signals.junctions.length>150);assert.deepEqual(b.signals.missing,[]);
+    for(const j of b.signals.junctions){assert.equal(j.fixtures.length,j.approaches.length);for(const f of j.fixtures){const p=b.signals.fixtures[f];assert.ok(Number.isFinite(p.base));if(!p.overhead)assert.ok(world.landClearAt(p.x-.5,p.z-.5),'a signal pole must fit on clear ground');}}
+    for(const p of b.route.points)if(p.node!==null&&world.streetTraffic.nodes[p.node].neighbors.length>=3)assert.ok(b.signals.has(p.node),'every junction along the bus route is signalled');
+});
+
+test('Jurassic Biosciences, its escape route, the cow pen and Ahab use the real connected world graph',()=>{
+    const goals=[JURASSIC.exit,...world.expeditions.cows].map(p=>({x:p.x-.5,y:p.z-.5}));
+    goals.push(...world.merchants.filter(n=>n.expeditionRole).map(n=>world.approaches.merchant(n)),COW_PEN.entry);
+    for(const goal of goals){assert.ok(world.clearAt(goal.x,goal.y));const route=world.pathTo(goal.x,goal.y,world.spawn);assert.ok(route);let previous=world.spawn;for(const next of route){assert.ok(world.canTravel(previous.x,previous.y,next.x,next.y));previous=next;}assert.deepEqual(previous,goal);}
+    for(const tree of world.southernNeighborhood.trees){assert.equal(inJurassicGrounds(tree.x,tree.z,.8),false);assert.equal(inCowPen(tree.x,tree.z,.8),false);}
+    assert.ok(world.merchants.find(n=>n.expeditionRole==='scientist').roam);
+    assert.ok(world.quests.entries().some(q=>q.id==='jurassic-recovery'));
+});
+
+test('SF Fitness is east of the zoo with reachable entrance, exercises and no stale Pacifica gym',()=>{
+    const g=world.sights.find(s=>s.id==='sf-fitness');assert.equal(g.label,'SF Fitness');assert.ok(SF_FITNESS.x>SF_ZOO.x+SF_ZOO.w/2);assert.ok(Math.abs(SF_FITNESS.z-SF_ZOO.z)<5);assert.equal(world.sights.some(s=>s.id==='pacifica-gym'),false);
+    for(const point of [g.entry,g.inside,SF_FITNESS.entry])for(const [from,to] of [[world.spawn,point],[point,world.spawn]]){const path=world.pathTo(to.x,to.y,from);assert.ok(path?.length);let previous=from;for(const p of path){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}assert.deepEqual(previous,to);}
+    assert.ok(Math.abs(world.characterGround(SF_FITNESS.x,SF_FITNESS.z)-SF_FITNESS.base-.065)<1e-7);
+});
+test('Pacifica surfboards have a connected beach launch and open-water access without changing Crissy windsurfing',()=>{
+    const s=world.pacificaSurfSite;assert.equal(s.kind,'surfing');assert.ok(world.landClearAt(s.entry.x,s.entry.y));assert.ok(world.surf.water(s.launch.x+.5,s.launch.y+.5));
+    for(const [from,to] of [[world.spawn,s.entry],[s.entry,world.spawn]]){const path=world.pathTo(to.x,to.y,from);assert.ok(path);let previous=from;for(const p of path){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}assert.deepEqual(previous,to);}
+    const coast={x:s.launch.x-20,y:s.launch.y+10};assert.ok(world.surf.path(s.launch,coast));assert.equal(world.surf.state.mode,'windsurf');assert.ok(world.sights.find(s=>s.id==='windsurf'));
+});
 
 test('larger production buildings use a varied palette and all eight detailed roof designs',()=>{
     const roofs=world.objects.filter(o=>o.roofDetails);assert.ok(roofs.length>=25);
@@ -75,7 +119,7 @@ test('Noe Valley has three stroller families on connected dry routes within the 
 });
 
 test('all three institute interiors and their resident researchers connect to the production world graph',()=>{
-    assert.equal(world.instituteRooms.length,3);
+    assert.equal(world.instituteRooms.filter(r=>![TWITTER_HQ.id,SALES_CONFERENCE.id].includes(r.id)).length,3);
     for(const room of world.instituteRooms){
         assert.ok(room.sight.enterableInstitute);assert.ok(world.clearAt(room.inside.x,room.inside.y));
         assert.equal(world.instituteRoomAt(room.inside.x+.5,room.inside.y+.5),room);
@@ -290,7 +334,7 @@ test('both South Bay institutes and every researcher conversation connect to the
 test('every intended destination and shop interior has valid routes in both directions',()=>{
     const report=auditWorldNavigation(world);assert.equal(report.ok,true,report.errors.join('\n'));
     assert.ok(report.destinations>=77);assert.ok(report.routes.length>=158);assert.ok(report.graph.nodes>40000);
-    assert.deepEqual(report.observations.sort(),['prometheus','rail-pit']);
+    assert.deepEqual(report.observations.sort(),['bottle-post-machine','prometheus','rail-pit']);
     for(const id of ['zoo -> Tahoe spaceport','Tahoe spaceport -> zoo','airport spaceport -> UCSF','UCSF -> airport spaceport'])assert.ok(report.routes.some(r=>r.id===id));
     for(const p of world.places)assert.ok(report.routes.some(r=>r.id==='spawn -> '+p.id+':inside'));
 });
@@ -522,7 +566,10 @@ test('Lucinda’s has native connected delivery routes; traffic and airport bill
     assert.equal(delivery.state.pending,false);assert.equal(delivery.state.sandwiches,1);
     assert.equal(world.streetTraffic.cars.length,4);const before=world.streetTraffic.cars.map(c=>({...c}));
     for(let i=0;i<600;i++){world.streetTraffic.update(.05);for(const c of world.streetTraffic.cars){assert.ok(world.landClearAt(c.x-.5,c.z-.5));assert.equal(world.groundSurfaceAt(c.x,c.z),'road');}}
-    assert.ok(world.streetTraffic.cars.every((c,i)=>c.travel>before[i].travel+40));
+    for(const [i,car] of world.streetTraffic.cars.entries()){
+        const distance=car.travel-before[i].travel,wait=(car.redWait||0)-(before[i].redWait||0);
+        assert.ok(distance>0,'traffic continues after red lights');assert.ok(Math.abs(distance-car.speed*(30-wait))<1e-6,'travel time must account exactly for signal waits');
+    }
     assert.equal(world.airportAds.length,6);assert.equal(new Set(world.airportAds.map(a=>a.art)).size,3);
     for(const a of world.airportAds){assert.ok(a.z>=79&&a.z<96);assert.notEqual(world.groundSurfaceAt(a.x,a.z),'road');}
 });
@@ -534,7 +581,7 @@ test('the SoMa AI Lab has a native entrance, walkable office and recruiter conve
     for(const [from,to] of [[world.spawn,lab.entry],[lab.entry,lab.inside],[lab.inside,lab.entry],[lab.entry,world.approaches.merchant(recruiter)]]){
         const path=world.pathTo(to.x,to.y,from);assert.ok(path);let previous=from;for(const p of path){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}assert.deepEqual(previous,to);
     }
-    const furniture=navigationObstacles(world.objects).filter(o=>o.id.startsWith('ai-lab:furniture-'));assert.equal(furniture.length,3);for(const o of furniture)assert.equal(o.polygon.length,4);
+    const furniture=navigationObstacles(world.objects).filter(o=>o.id.startsWith('ai-lab:furniture-'));assert.equal(furniture.length,5);for(const o of furniture)assert.equal(o.polygon.length,4);
 });
 
 
@@ -573,5 +620,129 @@ test('a dry, reachable OBEY billboard stands beside the beach sunglasses without
     assert.equal(world.navigation.describe(shades.entry.x,shades.entry.y).type,'sand');
     for(const [from,to] of [[shades.entry,board.sight.entry],[board.sight.entry,shades.entry]]){
         const path=world.pathTo(to.x,to.y,from);assert.ok(path?.length);let previous=from;for(const p of path){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}assert.deepEqual(previous,to);
+    }
+});
+
+test('the estate swimmers can be approached from the city without crossing houses or pool water',()=>{
+    const residents=world.southernNeighborhood.residents;assert.equal(residents.length,3);
+    for(const npc of residents){
+        const to=npc.approach;assert.ok(world.clearAt(to.x,to.y),'poolside approach is blocked');
+        const path=world.pathTo(to.x,to.y,world.spawn);assert.ok(path?.length,'estate pool has no public approach');
+        let previous=world.spawn;for(const p of path){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}
+        assert.deepEqual(previous,to);
+    }
+});
+
+test('the salt conservation courier connects its levees to City Hall through native tile adjacency',()=>{
+    const site=world.sights.find(s=>s.id==='salt-flats'),npc=world.merchants.find(n=>n.kind==='salt-activist'),clerk=world.merchants.find(n=>n.id==='city-hall-clerk');
+    assert.ok(site&&npc&&clerk);assert.ok(npc.roam?.points.length>=2);
+    const source=world.approaches.merchant(npc),destination=world.approaches.merchant(clerk);
+    for(const [from,to] of [[source,destination],[destination,source]]){
+        const path=world.pathTo(to.x,to.y,from);assert.ok(path?.length,'courier route is disconnected');
+        let previous=from;for(const p of path){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}assert.deepEqual(previous,to);
+    }
+    assert.equal(world.clearAt(77,176.5),false,'salt water must not become walkable land');
+    assert.ok(world.saltMail.collect().ok);assert.ok(world.quests.entries().some(q=>q.id==='salt-conservation-mail'&&q.stage==='carrying'));
+    assert.ok(world.saltMail.deliver().ok);
+});
+
+test('the haberdasher uses a vacant curb-facing plot with reachable staff and a real native route',()=>{
+    const site=world.sights.find(s=>s.id==='haberdasher'),npc=world.merchants.find(n=>n.kind==='haberdasher');assert.ok(site&&npc);assert.ok(npc.roam?.points.length>=2);
+    for(const to of [site.entry,world.approaches.merchant(npc)]){
+        assert.ok(world.clearAt(to.x,to.y));const route=world.pathTo(to.x,to.y,world.spawn);assert.ok(route?.length);
+        let previous=world.spawn;for(const p of route){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}assert.deepEqual(previous,to);
+    }
+    for(const p of npc.roam.points)assert.ok(world.clearAt(p.x,p.y));
+});
+
+test('Tim Apple’s courtyard and the robotaxi dealership connect to the city and each other through authored paths',()=>{
+    const tim=world.merchants.find(n=>n.kind==='tim-apple'),dealer=world.merchants.find(n=>n.kind==='robotaxi-sales');assert.ok(tim&&dealer);assert.ok(tim.roam?.points.length>=2);assert.ok(dealer.roam?.points.length>=2);
+    const apple=world.sights.find(s=>s.id==='tim-apple-campus'),taxi=world.sights.find(s=>s.id==='tesla-robotaxi');
+    const targets=[apple.entry,taxi.entry,world.approaches.merchant(tim),world.approaches.merchant(dealer)];
+    for(const target of targets)for(const [from,to] of [[world.spawn,target],[target,world.spawn]]){
+        const route=world.pathTo(to.x,to.y,from);assert.ok(route?.length);let previous=from;for(const p of route){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}assert.deepEqual(previous,to);
+    }
+    const route=world.pathTo(targets[3].x,targets[3].y,targets[2]);assert.ok(route?.length);
+    assert.ok(world.clearAt(42.5,172),'courtyard must be walkable');assert.equal(world.clearAt(45.6,173.3),false,'donut ring wall must be solid');
+});
+
+
+test('Twitter, sales conference, all indoor NPCs and the stream culvert use the real adjacency graph',()=>{
+    for(const site of [TWITTER_HQ,SALES_CONFERENCE]){
+        const room=world.instituteRooms.find(r=>r.id===site.id);assert.ok(room);
+        for(const [from,to] of [[world.spawn,site.inside],[site.inside,site.entry],[site.entry,site.inside],[site.inside,world.spawn]]){
+            const route=world.pathTo(to.x,to.y,from);assert.ok(route?.length,site.id+' unreachable');let previous=from;
+            for(const next of route){assert.ok(world.canTravel(previous.x,previous.y,next.x,next.y));previous=next;}assert.deepEqual(previous,to);
+        }
+    }
+    const actors=world.merchants.filter(n=>n.socialActor);assert.equal(actors.length,6);
+    for(const n of actors){const p=world.approaches.merchant(n);assert.ok(world.landClearAt(p.x,p.y));assert.ok(world.pathTo(p.x,p.y,world.spawn));assert.ok(world.instituteRoomAt(n.x,n.z));}
+    const machine=world.sights.find(s=>s.id==='bottle-post-machine');assert.equal(machine.navigationAccess,'observe-only');assert.equal(machine.description,'I never thought about how the technology worked.');assert.ok(machine.object.detailTarget);
+    for(const z of [113.75,114.05,114.35])assert.ok(world.landClearAt(14.5-.5,z-.5),'culvert blocks the coastal road');
+    for(let i=3;i<90;i++){
+        const p=streamSample(i/100);if(inStreamCulvert(p.x,p.z))continue;
+        assert.equal(airportSurfaceTypeAt(p.x,p.z),'water');assert.equal(world.landClearAt(p.x-.5,p.z-.5),false,'player walks on runoff');
+    }
+    const life=world.socialLife;assert.deepEqual(life.unavailable,[]);assert.equal(life.people.length,3);
+    const fields=['x','z','base','angle','hold','waiting','moving','motion','phase'],saved=life.people.map(n=>({n,values:Object.fromEntries(fields.map(k=>[k,n[k]])),roam:{...n.roam}}));
+    try{for(let frame=0;frame<400;frame++){
+        life.update(.05);for(const n of life.people){assert.equal(world.instituteRoomAt(n.x,n.z)?.id,SALES_CONFERENCE.id);assert.ok(world.landClearAt(n.x-.5,n.z-.5));const a=world.approaches.merchant(n);assert.ok(world.landClearAt(a.x,a.y));assert.ok(world.canTravel(n.x-.5,n.z-.5,a.x,a.y));}
+    }}finally{for(const s of saved){Object.assign(s.n,s.values);Object.assign(s.n.roam,s.roam);}}
+});
+
+
+test('all enterable storefronts have clear, two-sided windows with no masonry behind their panes',()=>{
+    let checked=0;
+    for(const p of world.places){
+        const o=p.object,a=p.rotation||0,cx=p.x+p.w/2,cz=p.y+p.d/2,rotate=([x,y,z])=>[cx+(x-cx)*Math.cos(a)-(z-cz)*Math.sin(a),y,cz+(x-cx)*Math.sin(a)+(z-cz)*Math.cos(a)];
+        for(const wall of o.walls)for(const win of wall.windows){
+            assert.ok(win.transparent);const u=win.along+win.w*.23,y=win.y+win.h*.28,out=win.far?-1:1;
+            for(const side of [-1,1]){
+                const origin=rotate(win.isX?[win.plane+out*.4*side,y,u]:[u,y,win.plane+out*.4*side]),dir=win.isX?[-out*side,0,0]:[0,0,-out*side],direction=[dir[0]*Math.cos(a)-dir[2]*Math.sin(a),0,dir[0]*Math.sin(a)+dir[2]*Math.cos(a)],hits=[];
+                for(let v=wall.start;v<wall.start+wall.count;v+=3){const i=v*11,t=rayTriangle({origin,dir:direction},...[0,11,22].map(k=>o.mesh.data.slice(i+k,i+k+3)));if(t!==null&&t<.75)hits.push({glass:isGlassVertex(o.mesh.data,v),t});}
+                assert.ok(hits.some(h=>h.glass),p.id+' has no glass');assert.equal(hits.some(h=>!h.glass),false,p.id+' wall '+wall.side+' still covers a window at '+win.along);checked++;
+            }
+        }
+    }assert.ok(checked>150);
+});
+
+test('research and social rooms have real glazing and retain solid walls in the navigation graph',()=>{
+    for(const room of world.instituteRooms){
+        assert.ok(meshGlassTriangles(room.object.mesh.data).length>=6,room.id+' is missing transparent panes');
+        for(const section of room.object.sections.filter(s=>s.kind==='wall')){
+            const glass=meshGlassTriangles(room.object.mesh.data).filter(t=>t.start>=section.start&&t.start<section.start+section.count);if(room.id==='twitter-hq'||room.id==='sales-conference')continue;
+            assert.ok(glass.length>0,room.id+' wall '+section.side+' has no glass');
+            const openings=instituteWindowOpenings(room,section.side,room.id==='berkeley-esoteric'?'berkeley':'research');
+            for(const win of openings){
+                const u=win.x+win.w*.24,v=win.y+win.h*.25,isX=section.side>=2,far=section.side%2===0,plane=isX?(far?-room.w/2:room.w/2):(far?-room.d/2:room.d/2),out=far?-1:1,a=room.rotation||0;
+                for(const sign of [-1,1]){
+                    const point=isX?[plane+out*.4*sign,v,u]:[u,v,plane+out*.4*sign],dir=isX?[-out*sign,0,0]:[0,0,-out*sign],ray={origin:[room.x+point[0]*Math.cos(a)-point[2]*Math.sin(a),room.base+point[1],room.z+point[0]*Math.sin(a)+point[2]*Math.cos(a)],dir:[dir[0]*Math.cos(a)-dir[2]*Math.sin(a),0,dir[0]*Math.sin(a)+dir[2]*Math.cos(a)]},hits=[];
+                    const data=room.object.mesh.data;for(let k=section.start;k<section.start+section.count;k+=3){const at=k*11,t=rayTriangle(ray,...[0,11,22].map(j=>data.slice(at+j,at+j+3)));if(t!==null&&t<.75)hits.push(isGlassVertex(data,k));}
+                    assert.ok(hits.includes(true),room.id+' has no glass at the aperture');assert.equal(hits.includes(false),false,room.id+' has masonry behind its window on side '+section.side);
+                }
+            }
+        }
+    }
+});
+
+
+test('southern neighborhoods retain distinct house families, native garden collisions and reachable local storefronts',()=>{
+    const n=world.southernNeighborhood,styles=new Set(n.houses.map(h=>h.district));
+    for(const style of ['coastal','garden','craftsman','deco','mediterranean'])assert.ok(styles.has(style),style+' is absent from the southern houses');
+    assert.ok(n.craftSites.length>=15);assert.ok(n.streetGardens.length>=30);assert.ok(world.southernLife.people.length>=90);
+    const neighbors=world.merchants.filter(n=>n.neighborhood);assert.ok(neighbors.length>=10);
+    for(const s of n.craftSites){assert.ok(world.clearAt(s.entry.x,s.entry.y));assert.ok(world.pathTo(s.entry.x,s.entry.y,world.spawn));for(const polygon of s.navigationPolygons){const x=polygon.reduce((n,p)=>n+p[0]/polygon.length,0),z=polygon.reduce((n,p)=>n+p[1]/polygon.length,0);assert.equal(world.landClearAt(x-.5,z-.5),false,'a new building or garden fixture has no native collision');}}
+    for(const npc of neighbors){assert.ok(npc.roam);const p=world.approaches.merchant(npc);assert.ok(world.clearAt(p.x,p.y));assert.ok(world.pathTo(p.x,p.y,world.spawn));assert.ok(npc.neighborLine.length>30);}
+    for(const b of n.streetGardens)assert.equal(world.landClearAt(b.x-.5,b.z-.5),false,'a planted bed has no native collision');
+});
+
+
+test('airport field billboards occupy the west green strip with clear roads, homes and sight lines',()=>{
+    const ads=world.airportFieldAds;assert.equal(ads.length,3);assert.equal(new Set(ads.map(a=>a.art)).size,3);
+    for(const ad of ads){
+        assert.ok(ad.z>96&&ad.z<132);assert.ok(ad.x<ad.roadX);assert.equal(ad.angle,0);assert.ok(BILLBOARD_ART.some(a=>a.id===ad.art));
+        assert.equal(world.landClearAt(ad.x-.5,ad.z-.5),false,'the billboard needs native collision');assert.ok(world.landClearAt(ad.roadX-.5,ad.z-.5),'billboard blocks the airport road');
+        for(const house of world.southernNeighborhood.houses)if(house.footprint)assert.ok(tilePolygonOverlap(ad.clearing,house.footprint)<1e-7,'a billboard overlaps a home');
+        for(const t of world.southernNeighborhood.trees)assert.ok(Math.abs(t.x-ad.x)>2.1||Math.abs(t.z-ad.z)>1.5,'tree obscures airport advertising');
     }
 });
