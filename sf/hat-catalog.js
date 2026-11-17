@@ -9,7 +9,10 @@ export const HAT_CATALOG=Object.freeze([
     {id:'cavalier',name:'Plumed cavalier',price:5000,prestige:'Extravagant',colors:['#4f5b65','#c3a367','#e4d8b8'],trimMetal:true},
     {id:'wizard',name:'Astronomer’s hat',price:10000,prestige:'Arcane',colors:['#545179','#c8ae65','#c8d6df'],trimMetal:true},
     {id:'laurel',name:'Golden laurel',price:25000,prestige:'Illustrious',colors:['#d9ba63','#e6d194','#8fb9a3'],metal:true,trimMetal:true},
-    {id:'crown',name:'Crown of Excess',price:100000,prestige:'Preposterous',colors:['#d5b15c','#e9d19a','#83aebd'],metal:true,trimMetal:true}
+    {id:'stone-of-jordan',name:'Stone of Jordan',price:50000,prestige:'Metaphysical',colors:['#777e82','#b2b6b3','#7b77a4']},
+    {id:'santa',name:'Santa Hat',price:75000,prestige:'Festive',colors:['#ba3c49','#eee8d6','#84323b']},
+    // Keep the old top-tier inventory ID so owners retain their purchase.
+    {id:'crown',name:'Blue Partyhat',price:100000,prestige:'Preposterous',colors:['#3568d1','#78a3ef','#23478f']}
 ].map(h=>Object.freeze({...h,colors:Object.freeze(h.colors)})));
 export const hatById=id=>HAT_CATALOG.find(h=>h.id===id)||null;
 export const ownedHat=(owned,id)=>id==='none'||!!hatById(id)&&owned.includes(id);

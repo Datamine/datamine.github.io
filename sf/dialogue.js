@@ -13,7 +13,7 @@ export function createDialogue({element,journal,log,economy,announce,onClose=()=
         const portrait=document.createElement('div');portrait.className='sf-chat-head';portrait.innerHTML=chatHead(person);
         const copy=document.createElement('div');copy.className='sf-chat-copy';
         const name=document.createElement('strong');name.textContent=person.name;
-        const text=document.createElement('p');text.textContent=message||(stage==='intro'?current.intro:current.question);copy.append(name,text);
+        const text=document.createElement('p'),body=message||(stage==='intro'?current.intro:current.question);text.textContent=typeof body==='function'?body():body;copy.append(name,text);
         const controls=document.createElement('div');controls.className='sf-chat-options';
         if(stage==='choices'){
             const choices=current.choices||[{label:current.choice,accept:current.accept,trade:current.trade,receipt:current.receipt}];

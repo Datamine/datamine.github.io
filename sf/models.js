@@ -1,5 +1,7 @@
 import {drawPiercedWall} from './wall-openings.js';
 import {drawAILabInterior} from './ai-lab.js';
+import {drawGuildInterior,drawWholeFoodsInterior,drawGuildEmblem} from './guild-models.js';
+import {drawBankInterior,drawBankBillboard} from './bank-models.js';
 import {Mesh,rand,tint,unit,pose} from './geometry.js';
 import {createRestaurantPatio} from './restaurants.js';
 import {createHousing} from './housing.js';
@@ -34,6 +36,9 @@ export function createModels({
         const {x,y:z,w,d,id}=b;
         const residents=[];
         if(id==='ai-lab'){drawAILabInterior(m,b,base);return residents;}
+        if(id==='green'){drawBankInterior(m,b,base);return residents;}
+        if(id==='freemasons-guild'){drawGuildInterior(m,b,base);b.interiorObstacles=[[[x+.2,z+.6],[x+.65,z+.6],[x+.65,z+d-.7],[x+.2,z+d-.7]],[[x+w-.65,z+.6],[x+w-.2,z+.6],[x+w-.2,z+d-.7],[x+w-.65,z+d-.7]],[[x+w/2-.6,z+.25],[x+w/2+.6,z+.25],[x+w/2+.6,z+.8],[x+w/2-.6,z+.8]]];return residents;}
+        if(id==='sunset-whole-foods'){drawWholeFoodsInterior(m,b,base);b.interiorObstacles=[...[[x+.25,.45],[x+w-.7,.45]].map(([xx,ww])=>[[xx,z+.3],[xx+ww,z+.3],[xx+ww,z+d-.7],[xx,z+d-.7]]),[[x+w/2-.5,z+.25],[x+w/2+.5,z+.25],[x+w/2+.5,z+.65],[x+w/2-.5,z+.65]]];return residents;}
         m.box(x+.6,base+.025,z+.5,w-1.2,.035,Math.max(.6,d-1),'#88533c');
         if(id==='writing'||id==='books'){
             for(let i=0;i<w-1;i++){m.box(x+.2+i*.85,base,z+.18,.72,1.15,.25,'#60482f');for(let row=0;row<3;row++)for(let j=0;j<5;j++)m.box(x+.24+i*.85+j*.12,base+.12+row*.32,z+.4,.08,.23+(j%2)*.04,.07,['#8e503f','#5d7449','#b69d55','#697b82','#bd8c63'][(j+row)%5]);}
@@ -89,6 +94,7 @@ export function createModels({
             if(arch==='victorian'||arch==='beauxarts'||arch==='civic')for(let i=.13;i<span-.05;i+=.33)facadeBox(m,isX,plane,along+i,base+H-.26,.055,.14,.075,trim,far);
             if(arch==='beauxarts'||arch==='civic')for(let i=.12;i<span;i+=.72)if(!enterable||!openings.some(o=>along+i<o.x+o.w&&along+i+.085>o.x))facadeBox(m,isX,plane,along+i,base+.2,.085,H-.4,.075,tint(trim,-8),far);
             if(side===1){
+                if(b.id==='freemasons-guild')drawGuildEmblem(m,b,base,H);
                 for(const xx of [door-.055,door+doorWidth])m.box(xx,base,z+d+.008,.055,1.73,.065,trim);
                 m.box(door-.06,base+1.7,z+d+.008,doorWidth+.12,.08,.075,trim);
                 if(!enterable){m.box(door,base+.03,z+d+.012,doorWidth,1.62,.035,b.doorColor||'#455e54');m.box(door+.07,base+.85,z+d+.05,Math.max(.12,doorWidth-.14),.55,.012,'#8ba9a1');m.sphere(door+doorWidth-.065,base+.74,z+d+.07,.02,.02,.02,'#cfb776',5,3);}
@@ -117,10 +123,12 @@ export function createModels({
             const top=[x+w/2,base+H+.09+rise,z+d/2],a=[x-.08,base+H+.09,z-.08],b=[x+w+.08,base+H+.09,z-.08],c=[x+w+.08,base+H+.09,z+d+.08],e=[x-.08,base+H+.09,z+d+.08];m.tri(a,top,b,roofColor);m.tri(b,top,c,tint(roofColor,-12));m.tri(c,top,e,roofColor);m.tri(e,top,a,tint(roofColor,8));
         }
         if(!roofDetails){m.box(x+w*.2,base+H+.06,z+d*.22,.14,.48,.18,'#9f8a70');m.box(x+w*.2-.025,base+H+.52,z+d*.22-.025,.19,.06,.23,'#bba88a');}
+        const rooftopBillboard=b.id==='green'?{art:'green-bank-roof',height:2}:null;
+        if(rooftopBillboard)drawBankBillboard(m,b,base+H+.13,signs);
         const roofRange={start:roofStart/11,count:(m.data.length-roofStart)/11};
         if((arch==='cafe'||arch==='shop'||arch==='bookshop'||arch==='newsstand')&&w>1.3){for(let i=0;i<12;i++){const xx=x+i*w/12;m.quad([xx,base+1.93,z+d+.025],[xx+w/12,base+1.93,z+d+.025],[xx+w/12,base+1.7,z+d+.42],[xx,base+1.7,z+d+.42],i%2?'#f1e3c8':arch==='cafe'?'#486e72':'#658267');m.quad([xx,base+1.7,z+d+.42],[xx+w/12,base+1.7,z+d+.42],[xx+w/12,base+1.6,z+d+.42],[xx,base+1.6,z+d+.42],i%2?'#f1e3c8':'#527868');}}
         if(b.rotation){const c=Math.cos(b.rotation),s=Math.sin(b.rotation),cx=x+w/2,cz=z+d/2;for(let i=start;i<m.data.length;i+=11){const dx=m.data[i]-cx,dz=m.data[i+2]-cz,nx=m.data[i+3],nz=m.data[i+5];m.data[i]=cx+dx*c-dz*s;m.data[i+2]=cz+dx*s+dz*c;m.data[i+3]=nx*c-nz*s;m.data[i+5]=nx*s+nz*c;if(m.data[i+9]<-1.5)m.data[i+10]+=b.rotation;}}
-        const o=registerObject(m,start,{x,y:z,w,d,h:H+Math.max(rise+.65,(roofDetails?.height||0)+.2),place:enterable?b:null,sight:b.sight||null,base,arch,rotation:b.rotation||0,footprint:b.footprint||null,roofDetails});
+        const o=registerObject(m,start,{x,y:z,w,d,h:H+Math.max(rise+.65,(roofDetails?.height||0)+.2,rooftopBillboard?.height||0),place:enterable?b:null,sight:b.sight||null,base,arch,rotation:b.rotation||0,footprint:b.footprint||null,roofDetails,rooftopBillboard});
         for(const resident of residents){
             const angle=b.rotation||0,c=Math.cos(angle),s=Math.sin(angle),cx=x+w/2,cz=z+d/2,point=(xx,zz)=>[cx+(xx-cx)*c-(zz-cz)*s,cz+(xx-cx)*s+(zz-cz)*c],at=point(resident.x,resident.z),fixture=resident.fixture,center=point(fixture.cx,fixture.cz);
             const sight=sightById('nia'),entry=point(x+1.5,resident.z);sight.entry={x:entry[0]-.5,y:entry[1]-.5};sight.mapPoint={x:at[0],y:at[1]};

@@ -30,6 +30,9 @@ const citizenDescriptions=Object.freeze([
     'Seems suspiciously well rested for someone living in a city with this much coffee.'
 ]);
 export function describeCharacter(person){
+    if(person.kind==='banker')return 'A warm smile, a beautifully organized ledger, and a talent for remembering exactly how you take your coffee. Banking has rarely felt so hospitable.';
+    if(person.kind==='illuminati-elder')return 'An Old Man with silver hair, a very discreet lapel pin, and a philanthropic interest in exactly 250,000 of your coins.';
+    if(person.kind==='guild-master')return 'Ray wears a red suit, a brass lapel compass and the serene expression of a man who has never once expedited an application without peptides.';
     if(person.neighborhood)return person.description;
     if(person.estateResident)return person.description;
     if(person.baby)return 'A tiny Noe Valley resident, being chauffeured between naps. The stroller has excellent suspension and no concept of rent.';
@@ -60,14 +63,17 @@ export function describeCharacter(person){
 
 /** Scenery has observations; actionable sites retain their actual activities. */
 export function sightPrimaryVerb(sight){
+    if(sight.kind==='secret-stairs')return 'Descend';
+    if(sight.kind==='cave-exit')return 'Climb';
+    if(sight.kind==='stealth-bomber')return 'Board';
     if(sight.kind==='sand')return 'Collect sand at';
-    if(sight.kind==='loot')return 'Pick up';
+    if(sight.kind==='loot'||sight.kind==='sunglasses')return 'Take';
+    if(sight.activityBuilding)return 'Enter';
     if(sight.enterableInstitute)return 'Enter';
     if(buildingNPCService(sight))return 'Examine';
     if(sight.kind==='surfing')return 'Paddle out';
     if(sight.kind==='fishing')return 'Fish at';
     if(sight.kind==='motorcycle')return sight.rented?'Ride':'Examine';
-    if(sight.kind==='sunglasses')return 'Pick up';
     if(sight.id==='zoo-monkeys')return 'Steal monkey from';
     if(sight.kind==='bunny')return 'Pet';
     if(sight.kind==='zoo')return sight.tigerLoose?'Examine':'Release tiger at';

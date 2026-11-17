@@ -9,11 +9,15 @@ export function parseWorldCommand(value){
 }
 export function debugMapPosition(player){return {x:player.x+.5,y:player.y+.5};}
 export function debugTilePosition(x,y){return {x:x-.5,y:y-.5};}
+export function createFrameMeter(){
+    let start=null,previous=null,count=0,fps=0;
+    return {sample(time){if(!Number.isFinite(time))return fps;if(previous===null||time<=previous||time-previous>1500){start=time;count=0;fps=0;}else count++;previous=time;const elapsed=time-start;if(elapsed>=500){fps=count*1000/elapsed;start=time;count=0;}return fps;},reset(){start=null;previous=null;count=0;fps=0;},get fps(){return fps;}};
+}
 
-export function createDebugConsole({panel,form,input,status,xOutput,yOutput,getPosition,teleport,beforeOpen,onMessage,focusWorld}){
+export function createDebugConsole({panel,form,input,status,xOutput,yOutput,fpsOutput=null,getFPS=()=>0,getPosition,teleport,beforeOpen,onMessage,focusWorld}){
     const history=[];let historyIndex=0,draft='';
     const editing=target=>target?.isContentEditable||['INPUT','SELECT','TEXTAREA'].includes(target?.tagName);
-    function update(){if(panel.hidden)return;const p=getPosition();for(const [out,value] of [[xOutput,p.x],[yOutput,p.y]]){const text=value.toFixed(3);if(out.textContent!==text)out.textContent=text;}}
+    function update(){if(panel.hidden)return;const p=getPosition();for(const [out,value] of [[xOutput,p.x],[yOutput,p.y]]){const text=value.toFixed(3);if(out.textContent!==text)out.textContent=text;}if(fpsOutput){const value=getFPS(),text=value>0?value.toFixed(1):'—';if(fpsOutput.textContent!==text)fpsOutput.textContent=text;}}
     function closeCommand(focus=true){form.hidden=true;if(focus)focusWorld();}
     function openCommand(value=':'){
         beforeOpen();form.hidden=false;input.value=value;status.textContent='Enter runs the command. Escape cancels.';status.dataset.error='false';historyIndex=history.length;draft=value;input.focus({preventScroll:true});input.setSelectionRange(value.length,value.length);

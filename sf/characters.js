@@ -168,6 +168,8 @@ export function sampleCharacterPose(mode='idle',phase=0,options={},out=createCha
         const shoulder=charRotate(out.rotations[2],charSub(CHAR_BIND[arm],CHAR_BIND[2])).map((v,i)=>v+out.joints[2*3+i]);
         let wrist=null;
         if(rollTuck)wrist=[sign*.17,charMix(.77,.61,rollTuck),.33*rollTuck];
+        else if(gesture==='parachute')wrist=[sign*.34,1.7,.1];
+        else if(gesture==='drink')wrist=side?[.18,.96+gestureWeight*.36,.22]:[-.18,.81,.06];
         else if(gesture==='bottle-post')wrist=side?[.16,.94+.12*Math.sin(gestureT*Math.PI*2),.24+.22*Math.cos(gestureT*Math.PI*2)]:[-.17,1.0,.33];
         else if(gesture==='ponder')wrist=side?[.10,1.34,.18]:[-.16,.96,.12];
         else if(gesture==='fish')wrist=[sign*.13,.97+.13*Math.sin(gestureT*Math.PI),.4];

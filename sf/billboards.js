@@ -11,7 +11,8 @@ export const BILLBOARD_ART=Object.freeze([
     {id:'ai-openai',message:'BUY',file:'ai-openai.svg',color:'#42746b'},
     {id:'ai-anthropic',message:"DON'T\nTHINK",file:'ai-anthropic.svg',color:'#c07d60'},
     {id:'ai-xai',message:'BELIEVE',file:'ai-xai.svg',color:'#263444'},
-    {id:'beach-getaway',message:'OBEY',file:'pacific-holidays.svg',color:'#548e99'}
+    {id:'beach-getaway',message:'OBEY',file:'pacific-holidays.svg',color:'#548e99'},
+    {id:'green-bank-roof',message:'OBEY',file:'green-bank.svg',color:'#245a43'}
 ].map(a=>Object.freeze({...a,src:billboardAssetURL(a.file)})));
 
 

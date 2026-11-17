@@ -323,6 +323,7 @@
     <div id="sf-custody" class="sf-custody" role="status" hidden><strong>Carceral Urbanist Facility</strong><span>Marin Headlands · Ask the court staff about rehabilitation</span></div>
     <div id="sf-wanted" class="sf-wanted" role="status" hidden>WANTED · Police are pursuing you</div>
     <aside class="sf-map-panel" aria-label="Neighborhood map">
+        <span id="sf-instance-level" class="sf-instance-level" hidden></span>
         <button id="sf-map-button" class="sf-map-button" aria-label="Minimap. Click to travel. Arrow keys select a content icon; Enter travels there."><canvas id="sf-minimap" width="184" height="154" aria-hidden="true"></canvas></button>
     </aside>
     <div id="sf-hover" class="sf-hover" hidden></div>
@@ -337,6 +338,7 @@
             <button id="sf-fuel-can-button" class="sf-bike-button" type="button" hidden>Use fuel can</button>
             <div class="sf-hitpoints"><label><span id="sf-hitpoints-text">Hitpoints 30/30</span><meter id="sf-hitpoints-meter" min="0" max="30" low="9" high="20" optimum="30" value="30" aria-label="Hitpoints"></meter></label><span id="sf-enemy-health" hidden></span></div>
             <div class="sf-food-controls"><button id="sf-order-doordash" class="sf-bike-button" type="button">DoorDash · 4 coins</button><button id="sf-eat-sandwich" class="sf-bike-button" type="button" hidden>Eat sandwich</button></div>
+            <button id="sf-drink-coffee" class="sf-bike-button" type="button" hidden>Drink complimentary coffee</button>
             <div class="sf-strength"><span id="sf-strength-text">Strength Level 1 · 0% to 2</span><progress id="sf-strength-progress" max="100" value="0" aria-label="Progress toward strength level 2"></progress>
             </div>
             <div id="sf-fuel-card" class="sf-fuel-card" hidden>
@@ -344,14 +346,16 @@
                 <div><button id="sf-drive-tahoe" type="button">Drive to Tahoe</button><button id="sf-drive-dealer" type="button">Dealership</button><button id="sf-refuel-button" type="button">Refuel nearby</button></div>
             </div>
             <div class="sf-zoom">
-                <label class="sf-zoom-control"><span class="sf-zoom-ends" aria-hidden="true"><span>Far</span><span>Near</span></span><input id="sf-zoom-slider" type="range" min="55" max="165" step="1" value="100" aria-label="Zoom" aria-valuetext="100% zoom"></label>
+                <label class="sf-zoom-control"><span class="sf-zoom-ends" aria-hidden="true"><span>Far</span><span>Near</span></span><input id="sf-zoom-slider" type="range" min="55" max="650" step="1" value="100" aria-label="Zoom" aria-valuetext="100% zoom"></label>
                 <button id="sf-recenter" aria-label="Reset camera angle and zoom">⌖</button>
             </div>
             <div class="sf-travel-controls">
+                <div id="sf-bomber-controls" class="sf-bomber-controls" role="group" aria-label="B-2 controls" hidden><span id="sf-bomber-flight">Personal B-2 · Hold Control to boost</span><button id="sf-bomber-bomb" class="sf-bike-button" type="button">Drop bomb · Space</button><button id="sf-bomber-land" class="sf-bike-button" type="button">Land · Parachute out</button></div>
                 <button id="sf-climb-button" class="sf-bike-button" type="button" hidden>Climb down <span class="sf-key">E</span></button>
                 <button id="sf-surf-button" class="sf-bike-button" type="button" aria-pressed="false">Windsurf <span class="sf-key">F</span></button>
                 <button id="sf-pacifica-surf-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="U">Surf · U</button>
                 <button id="sf-railgun-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="G" hidden>Equip railgun · G</button>
+                <button id="sf-grapple-button" class="sf-bike-button" type="button" hidden>Grapple airship</button>
                 <div id="sf-wave-controls" class="sf-wave-controls" role="group" aria-label="Pacifica surfing" hidden>
                     <span id="sf-wave-status" aria-live="polite">Paddling · 0 points</span>
                     <button id="sf-wave-catch" class="sf-bike-button" type="button" aria-keyshortcuts="Space">Catch wave · Space</button>
@@ -381,6 +385,7 @@
                 <button id="sf-gym-button" class="sf-bike-button" type="button">SF Fitness</button>
                 <button id="sf-quests-button" class="sf-bike-button" type="button" aria-haspopup="dialog" aria-controls="sf-quests" aria-keyshortcuts="Q">Quests <span class="sf-key">Q</span></button>
                 <button id="sf-character-button" class="sf-bike-button" type="button" aria-haspopup="dialog" aria-controls="sf-character">Character <span class="sf-key">C</span></button>
+                <button id="sf-multiplayer-button" class="sf-bike-button sf-multiplayer-button" type="button"><span id="sf-multiplayer-status">Single player · Connect</span></button>
                 <button id="sf-help-button" class="sf-bike-button" type="button" aria-label="Help: controls and icon legend">Help</button>
             </div>
         </div>
@@ -405,9 +410,26 @@
             <p class="sf-interview-note">Employed lab members earn 1 coin every 2 seconds inside.</p>
         </section>
     </div>
+    <section id="sf-bank" class="sf-help sf-bank" role="dialog" aria-modal="true" aria-labelledby="sf-bank-title" hidden>
+        <button data-bank-close class="sf-character-close" type="button" aria-label="Close Green Bank">×</button>
+        <h2 id="sf-bank-title">Green Bank</h2>
+        <p class="sf-bank-welcome">Welcome. Your deposits earn <strong>5% per hour</strong>, compounded, including while you are away.</p>
+        <dl class="sf-bank-balances"><div><dt>Deposited</dt><dd><output data-bank-balance>0.00</output> coins</dd></div><div><dt>In your purse</dt><dd><output data-bank-purse>25</output> coins</dd></div></dl>
+        <form class="sf-bank-form"><label for="sf-bank-amount">Amount in coins</label><input id="sf-bank-amount" type="number" inputmode="numeric" min="1" step="1" placeholder="Enter an amount" autocomplete="off"><div><button type="submit" value="deposit">Deposit</button><button type="submit" value="withdraw">Withdraw</button><button type="submit" value="deposit-all" formnovalidate>Deposit all</button><button type="submit" value="withdraw-all" formnovalidate>Withdraw all</button></div></form>
+        <p data-bank-status class="sf-bank-status" role="status">Welcome! How may I help?</p>
+        <button data-bank-coffee type="button" class="sf-primary">A coffee, on the house</button>
+        <p class="sf-help-note">Banked coins stay in your account. Withdrawals transfer whole coins; fractional interest keeps accruing.</p>
+    </section>
     <section id="sf-character" class="sf-help sf-character" role="dialog" aria-modal="true" aria-labelledby="sf-character-title" hidden>
         <button id="sf-close-character" class="sf-character-close" type="button" aria-label="Close character settings">×</button>
         <h2 id="sf-character-title">Your character</h2>
+        <p id="sf-guild-status" class="sf-guild-status">Freemasons’ Guild · Rank 1 · 0/24 promotions · 0 peptides</p>
+        <p id="sf-bank-character" class="sf-guild-status">Green Bank · 0.00 coins deposited</p>
+        <div class="sf-pvp-option"><label><input id="sf-pvp-enabled" type="checkbox" aria-describedby="sf-pvp-status"> Enable PvP</label><small id="sf-pvp-status" role="status">Both players must opt in. Wait 30 seconds before disabling PvP.</small><p>Player kills drop all your coins, sandwiches, iPhone and owned hats.</p></div>
+        <form id="sf-username-form" class="sf-username-form" autocomplete="off">
+            <label for="sf-username">Username</label><div><input id="sf-username" type="text" maxlength="12" pattern="[A-Za-z0-9_]{1,12}" aria-describedby="sf-username-status" autocapitalize="off" spellcheck="false"><button id="sf-save-username" type="submit">Save name</button></div>
+            <small id="sf-username-status" role="status">Connect to the common world to reserve a username.</small>
+        </form>
         <div class="sf-character-body"><canvas id="sf-character-preview" width="240" height="240" aria-label="Preview of your character"></canvas>
         <div class="sf-character-fields">
             <label>Gender <select data-character="gender"><option value="man">Man</option><option value="woman">Woman</option></select></label>
@@ -425,7 +447,11 @@
             <label class="sf-sunglasses-option sf-cape-option"><input data-character="cape" type="checkbox" aria-describedby="sf-cape-hint" disabled> Wear kraken cape</label>
             <small id="sf-cape-hint" class="sf-sunglasses-hint">Defeat the kraken with Ahab to unlock.</small>
         </div></div>
-        <p class="sf-help-note">Changes apply immediately and are saved in this browser.</p>
+        <details class="sf-connection-settings"><summary>Multiplayer connection</summary>
+            <form id="sf-connection-form"><label for="sf-server-endpoint">Server address</label><div><input id="sf-server-endpoint" type="url" placeholder="wss://your-server.example/ws" aria-describedby="sf-connection-status"><button type="submit">Connect</button></div><small id="sf-connection-status" role="status">One common world. Your quests and personal vehicles stay yours.</small></form>
+            <button id="sf-play-offline" type="button">Play single player</button>
+        </details>
+        <p class="sf-help-note">Appearance saves immediately. Multiplayer progress is also checkpointed to the server.</p>
         <button id="sf-character-done" class="sf-primary" type="button">Done</button>
     </section>
     <section id="sf-help" class="sf-help" role="dialog" aria-modal="true" aria-labelledby="sf-help-title" hidden>
@@ -483,7 +509,7 @@
 </section>
     <section id="sf-debug" class="sf-debug" aria-label="Debug menu" hidden>
         <header><strong>Debug</strong><button type="button" data-debug-close aria-label="Close debug menu">×</button></header>
-        <dl><dt>X</dt><dd><output id="sf-debug-x">0.000</output></dd><dt>Y</dt><dd><output id="sf-debug-y">0.000</output></dd></dl>
+        <dl><dt>X</dt><dd><output id="sf-debug-x">0.000</output></dd><dt>Y</dt><dd><output id="sf-debug-y">0.000</output></dd><dt>FPS</dt><dd><output id="sf-debug-fps">—</output></dd></dl>
         <p>X increases east. Y increases south.</p>
         <button type="button" data-debug-teleport>Teleport…</button>
     </section>

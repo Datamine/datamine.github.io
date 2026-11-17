@@ -1,6 +1,9 @@
 import {pose} from './geometry.js';
 
 export const ROCKET_CABIN_HEIGHT=4.7;
+export const ROCKET_CRUISE_SECONDS=24;
+// Smoothstep reaches 1.5 times its average speed midway through the flight.
+export function rocketCruiseSpeed(from,to){return Math.hypot(to.x-from.x,to.z-from.z)*1.5/ROCKET_CRUISE_SECONDS;}
 // Rotate around the rider's visual center, which is also the camera target.
 // The hull and rider share this frame; rotating cannot displace the avatar.
 export const ROCKET_RIDER_CENTER=.9;
@@ -58,7 +61,7 @@ function rocketAccessPose(site,elapsed,descending=false,start=null){
  * occupies an open viewing cabin; the camera stays anchored to the rider. */
 export function createRocketTravel({groundHeight=()=>0}={}){
     const state={active:false,phase:'ground',elapsed:0,from:null,to:null,position:null,vehicle:null,thrust:0,pose:null,hatch:0,occupied:false,pitch:0,heading:0};
-    const durations={boarding:rocketBoardingDuration,ascending:6,cruising:24,descending:6,disembarking:rocketBoardingDuration};
+    const durations={boarding:rocketBoardingDuration,ascending:6,cruising:ROCKET_CRUISE_SECONDS,descending:6,disembarking:rocketBoardingDuration};
     let boardingEntry=null;
     function start(from,to,entry=null){
         if(state.active)return false;

@@ -21,7 +21,7 @@ export function drawHaberdasherShop(m,signs){
             m.box(x-.02,1.68,.6,.99,.07,.27,'#d5c9ac','wood');
             for(const xx of [x-.02,x+.95])m.box(xx,.62,.83,.025,1.1,.03,'#c0ad83');
         }
-        for(const [id,x] of [['paper',-1.23],['panama',-.92],['beret',-.61],['top-hat',.58],['wizard',.89],['crown',1.2]])drawHatModel(m,id,x,.81,.72,0,.68);
+        for(const [id,x,scale] of [['paper',-1.23,.65],['stone-of-jordan',-.77,.6],['santa',.65,.8],['crown',1.14,.8]])drawHatModel(m,id,x,.81,.72,0,scale);
         m.box(-.34,.1,.60,.64,1.65,.06,'#405d52','wood');m.box(-.28,.77,.668,.52,.84,.018,'#90a6a0',{window:.2});m.box(-.28,.19,.668,.52,.46,.018,'#4a685a','cedar');m.rod([.2,.73,.706],[.2,.95,.706],.013,'#c7a46b',8,{metal:.5});
         m.box(-1.53,1.84,.56,3.06,.34,.38,'#3b584c','wood');drawPlaque(m,signs,'HABERDASHER',0,1.91,.951,2.7,.19);
         for(let i=0;i<16;i++){

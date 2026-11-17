@@ -8,6 +8,20 @@ The editable world uses ES modules. The build produces a self-contained `explore
 node sf/build.mjs
 ```
 
+Green Bank's friendly banker offers deposits, withdrawals and a complimentary
+coffee. Deposits earn 5% per elapsed hour, compounded continuously, including
+offline time: 100 coins becomes 105 after one hour and 110.25 after two. Banked
+coins are separate from spendable inventory; whole coins can be withdrawn while
+fractional interest stays in the account. `banking.js` contains the shared
+account rules, `bank-ui.js` the account window and offline adapter, and
+`bank-models.js` the counter, coffee and rooftop billboard. Multiplayer uses
+the authoritative account in `server/banking.mjs`.
+
+The haberdasher's upper tiers are Stone of Jordan (50,000 coins), Santa Hat
+(75,000), and Blue Partyhat (100,000). The partyhat preserves the previous
+top-tier `crown` inventory ID so existing ownership and outfit selections carry
+over. Their original geometry lives in `hat-models.js`.
+
 The build validates navigation before writing the generated page. To run just
 the complete-map navigation audit, without starting a browser or a server:
 

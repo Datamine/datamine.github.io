@@ -1,0 +1,20 @@
+{
+  "players": 2000,
+  "seconds": 30,
+  "framesPerPlayerSecond": 9.7,
+  "frameGapP95Ms": 118.54,
+  "frameGapP99Ms": 125.14,
+  "snapshotLatencyP95Ms": 1,
+  "receivedMBPerSecond": 36.05,
+  "unexpectedCloses": 0,
+  "server": {
+    "ok": true,
+    "players": 2000,
+    "capacity": 2000,
+    "store": "sqlite",
+    "uptimeSeconds": 236,
+    "eventLoopP99Ms": 47,
+    "tickMs": 0.79,
+    "broadcastMs": 19.46
+  }
+}

@@ -53,18 +53,25 @@ export function getHatGeometry(id){
             const b=a+.18;m.rod([x,.035,z],[Math.sin(b)*.146,.035,Math.cos(b)*.133],.009,body,6);
             for(const side of [-1,1]){const tip=[x+Math.sin(a)*side*.04,.08,z+Math.cos(a)*side*.035],l=[x+Math.cos(a)*.025,.047,z-Math.sin(a)*.025],r=[x-Math.cos(a)*.025,.047,z+Math.sin(a)*.025];m.tri([x,.035,z],l,tip,body);m.tri([x,.035,z],tip,r,trim);}
         }
+    }else if(id==='stone-of-jordan'){
+        // A conspicuously large, irregular stone, balanced on the head.
+        const ring=(y,r,phase)=>Array.from({length:9},(_,i)=>{const a=i*Math.PI*2/9+phase,k=1+.11*Math.sin(i*2.4+y*3);return [Math.sin(a)*r*k,y+.025*Math.sin(i*1.7),Math.cos(a)*r*.82*k];});
+        const rings=[ring(.035,.15,0),ring(.16,.32,.12),ring(.39,.27,-.08),ring(.51,.1,.1)];
+        for(let j=1;j<rings.length;j++)for(let i=0;i<9;i++){const k=(i+1)%9;m.tri(rings[j-1][i],rings[j][i],rings[j][k],i%3?body:trim);m.tri(rings[j-1][i],rings[j][k],rings[j-1][k],i%4?body:trim);}
+        for(let i=0;i<9;i++)m.tri([0,.54,0],rings[3][(i+1)%9],rings[3][i],i%2?body:trim);
+        for(const [a,b] of [[[-.07,.22,.258],[.03,.34,.232]],[[.03,.34,.232],[.09,.26,.255]],[[.09,.26,.255],[-.03,.25,.262]]])m.rod(a,b,.009,gem,5);
+    }else if(id==='santa'){
+        const rings=[[0,.035,.145],[0,.16,.13],[.04,.3,.085],[.13,.4,.045],[.21,.37,.012]],point=(r,i)=>[r[0]+Math.sin(i*Math.PI/10)*r[2],r[1],Math.cos(i*Math.PI/10)*r[2]*.87];
+        for(let j=1;j<rings.length;j++)for(let i=0;i<20;i++)m.quad(point(rings[j-1],i),point(rings[j-1],i+1),point(rings[j],i+1),point(rings[j],i),i%5?body:gem);
+        band(.15,.005,.07,trim,.135);for(let i=0;i<16;i++){const a=i*Math.PI/8;m.sphere(Math.sin(a)*.145,.04,Math.cos(a)*.13,.022,.036,.022,trim,8,5);}
+        m.sphere(.22,.365,0,.048,.052,.046,trim,12,7);
     }else if(id==='crown'){
-        band(.145,.0,.11,body,.13);band(.149,.012,.018,trim,.134);band(.149,.085,.016,trim,.134);
-        for(let i=0;i<8;i++){
-            const a=i*Math.PI/4,A=[Math.sin(a-.23)*.145,.10,Math.cos(a-.23)*.13],B=[Math.sin(a+.23)*.145,.10,Math.cos(a+.23)*.13],tip=[Math.sin(a)*.17,.24+(i%2?0:.035),Math.cos(a)*.15];
-            m.tri(A,B,tip,body);m.tri(B,A,[tip[0]*.93,tip[1],tip[2]*.93],trim);m.sphere(...tip,.018,.022,.018,trim,10,6);
-            m.sphere(Math.sin(a)*.152,.064,Math.cos(a)*.137,.024,.028,.02,gem,10,6);
+        // Folded blue paper, with the open zigzag silhouette of a partyhat.
+        band(.145,.0,.13,body,.13);band(.148,.006,.016,gem,.133);
+        for(let i=0;i<6;i++){
+            const a=i*Math.PI/3,b=(i+1)*Math.PI/3,mid=(a+b)/2,A=[Math.sin(a)*.145,.13,Math.cos(a)*.13],B=[Math.sin(b)*.145,.13,Math.cos(b)*.13],tip=[Math.sin(mid)*.153,.33,Math.cos(mid)*.139];
+            m.tri(A,B,tip,body);m.tri([B[0]*.975,B[1],B[2]*.975],[A[0]*.975,A[1],A[2]*.975],[tip[0]*.975,tip[1],tip[2]*.975],trim);m.rod(A,tip,.0025,gem,4);
         }
-        // Raised arches and a sapphire orb.
-        for(const axis of [0,1])for(let i=0;i<10;i++){
-            const at=j=>{const a=j*Math.PI/10;return axis?[0,.12+Math.sin(a)*.26,Math.cos(a)*.13]:[Math.cos(a)*.145,.12+Math.sin(a)*.26,0];};m.rod(at(i),at(i+1),.012,trim,6);
-        }
-        m.sphere(0,.4,0,.032,.036,.032,gem,12,7);m.rod([0,.425,0],[0,.49,0],.008,body,6);m.rod([-.022,.47,0],[.022,.47,0],.007,body,6);
     }
     const palette=h.colors.map(rgb),channels=[];
     for(let i=0;i<m.data.length;i+=33){const color=m.data.slice(i+6,i+9);channels.push(palette.findIndex(p=>p.every((c,k)=>Math.abs(c-color[k])<1e-6)));}

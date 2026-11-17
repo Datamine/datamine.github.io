@@ -1,0 +1,28 @@
+services:
+  game:
+    build:
+      context: ../..
+      dockerfile: sf/server/Dockerfile
+    restart: unless-stopped
+    init: true
+    ports: ["127.0.0.1:8787:8787"]
+    environment:
+      HOST: 0.0.0.0
+      MAX_PLAYERS: 2000
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://johnloeber.com,https://www.johnloeber.com,https://datamine.github.io}
+      ALLOW_DEBUG: "0"
+    volumes: ["world-data:/app/sf/server/data"]
+    stop_grace_period: 30s
+  proxy:
+    image: caddy:2-alpine
+    profiles: [production]
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      GAME_DOMAIN: ${GAME_DOMAIN:-localhost}
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "caddy-data:/data", "caddy-config:/config"]
+    depends_on: [game]
+volumes:
+  world-data:
+  caddy-data:
+  caddy-config:

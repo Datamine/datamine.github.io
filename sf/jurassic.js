@@ -1,11 +1,12 @@
 import {JURASSIC,COW_PEN,PEQUOD,KRAKEN_CAPE_TEXT} from './jurassic-layout.js';
 import {rollWeaponDamage,rollEnemyDamage} from './combat.js';
+import {cowInBombArea,BOMB_DAMAGE} from './stealth-bomber.js';
 
 export const RAILGUN_RANGE=5,RAILGUN_DAMAGE=10,RAILGUN_INTERVAL=.8;
 const distance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 /** Combat, drops and journeys use simulation time, not draw calls. Routes are
  * supplied by the production adjacency graph and refreshed at most twice/s. */
-export function createExpeditions({saved={},onSave=()=>{},health,economy,food=()=>{},level=()=>1,player=()=>({x:0,z:0,base:0,eligible:true}),pedestrians=()=>[],routeTo=()=>null,canTravel=()=>false,lineClear=()=>true,random=Math.random,onEvent=()=>{}}={}){
+export function createExpeditions({saved={},onSave=()=>{},health,economy,food=()=>{},level=()=>1,sharedWorld=()=>false,player=()=>({x:0,z:0,base:0,eligible:true}),pedestrians=()=>[],routeTo=()=>null,canTravel=()=>false,lineClear=()=>true,random=Math.random,onEvent=()=>{}}={}){
     const stages=['not-started','escaped','carrying','completed'];
     const state={raptor:stages.includes(saved.raptor)?saved.raptor:'not-started',railgun:saved.railgun===true,armed:false,cape:saved.cape===true,krakenDefeated:saved.krakenDefeated===true,krakenReward:saved.krakenReward===true,equipped:saved.equipped!==false,target:null,clock:0,cooldown:0,beams:[],splats:[],loot:[],victims:[]};
     if(state.raptor!=='not-started')state.railgun=true;if(state.krakenReward){state.cape=true;state.krakenDefeated=true;}
@@ -68,15 +69,16 @@ export function createExpeditions({saved={},onSave=()=>{},health,economy,food=()
         for(const s of state.splats)s.ttl-=dt;state.splats=state.splats.filter(s=>s.ttl>0);
         state.loot=state.loot.filter(l=>l.expires>state.clock);
         for(const v of state.victims)if(v.until<=state.clock){v.npc.expeditionDead=false;v.npc.hold=0;}state.victims=state.victims.filter(v=>v.until>state.clock);
-        for(const c of cows)if(!c.hp){c.respawn=Math.max(0,c.respawn-dt);if(c.respawn<=1e-8){c.hp=c.max;event('cow-respawn',null);}}
+        if(!sharedWorld())for(const c of cows)if(!c.hp){c.respawn=Math.max(0,c.respawn-dt);if(c.respawn<=1e-8){c.hp=c.max;event('cow-respawn',null);}}
         const p=player();p.isPlayer=true;
         if(ship.aboard){
             if(ship.phase==='outbound'){ship.progress=Math.min(1,ship.progress+dt/6);const t=ship.progress*ship.progress*(3-2*ship.progress);ship.x=ship.home.x-PEQUOD.travel*t;if(ship.progress>=1-1e-8){ship.progress=1;ship.phase=state.krakenDefeated?'victory':'fighting';kraken.visible=!state.krakenDefeated;kraken.x=ship.x-4.4;kraken.z=ship.z;if(state.krakenDefeated&&!state.krakenReward&&!state.loot.some(l=>l.lootKind==='kraken'))drop('kraken',ship.x,ship.z);event('kraken-arrived','Ahab: “Moby Dick was too hard. We’ll just hunt the kraken instead.” Click the kraken to fire. Stronger hunters hit harder.');}}
             else if(ship.phase==='inbound'){ship.progress=Math.min(1,ship.progress+dt/5);ship.x=ship.returnX+(ship.home.x-ship.returnX)*ship.progress;if(ship.progress>=1-1e-8){ship.progress=1;abandonShip();event('disembarked','The Pequod returns you to the beach.');}}
             else if(ship.phase==='fighting'&&p.eligible){ship.attackIn-=dt;if(ship.attackIn<=1e-8){ship.attackIn+=4;damagePlayer(10,'The kraken',kraken);}}
         }
-        if(state.target&&p.eligible&&state.cooldown<=1e-8){if(distance(p,state.target)<=RAILGUN_RANGE+.001){const result=shoot(state.target,p);if(!result.ok&&!result.cooldown)state.target=null;}else state.target=null;}
+        if(state.target&&p.eligible&&state.cooldown<=1e-8&&(!sharedWorld()||!['cow','raptor'].includes(state.target.combatKind))){if(distance(p,state.target)<=RAILGUN_RANGE+.001){const result=shoot(state.target,p);if(!result.ok&&!result.cooldown)state.target=null;}else state.target=null;}
         if(state.target?.combatKind==='spectre'&&p.eligible&&distance(p,state.target)<1.8){state.spectreAttack=(state.spectreAttack||0)+dt;if(state.spectreAttack>=1.25){state.spectreAttack=0;damagePlayer(7,'The spectre',state.target);}}
+        if(sharedWorld())return;
         if(raptor.phase==='releasing'){raptor.release=Math.min(1,raptor.release+dt);raptor.z=JURASSIC.cage.z+(JURASSIC.exit.z-JURASSIC.cage.z)*raptor.release;if(raptor.release>=1-1e-8){raptor.phase='loose';raptor.replan=0;}return;}
         if(raptor.phase!=='loose')return;
         raptor.replan-=dt;raptor.attackIn=Math.max(0,raptor.attackIn-dt);
@@ -102,7 +104,8 @@ export function createExpeditions({saved={},onSave=()=>{},health,economy,food=()
     }
     function update(dt){if(!Number.isFinite(dt)||dt<=0)return;let remaining=Math.min(dt,60);while(remaining>1e-8){const step=Math.min(.05,remaining);advance(step);remaining-=step;}}
     function entries(){const result=[{id:'jurassic-recovery',title:'Jurassic Biosciences: Emergency Recovery',stage:state.raptor==='escaped'?'accepted':state.raptor,status:state.raptor==='not-started'?'Not started':state.raptor==='carrying'?'Ready to turn in':state.raptor==='completed'?'Complete':'In progress',description:state.raptor==='not-started'?'Ask the scientist at Jurassic Biosciences, in the green belt between northern and southern San Francisco, for a quest.':state.raptor==='escaped'?'Recover the escaped velociraptor. Equip your railgun with G; click the raptor to shoot from up to five tiles away. Pick up its remains, even if a citizen defeats it first.':state.raptor==='carrying'?'Bring the remains back to the scientist. Ask why he released the velociraptor.':'The raptor escape and emergency recovery protocol has been tested. You keep the railgun.',rewardLabel:'Railgun'}];if(state.railgun)result.push({id:'pequod-kraken',title:'Ahab’s Rather Easier Hunt',stage:state.krakenReward?'completed':'accepted',status:state.krakenReward?'Complete':'In progress',description:state.krakenReward?KRAKEN_CAPE_TEXT:'Find Captain Ahab aboard the Pequod off the western coast. Bring your railgun and sandwiches. Your strength improves railgun damage; bring food for the kraken’s heavy blows. Collect the spoils on deck, then sail home.',rewardLabel:'100 coins · commemorative cape'});return result;}
-    return {state,raptor,cows,ship,kraken,startQuest,recover,finishQuest,setHarbor,board,returnShip,abandonShip,collect,shoot,attack,update,entries,stop(){state.target=null;},toggleWeapon(){if(!state.railgun)return false;state.equipped=!state.equipped;state.target=null;save();return true;}};
+    function bombCows(area){for(const cow of cows)if(cowInBombArea(cow,area)){cow.hp=0;cow.respawn=10;drop('sandwich',cow.x,cow.z);event('shot',null,{target:cow,damage:BOMB_DAMAGE,hp:0,max:cow.max});}}
+    return {state,raptor,cows,ship,kraken,startQuest,recover,finishQuest,setHarbor,board,returnShip,abandonShip,collect,shoot,attack,update,entries,bombCows,stop(){state.target=null;},toggleWeapon(){if(!state.railgun)return false;state.equipped=!state.equipped;state.target=null;save();return true;}};
 }
 
 export function scientistDialogue(npc,game){

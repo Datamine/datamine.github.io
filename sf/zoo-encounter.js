@@ -61,5 +61,12 @@ export function createTigerEncounter({player,home,exit,wardenStarts,routeTo,canC
         return null;
     }
     function update(dt){let remaining=Math.max(0,dt);while(remaining>1e-8){const step=Math.min(.05,remaining),event=tick(step);remaining-=step;if(event)return event;}return null;}
-    return {state,release,update,get dangerous(){return state.phase==='loose';}};
+    function snapshot(){return {state:structuredClone(state),transition,transitionStart,patrolDirection,lastTarget,dispatched};}
+    function restore(saved){
+        if(!saved?.state||!['caged','opening','escaping','closing','loose','returning','caging'].includes(saved.state.phase))return false;
+        const incoming=saved.state;if(!Number.isFinite(incoming.tiger?.x)||!Number.isFinite(incoming.tiger?.y))return false;
+        Object.assign(tiger,incoming.tiger,{path:[],repath:0,target:null});Object.assign(state,incoming,{tiger,wardens:(incoming.wardens||[]).map(w=>({...w,path:[],repath:0,target:null}))});
+        transition=Math.max(0,Math.min(1,saved.transition||0));transitionStart=saved.transitionStart||{...home};patrolDirection=saved.patrolDirection===-1?-1:1;lastTarget=saved.lastTarget||{x:player.x,y:player.y};dispatched=saved.dispatched===true;return true;
+    }
+    return {state,release,update,snapshot,restore,get dangerous(){return state.phase==='loose';}};
 }

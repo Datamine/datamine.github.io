@@ -1,4 +1,4 @@
-import {createDebugConsole,debugMapPosition,debugTilePosition} from './debug-console.js';
+import {createDebugConsole,debugMapPosition,debugTilePosition,createFrameMeter} from './debug-console.js';
 import {packStaticMesh,batchInFrustum} from './static-batches.js';
 import {SOUTHERN_CRAFT_SIGNS} from './southern-craft.js';
 import {GLASS_UV,isGlassVertex,meshGlassTriangles,createGlazingBatch} from './glazing.js';
@@ -87,14 +87,24 @@ import {TIMES_SQUARE,TIMES_SQUARE_BUILDINGS,inTimesSquare} from './southern-layo
 import {populateSouthernNeighborhood} from './southern-neighborhood.js';
 import {PENINSULA_STREETS,PACIFICA_PARK,PACIFICA_PARK_RESIDENTS,inPacificaPark} from './southern-expansion.js';
 import {PENINSULA_SIGNS} from './peninsula-details.js';
-import {createRocketTravel,drawReusableRocket,tiltRocketMesh,rocketFlightPoint,ROCKET_RIDER_CENTER} from './rocket.js';
+import {createRocketTravel,drawReusableRocket,tiltRocketMesh,rocketFlightPoint,rocketCruiseSpeed,ROCKET_RIDER_CENTER} from './rocket.js';
 import {createRegionalRoad,createGoldenGateCrossing,drawHighwayMinimap} from './regional-road.js';
 import {TAHOE,TAHOE_BOUNDS,createTahoe,nearTahoe,tahoeHeight,regionalGroundHeight,drawTahoeTerrain,drawTahoeStructures,drawGondolaCabin,drawSkiRider,drawRegionalBackdrop,drawTahoeMinimap,raycastTahoe,fitTahoeCamera,SNOW_SURFACE_GLSL} from './tahoe.js';
 import {createAirshipRope,drawAirshipRope} from './airship-rope.js';
 import {AIRSHIP_BASKET,createAirshipBasket} from './airship-basket.js';
 import {createEconomy,MERCHANTS} from './economy.js';
 import {createDialogue} from './dialogue.js';
+import {bootMultiplayer} from './multiplayer-client.js';
+import {createWorldMultiplayer,setupMultiplayerSettings} from './multiplayer-world.js';
 import {createCombatFeedback,createCombatOverlay} from './combat-feedback.js';
+import {actorLevel} from './levels.js';
+import {GUILD_BUILDINGS,createGuildMembership,guildDialogue,insideGuild,peptideSpawnPoints,PEPTIDE_SPAWN_MS} from './guild.js';
+import {PUBLIC_INSTANCE,ILLUMINATI_CAVE,CAVE_TILES,CAVE_NAVIGATION,ILLUMINATI_PRICE} from './map-instances.js';
+import {createSecretAdventures} from './secret-adventures.js';
+import {bankerDialogue} from './banking.js';
+import {createBankService,createBankMenu} from './bank-ui.js';
+import {drawDrinkingCoffee} from './bank-models.js';
+import {createIlluminatiCaveMesh,drawStealthBomber,drawSecretStair,drawBombEffect,drawParachute,drawBomberCrash} from './illuminati-models.js';
 import {describeCharacter,sightPrimaryVerb} from './descriptions.js';
 import {buildingNPCService,serviceStaffPosition} from './building-interactions.js';
 import {drawStartupHQ,drawGrainStand,merchant} from './commerce-world.js';
@@ -127,7 +137,7 @@ import {WORLD_SIZE,REFERENCE_SIZE,STREET_LAYOUT_SIZE,EAST_BAY_COAST_X,PARK_BOUND
 /* Static WebGL world entry point. Terrain and models are actual 3D triangle
    meshes; the 2D canvases below are only maps and interface labels. No game assets
    or renderer code are copied from RuneScape or private-server clients. */
-function createSFWorld({headless=false,retainInteriors=false}={}){
+function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={}){
     const $=id=>document.getElementById(id),world=headless?null:$('sf-world'),canvas=headless?null:$('sf-canvas'),map=headless?null:$('sf-minimap');
     const gl=headless?null:canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'low-power'});
     const mc=headless?null:map.getContext('2d');
@@ -143,6 +153,16 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     const TERRAIN_RES=4,TERRAIN_GRID=N*TERRAIN_RES,WALK_SPEED=4.6,ACCELERATION=24,CLEARANCE=.16;
     const occupied=new Uint8Array(N*N),landMask=new Uint8Array(N*N),reserved=new Uint8Array(N*N),roadIndex=new Int16Array(N*N),roadDistance=new Float32Array(N*N);
     const objects=[],places=[],instituteRooms=[],visited=new Set();
+    let multiplayerWorld=null,multiplayerSettings=null;
+    let secretWorld=null,caveMesh=null,caveGPU=null,oldMan=null,secretStairs=null;
+    let bankService=null,bankMenu=null,banker=null;
+    const caveExitSite={id:'illuminati-exit',kind:'cave-exit',label:'Stairs to the guild',entry:{x:13,y:24},description:'A long stairway returns to the Freemasons’ Guild above. The public minimap resumes on the surface.'};
+    const bomberSite={id:'personal-b2',kind:'stealth-bomber',label:'B-2 Stealth Bomber',entry:{x:13,y:16},description:'Your personal flying wing. Cruise just below the airship; hold Control for rocket speed. Land by parachuting out. The Illuminati covers replacement aircraft. Space drops one bomb every 30 seconds: 100 damage in a 3×3 area, affecting cows only.'};
+    let savedGuild={};if(!headless)try{savedGuild=JSON.parse(localStorage.getItem('sf-guild-v1')||'{}')||{};}catch{}
+    let localPeptides=Number.isSafeInteger(savedGuild.peptides)?Math.max(0,savedGuild.peptides):0,peptideSpawns=[],nextLocalPeptideAt=Number.isFinite(savedGuild.nextPeptideAt)?savedGuild.nextPeptideAt:Date.now()+PEPTIDE_SPAWN_MS;
+    function saveLocalGuild(){if(!headless&&!multiplayer)try{localStorage.setItem('sf-guild-v1',JSON.stringify({...localGuild.state,peptides:localPeptides,nextPeptideAt:nextLocalPeptideAt}));}catch{}}
+    const localGuild=createGuildMembership(savedGuild,Date.now,()=>saveLocalGuild());
+    function guildStatus(){return multiplayer?{...multiplayer.state.guild,peptides:multiplayer.state.inventory?.peptides||0}:{...localGuild.status(),peptides:localPeptides};}
     const player={x:mapTile(45),y:mapTile(29),path:[],moving:false,angle:Math.PI/2,speed:0,vx:0,vy:0,phase:0,motion:0,runBlend:0};
     const bike={x:mapTile(44),y:mapTile(30),riding:false};
     const skateboard={riding:false,travel:0},skateTricks=createSkateTricks(),forwardRoll=createForwardRoll();let alienCombat=null,deli=null,streetTraffic=null,airportAds=[],airportFieldAds=[],esotericCampus=null,squareLife=null,motorcycle=null,monkeyKeeper=null,keeperNPC=null,approachingNPC=null,specialNPCLife=null,socialLife=null;
@@ -189,7 +209,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     const quests=createQuestLog(savedQuests,state=>{if(!headless)try{localStorage.setItem('sf-quests-v1',JSON.stringify(state));}catch{}questMenu?.render();if(state.monkey!=='carrying')monkeyKeeper?.stop();if(built&&!headless)updateAdventureUI();});
     let savedExpeditions={};if(!headless)try{savedExpeditions=JSON.parse(localStorage.getItem('sf-expeditions-v1')||'{}')||{};}catch{}
     let pequodSite=null,ahabNPC=null;
-    const expeditions=createExpeditions({saved:savedExpeditions,health,economy,level:()=>strength.status.level,food:n=>deli?.storeSandwich(n),
+    const expeditions=createExpeditions({saved:savedExpeditions,health,economy,level:()=>strength.status.level,sharedWorld:()=>!!multiplayer,food:n=>deli?.storeSandwich(n),
         player:()=>({x:player.x+.5,z:player.y+.5,base:playerGround(),isPlayer:true,eligible:!capture.state.active&&!chase?.state.jailed&&!flying()&&!rocket.state.active&&!surf.state.riding&&!rope.climbing&&!sutroClimb.state.active&&tahoe.state.mode==='ground'}),
         pedestrians:()=>[...(cityLife?.people||[]),...(southernLife?.people||[]),...(squareLife?.people||[])],
         routeTo:(a,b)=>pathTo(b.x-.5,b.z-.5,{x:a.x-.5,y:a.z-.5},true)?.map(p=>({x:p.x+.5,z:p.y+.5})),canTravel:(a,b)=>canTravel(a.x-.5,a.z-.5,b.x-.5,b.z-.5,true),lineClear:railgunLineClear,
@@ -201,7 +221,8 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     const dialogue=headless?null:createDialogue({element:$('sf-dialogue'),journal:world.querySelector('.sf-journal'),log:$('sf-log'),economy,announce,getPlayer:()=>playerLook,onClose:()=>{releaseNPC();canvas.focus({preventScroll:true});}});
     const aiInterview=headless?null:createAIInterviewUI({element:$('sf-ai-interview'),job:aiLabJob,onOpen:()=>{fishing.cancel();alienCombat=null;setDancing(false);closeReader();closeCharacter();closeHelp();closeMenu();dialogue.close();keys.clear();player.path=[];player.speed=0;action=null;destination=null;},onClose:()=>canvas.focus({preventScroll:true}),onResult:result=>{announce(result.message,'AI Lab');updateAdventureUI();}});
     if(!headless)questMenu=createQuestMenu({element:$('sf-quests'),content:$('sf-quest-list'),button:$('sf-quests-button'),closeButton:$('sf-close-quests'),shade:$('sf-reader-shade'),canvas,quests,beforeOpen:()=>{closeCharacter();closeReader();closeHelp();closeMenu();dialogue.close();keys.clear();player.path=[];player.speed=0;}});
-    const debugConsole=headless?null:createDebugConsole({panel:$('sf-debug'),form:$('sf-command'),input:$('sf-command-input'),status:$('sf-command-status'),xOutput:$('sf-debug-x'),yOutput:$('sf-debug-y'),getPosition:()=>debugMapPosition(player),teleport:debugTeleport,
+    const frameMeter=createFrameMeter();
+    const debugConsole=headless?null:createDebugConsole({panel:$('sf-debug'),form:$('sf-command'),input:$('sf-command-input'),status:$('sf-command-status'),xOutput:$('sf-debug-x'),yOutput:$('sf-debug-y'),fpsOutput:$('sf-debug-fps'),getFPS:()=>frameMeter.fps,getPosition:()=>debugMapPosition(player),teleport:debugTeleport,
         beforeOpen:()=>{keys.clear();player.path=[];player.speed=0;player.moving=false;action=null;destination=null;},onMessage:text=>announce(text,'Debug'),focusWorld:()=>canvas.focus({preventScroll:true})});
     function poly(c,points,fill,stroke){c.beginPath();points.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.closePath();if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.lineWidth=1;c.stroke();}}
     function line(c,pts,color,size=1){c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p.x,p.y):c.moveTo(p.x,p.y));c.strokeStyle=color;c.lineWidth=size;c.stroke();}
@@ -311,8 +332,9 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         }
     }
     function landClearAt(x,y){return esotericCampus?.contains(x+.5,y+.5)||goldenGate?.contains(x+.5,y+.5)||regionalRoad?.contains(x+.5,y+.5)?true:tahoe.contains(x+.5,y+.5)?tahoe.walkable(x+.5,y+.5):airship.contains(x+.5,y+.5)?true:cityNavigation?navFree(x+.5,y+.5):isWalkable(Math.floor(x),Math.floor(y));}
-    function clearAt(x,y){return chase?.state.jailed?detention.walkable(x+.5,y+.5):landClearAt(x,y);}
+    function clearAt(x,y){if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.free(x,y);return chase?.state.jailed?detention.walkable(x+.5,y+.5):landClearAt(x,y);}
     function canTravel(ax,ay,bx,by,ignoreCustody=false){
+        if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.segment({x:ax,y:ay},{x:bx,y:by});
         const endpointFree=ignoreCustody?landClearAt:clearAt;if(!endpointFree(ax,ay)||!endpointFree(bx,by))return false;
         if(esotericCampus?.segment({x:ax,y:ay},{x:bx,y:by})||goldenGate?.segment({x:ax,y:ay},{x:bx,y:by})||regionalRoad?.segment({x:ax,y:ay},{x:bx,y:by}))return true;
         if(tahoe.contains(ax+.5,ay+.5)||tahoe.contains(bx+.5,by+.5))return tahoe.segment({x:ax,y:ay},{x:bx,y:by});
@@ -327,13 +349,14 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         {id:'writing',name:'City Lights',label:'City Lights · Essays',category:'Writing',source:'Writing',x:44,y:15,w:3,d:3,h:88,color:'#d3c29e',style:'library',description:"Pull up a chair. Essays on technology, markets, and the ideas that won't leave you alone."},
         {id:'books',name:'Main Library',label:'Main Library · Bookshelf',category:'Bookshelf',source:'Bookshelf',x:40,y:27,w:3,d:3,h:88,color:'#cbc6b4',style:'civic',description:'Fiction and non-fiction that stay with you, long after the last page.'},
         {id:'press',name:'The Chronicle',label:'The newsstand',category:'Press & podcasts',source:'Press',x:44,y:34,w:3,d:2,h:48,color:'#bb7e60',style:'kiosk',description:'Extra, extra. News, conversations, and dispatches from the world of building companies.'},
-        {id:'green',name:'Green',label:'Green',category:'Founding',source:'Founding',match:'green.com',x:49,y:38,w:3,d:3,h:102,color:'#789788',style:'bank',description:'A global financial institution for the people and agents of the future.'},
+        {id:'green',name:'Green Bank',label:'Green Bank',category:'Founding',source:'Founding',match:'green.com',x:49,y:38,w:3,d:3,h:102,color:'#789788',style:'bank',description:'A global financial institution for the people and agents of the future. Speak to the friendly banker inside: deposited coins earn 5% interest per hour. Coffee is on the house.'},
         {id:'limit',name:'Limit',label:'Limit',category:'Founding',source:'Founding',match:'limit.com',x:52,y:43,w:3,d:3,h:87,color:'#91a6ab',style:'shop',description:'Tools that changed the daily lives of thousands of insurance professionals.'},
         {id:'rose',name:'Rose',label:'Rose',category:'Founding',source:'Founding',match:'rosehome.com',x:25,y:25,w:3,d:2,h:70,color:'#c29790',style:'shop',description:'A healthier home, starting with the environment around you.'},
         {id:'venture',name:'Venture exchange',label:'Venture exchange',category:'Venture',source:'Venture',x:48,y:15,w:3,d:3,h:115,color:'#b0a18c',style:'bank',description:'An arcade of ambitious companies. Meet the builders working on what comes next.'},
         {id:'ai-lab',name:'AI Lab',label:'AI Lab',category:'SoMa · interview & employment',source:'AI Lab',x:49,y:32,w:3.5,d:3,worldHeight:3.1,color:'#82989b',trim:'#dbe3d6',arch:'warehouse',roof:'flat',roofColor:'#657a7e',description:'A SoMa AI lab with a levitating cortical brain, magnetic containment rings, specimen pods, and humming GPU racks. Score 40 or more on the two-minute arithmetic interview to get the job, then earn 1 coin every 2 seconds while inside.'},
         {id:'etc',name:'Curiosity shop',label:'Curiosity shop',category:'Etc. · Haight-Ashbury',source:'Etc.',x:31,y:36,w:3,d:3,h:78,color:'#aca0b3',style:'shop',description:'Other corners of the internet, a past life on the web, and a few digital curiosities.'}
     ];
+    configs.push(...GUILD_BUILDINGS.map(b=>({...b})));
     configs.forEach(b => {b.x=mapTile(b.x);b.y=mapTile(b.y);const door=Math.floor(b.x+b.w/2);b.entry={x:door,y:b.y+b.d};b.inside={x:door,y:b.y+b.d-2};places.push(b);});
     const sights = [
         {id:'park',label:'Golden Gate Park',category:'Park · ducks & cycling',kind:'park',x:30,y:32,entry:{x:30,y:31},description:'A long green escape on the western side of the city. Winding paths, cypress trees, and a pond full of very opinionated ducks.'},
@@ -427,6 +450,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         if(e.type==='shot'){combatFeedback.hit(e.target,e.damage,e.hp,e.max);combatFeedback.show(player,health.state.hp,health.state.max);player.angle=Math.atan2(e.target.z-player.y-.5,e.target.x-player.x-.5);player.gesture={name:'attack',started:performance.now(),duration:450};}
         if(e.type==='boarded'){parkMotorcycle(false);if(bike.riding)parkBike();skateboard.riding=false;alienCombat=null;setDancing(false);player.path=[];player.speed=0;action=null;destination=null;closeMenu();setCamera(.65,.8);}
         if(e.type==='disembarked'&&pequodSite){Object.assign(player,pequodSite.entry);player.path=[];player.speed=0;}
+        if(e.type==='disembarked'&&secretWorld?.kind==='kraken')secretAction(secretWorld.leave());
         if(e.type==='damage'){combatFeedback.hit(player,e.damage,e.hp,e.max);if(e.target)combatFeedback.show(e.target,e.target.hp,e.target.max);updateAdventureUI();}
         if(e.type==='death')beginCapture('alien',respawnAtHospital);
         if(e.type==='cape')updateCapeControl();
@@ -451,8 +475,9 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     function nearestExpeditionPoint(x,y,radius,predicate){return y>=N-1.5?airship.nearest(x,y,radius,predicate):nearestNavigation(x,y,radius,predicate);}
     function collectExpeditionLoot(item){
         if(capture.state.active||chase?.state.jailed)return false;
-        closeMenu();const collect=()=>{const r=expeditions.collect(item);if(r.message)announce(r.message,'Loot');updateAdventureUI();return r.ok;};
+        closeMenu();const collect=()=>{if(item.lootKind==='peptides'&&!item.network){if(!expeditions.state.loot.includes(item))return false;localPeptides+=item.amount;expeditions.state.loot.splice(expeditions.state.loot.indexOf(item),1);saveLocalGuild();announce('You take the peptides. Ray at the Freemasons’ Guild accepts donations.','Loot');updateAdventureUI();return true;}const r=expeditions.collect(item);if(r.message)announce(r.message,'Loot');updateAdventureUI();return r.ok;};
         const distance=Math.hypot(item.x-player.x-.5,item.z-player.y-.5);if(expeditions.ship.aboard)return item.lootKind==='kraken'&&distance<2?collect():false;
+        if(airship.state.active){const floor=item.base??characterGround(item.x,item.z);return distance<1.5&&Math.abs(playerGround()-floor)<2.5?collect():false;}
         if(distance<1.5)return collect();
         const point=nearestExpeditionPoint(item.x-.5,item.z-.5,1.3,(x,y)=>landClearAt(x,y));return point?walkTo(point.x,point.y,collect):false;
     }
@@ -473,6 +498,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         });
     }
     function releaseTiger(){
+        if(multiplayerWorld){multiplayerWorld.releaseTiger();return true;}
         if(!zoo||chase?.state.jailed||rocket.state.active||sutroClimb.state.active||rope.climbing||surf.state.riding||tahoe.state.mode!=='ground')return false;
         if(flying())return airshipUnavailable();closeMenu();
         if(zoo.state.phase!=='caged'){announce(zoo.dangerous?'The tiger is already loose. This is a good time to keep moving.':'Animal control is handling the tiger. Wait until the gate is safely closed.','Zoo');return false;}
@@ -495,6 +521,8 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         waveSurf.stop();surf.cancelJump();surf.state.riding=false;tahoe.reset();rope.reset();sutroClimb.cancel();world.inert=true;
     }
     function respawnAtHospital(rehabilitated=false){
+        secretWorld?.reset();
+        if(multiplayer?.state.connected)multiplayer.command(rehabilitated?'personalTransit':'respawn',rehabilitated?{kind:'rehabilitation'}:{});
         social.cancelPitch();if(!rehabilitated)tech.losePhone('death');
         expeditions.abandonShip();health.restore();combatFeedback.clear();alienCombat=null;forwardRoll.cancel();
         action=null;destination=null;dialogue.close();closeMenu();closeReader();closeHelp();keys.clear();pointers.clear();clearTimeout(pressTimer);gesture=false;
@@ -536,7 +564,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         closeMenu();const menu=$('sf-context');menu.replaceChildren();
         const title=document.createElement('div');title.className='sf-context-title';title.textContent=airship.state.active?'Airship · Choose an option':'Private Jet Terminal · Airship rental';menu.append(title);
         const floor=flying()?basket.pick(mouseRay(sx,sy),airship.state.position,airship.state.heading):null;
-        const choices=airship.state.active?[...(floor?[['Walk here',()=>walkInBasket(floor)]]:[]),['Fly to Tahoe',()=>{if(rope.state.deployed){announce('Retract the rope before flying.');return false;}airship.flyTo(TAHOE.base.x,TAHOE.base.z);destination={x:TAHOE.base.x-.5,y:TAHOE.base.z-.5};announce('Flying northeast across California to Lake Tahoe. This is a long continuous flight.','Pilot');return true;}],['Rope options',showRopeMenu],['Return to terminal',useAirship],['Float here',()=>{const p=tileAt(sx,sy);walkTo(p.x,p.y);}]]:[['Rent airship',boardAirship],['Examine terminal',()=>examine(sightById('airship'))]];
+        const choices=airship.state.active?[...(floor?[['Walk here',()=>walkInBasket(floor)]]:[]),['Fly to Tahoe',()=>{if(rope.state.deployed){announce('Retract the rope before flying.');return false;}airship.flyTo(TAHOE.base.x,TAHOE.base.z);destination={x:TAHOE.base.x-.5,y:TAHOE.base.z-.5};announce('Flying northeast across California to Lake Tahoe. This is a long continuous flight.','Pilot');return true;}],['Rope options',showRopeMenu],['Return to terminal',useAirship],['Float here',()=>{const p=tileAt(sx,sy);walkTo(p.x,p.y);}]]:[['Rent airship',boardAirship],...(multiplayerWorld?[['Buy grappling hook · 5 coins',()=>multiplayerWorld.buyGrapple()]]:[]),['Examine terminal',()=>examine(sightById('airship'))]];
         for(const [label,fn] of choices){
             const button=document.createElement('button');button.type='button';button.setAttribute('role','menuitem');button.textContent=label;button.addEventListener('click',e=>clicked(e.clientX,e.clientY,()=>{closeMenu();return fn();}));menu.append(button);
         }
@@ -853,7 +881,74 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         if(ferrari?.state.riding)return parkCarFirst();
         return approachNPC(npc,()=>dialogue.open({...npc,intro:motorcycle.state.rented?'Your motorcycle rental is still valid. Press M to find or ride it.':'Five coins rents the conveniently parked motorcycle beside the monkey habitat. Please arrange your rental before commencing any suspicious primate-related errands.',question:motorcycle.state.rented?'Review your rental?':'Rent the motorcycle for 5 coins?',choice:motorcycle.state.rented?'Where is my motorcycle?':'Rent · 5 coins',decline:'Leave',accept:()=>{if(motorcycle.state.rented)return {ok:true,message:'Press M to find your parked motorcycle. Your rental stays valid.'};const result=motorcycle.rent(economy,{pursued:quests.carrying});updateAdventureUI();return {...result,message:result.ok?'The motorcycle is yours to ride. Click it or press M to get on.':result.message};}}));
     }
+    function setupGreenBank(){
+        const bank=places.find(p=>p.id==='green'),point=buildingPoint(bank,bank.x+bank.w/2,bank.y+.32);
+        banker={id:'green-banker',kind:'banker',label:'Friendly banker',name:'Friendly banker',x:point[0],z:point[1],base:bank.object.base+.065,skin:'#aa7a57',hair:'#48392e',shirt:'#437855',pants:'#455747',coat:true,angle:(bank.rotation||0)+Math.PI/2,height:1.9,interior:bank};merchants.push(banker);
+        bankService=createBankService({client:multiplayer,economy,storage:headless?null:localStorage,onPurse:updatePurse,onDrink:()=>{if(!headless){setDancing(false);player.path=[];player.speed=0;action=null;destination=null;player.gesture={name:'drink',started:performance.now(),duration:1600};}}});
+        if(!headless)bankMenu=createBankMenu({element:$('sf-bank'),service:bankService,economy,announce,beforeOpen:()=>{closeReader();closeMenu();closeHelp();closeCharacter();questMenu?.close();dialogue.close();player.path=[];player.speed=0;keys.clear();$('sf-reader-shade').hidden=false;},afterClose:()=>{$('sf-reader-shade').hidden=true;canvas.focus({preventScroll:true});}});
+    }
+    function talkBanker(npc=banker){
+        if(capture.state.active||chase?.state.jailed||secretWorld?.kind!=='world'||secretWorld.bomber.state.active||flying())return false;
+        closeMenu();closeReader();return approachNPC(npc,()=>dialogue.open(bankerDialogue(npc,{open:()=>bankMenu.open(),coffee:()=>{bankService.act('coffee').then(r=>{dialogue.resolvePending(npc.id,r.message);updateAdventureUI();});return {ok:true,pending:true,message:'One fresh coffee, coming right up…'};}})));
+    }
+    function drinkBankCoffee(){bankService.act('drink').then(r=>{if(r.message)announce(r.message,'Green Bank');updateAdventureUI();});}
+    function setupGuildSites(){
+        const lodge=places.find(p=>p.id==='freemasons-guild'),store=places.find(p=>p.id==='sunset-whole-foods');
+        const entry=nearestNavigation(lodge.entry.x+.8,lodge.entry.y,1.5,(x,y)=>!placeAt(x,y)&&cityNavigation.connected(player,{x,y}));
+        if(!entry)throw Error('Ray needs a reachable guild entrance');
+        merchants.push({id:'guild-ray',kind:'guild-master',name:'Ray',label:'Ray',x:entry.x+.5,z:entry.y+.5,base:characterGround(entry.x+.5,entry.y+.5),skin:'#bd926d',hair:'#6e5140',shirt:'#b7393f',pants:'#8e2932',coat:true,height:1.95,angle:lodge.rotation||0});
+        peptideSpawns=peptideSpawnPoints(store,(x,y)=>landClearAt(x,y)&&!placeAt(x,y)&&cityNavigation.connected(player,{x,y}));
+        let savedSecret={};if(!headless)try{savedSecret=JSON.parse(localStorage.getItem('sf-illuminati-v1')||'{}')||{};}catch{}
+        secretWorld=createSecretAdventures({client:multiplayer,saved:savedSecret,economy,guildMember:()=>guildStatus().member,guildSite:lodge,getPlayer:()=>({x:player.x+.5,y:playerGround(),z:player.y+.5,angle:player.angle,hp:health.state.hp}),ground:characterGround,cruiseHeight:()=>airship.cruiseHeight-3,boostSpeed:()=>rocketCruiseSpeed(SF_SPACEPORT,tahoe.spaceport),landingFree:(x,z)=>landClearAt(x-.5,z-.5),landingFallback:{x:player.x+.5,z:player.y+.5},onPurse:updatePurse,
+            save:state=>{if(!headless&&!multiplayer)try{localStorage.setItem('sf-illuminati-v1',JSON.stringify(state));}catch{}},transition:changeMapInstance,onMessage:announce,
+            onCowHit:e=>{const cow=expeditions.cows.find(c=>c.id===e.target);if(cow){cow.hp=e.hp;cow.respawn=10;combatFeedback.hit(cow,e.damage,e.hp,e.max);}},onOfflineBomb:area=>expeditions.bombCows(area)});
+        const originalBoard=expeditions.board;expeditions.board=()=>secretWorld.boardKraken({...expeditions,board:originalBoard});
+        const {oldMan:elder,portal}=secretWorld.sites;
+        oldMan={id:'illuminati-old-man',kind:'illuminati-elder',name:'Old Man',label:'Old Man',x:elder.x,z:elder.z,base:lodge.object.base+.065,skin:'#c8ae8b',shirt:'#4e6258',pants:'#3e4941',hair:'#d8d3b9',coat:true,height:1.9,angle:Math.PI/2,interior:lodge};merchants.push(oldMan);
+        const access=nearestNavigation(portal.x-.5,portal.z-.5,1,(x,y)=>placeAt(x,y)===lodge);if(!access)throw Error('The Illuminati passage needs a clear guild approach');
+        secretStairs={id:'illuminati-stairway',kind:'secret-stairs',label:'Illuminati passage',x:portal.x,z:portal.z,entry:access,description:'A discreet stairway carved beneath the lodge. The Old Man admits Illuminati initiates after a donation of 250,000 coins.'};
+        caveMesh=createIlluminatiCaveMesh();if(!headless){caveGPU=upload(caveMesh);caveGPU.walls=caveMesh.walls.map(w=>({...w,gpu:upload(w.mesh)}));}
+    }
+    function changeMapInstance(message){
+        if(headless)return;
+        multiplayerWorld?.stopFollowing(true);expeditions.stop();alienCombat=null;fishing.cancel();forwardRoll.cancel();setDancing(false);keys.clear();
+        if(message.instance.kind!=='kraken')expeditions.abandonShip();
+        closeReader();closeMenu();currentInterior=null;currentInstitute=null;readerPlace=null;destination=null;action=null;
+        Object.assign(player,{x:message.position.x-.5,y:message.position.z-.5,path:[],speed:0,moving:false,motion:0});
+        if(chase){Object.assign(chase.state,{wanted:false,officers:[]});$('sf-wanted').hidden=true;}
+        for(const view of placeMarkerViews)view.button.hidden=message.instance.kind!=='world';
+        $('sf-hover').hidden=true;pickedCache=null;updateAdventureUI();updateCamera();drawMini();
+    }
+    function secretAction(result){
+        if(result?.then){result.then(()=>{updateAdventureUI();canvas.focus({preventScroll:true});});return true;}
+        if(result?.message)announce(result.message,'Illuminati');updateAdventureUI();return result?.ok!==false;
+    }
+    function talkOldMan(npc=oldMan){
+        if(capture.state.active||chase?.state.jailed||secretWorld?.kind!=='world'||!guildStatus().member)return false;
+        closeMenu();return approachNPC(npc,()=>dialogue.open({...npc,intro:secretWorld.initiated?'Welcome, initiate. Your aircraft is waiting below.':'The guild was only the waiting room. Donate 250,000 coins and the Illuminati will admit you to the underground hangar.',question:()=>secretWorld.initiated?'The stairway is open. Your personal B-2 awaits.':'Donate 250,000 coins to join the Illuminati?',choice:'Donate 250,000 coins',decline:'Leave',accept:()=>{const result=secretWorld.join();if(result?.then){result.then(r=>{dialogue.resolvePending(npc.id,r.message);updateAdventureUI();});return {ok:true,pending:true,message:'The Old Man counts your coins…'};}return result;}}));
+    }
+    function useSecretSite(sight){
+        if(capture.state.active||chase?.state.jailed)return false;
+        const action=sight.kind==='secret-stairs'?()=>secretWorld.enterCave():sight.kind==='cave-exit'?()=>secretWorld.leave():()=>secretWorld.boardBomber();
+        if(sight.kind==='secret-stairs'&&!secretWorld.initiated){announce('Speak to the Old Man inside the guild to join the Illuminati.');return false;}
+        return walkTo(sight.entry.x,sight.entry.y,()=>secretAction(action()));
+    }
+    function tickLocalPeptides(){
+        if(multiplayer||!peptideSpawns.length||Date.now()<nextLocalPeptideAt)return;
+        const point=peptideSpawns[Math.floor(Math.random()*peptideSpawns.length)];
+        expeditions.state.loot.push({id:'local-peptides-'+Date.now(),kind:'loot',lootKind:'peptides',label:'Peptides',amount:1,x:point.x,z:point.z,expires:expeditions.state.clock+1200,description:'One tiny vial. Ray at the Freemasons’ Guild calls it a generous contribution to the molecular arts.'});
+        nextLocalPeptideAt=Date.now()+PEPTIDE_SPAWN_MS;saveLocalGuild();
+    }
+    function talkGuildRay(npc){
+        if(chase?.state.jailed||capture.state.active||flying()||surf.state.riding||rocket.state.active||rope.climbing||sutroClimb.state.active)return false;
+        closeMenu();closeReader();
+        return approachNPC(npc,()=>dialogue.open(guildDialogue(npc,{status:guildStatus,act:kind=>{
+            if(multiplayerWorld){const result=multiplayerWorld.command(kind==='donate'?'guildDonate':'guildCheckIn');result.then(r=>{dialogue.resolvePending('guild-ray',r.message);updateAdventureUI();});return {ok:true,pending:true,message:'Ray consults the admissions ledger…'};}
+            const r=kind==='donate'?localGuild.donate(()=>{if(!localPeptides)return false;localPeptides--;return true;}):localGuild.checkIn();saveLocalGuild();updateAdventureUI();return r;
+        }})));
+    }
     function talkMerchant(npc){
+        if(npc.kind==='guild-master')return talkGuildRay(npc);
         if(npc.socialActor){
             if(ferrari?.state.riding)return parkCarFirst();
             if(chase?.state.jailed||capture.state.active||flying()||surf.state.riding||rocket.state.active||rope.climbing||sutroClimb.state.active)return false;
@@ -905,8 +1000,8 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         return approachNPC(npc,begin);
     }
     const npcRevealed=npc=>!!(npc.alienId&&playerLook.sunglasses);
-    const npcLabel=npc=>npcRevealed(npc)?'Green spectre':npc.label;
-    const npcPrimary=npc=>['raptor','cow','kraken'].includes(npc.combatKind)||npcRevealed(npc)?'attack':'talk';
+    const npcLabel=npc=>npc.networkPlayer?npc.label+' - Level '+actorLevel(npc):(npcRevealed(npc)?'Green spectre':npc.label)+' (Level '+(npc.alienId&&!npcRevealed(npc)?1:actorLevel(npc))+')';
+    const npcPrimary=npc=>npc.networkPlayer?'examine':['raptor','cow','kraken'].includes(npc.combatKind)||npcRevealed(npc)?'attack':'talk';
     function attackAlien(npc){
         const result=quests.theyLive.attack(npc.alienId,{revealed:npcRevealed(npc)});
         if(!result.ok){
@@ -940,6 +1035,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         if(events.length)updateAdventureUI();
     }
     function deployRope(){
+        if(multiplayerWorld){multiplayerWorld.command('airshipRope');return true;}
         if(!airship.state.active||airship.state.phase!=='flying'){announce('Reach cruising height before dropping a rope.');return false;}
         const p=airship.state.position,a=airship.state.heading,x=p.x+Math.cos(a)*.35,z=p.z+Math.sin(a)*.35;
         if(!clearAt(x-.5,z-.5)||placeAt(x-.5,z-.5)||instituteRoomAt(x,z)){announce('Hover over a clear street, park, or airport apron before dropping the rope.');return false;}
@@ -947,6 +1043,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         const ok=rope.deploy({x,y:p.y+AIRSHIP_BASKET.floor,z},{x,y:ground,z});updateAirshipButton();if(ok)announce('You lower a rope to the ground. Use Rope options to climb down or offer a traveler a ride.','You');return ok;
     }
     function climbRope(down){
+        if(multiplayerWorld){multiplayerWorld.command(down?'airshipClimbDown':'airshipClimbUp');return true;}
         const begin=()=>{if(rope.climb(down)){basket.state.target=null;player.path=[];player.speed=0;destination=null;updateAirshipButton();}};
         if(down&&Math.hypot(basket.state.x-.35,basket.state.z)>.1){basket.walkTo(.35,0);basketArrival=begin;return true;}
         if(!down&&Math.hypot(player.x+.5-rope.state.bottom.x,player.y+.5-rope.state.bottom.z)>.9)return walkTo(rope.state.bottom.x-.5,rope.state.bottom.z-.5,begin);
@@ -956,7 +1053,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         closeMenu();if(!airship.state.active)return false;
         if(!rope.state.deployed)return deployRope();
         const menu=$('sf-context');menu.replaceChildren();const heading=document.createElement('div');heading.className='sf-context-title';heading.textContent='Airship rope';menu.append(heading);
-        const options=rope.onGround?[['Climb up',()=>climbRope(false)]]:[['Climb down',()=>climbRope(true)],['Offer a ride · 5 coins',()=>{const invited=rope.invite();announce(invited?'A traveler accepts your offer and starts climbing. They will pay you 5 coins once aboard.':'Your passenger has already boarded or is still climbing.','Airship');}],['Retract rope',()=>{if(!rope.retract())announce('Wait for your passenger to finish climbing.');updateAirshipButton();}]];
+        const options=rope.onGround?[['Climb up',()=>climbRope(false)]]:[['Climb down',()=>climbRope(true)],['Offer a ride · 5 coins',()=>{const invited=rope.invite();announce(invited?'A traveler accepts your offer and starts climbing. They will pay you 5 coins once aboard.':'Your passenger has already boarded or is still climbing.','Airship');}],['Retract rope',()=>{if(multiplayerWorld){multiplayerWorld.command('airshipRope',{retract:true});return;}if(!rope.retract())announce('Wait for your passenger to finish climbing.');updateAirshipButton();}]];
         for(const [text,fn] of options){const b=document.createElement('button');b.type='button';b.textContent=text;b.addEventListener('click',()=>{closeMenu();fn();canvas.focus({preventScroll:true});});menu.append(b);}
         menu.hidden=false;menu.style.left=Math.max(12,width/2-menu.offsetWidth/2)+'px';menu.style.top=Math.max(12,height/2-menu.offsetHeight/2)+'px';menu.querySelector('button').focus();return true;
     }
@@ -999,6 +1096,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         canvas.focus({preventScroll:true});return accepted;
     }
     function goToSight(s){
+        if(['secret-stairs','cave-exit','stealth-bomber'].includes(s.kind))return useSecretSite(s);
         if(s.kind==='loot')return collectExpeditionLoot(s);
         if(rocket.state.active)return false;
         if(chase?.state.jailed)return;
@@ -1315,6 +1413,10 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         return approachNPC(npc,()=>{npc.speech='';approachingNPC=npc;npc.waiting=true;dialogue.open(dogWalkerDialogue(npc));},{approach:n=>n.regional?regionalCitizenApproach(n):nearestNavigation(n.x-.5,n.z-.5,2,(x,y)=>{const d=Math.hypot(x+.5-n.x,y+.5-n.z);return d>.7&&d<1.5;})});
     }
     function interactCitizen(npc,verb){
+        if(npc.networkPlayer){if(verb==='attack')return multiplayerWorld.attackPlayer(npc);if(verb==='follow')return multiplayerWorld.followPlayer(npc);return multiplayerWorld.inspect(npc);}
+        if(npc.kind==='guild-master'&&verb==='talk')return talkGuildRay(npc);
+        if(npc.kind==='illuminati-elder'&&verb==='talk')return talkOldMan(npc);
+        if(npc.kind==='banker'&&verb==='talk')return talkBanker(npc);
         if(npc.dogWalker&&verb==='talk')return talkDogWalker(npc);
         if(npc.expeditionRole)return talkExpeditionNPC(npc);
         if(['raptor','cow','kraken'].includes(npc.combatKind)&&verb==='attack')return attackExpeditionTarget(npc);
@@ -1620,7 +1722,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     }
     function project(x,y,z){const p=[x,y,z,1],m=camera.matrix,v=[0,0,0,0];for(let r=0;r<4;r++)for(let c=0;c<4;c++)v[r]+=m[c*4+r]*p[c];return {x:(v[0]/v[3]+1)*width/2,y:(1-v[1]/v[3])*height/2,depth:v[2]/v[3],distance:v[3]};}
     function setCamera(yaw=camera.yaw,pitch=camera.pitch){camera.yaw=Math.atan2(Math.sin(yaw),Math.cos(yaw));camera.pitch=Math.max(Math.PI*24/180,Math.min(Math.PI*65/180,pitch));camera.cos=Math.cos(camera.yaw);camera.sin=Math.sin(camera.yaw);camera.version++;hovered=null;$('sf-hover').hidden=true;updateCamera();drawMini();}
-    function setZoom(value){zoom=Math.max(.55,Math.min(1.65,value));const slider=$('sf-zoom-slider');slider.value=String(Math.round(zoom*100));slider.setAttribute('aria-valuetext',Math.round(zoom*100)+'% zoom');updateCamera();}
+    function setZoom(value){zoom=Math.max(.55,Math.min(6.5,value));const slider=$('sf-zoom-slider');slider.value=String(Math.round(zoom*100));slider.setAttribute('aria-valuetext',Math.round(zoom*100)+'% zoom');updateCamera();}
     function resize(){width=innerWidth;height=innerHeight;dpr=Math.min(devicePixelRatio||1,1.5);for(const c of [canvas]){c.width=Math.round(width*dpr);c.height=Math.round(height*dpr);c.style.width=width+'px';c.style.height=height+'px';}if(width<600&&zoom===1)setZoom(.8);closeMenu();updateCamera();if(active&&built)render(performance.now(),0);}
     let heights=null,naturalHeights=null;
     function rawHeight(x,z){
@@ -1655,6 +1757,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     function airportSurfaceHeight(x,z){return southernTerrain?.contains(x,z)?southernTerrain.height(x,z):AIRSHIP_TERMINAL.base;}
     function airportWalkingHeight(x,z){if(inTimesSquare(x,z))return TIMES_SQUARE.base+Math.max(.012,TILE_TYPES[airportSurfaceTypeAt(x,z)]?.height||0)+.008;if(gymAccess(x,z))return SF_FITNESS.base+.04;if(nightclub&&nightlifeAccess(x,z)&&nightlifeWalkable(x,z))return nightlifeHeight(x,z,nightclub.base,terrainHeight);return airportSurfaceHeight(x,z)+(onAirportApron(x,z)?.03:(TILE_TYPES[airportSurfaceTypeAt(x,z)]?.height||0)+.008);}
     function characterGround(x,z){
+        if(secretWorld?.kind==='illuminati')return ILLUMINATI_CAVE.floor+.025;
         const institute=instituteRoomAt(x,z);if(institute)return institute.base+INSTITUTE_FLOOR_HEIGHT;
         if(gymAccess(x,z))return SF_FITNESS.base+.065;
         if(nightclub&&nightlifeAccess(x,z)&&nightlifeWalkable(x,z))return nightlifeHeight(x,z,nightclub.base,terrainHeight)+.025;
@@ -1670,6 +1773,9 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         return terrainHeight(x,z)+(TILE_TYPES[type]?.height||0)+.008;
     }
     function playerGround(ignoreCustody=false){
+        if(secretWorld?.bomber.state.active)return secretWorld.bomber.state.position.y;
+        if(secretWorld?.kind==='illuminati')return ILLUMINATI_CAVE.floor+.025;
+        if(multiplayerWorld?.traversing)return multiplayerWorld.ground;
         if(expeditions.ship.aboard)return PEQUOD.deck+Math.sin(expeditions.state.clock*1.4)*.035;
         if(capture.state.active)return capture.state.base;
         if(chase?.state.jailed&&!ignoreCustody)return detention.base+.18;
@@ -2004,7 +2110,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         southernTerrain=createSouthernTerrain({roads:SOUTHERN_ROADS,pit:RAIL_PIT,pads:SOUTHERN_LEVEL_PADS,edgeHeight:x=>{const ix=Math.min(TERRAIN_GRID-1,Math.max(0,Math.floor(x*TERRAIN_RES))),u=x*TERRAIN_RES-ix;return heights[TERRAIN_GRID][ix]*(1-u)+heights[TERRAIN_GRID][ix+1]*u;}});
         surf.state.shore={...sightById('windsurf').entry};
         chase=createPoliceChase({player,routeTo:officerRoute,nearest:(x,y,r,p)=>airship.contains(player.x+.5,player.y+.5)?airship.nearest(x,y,r,p):nearestNavigation(x,y,r,p),canCapture:(o,p)=>!rocket.state.active&&!flying()&&(surf.water(o.x+.5,o.y+.5)&&surf.water(p.x+.5,p.y+.5)||canTravel(o.x,o.y,p.x,p.y)),onArrest:()=>beginCapture('police',arrestPlayer)});
-        setupAirshipTerminal();setupMerchants();setupRegionalWorld();setupPacificaSurf();setupDeli();setupQuestCharacters();setupExpeditionSites();airship.setObstacles(navigationObstacles(objects.filter(o=>o.y+o.d>=N&&o.arch!=='terminal'&&!['times-square','research-institute','park','nightlife','gym','spaceport'].includes(o.sight?.kind))).map(o=>o.polygon));setupTigerEncounter();setupMonkeyEscape();setupServiceNPCs();drawDetentionFacility(sceneMesh,detention);jailStaff=detentionStaff(detention);if(!headless)makeTerrain();placeStreetLights();setupNPCRoaming();
+        setupAirshipTerminal();setupMerchants();setupRegionalWorld();setupGuildSites();setupGreenBank();setupPacificaSurf();setupDeli();setupQuestCharacters();setupExpeditionSites();airship.setObstacles(navigationObstacles(objects.filter(o=>o.y+o.d>=N&&o.arch!=='terminal'&&!['times-square','research-institute','park','nightlife','gym','spaceport'].includes(o.sight?.kind))).map(o=>o.polygon));setupTigerEncounter();setupMonkeyEscape();setupServiceNPCs();drawDetentionFacility(sceneMesh,detention);jailStaff=detentionStaff(detention);if(!headless)makeTerrain();placeStreetLights();setupNPCRoaming();
         const regionalRoutes=[...clipLifeRoutes(worldTiles.routes.filter(r=>r.kind==='road'),78,N),...clipLifeRoutes([...SOUTHERN_ROADS.map(r=>({...r,kind:'road',halfWidth:.5})),...SOUTHERN_TRAILS.map(r=>({...r,kind:'path'}))],N)];
         southernLife=createCityLife({visible:actorInView,routes:regionalRoutes,surfaceType:(x,z)=>landClearAt(x-.5,z-.5)?z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z):'grass',lamps:southernNeighborhood.lamps,terrainHeight,groundHeight:characterGround,scale:MAP_SCALE,human,bicycle,maxWalkers:92,maxRiders:8,walkerQuotas:[{count:20,contains:(x,z)=>z<96},{count:22,contains:(x,z)=>z>=96&&z<120},{count:22,contains:(x,z)=>z>=120&&z<145},{count:24,contains:(x,z)=>z>=145}],waterTraffic:false,prefix:'southern-citizen',regional:p=>p.points[Math.floor(p.points.length/2)][1]>=N-2.5});southernLife.update(0);
         const noe=NOE_VALLEY_BOUNDS,noeRoutes=clipLifeRoutes(worldTiles.routes,noe.north,noe.south).filter(r=>r.points.every(p=>p[0]>=noe.west&&p[0]<=noe.east));
@@ -2014,6 +2120,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
 
         streetTraffic=createStreetTraffic({routes:[...worldTiles.routes,...SOUTHERN_ROADS.map(r=>({...r,kind:'road'}))],isRoad:(x,z)=>(z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z))==='road'&&landClearAt(x-.5,z-.5),ground:characterGround,spawnPoints:[{x:65,z:27},{x:21.4,z:58},{x:63,z:70},{x:56.5,z:140}]});
         setupTransit();
+        cityLife=createCityLife({visible:actorInView,routes:clipLifeRoutes(worldTiles.routes,-Infinity,78),surfaceType:surfaceTypeAt,lamps:objects.filter(o=>o.lamp).map(o=>o.lamp),terrainHeight,groundHeight:characterGround,scale:MAP_SCALE,human,bicycle});cityLife.update(0);
         if(headless){
             // Placement is finished. The model keeps bounds and footprints;
             // navigation tests do not need to retain millions of vertex values.
@@ -2022,16 +2129,46 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
             built=true;return;
         }
         sceneGPU=upload(sceneMesh,{spatial:true});
-        lampGlow.setLights(streetLights,terrainHeight);gpuStats.triangles+=lampGlow.stats.triangles;cityLife=createCityLife({visible:actorInView,routes:clipLifeRoutes(worldTiles.routes,-Infinity,78),surfaceType:surfaceTypeAt,lamps:objects.filter(o=>o.lamp).map(o=>o.lamp),terrainHeight,groundHeight:characterGround,scale:MAP_SCALE,human,bicycle});buildCityMap();prepareWayfinding();
-        built=true;updateCamera();drawMini();updateBikeButton();updateSurfButton();updateAirshipButton();updateTahoeButton();
+        lampGlow.setLights(streetLights,terrainHeight);gpuStats.triangles+=lampGlow.stats.triangles;buildCityMap();prepareWayfinding();
+        built=true;setupWorldMultiplayer();updateCamera();drawMini();updateBikeButton();updateSurfButton();updateAirshipButton();updateTahoeButton();
     }
 
 
 
     // Eight-way A* with corner clearance, followed by line-of-sight string pulling.
     // Routing starts at the live position, so a new click never snaps back to a tile.
-    function debugTeleport(x,y){
+    function setupWorldMultiplayer(){
+        if(headless)return;
+        multiplayerSettings=setupMultiplayerSettings(multiplayer,{showCharacter,announce});
+        $('sf-bomber-bomb').addEventListener('click',()=>secretAction(secretWorld.dropBomb()));
+        $('sf-bomber-land').addEventListener('click',()=>secretAction(secretWorld.ejectBomber()));
+        $('sf-grapple-button').addEventListener('click',()=>multiplayerWorld?.grapple());
+        if(!multiplayer)return;
+        multiplayerWorld=createWorldMultiplayer({client:multiplayer,player,airship,basket,rope,expeditions,zoo,merchants:[...merchants,...[cityLife,southernLife,noeValleyLife,squareLife,esotericCampus?.life].flatMap(l=>l?.people||[])],health,economy,deli,combatFeedback,characterGround,playerGround,announce,human,signs,actorInView,
+            refreshUI:()=>{updateAdventureUI();updateAirshipButton();},onPurse:updatePurse,
+            applyInventory:snapshot=>{Object.assign(economy.state,snapshot.purse);deli.state.sandwiches=snapshot.sandwiches;deli.state.pending=snapshot.deliveryPending&&!deli.state.arrived;if(Number.isFinite(snapshot.hp)){health.state.hp=Math.max(0,Math.min(30,snapshot.hp));localStorage.setItem('sf-hitpoints-v1',JSON.stringify(health.state));}if(!ownedHat(economy.state.ownedHats,playerLook.hat)){playerLook=normalizeCharacter({...playerLook,hat:'none'});localStorage.setItem('sf-character-v1',JSON.stringify(playerLook));}updatePurse(economy.state);updateHatControl();updatePhoneControl();updateAdventureUI();},
+            canFollow:()=>active&&multiplayer.state.connected&&secretWorld?.kind==='world'&&!secretWorld.bomber.state.active&&!capture.state.active&&!rehabilitation.state.active&&!chase.state.jailed&&!flying()&&!rope.climbing&&!sutroClimb.state.active&&!rocket.state.active&&!surf.state.riding&&!training&&tahoe.state.mode==='ground'&&!dialogue.active&&!bankMenu?.active&&!questMenu?.active&&!aiInterview.visible&&$('sf-reader').hidden&&$('sf-character').hidden&&$('sf-help').hidden,
+            routeFollower:(target,range)=>{const candidates=Array.from({length:12},(_,i)=>{const angle=i*Math.PI/6;return {x:target.x-.5+Math.cos(angle)*Math.min(.9,range*.75),y:target.z-.5+Math.sin(angle)*Math.min(.9,range*.75)};}).filter(p=>landClearAt(p.x,p.y)).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y));for(const point of candidates){const path=pathTo(point.x,point.y);if(path)return path;}return null;},
+            setFollowRoute:path=>{player.path=path;action=null;destination=path.at(-1)||null;},stopFollowMotion:()=>{player.path=[];player.speed=0;player.moving=false;player.motion=0;},
+            preparePlayerAction:()=>{fishing.cancel();setDancing(false);alienCombat=null;player.path=[];player.speed=0;action=null;destination=null;},
+            playerWeapon:()=>expeditions.state.railgun&&expeditions.state.equipped?'railgun':quests.theyLive.state.bayonet?'bayonet':'unarmed',
+            onPrivateAward:award=>{if(award.kind==='raptor')expeditions.recover();else if(!award.inventory){if(award.kind==='coins')economy.credit(award.amount);else if(award.kind==='sandwich')deli.storeSandwich(award.amount);}updateAdventureUI();},
+            onCaught:source=>{health.damage(health.state.hp);beginCapture(source==='tiger'?'tiger':'alien',respawnAtHospital);},
+            onPosition:p=>{if(p.reason==='teleport'){debugTeleport(p.x,p.z,true);return;}if(p.reason==='respawn')health.restore();if(secretWorld?.bomber.state.active)secretWorld.bomber.state.position={x:p.x,y:p.y,z:p.z};Object.assign(player,{x:p.x-.5,y:p.z-.5,path:[],speed:0,moving:false,motion:0});action=null;destination=null;if(p.reason==='disembark'||p.reason==='landed'){airship.state.active=false;rope.reset();}updateCamera();drawMini();}
+        });
+    }
+    let sentMultiplayerCustody=false;
+    function publishMultiplayerPose(){
+        if(!multiplayerWorld)return;
+        if(chase.state.jailed&&!sentMultiplayerCustody)multiplayer.command('personalTransit',{kind:'jail'});sentMultiplayerCustody=chase.state.jailed;
+        const mode=secretWorld?.bomber.state.active?(secretWorld.bomber.state.phase==='parachuting'?'parachute':'bomber'):expeditions.ship.aboard?'hidden':rocket.state.active?(['boarding','disembarking'].includes(rocket.state.phase)?'climb':'hidden'):multiplayerWorld.traversing?'climb':flying()?'airship':surf.state.riding?'surf':ferrari?.state.riding?'ferrari':motorcycle?.state.riding?'motorcycle':bike.riding?'bike':skateboard.riding?'skateboard':tahoe.state.mode==='ski'?'ski':tahoe.state.mode==='gondola'||sutroClimb.state.active||rope.climbing?'climb':training?'train':player.dancing?'dance':forwardRoll.state.active?'roll':'walk';
+        multiplayerWorld.update({x:player.x+.5,z:player.y+.5,y:playerGround(),angle:player.angle,phase:player.phase,motion:Math.max(0,Math.min(1,player.motion||0)),moving:!!player.moving,mode,boost:mode==='bomber'&&secretWorld.bomber.state.boost,hp:health.state.hp,talkingTo:approachingNPC?.id,gesture:capture.state.active?'caught':player.gesture&&performance.now()-player.gesture.started<player.gesture.duration?player.gesture.name:''});
+    }
+    function debugTeleport(x,y,serverApproved=false){
+        if(multiplayerWorld&&!serverApproved){multiplayerWorld.teleport(x,y);return {ok:true,message:'Teleport requested from the server.'};}
+        if(bankMenu?.active)bankMenu.close();
         const target=debugTilePosition(x,y),inCell=detention.walkable(x,y);
+        if(!multiplayerWorld)secretWorld?.reset();
         if(!landClearAt(target.x,target.y)&&!inCell)return {ok:false,message:'That point is blocked or outside the walkable map. Choose a road, path, or open ground.'};
         // Close committed dialogue receipts first, then cancel any travel they
         // started. No delayed arrival, capture or rehabilitation can undo :tp.
@@ -2049,7 +2186,10 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         return {ok:true,message:'Teleported to '+Number(x.toFixed(4))+', '+Number(y.toFixed(4))+'.'};
     }
     function pathTo(tx,ty,from=player,ignoreCustody=false){
-        return esotericCampus?esotericCampus.path(from,{x:tx,y:ty},(a,b)=>basePathTo(b.x,b.y,a,ignoreCustody)):basePathTo(tx,ty,from,ignoreCustody);
+        if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.path(from,{x:tx,y:ty});
+        const path=esotericCampus?esotericCampus.path(from,{x:tx,y:ty},(a,b)=>basePathTo(b.x,b.y,a,ignoreCustody)):basePathTo(tx,ty,from,ignoreCustody);
+        if(!headless&&!guildStatus().member){const site=places.find(p=>p.id==='freemasons-guild');if(path?.some(p=>insideGuild(site,p.x+.5,p.y+.5)))return null;}
+        return path;
     }
     function basePathTo(tx,ty,from=player,ignoreCustody=false){
         // Overlapping city/peninsula cells still use their connected city
@@ -2067,6 +2207,8 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         return cityNavigation.path(from,{x:tx,y:ty});
     }
     function walkTo(x,y,onArrival=null) {
+        if(secretWorld?.bomber.state.active){closeMenu();closeReader();if(clickAttempt)clickAttempt.walking=true;destination={x,y};return secretWorld.bomber.target(x+.5,y+.5);}
+        multiplayerWorld?.stopFollowing(false);
         expeditions.stop();
         if(expeditions.ship.aboard){announce('Speak to Captain Ahab to return to shore.');return false;}
         if(clickAttempt&&!onArrival)clickAttempt.walking=true;
@@ -2097,12 +2239,13 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         fishing.cancel();releaseNPC();player.path=route;action=jailed?null:onArrival?()=>{parkMotorcycle(false);onArrival();}:null;destination={x,y};
         if(!route.length){player.speed=0;destination=null;if(action){const fn=action;action=null;fn();}}drawMini();return true;
     }
-    function goToPlace(p) {closeMenu();if(walkTo(p.inside.x,p.inside.y,()=>enter(p)))announce('Walking to '+p.label+'…');canvas.focus({preventScroll:true});}
+    function goToPlace(p) {closeMenu();if(p.id==='freemasons-guild'&&!guildStatus().member){announce('The guild admits members only. Speak to Ray in the red suit outside.','Guild');return false;}if(walkTo(p.inside.x,p.inside.y,()=>enter(p)))announce('Walking to '+p.label+'…');canvas.focus({preventScroll:true});}
     function announce(text,who='Guide') {
         $('sf-status').textContent=text;const row=document.createElement('div'), time=document.createElement('time');time.textContent=who;row.append(time,document.createTextNode(' '+text));const log=$('sf-log');log.append(row);while(log.children.length>4)log.firstChild.remove();log.scrollTop=log.scrollHeight;
     }
     function enter(p) {
         if(!active||chase?.state.jailed)return;if(placeAt(player.x,player.y)!==p){goToPlace(p);return;}
+        if(p.activityBuilding){closeReader();closeMenu();visited.add(p.id);announce(p.id==='freemasons-guild'?'You enter the lodge. A checkerboard floor, brass compasses, and extremely exclusive biscuits.':'You step into Sunset Whole Foods. The supplements are apparently a competitive sport.','You');drawMini();return;}
         if(p.id==='ai-lab'){closeReader();closeMenu();visited.add(p.id);if(aiLabJob.state.hired)announce('Welcome back to the AI Lab. You earn 1 coin every 2 seconds while inside.','AI Lab');else announce('You enter the AI Lab. Speak to the recruiter outside to interview for a job.','AI Lab');drawMini();return;}
         if(readerPlace===p&&!$('sf-reader').hidden)return;
         readerPlace=p;closeMenu();$('sf-help').hidden=true;world.classList.add('sf-reading');
@@ -2139,7 +2282,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         if(rocket.state.active)return false;
         if(surf.state.jump)return false;
         if(tahoe.state.mode!=='ground')return false;
-        if(flying())return showAirshipMenu(sx,sy);
+        if(flying()&&!hitCitizen(sx,sy)?.networkPlayer)return showAirshipMenu(sx,sy);
         if(sutroClimb.state.active){
             const menu=$('sf-context');menu.replaceChildren();const heading=document.createElement('div');heading.className='sf-context-title';heading.textContent='Sutro Tower · Choose an option';menu.append(heading);
             for(const [label,fn] of [...(sutroClimb.state.phase==='top'?[[player.dancing?'Stop dancing':'Dance on Sutro Tower',dance]]:[]),['Climb down Sutro Tower',descendSutro],['Examine Sutro Tower',()=>examine(sightById('sutro'))]]){
@@ -2150,24 +2293,32 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         const npc=hitCitizen(sx,sy),s=npc?null:hitSight(sx,sy),p=s||npc?null:hitPlace(sx,sy),t=tileAt(sx,sy),menu=$('sf-context');menu.replaceChildren();$('sf-hover').hidden=true;
         const heading=document.createElement('div');heading.className='sf-context-title';heading.textContent=npc?npcLabel(npc)+' · Choose an option':'Choose an option';menu.append(heading);
         const add=(text,fn)=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','menuitem');b.textContent=text;b.addEventListener('click',e=>clicked(e.clientX,e.clientY,()=>{closeMenu();fn();}));menu.append(b);};
+        if(secretWorld?.bomber.state.active){
+            if(secretWorld.bomber.state.phase==='flying'){add('Fly here',()=>walkTo(t.x,t.y));add('Drop bomb · '+(secretWorld.bomber.bombSeconds?secretWorld.bomber.bombSeconds+'s reload':'Ready'),()=>secretAction(secretWorld.dropBomb()));add('Land · Parachute out',()=>secretAction(secretWorld.ejectBomber()));}add('Examine B-2',()=>examine(bomberSite));
+            menu.hidden=false;menu.style.left=Math.min(width-menu.offsetWidth-12,Math.max(12,sx))+'px';menu.style.top=Math.min(height-menu.offsetHeight-12,Math.max(12,sy))+'px';menu.querySelector('button').focus({preventScroll:true});return;
+        }
         if(!npc&&surf.state.riding&&surf.state.mode==='surf'){if(waveSurf.state.ride)for(const trick of SURF_TRICKS)add(trick.label,()=>performSurfTrick(trick.id));else add('Catch wave',catchPacificaWave);add('Return to Pacifica beach',useSurf);}
-        if(['raptor','cow','kraken'].includes(npc?.combatKind)){add('Attack '+npcLabel(npc),()=>attackExpeditionTarget(npc));}
+        if(npc?.networkPlayer){add('Examine '+npcLabel(npc),()=>multiplayerWorld.inspect(npc));add('Follow '+npc.label,()=>multiplayerWorld.followPlayer(npc));if(multiplayerWorld.following===npc.id)add('Stop following',()=>multiplayerWorld.stopFollowing(true));if(multiplayer.state.pvp?.enabled&&npc.pvp&&npc.mode!=='bomber'&&!secretWorld?.bomber.state.active)add('Attack '+npcLabel(npc),()=>multiplayerWorld.attackPlayer(npc));}
+        else if(['raptor','cow','kraken'].includes(npc?.combatKind)){add('Attack '+npcLabel(npc),()=>attackExpeditionTarget(npc));}
         else if(npc?.expeditionRole)add('Talk-To '+npcLabel(npc),()=>talkExpeditionNPC(npc));
         else if(npc?.parrot)add('Talk-To wild parrot',()=>talkParrot(npc));
         else if(npc?.rehabilitation)add('Talk-To '+npcLabel(npc),()=>talkRehabilitation(npc));
-        else if(npc?.questRole||npc?.kind==='recruiter'||npc?.kind==='deli'||npc?.kind==='bartender'||npc?.researcher||npc?.kind==='rail-worker'||npc?.kind&&MERCHANTS[npc.kind])add('Talk-To '+npcLabel(npc),()=>talkMerchant(npc));
+        else if(npc?.kind==='illuminati-elder')add('Talk-To '+npcLabel(npc),()=>talkOldMan(npc));
+        else if(npc?.kind==='banker')add('Talk-To '+npcLabel(npc),()=>talkBanker(npc));
+        else if(npc?.questRole||npc?.kind==='guild-master'||npc?.kind==='recruiter'||npc?.kind==='deli'||npc?.kind==='bartender'||npc?.researcher||npc?.kind==='rail-worker'||npc?.kind&&MERCHANTS[npc.kind])add('Talk-To '+npcLabel(npc),()=>talkMerchant(npc));
         else if(npc){
             const verbs=npc.child||npc.dog===true?['talk']:npcPrimary(npc)==='attack'?['attack','talk','steal']:['talk','attack','steal'];
             for(const verb of verbs)add(({talk:'Talk-To',attack:'Attack',steal:'Steal-from'})[verb]+' '+npcLabel(npc),()=>interactCitizen(npc,verb));
         }
-        if(npc&&expeditions.state.railgun&&!npc.combatKind&&!npc.expeditionRole&&!npc.child&&!npc.baby&&!npc.dog)add('Shoot railgun at '+npcLabel(npc),()=>{return attackExpeditionTarget(npc);});
-        if(npc)add('Examine '+npcLabel(npc),()=>{announce(npcRevealed(npc)?'An aberrant green slime ghost. Railgun beams pass straight through it; a bayonet can cut it apart.':describeCharacter(npc),'Examine');canvas.focus({preventScroll:true});});
-        if(s?.kind==='loot')add('Pick up '+s.label,()=>collectExpeditionLoot(s));
+        if(npc&&!npc.networkPlayer&&expeditions.state.railgun&&!npc.combatKind&&!npc.expeditionRole&&!npc.child&&!npc.baby&&!npc.dog)add('Shoot railgun at '+npcLabel(npc),()=>{return attackExpeditionTarget(npc);});
+        if(npc&&!npc.networkPlayer)add('Examine '+npcLabel(npc),()=>{announce(npcLabel(npc)+': '+(npcRevealed(npc)?'An aberrant green slime ghost. Railgun beams pass straight through it; a bayonet can cut it apart.':describeCharacter(npc)),'Examine');canvas.focus({preventScroll:true});});
+        if(s?.kind==='loot')add('Take '+s.label,()=>collectExpeditionLoot(s));
         if(s?.kind==='waymo')add('Examine Waymo',()=>examine(s));
         if(s?.enterableInstitute)add('Enter '+s.label,()=>goToSight(s));
-        if(p)add((currentInterior===p?'Browse ':'Enter ')+p.label,()=>currentInterior===p?enter(p):goToPlace(p));
+        if(p)add((currentInterior===p?(p.activityBuilding?'Walk inside ':'Browse '):'Enter ')+p.label,()=>currentInterior===p?enter(p):goToPlace(p));
         if(s&&!buildingNPCService(s)){
-            if(s.kind==='sunglasses'&&!sunglasses.state.owned)add('Pick up sunglasses',pickUpSunglasses);
+            if(['secret-stairs','cave-exit','stealth-bomber'].includes(s.kind))add(sightPrimaryVerb(s)+' '+s.label,()=>useSecretSite(s));
+            if(s.kind==='sunglasses'&&!sunglasses.state.owned)add('Take '+s.label,pickUpSunglasses);
             if(s.kind==='sand')add('Collect sand',collectOceanSand);
             if(s.kind==='fishing')add('Catch live fish',fishAtWharf);
             if(s.id==='zoo-monkeys')add('Steal monkey',stealQuestMonkey);
@@ -2187,7 +2338,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
             else if(s.kind==='ducks')add('Feed ducks',feedDucks);
         }
         const roadTarget=goldenGate?.targetAt(t.x+.5,t.y+.5)||regionalRoad?.targetAt(t.x+.5,t.y+.5);
-        if(!npc){if(surf.state.riding&&surf.water(t.x+.5,t.y+.5))add(surf.state.mode==='surf'?'Paddle here':'Windsurf here',()=>{if(surf.state.mode==='surf')waveSurf.cancelRide();walkTo(t.x,t.y);});else if(roadTarget)add('Walk here',()=>walkTo(roadTarget.x,roadTarget.y));else if(clearAt(t.x,t.y))add('Walk here',()=>walkTo(t.x,t.y));else if(p)add('Walk to entrance',()=>walkTo(p.entry.x,p.entry.y));
+        if(!npc){if(s?.kind!=='loot'&&s?.kind!=='sunglasses'){if(surf.state.riding&&surf.water(t.x+.5,t.y+.5))add(surf.state.mode==='surf'?'Paddle here':'Windsurf here',()=>{if(surf.state.mode==='surf')waveSurf.cancelRide();walkTo(t.x,t.y);});else if(roadTarget)add('Walk here',()=>walkTo(roadTarget.x,roadTarget.y));else if(clearAt(t.x,t.y))add('Walk here',()=>walkTo(t.x,t.y));else if(p)add('Walk to entrance',()=>walkTo(p.entry.x,p.entry.y));}
         if(s?.kind!=='waymo')add('Examine '+(s?s.label:p?p.label:inPark(t.x,t.y)?'Golden Gate Park':'street'),()=>examine(s||p||(inPark(t.x,t.y)?sightById('park'):null)));}
         if(skateboard.riding)for(const trick of SKATE_TRICKS)add(trick.label,()=>performSkateTrick(trick.id));
         menu.hidden=false;menu.style.left=Math.min(width-menu.offsetWidth-12,Math.max(12,sx))+'px';menu.style.top=Math.min(height-menu.offsetHeight-12,Math.max(12,sy))+'px';menu.querySelector('button').focus({preventScroll:true});
@@ -2266,8 +2417,10 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     }
     let miniIcons=[],miniKeyboardPlace=null;
     const placeMarkerViews=[];
-    function miniProjection(){return createMinimapProjection(N,map.width,map.height,camera.yaw,player.x+.5,player.y+.5);}
+    function miniProjection(){return createMinimapProjection(secretWorld?.kind==='illuminati'?28:N,map.width,map.height,camera.yaw,player.x+.5,player.y+.5);}
     function drawMini(){
+        if(secretWorld?.kind==='illuminati')return drawCaveMinimap();
+        if(secretWorld?.kind==='kraken')return drawHuntMinimap();
         const m=miniProjection(),origin=m.point(-MAP_ART.x/10*MAP_SCALE,-MAP_ART.y/9.5*MAP_SCALE);
         mc.setTransform(1,0,0,1,0,0);mc.fillStyle='#456c72';mc.fillRect(0,0,map.width,map.height);
         mc.save();mc.setTransform(m.a*MAP_SCALE/10,m.b*MAP_SCALE/10,m.c*MAP_SCALE/9.5,m.d*MAP_SCALE/9.5,origin.x,origin.y);mc.drawImage(cityMap,0,0);mc.restore();
@@ -2280,7 +2433,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
             const at=s.mapPoint||{x:s.entry.x+.5,y:s.entry.y+.5},p=m.point(at.x,at.y);
             ellipse(mc,p.x,p.y,1.2,1.2,'#e0d4ab');
         }
-        miniIcons=layoutMinimapIcons(places.map(place=>({place,...m.point(place.x+place.w/2,place.y+place.d/2)})),map.width,map.height,13,12);
+        miniIcons=layoutMinimapIcons(places.filter(p=>!p.activityBuilding).map(place=>({place,...m.point(place.x+place.w/2,place.y+place.d/2)})),map.width,map.height,13,12);
         for(const p of miniIcons)if(Math.hypot(p.x-p.anchorX,p.y-p.anchorY)>3)line(mc,[{x:p.anchorX,y:p.anchorY},p],'#ddcea580',.7);
         for(const p of miniIcons)drawPlaceIcon(mc,p.place.id,p.x,p.y);
         const selected=miniIcons.find(p=>p.place===miniKeyboardPlace);
@@ -2293,6 +2446,21 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         line(mc,[{x:map.width-17-ux*6,y:18-uy*6},{x:map.width-17+ux*9,y:18+uy*9}],'#f2dfa4',1.5);
         poly(mc,[{x:map.width-17+ux*9,y:18+uy*9},{x:map.width-17+ux*2-uy*3,y:18+uy*2+ux*3},{x:map.width-17+ux*2+uy*3,y:18+uy*2-ux*3}],'#f2dfa4');
         if(destination){const flag=m.point(destination.x+.5,destination.y+.5);drawDestinationFlag(mc,flag.x,flag.y);}
+    }
+    function drawCaveMinimap(){
+        const m=miniProjection();miniIcons=[];mc.setTransform(1,0,0,1,0,0);mc.fillStyle='#28342d';mc.fillRect(0,0,map.width,map.height);
+        for(const tile of CAVE_TILES)if(tile.type!=='rock')poly(mc,[[tile.x,tile.z],[tile.x+1,tile.z],[tile.x+1,tile.z+1],[tile.x,tile.z+1]].map(([x,z])=>m.point(x,z)),tile.walkable?tile.type==='hangar'?'#889181':'#aaa184':'#3e5052');
+        const plane=m.point(ILLUMINATI_CAVE.bomber.x,ILLUMINATI_CAVE.bomber.z),wing=[[-6,2],[0,-3],[6,2],[0,1]].map(([x,z])=>m.point(ILLUMINATI_CAVE.bomber.x+x,ILLUMINATI_CAVE.bomber.z+z));poly(mc,wing,'#c4cdb9');
+        const stairs=m.point(ILLUMINATI_CAVE.entrance.x,ILLUMINATI_CAVE.entrance.z);for(let i=0;i<3;i++)line(mc,[{x:stairs.x-3,y:stairs.y-2+i*2},{x:stairs.x+3,y:stairs.y-2+i*2}],'#efcf88',1);
+        if(player.path.length)line(mc,[m.point(player.x+.5,player.y+.5),...player.path.map(p=>m.point(p.x+.5,p.y+.5))],'#ead294aa',1);
+        const p=m.point(player.x+.5,player.y+.5),d=m.point(player.x+.5+Math.cos(player.angle),player.y+.5+Math.sin(player.angle));mc.save();mc.translate(p.x,p.y);mc.rotate(Math.atan2(d.y-p.y,d.x-p.x));poly(mc,[{x:5,y:0},{x:-4,y:-3},{x:-2,y:0},{x:-4,y:3}],'#fff6bb','#263d32');mc.restore();
+        if(destination){const f=m.point(destination.x+.5,destination.y+.5);drawDestinationFlag(mc,f.x,f.y);}
+    }
+    function drawHuntMinimap(){
+        const m=createMinimapProjection(44,map.width,map.height,camera.yaw,player.x+.5,player.y+.5);miniIcons=[];mc.setTransform(1,0,0,1,0,0);mc.fillStyle='#456c72';mc.fillRect(0,0,map.width,map.height);
+        const home=expeditions.ship.home;if(home){const p=m.point(home.x,home.z);ellipse(mc,p.x,p.y,3,3,'#d4c38c');}
+        if(expeditions.kraken.visible){const p=m.point(expeditions.kraken.x,expeditions.kraken.z);ellipse(mc,p.x,p.y,3,3,'#bc7f8b');}
+        const p=m.point(player.x+.5,player.y+.5),d=m.point(player.x+1.5,player.y+.5);mc.save();mc.translate(p.x,p.y);mc.rotate(Math.atan2(d.y-p.y,d.x-p.x));poly(mc,[{x:5,y:0},{x:-4,y:-3},{x:-2,y:0},{x:-4,y:3}],'#fff6bb','#263d32');mc.restore();
     }
     function minimapPointer(e){
         return canvasPixelPoint(e.clientX,e.clientY,map.getBoundingClientRect(),{
@@ -2309,6 +2477,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         keys.clear();closeMenu();closeReader();drawMini();
         const pixel=e.detail===0&&e.clientX===0&&e.clientY===0?(miniIcons.find(p=>p.place===miniKeyboardPlace)||miniIcons[0]):minimapPointer(e);
         if(!pixel)return false;
+        if(secretWorld?.bomber.state.active){const p=miniProjection().unproject(pixel.x,pixel.y);const result=walkTo(p.x-.5,p.y-.5);canvas.focus({preventScroll:true});return result;}
         const icon=nearestMinimapIcon(miniIcons,pixel.x,pixel.y);
         if(icon){goToPlace(icon.place);drawMini();return;}
         const worldPoint=miniProjection().unproject(pixel.x,pixel.y),x=worldPoint.x-.5,y=worldPoint.y-.5;
@@ -2321,6 +2490,8 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         canvas.focus({preventScroll:true});return accepted;
     }
     function minimapTarget(x,y,from=player,{sailing=surf.state.riding}={}){
+        if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.nearest(x,y,40,(a,b)=>CAVE_NAVIGATION.connected(from,{x:a,y:b}));
+        if(secretWorld?.bomber.state.active)return {x,y};
         if(sailing)return nearestMinimapPoint(from,{x,y},{eligible:p=>surf.water(p.x+.5,p.y+.5),reachable:p=>!!surf.path(from,p)});
         const origin=esotericCampus?.contains(from.x+.5,from.y+.5)?regionalRoad.gate('city'):goldenGate?.contains(from.x+.5,from.y+.5)?goldenGate.gate('city'):regionalRoad?.contains(from.x+.5,from.y+.5)||tahoe.contains(from.x+.5,from.y+.5)?regionalRoad.gate('city'):from;
         const region=navigationRegionAt(origin.x,origin.y);
@@ -2345,6 +2516,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     function prepareWayfinding(){
         const legend=$('sf-icon-legend'),layer=$('sf-place-markers');legend.replaceChildren();layer.replaceChildren();
         for(const p of places){
+            if(p.activityBuilding)continue;
             if(!PLACE_ICONS[p.id])throw new Error('Missing content icon for '+p.id);
             const icon=placeIcon(p.id),item=document.createElement('div'),badge=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('strong'),detail=document.createElement('small');
             item.className='sf-legend-item';item.setAttribute('role','listitem');badge.className='sf-legend-icon';badge.style.setProperty('--sf-place-color',icon.color);badge.innerHTML=iconSVG(p.id);
@@ -2356,6 +2528,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         }
     }
     function drawPlaceMarkers(t){
+        if(secretWorld?.kind!=='world'){for(const view of placeMarkerViews)view.button.hidden=true;return;}
         for(const marker of placeMarkerViews){
             const {place:p,button}=marker;
             if(chase.state.jailed||currentInterior===p){button.hidden=true;continue;}
@@ -2372,6 +2545,8 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     }
 
     function update(dt,t) {
+        multiplayerWorld?.beforeUpdate(dt);multiplayerSettings?.update();
+        if(multiplayerWorld?.traversing){updateCamera();drawMini();return;}
         tech.advanceTo(t,{eligible:active&&!document.hidden});
         aiLabJob.update(dt,{inside:placeAt(player.x,player.y)?.id==='ai-lab',eligible:active&&!document.hidden&&!capture.state.active&&!rehabilitation.state.active&&!chase?.state.jailed&&!flying()&&!rocket.state.active&&!surf.state.riding&&!rope.climbing&&!sutroClimb.state.active&&tahoe.state.mode==='ground'});
         social.advanceTo(t,{eligible:active&&!document.hidden,insideTwitter:activeInstituteRoom()?.id==='twitter-hq'});const drunkUI=$('sf-inebriation');if(drunkUI){drunkUI.hidden=inebriation.state.percent<=0;drunkUI.textContent=Math.ceil(inebriation.state.percent)+'% inebriated';}
@@ -2379,9 +2554,9 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
 
         if(capture.state.active){capture.update(dt);updateCamera();drawMini();return;}
         const jailed=chase?.state.jailed;
-        streetTraffic?.update(dt);slowBus?.update(dt);deli?.update(dt,player,{deliverable:!jailed&&!flying()&&!rocket.state.active&&!surf.state.riding&&!sutroClimb.state.active&&!rope.climbing&&!currentInterior&&tahoe.state.mode==='ground'});
+        tickLocalPeptides();streetTraffic?.update(dt);slowBus?.update(dt);deli?.update(dt,player,{deliverable:!jailed&&!flying()&&!rocket.state.active&&!surf.state.riding&&!sutroClimb.state.active&&!rope.climbing&&!currentInterior&&tahoe.state.mode==='ground'});
         cityLife?.update(dt);southernLife?.update(dt);noeValleyLife?.update(dt);squareLife?.update(dt);esotericCampus?.life?.update(dt);
-        const blocked=aiInterview.visible||!$('sf-help').hidden||!$('sf-character').hidden||!$('sf-context').hidden||dialogue.active||questMenu?.active;
+        const blocked=!!bankMenu?.active||aiInterview.visible||!$('sf-help').hidden||!$('sf-character').hidden||!$('sf-context').hidden||dialogue.active||questMenu?.active;
         if(!blocked)waveTime+=dt;
         if(!blocked&&!chase?.state.jailed)expeditions.update(dt);
         if(capture.state.active){updateCamera();drawMini();return;}
@@ -2392,9 +2567,9 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         if(!skateboard.riding)skateTricks.cancel();
         skateTricks.update(blocked?0:dt);
         if(approachingNPC&&!action&&!dialogue.active)releaseNPC();
-        moveResearcherNPCs(merchants,dt,{paused:blocked,lookAt:{x:player.x+.5,z:player.y+.5}});
-        socialLife?.update(dt,{paused:blocked,lookAt:{x:player.x+.5,z:player.y+.5}});
-        specialNPCLife?.update(dt,{paused:blocked,lookAt:{x:player.x+.5,z:player.y+.5},disabled:n=>quests.theyLive.isDefeated(n.alienId)||alienCombat?.npc===n});updateTahoeButton();
+        if(!multiplayer)moveResearcherNPCs(merchants,dt,{paused:blocked,lookAt:{x:player.x+.5,z:player.y+.5}});
+        if(!multiplayer)socialLife?.update(dt,{paused:blocked,lookAt:{x:player.x+.5,z:player.y+.5}});
+        if(!multiplayer)specialNPCLife?.update(dt,{paused:blocked,lookAt:{x:player.x+.5,z:player.y+.5},disabled:n=>quests.theyLive.isDefeated(n.alienId)||alienCombat?.npc===n});updateTahoeButton();
         const topSpeed=surf.state.riding?(surf.state.mode==='surf'?2.4:7.2):motorcycle?.state.riding?MOTORCYCLE_SPEED:bike.riding?8.2:skateboard.riding?7.6:WALK_SPEED*(forwardRoll.state.active?FORWARD_ROLL_SPEED:1),acceleration=bike.riding||surf.state.riding||motorcycle?.state.riding?30:ACCELERATION;
         const oldX=player.x,oldY=player.y;
         updateAdventureUI();
@@ -2403,11 +2578,14 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         skateDog?.update(dt,t,{x:player.x+.5,z:player.y+.5},{paused:blocked,canGreet:!jailed&&!rocket.state.active&&!flying()&&!surf.state.riding&&!sutroClimb.state.active&&!rope.climbing&&tahoe.state.mode==='ground'});
         if(!quests.carrying)monkeyKeeper?.stop();
         if(monkeyKeeper?.update(blocked?0:dt)==='caught'){updateCamera();drawMini();return;}
-        if(zoo?.update(blocked?0:dt)==='player-caught'){updateCamera();drawMini();return;}
+        if(!multiplayer&&zoo?.update(blocked?0:dt)==='player-caught'){updateCamera();drawMini();return;}
         if(!blocked){
             const turn=Number(keys.has('arrowright'))-Number(keys.has('arrowleft')),tilt=Number(keys.has('arrowup'))-Number(keys.has('arrowdown'));
             if(turn||tilt)setCamera(camera.yaw+turn*dt*1.2,camera.pitch+tilt*dt*.8);
         }
+        const airborne=!!secretWorld?.bomber.state.active;
+        secretWorld?.update(airborne&&secretWorld.bomber.state.phase==='flying'&&blocked?0:dt,{boost:keys.has('control')});
+        if(airborne){const b=secretWorld.bomber.state;player.x=b.position.x-.5;player.y=b.position.z-.5;player.angle=b.heading;player.moving=!!b.target;player.speed=b.speed;player.path=[];player.motion=0;if(!b.target)destination=null;updateAdventureUI();updateCamera();drawMini();return;}
         if(training){const elapsed=Math.max(0,Math.min(1,(t-trainingLast)/1000));trainingLast=t;const level=blocked?null:strength.train(elapsed);if(level){announce('Strength level '+level+'!'+(level===10?' Sand Hill Road Capital Partners will now fund you.':''),'Gym');if(level===10)stopTraining();}chase?.update(dt,WALK_SPEED);updateAdventureUI();updateCamera();drawMini();return;}
         if(expeditions.ship.aboard){const ship=expeditions.ship;player.x=ship.x-.5;player.y=ship.z-.5;player.path=[];player.speed=0;player.moving=false;player.motion=0;chase?.update(blocked?0:dt,WALK_SPEED);updateCamera();drawMini();updateAdventureUI();return;}
         if(ferrari?.state.riding){
@@ -2533,6 +2711,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
 
     function mouseRay(sx,sy){const nx=(sx/width*2-1)*camera.tan*width/height,ny=(1-sy/height*2)*camera.tan;return {origin:camera.eye,dir:unit(camera.right.map((v,i)=>v*nx+camera.up[i]*ny-camera.back[i]))};}
     function terrainIntersection(ray){
+        if(secretWorld?.kind==='illuminati'||secretWorld?.kind==='kraken'){const floor=secretWorld.kind==='illuminati'?ILLUMINATI_CAVE.floor+.025:.025,t=(floor-ray.origin[1])/ray.dir[1];return t>0&&Number.isFinite(t)?{point:ray.origin.map((v,i)=>v+ray.dir[i]*t),distance:t}:null;}
         if(chase?.state.jailed){const t=(detention.base+.18-ray.origin[1])/ray.dir[1];return t>0&&Number.isFinite(t)?{point:ray.origin.map((v,i)=>v+ray.dir[i]*t),distance:t}:null;}
         const campusHit=esotericCampus?.raycast(ray),bridgeHit=goldenGate?.raycast(ray),highwayHit=regionalRoad?.raycast(ray),clubHit=nightclub?raycastNightlife(ray,nightclub,terrainHeight):null,instituteHit=activeInstituteRoom()?raycastInstituteFloor(activeInstituteRoom(),ray):null,roadHit=[campusHit,bridgeHit,highwayHit,clubHit,instituteHit].filter(Boolean).sort((a,b)=>a.distance-b.distance)[0],southHit=southernTerrain?.raycast(ray);
         if(nearTahoe(player.x+.5,player.y+.5,400)){const hit=raycastTahoe(ray);if(hit)return roadHit&&roadHit.distance<hit.distance?roadHit:hit;}
@@ -2558,7 +2737,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         if(pickedCache&&pickedCache.x===sx&&pickedCache.y===sy&&pickedCache.frame===frameID)return pickedCache.result;
         const ray=mouseRay(sx,sy),ground=terrainIntersection(ray);let distance=ground?ground.distance+.12:220,result=null;
         const test=o=>{const near=rayBox(ray,o.lo,o.hi);if(near===null||near>distance)return;const data=o.mesh.data,instituteHidden=o.researchRoom?instituteHiddenSections(o.researchRoom,o.sections,camera.eye,o.researchRoom===activeInstituteRoom()):[],hiddenWalls=o.place&&o.place===currentInterior?cutawayWallMask(o,camera.eye):0;for(let vertex=o.start;vertex<o.start+o.count;vertex+=3){if(isGlassVertex(data,vertex))continue;if(instituteHidden.some(p=>vertex>=p.start&&vertex<p.start+p.count))continue;if(o.place&&o.place===currentInterior){const hidden=o.roof.start<=vertex&&vertex<o.roof.start+o.roof.count||o.walls.some(w=>(hiddenWalls&(1<<w.side))&&vertex>=w.start&&vertex<w.start+w.count);if(hidden)continue;}const i=vertex*11,t=rayTriangle(ray,[data[i],data[i+1],data[i+2]],[data[i+11],data[i+12],data[i+13]],[data[i+22],data[i+23],data[i+24]]);if(t!==null&&(t<distance||(o.character||o.detailTarget)&&Math.abs(t-distance)<1e-6)){distance=t;result=o;}}};
-        for(const o of objects)test(o);for(const o of dynamicTargets)test(o);
+        if(!secretWorld||secretWorld.kind==='world')for(const o of objects)test(o);for(const o of dynamicTargets)test(o);
         pickedCache={x:sx,y:sy,frame:frameID,result};return result;
     }
     function hitPlace(sx,sy){return pick(sx,sy)?.place||null;}
@@ -2590,7 +2769,16 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         Object.assign(niaCitizen,body.character,{interior:body.interior});
     }
     function hitSight(sx,sy){
-        const hit=pick(sx,sy);if(hit)return hit.sight||null;
+        const hit=pick(sx,sy);if(hit?.sight)return hit.sight;
+        // Small vials and coins get a few screen pixels of tolerance, while
+        // an actual visibility ray prevents selecting items through walls.
+        let item=null,score=Infinity;
+        for(const o of dynamicTargets)if(o.sight?.kind==='loot'||o.sight?.kind==='sunglasses'){
+            const anchor=[(o.lo[0]+o.hi[0])/2,(o.lo[1]+o.hi[1])/2,(o.lo[2]+o.hi[2])/2],at=project(...anchor),distance=Math.hypot(sx-at.x,sy-at.y);
+            if(at.distance<=0||distance>Math.max(9,(project(o.hi[0],anchor[1],o.hi[2]).x-at.x)*1.3)||distance>=score||pick(at.x,at.y)!==o)continue;
+            item=o.sight;score=distance;
+        }
+        if(item)return item;if(hit||secretWorld?.kind!=='world')return null;
         const tower=sightById('sutro'),ray=mouseRay(sx,sy),near=tower.object?rayBox(ray,tower.object.lo,tower.object.hi):null;
         if(near!==null){const ground=terrainIntersection(ray);if(!ground||near<ground.distance+.1)return tower;}
         const t=tileAt(sx,sy);if(pondValue(t.x+.5,t.y+.5)<1.3)return sightById('ducks');if(palaceWater(t.x+.5,t.y+.5)<1.2)return sightById('palace');return null;
@@ -2603,19 +2791,42 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         for(const cow of game.cows)if(cow.hp>0&&near(cow)){cow.base=characterGround(cow.x,cow.z);const start=m.data.length;drawCow(m,cow,t);addTarget(start,{npc:cow});}
         const ship=game.ship;if(ship.home&&near(ship)){const start=m.data.length;drawPequod(m,ship,game.state.clock*1000,signs);addTarget(start,{sight:pequodSite});}
         if(game.kraken.visible&&game.kraken.hp>0&&near(game.kraken)){game.kraken.base=0;const start=m.data.length;drawKraken(m,game.kraken,game.state.clock*1000);addTarget(start,{npc:game.kraken});}
-        for(const loot of game.state.loot)if(near(loot)){const base=loot.lootKind==='kraken'?PEQUOD.deck:characterGround(loot.x,loot.z),start=m.data.length;drawExpeditionLoot(m,loot,base,t);addTarget(start,{sight:loot});}
+        for(const loot of game.state.loot)if(near(loot)){const base=loot.base??(loot.lootKind==='kraken'?PEQUOD.deck:characterGround(loot.x,loot.z)),start=m.data.length;drawExpeditionLoot(m,loot,base,t);addTarget(start,{sight:loot});}
         for(const beam of game.state.beams)drawBeam(m,beam);
     }
     function actorInView(x,z,base){return headless||batchInFrustum({lo:[x-2,base-.6,z-2],hi:[x+2,base+3.4,z+2]},camera.matrix);}
+    function makePrivateActors(t){
+        const m=new Mesh(),cave=secretWorld.kind==='illuminati',base=playerGround();dynamicTargets=[];actorTags=[];
+        const target=(start,metadata)=>{const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(let i=start;i<m.data.length;i+=11)for(let j=0;j<3;j++){lo[j]=Math.min(lo[j],m.data[i+j]);hi[j]=Math.max(hi[j],m.data[i+j]);}dynamicTargets.push({mesh:m,start:start/11,count:(m.data.length-start)/11,lo,hi,...metadata});};
+        const gesture=player.gesture&&t-player.gesture.started<player.gesture.duration?player.gesture:null;
+        human(m,player.x+.5,player.y+.5,base+.07,player.angle,reduced?0:player.phase,false,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),mode:'move',motion:reduced?0:player.motion,run:player.runBlend,time:t*.001,backpack:false,ground:()=>base,action:player.dancing?'dance':gesture?.name,actionT:gesture?(t-gesture.started)/gesture.duration:0});
+        if(gesture?.name==='drink')drawDrinkingCoffee(m,player,base+.07,t,gesture.started,gesture.duration);
+        if(playerLook.cape&&expeditions.state.cape)drawKrakenCape(m,player.x+.5,player.y+.5,base+.07,player.angle,t,signs);
+        if(cave){
+            let start=m.data.length;drawStealthBomber(m,{...ILLUMINATI_CAVE.bomber,y:ILLUMINATI_CAVE.floor+.83},-Math.PI/2,{parked:true,time:t});target(start,{sight:bomberSite});
+            start=m.data.length;drawSecretStair(m,ILLUMINATI_CAVE.entrance.x,ILLUMINATI_CAVE.floor+.04,ILLUMINATI_CAVE.entrance.z,0);target(start,{sight:caveExitSite});
+        }else{
+            const px=player.x+.5,pz=player.y+.5;m.quad([px-120,.02,pz-120],[px-120,.02,pz+120],[px+120,.02,pz+120],[px+120,.02,pz-120],'#ffffff',{water:1});
+            let start=m.data.length;drawPequod(m,expeditions.ship,expeditions.state.clock*1000,signs);target(start,{sight:pequodSite});
+            if(expeditions.kraken.visible&&expeditions.kraken.hp>0){start=m.data.length;expeditions.kraken.base=0;drawKraken(m,expeditions.kraken,expeditions.state.clock*1000);target(start,{npc:expeditions.kraken});}
+            if(ahabNPC){start=m.data.length;human(m,ahabNPC.x,ahabNPC.z,PEQUOD.deck+.07,ahabNPC.angle,0,false,ahabNPC.skin,ahabNPC.shirt,{coat:true,cap:true,pants:'#3d4a4d',time:t*.001});target(start,{npc:ahabNPC});}
+            for(const loot of expeditions.state.loot.filter(l=>!l.network&&l.lootKind==='kraken')){start=m.data.length;drawExpeditionLoot(m,loot,PEQUOD.deck,t);target(start,{sight:loot});}
+            if(expeditions.state.railgun&&expeditions.state.equipped)drawRailgun(m,px,base+1.14,pz,player.angle);
+            for(const beam of expeditions.state.beams)drawBeam(m,beam);
+        }
+        return m;
+    }
     function makeActors(t){
+        if(secretWorld&&secretWorld.kind!=='world')return makePrivateActors(t);
         let pendingAirshipTarget=null;const m=new Mesh(),rolling=forwardRoll.state.active,trick=skateboard.riding?skateTricks.pose:null,base=playerGround()+.07+(trick?.height||0),phase=reduced?0:player.phase,gesture=player.gesture,actionT=gesture?(t-gesture.started)/gesture.duration:1;
         const carryingFish=!!(economy.state.fish&&!rolling&&!fishing.state.active&&!player.dancing&&!capture.state.active&&!ferrari?.state.riding&&!bike.riding&&!motorcycle?.state.riding&&!skateboard.riding&&!flying()&&!rope.climbing&&!sutroClimb.state.active&&!rocket.state.active&&tahoe.state.mode==='ground');
         if(training)drawGymExercise(m,gymSelection,t,characterAppearance(playerLook),{reduced});
         else if(tahoe.state.mode==='ski')drawSkiRider(m,tahoe.state,t,reduced,characterAppearance(playerLook));
+        else if(secretWorld?.bomber.state.active){const b=secretWorld.bomber.state;if(b.phase==='parachuting'){human(m,b.position.x,b.position.z,b.position.y,b.heading,0,false,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),mode:'idle',action:'parachute',actionT:1,ground:null});drawParachute(m,b.position,b.heading,t);}else drawStealthBomber(m,b.position,b.heading,{bank:b.bank,time:t});}
         else if(surf.state.riding&&surf.state.mode==='surf')drawWaveSurfer(m,player.x+.5,player.y+.5,playerGround(),player.angle,t,waveSurf.pose,{appearance:characterAppearance(playerLook),moving:player.moving,reduced});
         else if(surf.state.riding)drawWindsurfer(m,player.x+.5,player.y+.5,playerGround(),player.angle,t,{appearance:characterAppearance(playerLook),moving:player.moving&&!surf.state.jump,reduced,pitch:surf.state.jump?.pitch||0});
-        else{const riderStart=m.data.length,rocketPose=rocket.state.active?rocket.state.pose:null,onSutro=sutroClimb.state.active,climbing=onSutro&&sutroClimb.state.phase!=='top'||rope.climbing||rocketPose?.mode==='climb',riderPose=rocketPose||(rope.climbing?{mode:'climb'}:sutroClimb.state.pose);
-        human(m,player.x+.5,player.y+.5,base+(ferrari?.state.riding?.12:bike.riding?.3:motorcycle?.state.riding?.13:skateboard.riding?.155:0),player.angle,phase,bike.riding,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),phone:economy.state.iphoneEquipped&&!carryingFish&&!rolling&&!player.dancing&&!bike.riding&&!motorcycle?.state.riding&&!ferrari?.state.riding&&!flying()&&!climbing&&!rocketPose&&!(expeditions.state.railgun&&expeditions.state.equipped),carryingFish,railgun:expeditions.state.railgun&&expeditions.state.equipped&&!rolling&&!player.dancing&&!fishing.state.active,bayonet:!(expeditions.state.railgun&&expeditions.state.equipped)&&!rolling&&!fishing.state.active&&quests.theyLive.state.bayonet&&!skateboard.riding&&!bike.riding&&!motorcycle?.state.riding&&!flying(),height:ferrari?.state.riding?.65:1,mode:rolling?'idle':ferrari?.state.riding?'sit':capture.state.active?'idle':rocketPose?rocketPose.mode:climbing?riderPose.mode:bike.riding?'cycle':motorcycle?.state.riding?'motorcycle':skateboard.riding?'skate':'move',motion:rolling||reduced?0:player.motion,run:rolling?0:player.runBlend,time:reduced?0:t*.001,action:rolling?'forward-roll':capture.state.active?'caught':fishing.state.active?'fish':player.dancing?'dance':trick?'skate-trick':climbing||rocketPose||reduced||actionT>=1?null:gesture?.name,actionT:rolling?forwardRoll.progress:capture.state.active?capture.pose.hands:fishing.state.active?fishing.progress:trick?trick.progress:actionT,ground:rolling||capture.state.active?null:expeditions.ship.aboard?()=>PEQUOD.deck+.01:rocketPose?(riderPose.mode==='climb'?null:()=>rocket.state.position.y+.008):tahoe.state.mode==='gondola'?()=>tahoe.state.position.y+.01:rope.climbing?null:flying()?()=>airship.state.position.y+AIRSHIP_BASKET.floor+.008:onSutro?(riderPose.mode==='climb'?null:()=>sutroClimb.state.position.y+.008):bike.riding||motorcycle?.state.riding||skateboard.riding?null:chase.state.jailed?()=>detention.base+.19:characterGround});
+        else{const riderStart=m.data.length,rocketPose=rocket.state.active?rocket.state.pose:null,onSutro=sutroClimb.state.active,networkClimb=!!multiplayerWorld?.traversing,climbing=networkClimb||onSutro&&sutroClimb.state.phase!=='top'||rope.climbing||rocketPose?.mode==='climb',riderPose=networkClimb?{mode:'climb'}:rocketPose||(rope.climbing?{mode:'climb'}:sutroClimb.state.pose);
+        human(m,player.x+.5,player.y+.5,base+(ferrari?.state.riding?.12:bike.riding?.3:motorcycle?.state.riding?.13:skateboard.riding?.155:0),player.angle,phase,bike.riding,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),phone:economy.state.iphoneEquipped&&!carryingFish&&!rolling&&!player.dancing&&!bike.riding&&!motorcycle?.state.riding&&!ferrari?.state.riding&&!flying()&&!climbing&&!rocketPose&&!(expeditions.state.railgun&&expeditions.state.equipped),carryingFish,railgun:expeditions.state.railgun&&expeditions.state.equipped&&!rolling&&!player.dancing&&!fishing.state.active,bayonet:!(expeditions.state.railgun&&expeditions.state.equipped)&&!rolling&&!fishing.state.active&&quests.theyLive.state.bayonet&&!skateboard.riding&&!bike.riding&&!motorcycle?.state.riding&&!flying(),height:ferrari?.state.riding?.65:1,mode:rolling?'idle':ferrari?.state.riding?'sit':capture.state.active?'idle':rocketPose?rocketPose.mode:climbing?riderPose.mode:bike.riding?'cycle':motorcycle?.state.riding?'motorcycle':skateboard.riding?'skate':'move',motion:rolling||reduced?0:player.motion,run:rolling?0:player.runBlend,time:reduced?0:t*.001,action:rolling?'forward-roll':capture.state.active?'caught':fishing.state.active?'fish':player.dancing?'dance':trick?'skate-trick':climbing||rocketPose||reduced||actionT>=1?null:gesture?.name,actionT:rolling?forwardRoll.progress:capture.state.active?capture.pose.hands:fishing.state.active?fishing.progress:trick?trick.progress:actionT,ground:rolling||capture.state.active||networkClimb?null:expeditions.ship.aboard?()=>PEQUOD.deck+.01:rocketPose?(riderPose.mode==='climb'?null:()=>rocket.state.position.y+.008):tahoe.state.mode==='gondola'?()=>tahoe.state.position.y+.01:rope.climbing?null:flying()?()=>airship.state.position.y+AIRSHIP_BASKET.floor+.008:onSutro?(riderPose.mode==='climb'?null:()=>sutroClimb.state.position.y+.008):bike.riding||motorcycle?.state.riding||skateboard.riding?null:chase.state.jailed?()=>detention.base+.19:characterGround});
         if(rolling)applyForwardRollMesh(m,riderStart,player.x+.5,base,player.y+.5,player.angle,forwardRoll.progress,chase.state.jailed?()=>detention.base+.18:characterGround,(x,z)=>clearAt(x-.5,z-.5));
         if(!rolling&&!capture.state.active&&inebriation.intensity&&!flying()&&!bike.riding&&!rocket.state.active)swayCharacter(m,riderStart,player.x+.5,base,player.y+.5,t,inebriation.intensity);
         if(fishing.state.active)drawFishingRod(m,{x:player.x+.5,z:player.y+.5,site:fishing.state.site},base,fishing.progress);
@@ -2629,16 +2840,20 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         if(capture.state.active)collapseCharacterMesh(m,riderStart,player.x+.5,base,player.y+.5,player.angle,capture.pose.fall);}
         if(tahoe.state.mode==='gondola')drawGondolaCabin(m,tahoe.state.position,tahoe.state.angle);
         drawRegionalBackdrop(m,player.x+.5,player.y+.5,playerGround());
-        const shipPosition=airship.state.active?airship.state.position:{x:AIRSHIP_TERMINAL.boarding.x+.5,y:AIRSHIP_TERMINAL.base+.03,z:AIRSHIP_TERMINAL.boarding.y+.5};
-        if(Math.hypot(player.x+.5-shipPosition.x,player.y+.5-shipPosition.z)<110){const start=m.data.length;drawAirship(m,shipPosition,airship.state.active?airship.state.heading:-Math.PI/2,t,reduced);if(!airship.state.active)pendingAirshipTarget={start,end:m.data.length};}
+        const shipPosition=multiplayerWorld?.airshipPosition||(airship.state.active?airship.state.position:{x:AIRSHIP_TERMINAL.boarding.x+.5,y:AIRSHIP_TERMINAL.base+.03,z:AIRSHIP_TERMINAL.boarding.y+.5});
+        if(Math.hypot(player.x+.5-shipPosition.x,player.y+.5-shipPosition.z)<110){const start=m.data.length;drawAirship(m,shipPosition,multiplayerWorld?.sharedAirship?.heading??(airship.state.active?airship.state.heading:-Math.PI/2),t,reduced);if(!airship.state.active)pendingAirshipTarget={start,end:m.data.length};}
         const seaX=player.x+.5,seaZ=player.y+.5,seaRadius=350;
         drawOffshoreSea(m,seaBounds,seaX,seaZ,seaRadius);
         drawCoastalSeagulls(m,t,[seaX,seaZ],reduced);
         drawRehabilitationLaser(m,player,base,rehabilitation,t);
+        if(player.gesture?.name==='drink'&&t-player.gesture.started<player.gesture.duration)drawDrinkingCoffee(m,player,base,t,player.gesture.started,player.gesture.duration);
         dynamicTargets=[];
         actorTags=[];
         const addTarget=(start,metadata,end=m.data.length)=>{const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(let i=start;i<end;i+=11)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],m.data[i+k]);hi[k]=Math.max(hi[k],m.data[i+k]);}dynamicTargets.push({mesh:m,start:start/11,count:(end-start)/11,lo,hi,...metadata});};
-        drawExpeditionActors(m,t,addTarget);
+        drawExpeditionActors(m,t,addTarget);multiplayerWorld?.draw(m,t,addTarget,actorTags);
+        for(const bomb of secretWorld?.bombs||[])drawBombEffect(m,bomb,performance.now(),terrainHeight(bomb.x,bomb.z));
+        for(const crash of secretWorld?.crashes||[])drawBomberCrash(m,crash,performance.now());
+        if(currentInterior?.id==='freemasons-guild'&&secretStairs){const start=m.data.length;drawSecretStair(m,secretStairs.x,currentInterior.object.base+.065,secretStairs.z,currentInterior.rotation||0);addTarget(start,{sight:secretStairs});}
         if(sandSite&&Math.hypot(sandSite.entry.x-player.x,sandSite.entry.y-player.y)<40){const start=m.data.length;drawBeachSand(m,sandSite,characterGround(sandSite.x,sandSite.z),signs);addTarget(start,{sight:sandSite});}
         if(fishingSite&&Math.hypot(fishingSite.entry.x-player.x,fishingSite.entry.y-player.y)<45){const start=m.data.length;drawFishingSpot(m,fishingSite,t,reduced);addTarget(start,{sight:fishingSite});}
         if(!sunglasses.state.owned&&sunglassesSite&&Math.hypot(sunglassesSite.x-player.x-.5,sunglassesSite.z-player.y-.5)<45){
@@ -2704,12 +2919,13 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         drawRestaurantDiners(m,restaurantDiners,t,[player.x+.5,player.y+.5],reduced,(start,npc)=>{addTarget(start,{npc});actorTags.push(npc);});
         if(Math.hypot(TWITTER_HQ.x-player.x-.5,TWITTER_HQ.z-player.y-.5)<30)drawBottlePostAnimation(m,t,southernTerrain,merchants,{reduced,addTarget:(start,npc)=>{addTarget(start,{npc});actorTags.push(npc);}});
         for(const npc of merchants){
+            if(npc.interior&&npc.interior!==currentInterior)continue;
             if(npc.kind==='twitter-worker'||npc.kind==='twitter-poster')continue;
             if(npc.expeditionDead)continue;
             if(quests.theyLive.isDefeated(npc.alienId)&&(!npc.defeatAt||t-npc.defeatAt>750))continue;
             if(Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5)>32||!actorInView(npc.x,npc.z,npc.base))continue;
             const walking=(npc.researcher||npc.roam)&&npc.motion>.01;
-            const start=m.data.length,g=npc.gesture,gt=g?(t-g.started)/g.duration:1;if(npcRevealed(npc))drawSpectre(m,npc,t);else human(m,npc.x,npc.z,npc.base,npc.angle,walking&&!reduced?(npc.phase||0):0,false,npc.skin,npc.shirt,{phone:npc.phone,alien:npcRevealed(npc),action:npc.defeatAt?'caught':npc.thinking?'ponder':gt<1?g.name:null,actionT:npc.defeatAt?1:gt,mode:npc.seated?'sit':walking?'move':'idle',female:!!npc.female,longHair:!!npc.longHair,hairstyle:npc.hairstyle,hair:npc.hair,motion:reduced?0:npc.motion||0,ground:npc.roam?characterGround:null,backpack:false,cap:npc.kind==='crew'||!!npc.cap,uniform:npc.kind==='crew',time:reduced?0:t*.001,pants:npc.kind==='tax'?'#c7a752':npc.kind==='crew'?'#35465c':'#555e55',coat:npc.kind==='tax'||!!npc.coat,topHat:npc.kind==='tax',chef:npc.kind==='chef',gilded:npc.kind==='tax'});if(npc.defeatAt)collapseCharacterMesh(m,start,npc.x,npc.base,npc.z,npc.angle,Math.min(1,(t-npc.defeatAt)/700));else addTarget(start,{npc});if(npc.regional)actorTags.push(npc);
+            const start=m.data.length,g=npc.gesture,gt=g?(t-g.started)/g.duration:1;if(npcRevealed(npc))drawSpectre(m,npc,t);else human(m,npc.x,npc.z,npc.base,npc.angle,walking&&!reduced?(npc.phase||0):0,false,npc.skin,npc.shirt,{phone:npc.phone,alien:npcRevealed(npc),action:npc.defeatAt?'caught':npc.thinking?'ponder':gt<1?g.name:null,actionT:npc.defeatAt?1:gt,mode:npc.seated?'sit':walking?'move':'idle',female:!!npc.female,longHair:!!npc.longHair,hairstyle:npc.hairstyle,hair:npc.hair,motion:reduced?0:npc.motion||0,ground:npc.roam?characterGround:null,backpack:false,cap:npc.kind==='crew'||!!npc.cap,uniform:npc.kind==='crew',time:reduced?0:t*.001,pants:npc.pants||(npc.kind==='tax'?'#c7a752':npc.kind==='crew'?'#35465c':'#555e55'),coat:npc.kind==='tax'||!!npc.coat,topHat:npc.kind==='tax',chef:npc.kind==='chef',gilded:npc.kind==='tax'});if(npc.defeatAt)collapseCharacterMesh(m,start,npc.x,npc.base,npc.z,npc.angle,Math.min(1,(t-npc.defeatAt)/700));else addTarget(start,{npc});if(npc.regional)actorTags.push(npc);
         }
         if(currentInterior===niaCitizen.interior)actorTags.push(niaCitizen);
         for(const npc of parrots){if(Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5)>35)continue;const start=m.data.length;drawParrot(m,npc,t,reduced);addTarget(start,{npc});}
@@ -2731,7 +2947,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         return m;
     }
     function drawCombatFeedback(){
-        const entries=[],game=expeditions,target=alienCombat?.npc||game.state.target;
+        const entries=[],game=expeditions,target=alienCombat?.npc||multiplayerWorld?.combatTarget||game.state.target;
         if(alienCombat)entries.push({target,hp:alienCombat.battle.state.hp,max:alienCombat.battle.state.max});
         else if(target?.max)entries.push({target,hp:target.hp,max:target.max});
         if(game.raptor.phase==='loose'&&game.raptor.prey?.isPlayer&&!entries.some(a=>a.target===game.raptor))entries.push({target:game.raptor,hp:game.raptor.hp,max:game.raptor.max});
@@ -2745,14 +2961,14 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         let used=0;
         for(const actor of actorTags){
             const marked=!!actor.chasing;
-            if(!marked&&!(actor.speech&&t<actor.speechUntil))continue;
+            if(!marked&&!actor.player&&!(actor.speech&&t<actor.speechUntil))continue;
             if(!marked&&Math.hypot(actor.x-player.x-.5,actor.z-player.y-.5)>13)continue;
             const head=[actor.x,actor.base+actor.height,actor.z],p=project(...head);
             if(p.distance<=0||p.depth>1||p.x<0||p.x>width||p.y<0||p.y>height)continue;
             if(!marked){const ray=mouseRay(p.x,p.y),distance=Math.hypot(...head.map((v,i)=>v-camera.eye[i]));if(objects.some(o=>{if(o.sight?.id===activeInstituteRoom()?.id||o.sight?.id==='pacifica-park'&&inPacificaPark(player.x+.5,player.y+.5)||o.sight?.kind==='nightlife'&&inNightlife(player.x+.5,player.y+.5)||o.place&&o.place===currentInterior||!o.arch&&!o.solid)return false;const d=rayBox(ray,o.lo,o.hi);return d!==null&&d<distance-.4;}))continue;}
             let tag=labelPool[used++];
             if(!tag){const el=document.createElement('div'),speech=document.createElement('span'),arrow=document.createElement('span'),name=document.createElement('span');el.className='sf-actor-label';speech.className='sf-speech';arrow.className='sf-police-arrow';arrow.textContent='▼';el.append(speech,arrow,name);$('sf-actor-labels').append(el);tag={el,speech,arrow,name};labelPool.push(tag);}
-            tag.el.hidden=false;tag.el.style.left=p.x+'px';tag.el.style.top=p.y+'px';tag.name.hidden=!actor.police;tag.name.textContent=actor.police?actor.label:'';tag.arrow.hidden=!marked;tag.speech.textContent=t<actor.speechUntil?actor.speech||'':'';
+            tag.el.hidden=false;tag.el.style.left=p.x+'px';tag.el.style.top=p.y+'px';tag.name.hidden=!actor.police&&!actor.player;tag.name.textContent=actor.police||actor.player?actor.label:'';tag.name.className=actor.player?'sf-player-name':'';tag.name.dataset.pvp=String(!!actor.pvp);tag.arrow.hidden=!marked;tag.speech.textContent=t<actor.speechUntil?actor.speech||'':'';
         }
         for(let i=used;i<labelPool.length;i++)labelPool[i].el.hidden=true;
         const speech=$('sf-player-speech');speech.hidden=t>=playerSpeechUntil;
@@ -2760,19 +2976,21 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
 
     }
     function render(t,dt){
-        if(!active||!built||gl.isContextLost())return;combatFeedback.update(dt);update(dt,t);debugConsole.update();frameID++;gpuStats.drawCalls=0;
-        const nearCity=Math.hypot(player.x-N/2,player.y-N/2)<220;if(nearCity)renderShadows();gl.viewport(0,0,canvas.width,canvas.height);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);gl.uniformMatrix4fv(program.vp,false,camera.matrix);gl.uniform3fv(program.eye,camera.eye);gl.uniform3fv(program.focus,camera.target);gl.uniform1f(program.time,reduced?0:t*.001);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,atlasTexture);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,materialTexture);for(const [i,texture] of alpineTextures.entries()){gl.activeTexture(gl.TEXTURE3+i);gl.bindTexture(gl.TEXTURE_2D,texture);}gl.activeTexture(gl.TEXTURE0);gl.uniformMatrix4fv(program.light,false,shadowMatrix);gl.uniform1f(program.shadows,shadowFramebuffer?1:0);
+        if(!active||!built||gl.isContextLost())return;frameMeter.sample(t);combatFeedback.update(dt);update(dt,t);bankMenu?.update();debugConsole.update();frameID++;gpuStats.drawCalls=0;
+        const underground=secretWorld?.kind==='illuminati',publicMap=secretWorld?.kind==='world',nearCity=publicMap&&Math.hypot(player.x-N/2,player.y-N/2)<220;if(nearCity)renderShadows();gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(underground?.12:.56,underground?.16:.7,underground?.14:.73,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);gl.uniformMatrix4fv(program.vp,false,camera.matrix);gl.uniform3fv(program.eye,camera.eye);gl.uniform3fv(program.focus,camera.target);gl.uniform1f(program.time,reduced?0:t*.001);gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,atlasTexture);gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,shadowTexture);gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,materialTexture);for(const [i,texture] of alpineTextures.entries()){gl.activeTexture(gl.TEXTURE3+i);gl.bindTexture(gl.TEXTURE_2D,texture);}gl.activeTexture(gl.TEXTURE0);gl.uniformMatrix4fv(program.light,false,shadowMatrix);gl.uniform1f(program.shadows,publicMap&&shadowFramebuffer?1:0);
         glazing.begin();gl.uniform1f(program.glassPass,0);
         if(nearCity){drawGPU(groundGPU);drawGPU(sceneGPU);drawBuildings();}
-        if(nearTahoe(player.x+.5,player.y+.5,500))drawGPU(tahoeGPU);
-        drawGPU(highwayGPU);
+        if(publicMap&&nearTahoe(player.x+.5,player.y+.5,500))drawGPU(tahoeGPU);
+        if(publicMap)drawGPU(highwayGPU);
+        if(underground){drawGPU(caveGPU);for(const w of caveGPU.walls)if(w.dx*camera.back[0]+w.dz*camera.back[2]<0)drawGPU(w.gpu);}
         const dynamic=makeActors(t);
-        gl.bindBuffer(gl.ARRAY_BUFFER,dynamicGPU.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(dynamic.data),gl.DYNAMIC_DRAW);dynamicGPU.count=dynamic.data.length/11;drawGPU(dynamicGPU);drawGlazing();if(lampGlow.draw(camera))gpuStats.drawCalls++;drawActorLabels(t);drawCombatFeedback();drawPlaceMarkers(t);
+        gl.bindBuffer(gl.ARRAY_BUFFER,dynamicGPU.buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(dynamic.data),gl.DYNAMIC_DRAW);dynamicGPU.count=dynamic.data.length/11;drawGPU(dynamicGPU);drawGlazing();if(publicMap&&lampGlow.draw(camera))gpuStats.drawCalls++;drawActorLabels(t);drawCombatFeedback();drawPlaceMarkers(t);publishMultiplayerPose();
     }
 
     function frame(t){if(!active)return;const dt=Math.min((t-last)/1000,.075);last=t;render(t,dt);raf=requestAnimationFrame(frame);}
     function startLoop(){cancelAnimationFrame(raf);last=performance.now();trainingLast=last;raf=requestAnimationFrame(frame);}
     function setMode(on) {
+        if(!on&&bankMenu?.active)bankMenu.close();
         tech.suspend();social.suspend();
         if(!on)debugConsole?.close();
         if(!on){aiInterview?.close();forwardRoll.cancel();}
@@ -2785,6 +3003,10 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     function parkCarFirst(){announce('Park the Ferrari with R before doing that.','Ferrari');return false;}
     function updateAdventureUI(){
         if(headless)return;
+        const coffee=bankService?.snapshot().coffee||0;$('sf-drink-coffee').hidden=!coffee;$('sf-drink-coffee').disabled=capture.state.active||!!secretWorld?.bomber.state.active||!!chase?.state.jailed;
+        const bankBalance=bankService?.snapshot().balance||0;$('sf-bank-character').textContent='Green Bank · '+bankBalance.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' coins deposited · 5% per hour';
+        const aircraft=!!secretWorld?.bomber.state.active,parachuting=secretWorld?.bomber.state.phase==='parachuting',bombSeconds=secretWorld?.bomber.bombSeconds||0;$('sf-bomber-controls').hidden=!aircraft;$('sf-bomber-bomb').disabled=!aircraft||parachuting||bombSeconds>0||!multiplayer?.state.connected&&!!multiplayer;$('sf-bomber-bomb').textContent=bombSeconds?'Reloading · '+bombSeconds+'s':'Drop bomb · Space';$('sf-bomber-land').disabled=parachuting;$('sf-bomber-flight').textContent=parachuting?'Parachuting to safety':secretWorld?.bomber.state.boost?'B-2 · Rocket-speed boost':'Personal B-2 · Hold Control to boost';
+        const layer=$('sf-instance-level'),kind=secretWorld?.kind||'world';layer.hidden=kind==='world';layer.textContent=kind==='illuminati'?'Underground · Private hangar':'Private kraken waters';
         updatePhoneControl();
         const pitch=social.state.pitch,sales=$('sf-sales-status');sales.hidden=!pitch;if(pitch){const text='Sales pitch · '+Math.ceil(pitch.remaining)+'s · '+Math.round(pitch.chance*100)+'% chance';if(sales.textContent!==text)sales.textContent=text;}
         const phone=$('sf-phone-status'),cab=$('sf-robotaxi-status');phone.hidden=!economy.state.iphoneOwned;cab.hidden=!economy.state.robotaxiOwned;
@@ -2801,12 +3023,13 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         $('sf-skate-tricks').hidden=!skateboard.riding;for(const button of world.querySelectorAll('[data-skate-trick]'))button.disabled=skateTricks.state.active||capture.state.active||chase?.state.jailed;
         const employment=$('sf-employment'),working=aiLabJob.state.hired&&placeAt(player.x,player.y)?.id==='ai-lab';employment.hidden=!aiLabJob.state.hired;const jobText=working?(economy.state.iphoneEquipped?'AI Lab · earning 1.25 coins / 2s':'AI Lab · earning 1 coin / 2s'):'AI Lab · employed';if(employment.textContent!==jobText)employment.textContent=jobText;
         const railgun=$('sf-railgun-button');railgun.hidden=!expeditions.state.railgun;railgun.textContent=expeditions.state.equipped?'Railgun equipped · G':'Equip railgun · G';railgun.setAttribute('aria-pressed',String(expeditions.state.equipped));
-        const hpText='Hitpoints '+health.state.hp+'/'+health.state.max,enemy=alienCombat?.battle.state||(expeditions.state.target?.max?expeditions.state.target:null);
+        const hpText='Hitpoints '+health.state.hp+'/'+health.state.max,enemy=alienCombat?.battle.state||multiplayerWorld?.combatTarget||(expeditions.state.target?.max?expeditions.state.target:null);
         if($('sf-hitpoints-text').textContent!==hpText)$('sf-hitpoints-text').textContent=hpText;
         $('sf-hitpoints-meter').value=health.state.hp;
-        $('sf-enemy-health').hidden=!enemy;if(enemy)$('sf-enemy-health').textContent=(alienCombat?'Green spectre':npcLabel(expeditions.state.target))+' · '+enemy.hp+'/'+enemy.max+' HP';
+        $('sf-enemy-health').hidden=!enemy;if(enemy)$('sf-enemy-health').textContent=(alienCombat?'Green spectre':npcLabel(multiplayerWorld?.combatTarget||expeditions.state.target))+' · '+enemy.hp+'/'+enemy.max+' HP';
         const food=$('sf-eat-sandwich');food.hidden=!deli?.state.sandwiches;food.textContent='Eat sandwich · '+(deli?.state.sandwiches||0);food.disabled=health.state.hp===health.state.max||capture.state.active;
         const order=$('sf-order-doordash');order.disabled=!!deli?.state.pending||capture.state.active||chase?.state.jailed;order.textContent=deli?.state.pending?'DoorDash en route…':'DoorDash · 4 coins';
+        const guild=guildStatus(),guildText=(guild.member?'Freemasons’ Guild · Member':'Freemasons’ Guild · Rank '+(guild.rank||1)+' · '+(guild.visits||0)+'/24 promotions')+' · '+guild.peptides+' peptides';if($('sf-guild-status').textContent!==guildText)$('sf-guild-status').textContent=guildText;
         const s=strength.status,text='Strength Level '+s.level+(s.next?' · '+s.percent.toFixed(1)+'% to '+s.next:' · Maximum level');
         if($('sf-strength-text').textContent!==text)$('sf-strength-text').textContent=text;
         $('sf-strength-progress').value=s.percent;$('sf-strength-progress').setAttribute('aria-label',s.next?s.percent.toFixed(1)+'% toward strength level '+s.next:'Strength level 10');
@@ -2897,7 +3120,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     function setDancing(value){player.dancing=value;if(!headless){$('sf-dance-button').setAttribute('aria-pressed',String(value));$('sf-dance-button').title=value?'Stop dancing (D)':'Dance (D)';}}
     function dance(){
         forwardRoll.cancel();
-        if(ferrari?.state.riding||training||capture.state.active||rocket.state.active||sutroClimb.state.active&&sutroClimb.state.phase!=='top'||rope.climbing||bike.riding||motorcycle?.state.riding||surf.state.riding||tahoe.state.mode!=='ground'){announce('Find your feet before dancing.','You');return false;}
+        if(secretWorld?.bomber.state.active||ferrari?.state.riding||training||capture.state.active||rocket.state.active||sutroClimb.state.active&&sutroClimb.state.phase!=='top'||rope.climbing||bike.riding||motorcycle?.state.riding||surf.state.riding||tahoe.state.mode!=='ground'){announce('Find your feet before dancing.','You');return false;}
         fishing.cancel();skateboard.riding=false;alienCombat=null;closeMenu();basket.state.target=null;basketArrival=null;player.path=[];player.speed=0;player.motion=0;player.gesture=null;action=null;destination=null;setDancing(!player.dancing);
         if(player.dancing&&inNightlife(player.x+.5,player.y+.5))for(const [i,npc] of restaurantDiners.filter(n=>n.club).entries()){
             npc.speech=i?'Wow! Good moves!':'Good moves! You’ve got rhythm.';npc.speechUntil=performance.now()+3500;announce('“'+npc.speech+'”',npc.label);
@@ -2905,7 +3128,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         canvas.focus({preventScroll:true});return true;
     }
     function canForwardRoll(){
-        return active&&!capture.state.active&&!rehabilitation.state.active&&!training&&!rocket.state.active&&!sutroClimb.state.active&&!rope.climbing&&!flying()&&!ferrari?.state.riding&&!bike.riding&&!motorcycle?.state.riding&&!skateboard.riding&&!surf.state.riding&&tahoe.state.mode==='ground'&&!dialogue.active&&!aiInterview.visible&&!questMenu?.active&&$('sf-help').hidden&&$('sf-character').hidden;
+        return active&&!secretWorld?.bomber.state.active&&!capture.state.active&&!rehabilitation.state.active&&!training&&!rocket.state.active&&!sutroClimb.state.active&&!rope.climbing&&!flying()&&!ferrari?.state.riding&&!bike.riding&&!motorcycle?.state.riding&&!skateboard.riding&&!surf.state.riding&&tahoe.state.mode==='ground'&&!dialogue.active&&!aiInterview.visible&&!questMenu?.active&&$('sf-help').hidden&&$('sf-character').hidden;
     }
     function rollForward(){
         if(forwardRoll.state.active||!canForwardRoll())return false;
@@ -2949,6 +3172,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         signTextureControls.setRevealed?.(playerLook.sunglasses);drawCharacterPreview($('sf-character-preview'),{...playerLook,phone:economy.state.iphoneEquipped});
     }
     function showCharacter(){
+        if(bankMenu?.active)bankMenu.close();
         questMenu?.close();closeMenu();closeReader();closeHelp();dialogue.close();keys.clear();player.path=[];player.speed=0;setDancing(false);
         updateSunglassesControl();updateHatControl();updatePhoneControl();
         for(const field of world.querySelectorAll('[data-character]')){if(field.type==='checkbox')field.checked=playerLook[field.dataset.character];else field.value=playerLook[field.dataset.character];}
@@ -2957,13 +3181,13 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     function closeCharacter(){if(headless||$('sf-character').hidden)return;$('sf-character').hidden=true;$('sf-reader-shade').hidden=true;canvas.focus({preventScroll:true});}
     function sayPhrase(text){
         if(!active)return false;
-        playerSpeechUntil=performance.now()+3000;$('sf-player-speech').textContent=text;canvas.focus({preventScroll:true});return true;
+        multiplayerWorld?.say(text);playerSpeechUntil=performance.now()+3000;$('sf-player-speech').textContent=text;canvas.focus({preventScroll:true});return true;
     }
-    function showHelp(){questMenu?.close();closeCharacter();closeReader();closeMenu();keys.clear();player.speed=0;$('sf-help').hidden=false;$('sf-reader-shade').hidden=false;$('sf-close-help').focus({preventScroll:true});}
+    function showHelp(){if(bankMenu?.active)bankMenu.close();questMenu?.close();closeCharacter();closeReader();closeMenu();keys.clear();player.speed=0;$('sf-help').hidden=false;$('sf-reader-shade').hidden=false;$('sf-close-help').focus({preventScroll:true});}
     function closeHelp(){$('sf-help').hidden=true;$('sf-reader-shade').hidden=true;canvas.focus({preventScroll:true});}
     if(headless){
         build();
-        return {social,socialLife,tech,saltMail,sandSite,slowBus,expeditions,surf,waveSurf,pacificaSurfSite,noeValleyLife,instituteRooms,instituteRoomAt,forwardRoll,aiLabJob,health,deli,streetTraffic,airportAds,airportFieldAds,groundSurfaceAt:(x,z)=>z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z),economy,inebriation,rehabilitation,jailStaff,parrots,fishing,fishingSite,sunglasses,sunglassesSite,beachBillboard,quests,skateboard,skateTricks,motorcycle,monkeyKeeper,esotericCampus,squareLife,specialNPCLife,cityLightPlan,tiles:worldTiles,navigation:cityNavigation,objects,places,sights,parkSouthEdge,southernLife,southernNeighborhood,spawn:{x:player.x,y:player.y},merchants,bunny,skateDog,airship,tahoe,ferrari,strength,highwaySites,nightclub,restaurantDiners,regionalRoad,goldenGate,southernTerrain,terrainHeight,characterGround,pathTo,minimapTarget,canTravel,clearAt,landClearAt,cityPathTo,navigationRegionAt,nearestNavigation,approaches:{bunny:bunnyApproach,sutro:sutroApproach,merchant:merchantApproach}};
+        return {bankService,banker,secretWorld,caveMesh,oldMan,secretStairs,guildStatus,peptideSpawns,cityLife,lives:[cityLife,southernLife,noeValleyLife,squareLife,esotericCampus?.life].filter(Boolean),social,socialLife,tech,saltMail,sandSite,slowBus,expeditions,surf,waveSurf,pacificaSurfSite,noeValleyLife,instituteRooms,instituteRoomAt,forwardRoll,aiLabJob,health,deli,streetTraffic,airportAds,airportFieldAds,groundSurfaceAt:(x,z)=>z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z),economy,inebriation,rehabilitation,jailStaff,parrots,fishing,fishingSite,sunglasses,sunglassesSite,beachBillboard,quests,skateboard,skateTricks,motorcycle,monkeyKeeper,esotericCampus,squareLife,specialNPCLife,cityLightPlan,tiles:worldTiles,navigation:cityNavigation,objects,places,sights,parkSouthEdge,southernLife,southernNeighborhood,spawn:{x:player.x,y:player.y},merchants,bunny,skateDog,airship,tahoe,ferrari,strength,highwaySites,nightclub,restaurantDiners,regionalRoad,goldenGate,southernTerrain,terrainHeight,characterGround,pathTo,minimapTarget,lineClear:railgunLineClear,canTravel,clearAt,landClearAt,cityPathTo,navigationRegionAt,nearestNavigation,approaches:{bunny:bunnyApproach,sutro:sutroApproach,merchant:merchantApproach}};
     }
     window.SFMapDiagnostics=Object.freeze({
         navigation:Object.freeze({audit:()=>cityNavigation?auditNavigationGrid(cityNavigation):null,position:(x,y)=>cityNavigation?.describe(x,y),connected:(from,to)=>cityNavigation?.connected(from,to)||false,route:(from,to)=>built?pathTo(to.x,to.y,from):null}),
@@ -2999,10 +3223,10 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         $('sf-map-button').title=icon?placeIcon(icon.place.id).label+' · '+icon.place.label:'Click to travel · Red flag marks your destination';
     });
     $('sf-close-reader').addEventListener('click',closeReader);
-    $('sf-reader-shade').addEventListener('click',()=>{closeReader();closeHelp();closeCharacter();questMenu?.close();});
+    $('sf-reader-shade').addEventListener('click',()=>{if(bankMenu?.active)bankMenu.close();closeReader();closeHelp();closeCharacter();questMenu?.close();});
     for(const button of world.querySelectorAll('[data-say]'))button.addEventListener('click',()=>sayPhrase(button.dataset.say));
     $('sf-roll-button').addEventListener('click',rollForward);
-    $('sf-dance-button').addEventListener('click',dance);$('sf-character-button').addEventListener('click',showCharacter);
+    $('sf-drink-coffee').addEventListener('click',drinkBankCoffee);$('sf-dance-button').addEventListener('click',dance);$('sf-character-button').addEventListener('click',showCharacter);
     $('sf-close-character').addEventListener('click',closeCharacter);$('sf-character-done').addEventListener('click',closeCharacter);
     for(const field of world.querySelectorAll('[data-character]'))field.addEventListener('input',()=>changeCharacter(field));
     $('sf-iphone-equipped').addEventListener('input',e=>{const result=tech.equipPhone(e.target.checked);if(!result.ok)announce(result.message,'iPhone');updatePhoneControl();drawCharacterPreview($('sf-character-preview'),{...playerLook,phone:economy.state.iphoneEquipped});});
@@ -3025,12 +3249,14 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
         const pointer=pointers.get(e.pointerId);if(pointer){pointer.x=e.clientX;pointer.y=e.clientY;if(Math.hypot(pointer.x-pointer.startX,pointer.y-pointer.startY)>9)clearTimeout(pressTimer);}
         if(pointers.size===2){const [a,b]=[...pointers.values()],dist=Math.hypot(a.x-b.x,a.y-b.y);if(pinchDistance>0)setZoom(zoom*Math.pow(dist/pinchDistance,1.5));pinchDistance=dist;return;}
         if(e.pointerType==='touch')return;const citizen=hitCitizen(e.clientX,e.clientY);hovered=citizen||hitSight(e.clientX,e.clientY)||hitPlace(e.clientX,e.clientY);
-        const tip=$('sf-hover');tip.hidden=!hovered||!$('sf-context').hidden;if(hovered){tip.textContent=citizen?({talk:'Talk-To',attack:'Attack'})[npcPrimary(citizen)]+' '+npcLabel(citizen):(hovered.source?(currentInterior===hovered?'Browse':'Enter'):hovered.id==='sutro'&&sutroClimb.state.active?'Climb down':sightPrimaryVerb(hovered))+' '+hovered.label;tip.style.left=Math.max(8,Math.min(width-300,e.clientX+17))+'px';tip.style.top=Math.min(height-38,e.clientY+22)+'px';}
+        const tip=$('sf-hover');tip.hidden=!hovered||!$('sf-context').hidden;if(hovered){tip.textContent=citizen?(citizen.networkPlayer?npcLabel(citizen):({talk:'Talk-To',attack:'Attack',examine:'Examine'})[npcPrimary(citizen)]+' '+npcLabel(citizen)):(hovered.source?(currentInterior===hovered&&!hovered.activityBuilding?'Browse':'Enter'):hovered.id==='sutro'&&sutroClimb.state.active?'Climb down':sightPrimaryVerb(hovered))+' '+hovered.label;tip.style.left=Math.max(8,Math.min(width-300,e.clientX+17))+'px';tip.style.top=Math.min(height-38,e.clientY+22)+'px';}
     });
     canvas.addEventListener('pointerup',e=>{
         clearTimeout(pressTimer);const p=pointers.get(e.pointerId);pointers.delete(e.pointerId);if(pointers.size===0&&gesture){gesture=false;return;}if(!p||gesture||longPressed||e.button!==0||Math.hypot(e.clientX-p.startX,e.clientY-p.startY)>12)return;
         clicked(e.clientX,e.clientY,()=>{
-            const tile=tileAt(e.clientX,e.clientY);
+            const tile=tileAt(e.clientX,e.clientY),selectedPlayer=p.npc?.networkPlayer?p.npc:hitCitizen(e.clientX,e.clientY);if(selectedPlayer?.networkPlayer)return multiplayerWorld.inspect(selectedPlayer);
+            if(secretWorld?.bomber.state.active)return walkTo(tile.x,tile.y);
+            const selectedItem=hitSight(e.clientX,e.clientY);if(selectedItem?.kind==='loot')return collectExpeditionLoot(selectedItem);
             if(chase?.state.jailed){const npc=p.npc||hitCitizen(e.clientX,e.clientY);return npc?.rehabilitation?talkRehabilitation(npc):walkTo(tile.x,tile.y);}
             if(ferrari?.state.riding){const npc=p.npc||hitCitizen(e.clientX,e.clientY);if(npc?.kind==='fuel-attendant')return interactCitizen(npc,'talk');return driveFerrari(tile.x,tile.y);}
             if(sutroClimb.state.active){if(hitSight(e.clientX,e.clientY)?.id==='sutro')return descendSutro();return climbUnavailable();}
@@ -3050,19 +3276,22 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     canvas.addEventListener('pointerleave',()=>{$('sf-hover').hidden=true;hovered=null;});
     document.addEventListener('pointerdown',e=>{if(!$('sf-context').hidden&&!$('sf-context').contains(e.target)&&e.target!==canvas)closeMenu();});
     document.addEventListener('keydown',e=>{
-        if(!active||e.ctrlKey||e.metaKey||e.altKey)return;
+        if(!active)return;
+        if(e.key==='Control'&&secretWorld?.bomber.state.phase==='flying'){e.preventDefault();keys.add('control');return;}
+        if(e.ctrlKey||e.metaKey||e.altKey)return;
         if(debugConsole.handleKey(e))return;
         if(capture.state.active||rehabilitation.state.active)return;const key=e.key.toLowerCase();
         if(chase?.state.jailed&&['b','f','e','a'].includes(key)){e.preventDefault();return;}
         if(aiInterview.visible){keys.clear();aiInterview.handleKey(e);return;}
-        const modal=questMenu?.active?$('sf-quests'):!$('sf-character').hidden?$('sf-character'):!$('sf-help').hidden?$('sf-help'):null;
-        if(key==='escape'){e.preventDefault();if(questMenu?.active){questMenu.close();return;}if(training){stopTraining();return;}if(ferrari?.state.riding){ferrari.state.target=null;ferrari.state.speed=0;destination=null;return;}if(!$('sf-character').hidden){closeCharacter();return;}if(dialogue.active){dialogue.close();return;}if(!$('sf-context').hidden){closeMenu();canvas.focus({preventScroll:true});}else if(!$('sf-help').hidden)closeHelp();else if(!$('sf-reader').hidden)closeReader();else if(fishing.state.active){fishing.cancel();announce('You reel in your line.','Fishing');}else if(sutroClimb.state.active)descendSutro();else if(airship.state.active){airship.stop();destination=null;updateAirshipButton();}else{player.path=[];player.speed=0;action=null;destination=null;drawMini();}return;}
+        const modal=bankMenu?.active?$('sf-bank'):questMenu?.active?$('sf-quests'):!$('sf-character').hidden?$('sf-character'):!$('sf-help').hidden?$('sf-help'):null;
+        if(key==='escape'){e.preventDefault();if(bankMenu?.active){bankMenu.close();return;}if(questMenu?.active){questMenu.close();return;}if(training){stopTraining();return;}if(ferrari?.state.riding){ferrari.state.target=null;ferrari.state.speed=0;destination=null;return;}if(!$('sf-character').hidden){closeCharacter();return;}if(dialogue.active){dialogue.close();return;}if(!$('sf-context').hidden){closeMenu();canvas.focus({preventScroll:true});}else if(!$('sf-help').hidden)closeHelp();else if(!$('sf-reader').hidden)closeReader();else if(fishing.state.active){fishing.cancel();announce('You reel in your line.','Fishing');}else if(sutroClimb.state.active)descendSutro();else if(airship.state.active){airship.stop();destination=null;updateAirshipButton();}else{player.path=[];player.speed=0;action=null;destination=null;drawMini();}return;}
         if(dialogue.active){keys.clear();dialogue.handleKey(e);return;}
         if(rocket.state.active&&['a','b','f','e'].includes(key)){e.preventDefault();return;}
         if(modal){if(key==='tab'){const focus=[...modal.querySelectorAll('button,a[href],canvas[tabindex],input,select')],first=focus[0],last=focus[focus.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}
         if(e.target instanceof HTMLInputElement||e.target instanceof HTMLSelectElement||e.target instanceof HTMLTextAreaElement||e.target.isContentEditable)return;
         if(!$('sf-context').hidden&&(key==='arrowdown'||key==='arrowup')){e.preventDefault();const opts=[...$('sf-context').querySelectorAll('button')],i=opts.indexOf(document.activeElement);opts[(i+(key==='arrowdown'?1:-1)+opts.length)%opts.length].focus();return;}
         if(['arrowup','arrowdown','arrowleft','arrowright'].includes(key)){if(e.target instanceof Element&&e.target.closest('#sf-reader'))return;e.preventDefault();keys.add(key);return;}
+        if(secretWorld?.bomber.state.active){if(key===' '&&!e.repeat){e.preventDefault();secretAction(secretWorld.dropBomb());return;}if(['a','b','f','e','r','m','k','v','d','u','g'].includes(key)){e.preventDefault();return;}}
         if(!e.repeat&&surf.state.riding&&surf.state.mode==='surf'&&(key===' '||SURF_TRICKS.some(t=>t.key===key))){e.preventDefault();if(key===' ')catchPacificaWave();else performSurfTrick(SURF_TRICKS.find(t=>t.key===key).id);return;}
         if(!e.repeat&&skateboard.riding&&SKATE_TRICKS.some(t=>t.key===key)){e.preventDefault();performSkateTrick(SKATE_TRICKS.find(t=>t.key===key).id);return;}
         if(e.repeat)return;if(key==='g'){e.preventDefault();toggleRailgun();return;}if(key==='u'){e.preventDefault();usePacificaSurf();return;}if(key==='q'){e.preventDefault();questMenu.open();return;}if(key===' '&&tahoe.state.mode==='ski'){e.preventDefault();tahoe.flip();return;}if(key==='e'&&nearTahoe(player.x+.5,player.y+.5)){e.preventDefault();useTahoeActivity();return;}if(key==='m'){e.preventDefault();useMotorcycle();return;}if(key==='k'){e.preventDefault();useSkateboard();return;}if(key==='r'){e.preventDefault();useFerrari();return;}if(key==='d'){e.preventDefault();dance();return;}if(key==='v'){e.preventDefault();rollForward();return;}if(key==='c'){e.preventDefault();showCharacter();return;}if(key==='s'){e.preventDefault();sayPhrase('yo');return;}if(key==='a'){e.preventDefault();useAirship();return;}if(key==='b'){e.preventDefault();useBike();}if(key==='f'){e.preventDefault();useSurf();}if(key==='e'){e.preventDefault();if(airship.state.active){airshipUnavailable();return;}if(sutroClimb.state.active){descendSutro();return;}const tower=sightById('sutro').object;if(tower&&Math.hypot(player.x+.5-tower.x-tower.w/2,player.y+.5-tower.y-tower.d/2)<4){climbSutro();return;}const p=currentInterior||places.find(p=>Math.hypot(player.x-p.entry.x,player.y-p.entry.y)<2.5);if(p)enter(p);else announce('Walk closer to a storefront to enter. Click a content icon on the minimap to visit a storefront.');}
@@ -3071,7 +3300,7 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
     document.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{keys.clear();clearTimeout(pressTimer);pointers.clear();gesture=false;});
     document.addEventListener('visibilitychange',()=>{tech.suspend();social.suspend();keys.clear();if(document.hidden){strength.save();ferrari?.save();motorcycle?.save();monkeyKeeper?.save();cancelAnimationFrame(raf);}else if(active)startLoop();});
     canvas.addEventListener('webglcontextlost',e=>{tech.suspend();social.suspend();e.preventDefault();keys.clear();cancelAnimationFrame(raf);});
-    canvas.addEventListener('webglcontextrestored',()=>{tech.suspend();social.suspend();if(!built)return;gpuStats.triangles=0;initGPU();groundGPU=upload(groundMesh,{spatial:true});sceneGPU=upload(sceneMesh,{spatial:true});if(tahoeMesh)tahoeGPU=upload(tahoeMesh);
+    canvas.addEventListener('webglcontextrestored',()=>{tech.suspend();social.suspend();if(!built)return;gpuStats.triangles=0;initGPU();if(caveMesh){caveGPU=upload(caveMesh);caveGPU.walls=caveMesh.walls.map(w=>({...w,gpu:upload(w.mesh)}));}groundGPU=upload(groundMesh,{spatial:true});sceneGPU=upload(sceneMesh,{spatial:true});if(tahoeMesh)tahoeGPU=upload(tahoeMesh);
         for(const [id,site] of [['sf-spaceport',SF_SPACEPORT],['tahoe-spaceport',tahoe.spaceport]]){
             const npc=merchant('crew',site.entry.x+1.2,site.entry.y+.5,id==='sf-spaceport'?airportWalkingHeight(site.entry.x+1.2,site.entry.y+.5):tahoeHeight(site.entry.x+1.2,site.entry.y+.5)+.04);
             merchants.push({...npc,id:id+'-attendant',siteId:id,angle:Math.PI});
@@ -3083,4 +3312,4 @@ function createSFWorld({headless=false,retainInteriors=false}={}){
 /** Build the actual authored world without DOM, canvas, WebGL, images or a server.
  * Geometry placement is shared; rasterization, upload and UI initialization are skipped. */
 export function createWorldModel({retainInteriors=false}={}){return createSFWorld({headless:true,retainInteriors});}
-if(typeof document!=='undefined')createSFWorld();
+if(typeof document!=='undefined')bootMultiplayer().then(multiplayer=>createSFWorld({multiplayer})).catch(error=>{console.error('Multiplayer initialization:',error);createSFWorld();});

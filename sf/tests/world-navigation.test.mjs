@@ -30,6 +30,23 @@ import {GPU_FACTORY,inGPUFactoryGrounds} from '../gpu-layout.js';
 // snapshots, substitute cityPath, or simulated walking is involved.
 const world=createWorldModel({retainInteriors:true});
 
+test('Green Bank retains its homepage link and connects the entrance, furnished interior and friendly banker',()=>{
+    const bank=world.places.find(p=>p.id==='green'),teller=world.banker;assert.equal(bank.name,'Green Bank');assert.equal(bank.source,'Founding');assert.equal(bank.match,'green.com');assert.equal(teller.kind,'banker');assert.equal(teller.interior,bank);
+    const counter=world.approaches.merchant(teller);for(const goal of [bank.entry,bank.inside,counter]){const path=world.pathTo(goal.x,goal.y,world.spawn);assert.ok(path);let previous=world.spawn;for(const p of path){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}}
+    assert.equal(bank.interiorObstacles.length,3);assert.ok(bank.object.hi[1]>bank.object.base+4.8,'the rooftop billboard rises above the bank');
+});
+
+test('Ray, the guild interior and every Sunset Whole Foods peptide spawn have native connected routes',()=>{
+    const ray=world.merchants.find(n=>n.id==='guild-ray'),lodge=world.places.find(p=>p.id==='freemasons-guild'),store=world.places.find(p=>p.id==='sunset-whole-foods');
+    assert.equal(ray.name,'Ray');assert.equal(ray.shirt,'#b7393f');assert.equal(ray.pants,'#8e2932');assert.ok(world.peptideSpawns.length>=3);
+    assert.ok(store.y>world.parkSouthEdge.south&&store.x<40,'the store is in the Sunset, south of Golden Gate Park');
+    for(const goal of [lodge.entry,lodge.inside,store.entry,store.inside,world.approaches.merchant(ray),...world.peptideSpawns.map(p=>({x:p.x-.5,y:p.z-.5}))]){
+        assert.ok(world.clearAt(goal.x,goal.y));const route=world.pathTo(goal.x,goal.y,world.spawn);assert.ok(route,'new destinations must use the real graph');
+        let previous=world.spawn;for(const p of route){assert.ok(world.canTravel(previous.x,previous.y,p.x,p.y));previous=p;}
+    }
+    for(const building of [lodge,store]){assert.ok(building.interiorObstacles.length>=3);assert.ok(building.object.walls.some(w=>w.windows.some(win=>win.transparent)));assert.ok(building.object.roof.count>0);}
+});
+
 test('sand collection, the GPU Factory and its buyer connect through real city and South Bay paths',()=>{
     const sand=world.sandSite,factory=world.sights.find(s=>s.id==='gpu-factory'),buyer=world.merchants.find(n=>n.kind==='gpu-buyer');assert.ok(sand&&factory&&buyer);assert.equal(world.navigation.describe(sand.entry.x,sand.entry.y).type,'sand');assert.ok(buyer.roam);
     const counter=world.approaches.merchant(buyer);for(const [from,to] of [[world.spawn,sand.entry],[sand.entry,counter],[counter,sand.entry],[factory.entry,counter]]){const path=world.pathTo(to.x,to.y,from);assert.ok(path);let previous=from;for(const point of path){assert.ok(world.canTravel(previous.x,previous.y,point.x,point.y));previous=point;}assert.deepEqual(previous,to);}

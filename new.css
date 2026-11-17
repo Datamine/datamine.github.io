@@ -512,3 +512,19 @@ img {
 .sf-hitsplat::before { content:"";position:absolute;inset:0;z-index:-1;background:#b91f29;box-shadow:inset 0 0 0 2px #e97a6b;clip-path:polygon(50% 0,62% 13%,80% 6%,84% 25%,100% 34%,89% 51%,98% 69%,80% 77%,73% 96%,54% 88%,37% 100%,27% 82%,7% 80%,13% 59%,0 44%,18% 32%,18% 12%,39% 17%); }
 .sf-hitsplat[data-miss="true"]::before { background:#335eaa;box-shadow:inset 0 0 0 2px #86b3ec; }
 @media(prefers-reduced-motion:reduce) { .sf-combat-actor { will-change:auto; } }
+.sf-multiplayer-button { grid-column:1 / -1;font-size:11px!important; }
+.sf-username-form { margin:12px 0 18px;padding-bottom:12px;border-bottom:1px solid #938261; }
+.sf-username-form > label, .sf-connection-settings label { display:block;margin-bottom:5px;font-weight:bold; }
+.sf-username-form > div, .sf-connection-settings form > div { display:flex;gap:8px; }
+.sf-username-form input, .sf-connection-settings input { min-width:0;flex:1;width:120px;padding:7px;border:1px solid #8d7d5e;background:#302f27;color:#f1dfb7;font:16px Tahoma,sans-serif; }
+.sf-username-form button, .sf-connection-settings button { border:1px solid #988969;background:#655d49;color:#f1dfb7;padding:7px 10px;cursor:pointer; }
+.sf-username-form small, .sf-connection-settings small { display:block;margin-top:6px;color:#d5c5a3;font:11px/1.5 Tahoma,sans-serif; }
+.sf-connection-settings { margin-top:12px; }.sf-connection-settings summary { cursor:pointer;margin-bottom:10px; }.sf-connection-settings > button { margin-top:10px; }
+.sf-actor-label .sf-player-name { color:#c9e9f2;font-size:11px; }
+.sf-pvp-option { margin:12px 0;padding:10px 12px;border:1px solid #987657;background:#4b3b3033; }.sf-pvp-option label { display:flex;align-items:center;gap:8px;font-weight:bold; }.sf-pvp-option input { accent-color:#b95d47; }.sf-pvp-option small,.sf-pvp-option p { display:block;margin:6px 0 0;font:11px/1.5 Tahoma,sans-serif;color:#e2c4a2; }.sf-player-name[data-pvp="true"] { color:#f2a18c; }
+.sf-guild-status { margin:10px 0;color:#e2d0a2;font:12px/1.5 Tahoma,sans-serif; }
+.sf-instance-level { display:block;padding:4px 8px;color:#e2d4ac;background:#353d33;font:11px/1.4 Tahoma,sans-serif;text-align:center; }
+.sf-bomber-controls { grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px;border:1px solid #a99b73;background:#35433e; }.sf-bomber-controls > span { grid-column:1 / -1;text-align:center;font:11px/1.5 Tahoma,sans-serif;color:#e7d5a5; }
+#sf-world .sf-bomber-controls .sf-bike-button { min-width:0;padding:3px;font-size:11px;white-space:normal; }
+.sf-bank { max-width:420px; }.sf-bank-welcome { color:#e1dbb7;font:13px/1.6 Tahoma,sans-serif; }.sf-bank-balances { display:grid;grid-template-columns:1fr 1fr;gap:10px; }.sf-bank-balances > div { padding:12px;border:1px solid #88947b;background:#354b3c; }.sf-bank-balances dt { margin-bottom:7px;font:11px Tahoma,sans-serif;color:#ccdbba; }.sf-bank-balances dd { margin:0;font:15px Tahoma,sans-serif;color:#fff0b9;overflow-wrap:anywhere; }
+.sf-bank-form > label { display:block;margin:15px 0 6px;font:12px Tahoma,sans-serif; }.sf-bank-form input { box-sizing:border-box;width:100%;padding:10px;background:#303e32;color:#fff0c5;border:1px solid #a6b28b;font:16px Tahoma,sans-serif; }.sf-bank-form > div { display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px; }.sf-bank-form button { padding:9px;color:#f7e4b1;background:#526c4c;border:1px solid #9dac82;cursor:pointer; }.sf-bank-status { min-height:3em;color:#dbe0ba;font:12px/1.5 Tahoma,sans-serif; }.sf-bank-status[data-error="true"] { color:#f3b5a0; }

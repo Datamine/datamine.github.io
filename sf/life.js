@@ -78,7 +78,7 @@ export function createCityLife({routes,surfaceType,lamps,terrainHeight,groundHei
         const seconds=reduced?12:time*.001;
         for(const [i,p] of people.entries()){
             if(p.expeditionDead)continue;
-            const state=routePhase(reduced?12:p.elapsed,p.length,p.rider?1.8:.75+p.seed*.25,p.seed),at=pointOn(p.points,state.fraction);
+            const state=routePhase(reduced&&!p.networked?12:p.elapsed,p.length,p.rider?1.8:.75+p.seed*.25,p.seed),at=pointOn(p.points,state.fraction);
             p.x=at.x;p.z=at.z;
             if(Math.hypot(at.x-viewer[0],at.z-viewer[1])>26)continue;
             const angle=reduced?at.angle+(state.direction<0?Math.PI:0):p.angle??at.angle,base=(p.stroller?groundHeight:terrainHeight)(at.x,at.z)+.075,phase=reduced?0:p.phase,start=m.data.length;
