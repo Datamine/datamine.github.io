@@ -1,3 +1,4 @@
+import {drawTabletTeleport} from './teleport-models.js';
 import {multiplayerEndpoint,interpolateNetworkPose} from './multiplayer-client.js';
 import {characterAppearance,normalizeCharacter} from './character-config.js';
 import {drawKrakenCape,drawBeam} from './jurassic-models.js';
@@ -46,6 +47,7 @@ export function createWorldMultiplayer(api){
         if(ship){previousShip=currentShip||{...ship.position,angle:ship.heading,phase:0,motion:0,mode:'airship'};currentShip={...ship.position,angle:ship.heading,phase:0,motion:0,mode:'airship'};shipAt=time;}
         if(self){previousSelf=currentSelf||{...self,phase:0,motion:0};currentSelf={...self};selfAt=time;}else {currentSelf=null;grapplingGround=null;}
         for(const incoming of state.cows||[]){const cow=expeditions.cows.find(c=>c.id===incoming.id);if(cow)Object.assign(cow,incoming);}
+        if(state.wilderness)api.wilderness?.sync(state.wilderness);
         if(state.raptor)Object.assign(expeditions.raptor,state.raptor,{prey:{isPlayer:state.raptor.preyId===client.state.id}});
         if(expeditions.state.target?.hp===0)expeditions.state.target=null;
         if(state.tiger&&zoo){Object.assign(zoo.state,state.tiger);zoo.state.tiger={...state.tiger.tiger,path:[]};}
@@ -78,8 +80,8 @@ export function createWorldMultiplayer(api){
             api.refreshUI();
         }else if(message.type==='pvpKill'){client.state.pvpTarget=null;follower.stop();announce('You defeated '+message.name+'. Their possessions dropped where they fell.','PvP');}
         else if(message.type==='sharedHit'){
-            const target=[...expeditions.cows,expeditions.raptor,...merchants].find(n=>n.id===message.target);if(!target)return;target.hp=message.hp;combatFeedback.hit(target,message.damage,message.hp,message.max);
-            const t=performance.now();expeditions.state.beams.push({from:message.from,to:message.to,ttl:.22});if(message.attacker===client.state.id){player.gesture={name:'attack',started:t,duration:450};combatFeedback.show(player,health.state.hp,30);}api.refreshUI();
+            const target=[...expeditions.cows,expeditions.raptor,...(api.wilderness?.actors||[]),...merchants].find(n=>n.id===message.target);if(!target)return;target.hp=message.hp;combatFeedback.hit(target,message.damage,message.hp,message.max);
+            const t=performance.now();if(!message.weapon||message.weapon==='railgun')expeditions.state.beams.push({from:message.from,to:message.to,ttl:.22});if(message.attacker===client.state.id){player.gesture={name:'attack',started:t,duration:450};combatFeedback.show(player,health.state.hp,30);}api.refreshUI();
         }else if(message.type==='say'){
             const peer=client.peers.get(message.id);if(peer){peer.speech=message.text;peer.speechUntil=performance.now()+3000;}
         }
@@ -95,7 +97,7 @@ export function createWorldMultiplayer(api){
     basket.walkTo=(x,z)=>{const accepted=originals.basketWalk(x,z);if(accepted)command('airshipDeck',{x,z});return accepted;};
     rope.retract=()=>{command('airshipRope',{retract:true});return true;};
     expeditions.startQuest=()=>{const result=originals.quest();if(result.ok){client.checkpoint(true);command('releaseRaptor');}return result;};
-    expeditions.attack=npc=>{if(!['cow','raptor'].includes(npc.combatKind))return originals.attack(npc);expeditions.state.target=npc;client.checkpoint(true);command('attack',{id:npc.id});return {ok:client.state.connected};};
+    expeditions.attack=(npc,weapon='railgun')=>{if(!['cow','raptor'].includes(npc.combatKind))return originals.attack(npc,weapon);expeditions.state.target=npc;client.checkpoint(true);command('attack',{id:npc.id,weapon});return {ok:client.state.connected};};
     expeditions.stop=()=>{originals.stopAttack();client.state.pvpTarget=null;command('stopAttack');};
     expeditions.collect=item=>{if(!item.network)return originals.collect(item);command('collect',{id:item.id});return {ok:client.state.connected};};
     function beforeUpdate(dt=0){
@@ -105,7 +107,6 @@ export function createWorldMultiplayer(api){
         if(follower.state.attack&&!client.state.pvp?.enabled){follower.stop();command('stopAttack');}
         follower.update(dt,target=>{if(follower.state.attack)beginAttack(target);});
     }
-    function inspect(target){announce(target.label+' - Level '+target.level,'Player');return true;}
     function beginAttack(target){return command('pvpAttack',{id:target.id}).then(result=>{if(result.ok)client.state.pvpTarget=target.id;else if(result.code==='range'&&api.canFollow())follower.start(target.id,{range:.8,attack:true});else follower.stop();return result;});}
     function attackPlayer(target){
         if(!client.state.pvp?.enabled||!target.pvp){announce('Both players must enable PvP in Character settings.','PvP');return false;}
@@ -123,7 +124,8 @@ export function createWorldMultiplayer(api){
             let actor=remoteActors.get(remote.id);if(!actor){actor={networkPlayer:true,height:1.95,combatKind:'player',max:30};remoteActors.set(remote.id,actor);}Object.assign(actor,remote,{label:remote.name,base:remote.y});
             const start=m.data.length,dead=remote.hp===0,death=Math.min(1,(t-(peer?.deathAt||t))/700);
             if(remote.mode==='bomber')drawStealthBomber(m,{x:remote.x,y:remote.y,z:remote.z},remote.angle,{time:t});
-            else api.human(m,remote.x,remote.z,remote.y+.07,remote.angle,remote.phase,false,look.skin,look.shirt,{...look,mode:dead?'idle':mode,motion:dead?0:remote.motion,run:remote.moving?1:0,action:dead?'caught':remote.mode==='parachute'?'parachute':remote.mode==='dance'?'dance':remote.gesture||null,actionT:dead?1:.5,time:t*.001});
+            else api.human(m,remote.x,remote.z,remote.y+.07,remote.angle,remote.phase,false,look.skin,look.shirt,{...look,mode:dead?'idle':mode,motion:dead?0:remote.motion,run:remote.moving?1:0,action:dead?'caught':remote.mode==='teleport'?'teleport':remote.mode==='parachute'?'parachute':remote.mode==='dance'?'dance':remote.gesture||null,actionT:dead||remote.mode==='teleport'?1:.5,time:t*.001});
+            if(remote.mode==='teleport')drawTabletTeleport(m,{position:{x:remote.x,y:remote.y,z:remote.z},base:characterGround(remote.x,remote.z),progress:.5},t);
             if(remote.mode==='parachute')drawParachute(m,{x:remote.x,y:remote.y,z:remote.z},remote.angle,t);
             if(look.cape&&remote.mode!=='bomber')drawKrakenCape(m,remote.x,remote.z,remote.y+.07,remote.angle,t,api.signs);
             if(remote.gesture==='drink'&&remote.mode!=='bomber')drawDrinkingCoffee(m,{x:remote.x-.5,y:remote.z-.5,angle:remote.angle},remote.y+.07,t,t-800);
@@ -132,5 +134,5 @@ export function createWorldMultiplayer(api){
         }
         for(const id of remoteActors.keys())if(!client.peers.has(id))remoteActors.delete(id);
     }
-    return {command,beforeUpdate,draw,inspect,followPlayer,attackPlayer,stopFollowing:move=>follower.stop(move),get following(){return follower.state.target;},get combatTarget(){return client.state.pvpTarget?remoteActors.get(client.state.pvpTarget):null;},get active(){return true;},get traversing(){return grapplingGround!==null;},get ground(){return grapplingGround;},get sharedAirship(){return snapshot?.airship;},get airshipPosition(){if(!currentShip)return null;const p=interpolateNetworkPose(previousShip,currentShip,(performance.now()-shipAt)/120);return {x:p.x,y:p.y,z:p.z};},get captain(){return snapshot?.airship?.captain===client.state.id;},buyGrapple:()=>{client.checkpoint(true);return command('buyGrapple');},grapple:()=>command('grapple'),releaseTiger:()=>command('releaseTiger'),teleport:(x,z)=>command('teleport',{x,z}),update(pose){client.update(pose);},say:text=>client.say(text),checkpoint:()=>client.checkpoint(true)};
+    return {command,beforeUpdate,draw,followPlayer,attackPlayer,stopFollowing:move=>follower.stop(move),get following(){return follower.state.target;},get combatTarget(){return client.state.pvpTarget?remoteActors.get(client.state.pvpTarget):null;},get active(){return true;},get traversing(){return grapplingGround!==null;},get ground(){return grapplingGround;},get sharedAirship(){return snapshot?.airship;},get airshipPosition(){if(!currentShip)return null;const p=interpolateNetworkPose(previousShip,currentShip,(performance.now()-shipAt)/120);return {x:p.x,y:p.y,z:p.z};},get captain(){return snapshot?.airship?.captain===client.state.id;},buyGrapple:()=>{client.checkpoint(true);return command('buyGrapple');},grapple:()=>command('grapple'),releaseTiger:()=>command('releaseTiger'),teleport:(x,z)=>command('teleport',{x,z}),update(pose){client.update(pose);},say:text=>client.say(text),checkpoint:()=>client.checkpoint(true)};
 }

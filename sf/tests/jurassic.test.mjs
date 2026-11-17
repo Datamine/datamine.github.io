@@ -46,19 +46,19 @@ test('cows drop stored food and respawn after ten simulation seconds',()=>{
     g.update(9.9);assert.equal(c.hp,0);g.update(.1);assert.equal(c.hp,20);
     const economy=createEconomy(),health=createHitpoints(),deli=createDeli({economy,health,origin:{x:0,y:0}});assert.equal(deli.storeSandwich(3),true);health.damage(22);assert.equal(deli.eat().ok,true);assert.equal(deli.state.sandwiches,2);assert.equal(health.state.hp,26);
 });
-test('Ahab requires a railgun; ten boss hits yield one 100-coin reward and a persistent cape',()=>{
+test('Ahab requires a railgun; thirty boss hits deplete 300 HP and yield one 100-coin reward and a persistent cape',()=>{
     const {game:g,p,health,economy,saved}=setup();assert.equal(g.board().ok,false);g.startQuest();assert.equal(g.board().ok,true);p.eligible=false;g.update(6);p.x=g.ship.x;p.z=g.ship.z;p.base=.86;p.eligible=true;
     assert.equal(g.ship.phase,'fighting');assert.equal(g.kraken.visible,true);g.update(3.5);assert.equal(health.state.hp,22);g.state.target=null;
-    for(let i=0;i<9;i++){g.state.cooldown=0;assert.equal(g.shoot(g.kraken,p).damage,10);assert.equal(g.ship.phase,'fighting');}
+    assert.equal(g.kraken.max,300);for(let i=0;i<29;i++){g.state.cooldown=0;assert.equal(g.shoot(g.kraken,p).damage,10);assert.equal(g.ship.phase,'fighting');}
     g.state.cooldown=0;g.shoot(g.kraken,p);assert.equal(g.ship.phase,'victory');assert.equal(g.kraken.hp,0);assert.equal(g.state.krakenReward,false);
     const spoils=g.state.loot.find(l=>l.lootKind==='kraken'),before=economy.state.coins;g.collect(spoils);assert.equal(economy.state.coins,before+100);assert.equal(g.state.cape,true);assert.equal(g.collect(spoils).ok,false);assert.match(g.entries().at(-1).description,/lousy cape/);
     const restored=createExpeditions({saved:saved.at(-1)});assert.equal(restored.state.cape,true);assert.equal(restored.state.krakenReward,true);assert.equal(restored.board().ok,false);
     assert.equal(g.returnShip(),true);g.update(5);assert.equal(g.ship.aboard,false);assert.equal(g.ship.x,0);
     assert.match(ahabDialogue({name:'Ahab'},setup().game).intro,/railgun/);assert.match(KRAKEN_CAPE_TEXT,/I killed the kraken/);
 });
-test('automatic ranged attacks are frame-rate independent and a perfect kraken hunt is survivable',()=>{
+test('automatic ranged attacks remain frame-rate independent against the 300 HP kraken',()=>{
     const run=step=>{const {game:g,p,health}=setup();g.startQuest();g.board();p.eligible=false;g.update(6);p.x=g.ship.x;p.z=g.ship.z;p.eligible=true;g.attack(g.kraken);for(let t=0;t<8-1e-8;t+=step)g.update(Math.min(step,8-t));return {hp:health.state.hp,boss:g.kraken.hp,phase:g.ship.phase};};
-    const small=run(1/60),large=run(.2);assert.deepEqual(small,large);assert.equal(small.boss,0);assert.ok(small.hp>0);assert.equal(small.phase,'victory');
+    const small=run(1/60),large=run(.2);assert.deepEqual(small,large);assert.equal(small.boss,190);assert.ok(small.hp>0);assert.equal(small.phase,'fighting');
 });
 test('all expedition models and cape inscriptions produce finite geometry within a modest triangle budget',()=>{
     const signs=new Map(JURASSIC_SIGNS.map(s=>[s,[[0,0],[1,0],[1,1],[0,1]]])),mesh=new Mesh();drawJurassicCampus(mesh,signs);drawVelociraptor(mesh,{x:0,z:0,angle:0,phase:'loose'},400);drawCow(mesh,{x:0,z:0,angle:0},400);drawCattlePen(mesh,()=>0);drawSpectre(mesh,{x:0,z:0},400);drawPequod(mesh,{x:0,z:0},400,signs);drawKraken(mesh,{x:0,z:0},400);drawBeam(mesh,{from:{x:0,y:1,z:0},to:{x:4,y:1,z:0}});drawKrakenCape(mesh,0,0,0,0,400,signs);

@@ -13,7 +13,7 @@ export function createMultiplayerInventory({client,economy,deli,health,apply,ann
     };
     function predict(fn){suppressed++;try{return fn();}finally{suppressed--;}}
     for(const [key,op] of [['pickup','pickup'],['order','order'],['eat','eat']])deli[key]=(...args)=>{
-        if(!client.state.connected)return offline();const hpBefore=health.state.hp,result=predict(()=>originalDeli[key](...args));if(result.ok)send(op,key==='eat'?{hpBefore}:{});return result;
+        if(!client.state.connected)return offline();const hpBefore=health.state.hp,result=predict(()=>originalDeli[key](...args));if(result.ok)send(op,key==='eat'?{hpBefore}:key==='pickup'?{store:args[0]}:{});return result;
     };
     deli.update=(...args)=>{const pending=deli.state.pending;originalDeli.update(...args);if(pending&&!deli.state.pending&&deli.state.arrived)send('delivered');};
     // Shared rewards are already credited by the server's collection commit.

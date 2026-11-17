@@ -57,7 +57,7 @@ export function createSignTexture(gl,names,signs,{preserveCase=[],artwork=[],bil
     });
     const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
     const token={};activeSignUploads.set(gl,token);
-    const slots=[];let hiddenLayer=!!revealed;
+    const slots=[];let hiddenLayer=!!revealed;if(billboardController)billboardController.pending=artwork.length;
     function uploadSigns(){
         if(activeSignUploads.get(gl)!==token||gl.isContextLost())return;
         const active=gl.getParameter(gl.ACTIVE_TEXTURE);gl.activeTexture(gl.TEXTURE0);
@@ -74,7 +74,7 @@ export function createSignTexture(gl,names,signs,{preserveCase=[],artwork=[],bil
         const x=i%4*256,y=artStart+Math.floor(i/4)*256,pad=2,graphic=new Image(),slot={art,x,y,graphic,loaded:false};
         slots.push(slot);drawSlot(slot);
         signs.set(art.id,[[(x+pad)/1024,(y+256-pad)/image.height],[(x+256-pad)/1024,(y+256-pad)/image.height],[(x+256-pad)/1024,(y+pad)/image.height],[(x+pad)/1024,(y+pad)/image.height]]);
-        graphic.onload=()=>{slot.loaded=true;drawSlot(slot);uploadSigns();};graphic.src=art.src;
+        graphic.onload=()=>{slot.loaded=true;drawSlot(slot);uploadSigns();if(billboardController)billboardController.pending--;};graphic.onerror=()=>{if(billboardController)billboardController.pending--;};graphic.src=art.src;
     }
     if(billboardController)billboardController.setRevealed=value=>{
         value=!!value;if(value===hiddenLayer)return false;

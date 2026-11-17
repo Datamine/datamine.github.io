@@ -506,7 +506,7 @@ img {
 
 .sf-combat-overlay { position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:4; }
 .sf-combat-actor { position:absolute;top:0;left:0;will-change:transform; }
-.sf-combat-bar { position:absolute;left:-26px;top:-5px;width:52px;height:7px;box-sizing:border-box;background:#ab292b;border:1px solid #191c17;box-shadow:0 1px 2px #0008; }
+.sf-combat-bar { position:absolute;left:-26px;top:-5px;width:52px;height:7px;box-sizing:border-box;background:#ab292b;border:1px solid #191c17; }
 .sf-combat-bar > span { display:block;height:100%;background:#38c348;box-shadow:inset 0 1px #a7f19b88; }
 .sf-hitsplat { position:absolute;left:-14px;top:0;width:28px;height:28px;display:grid;place-items:center;isolation:isolate;color:#fff;font:bold 15px/1 Tahoma,sans-serif;text-shadow:1px 1px #301017,-1px -1px #301017;filter:drop-shadow(0 1px 1px #000b); }
 .sf-hitsplat::before { content:"";position:absolute;inset:0;z-index:-1;background:#b91f29;box-shadow:inset 0 0 0 2px #e97a6b;clip-path:polygon(50% 0,62% 13%,80% 6%,84% 25%,100% 34%,89% 51%,98% 69%,80% 77%,73% 96%,54% 88%,37% 100%,27% 82%,7% 80%,13% 59%,0 44%,18% 32%,18% 12%,39% 17%); }
@@ -526,5 +526,15 @@ img {
 .sf-instance-level { display:block;padding:4px 8px;color:#e2d4ac;background:#353d33;font:11px/1.4 Tahoma,sans-serif;text-align:center; }
 .sf-bomber-controls { grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:6px;border:1px solid #a99b73;background:#35433e; }.sf-bomber-controls > span { grid-column:1 / -1;text-align:center;font:11px/1.5 Tahoma,sans-serif;color:#e7d5a5; }
 #sf-world .sf-bomber-controls .sf-bike-button { min-width:0;padding:3px;font-size:11px;white-space:normal; }
+.sf-loading { position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:#263b3af5;color:#efe4c5;font:14px/1.5 Tahoma,sans-serif; }
+.sf-loading[hidden] { display:none!important; }
+.sf-loading-card { display:flex;flex-direction:column;align-items:center;gap:15px;width:min(330px,80vw);padding:34px;border:1px solid #a5ad90;background:#34483f;box-shadow:0 12px 60px #12242280; }
+.sf-loading-card strong { font:22px Georgia,serif; }
+.sf-loading-card progress { width:100%;height:8px;accent-color:#b9cda0; }
+.sf-loading-card small { max-width:100%;overflow-wrap:anywhere;color:#e1b8a0; }
+.sf-loading-spinner { width:30px;height:30px;border:3px solid #748577;border-top-color:#eee0ac;border-radius:50%;animation:sf-loading-spin .8s linear infinite;will-change:transform; }
+.sf-loading[data-failed] .sf-loading-spinner { animation:none;border-color:#cba48c; }
+@keyframes sf-loading-spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .sf-loading-spinner { animation-duration:2s; } }
 .sf-bank { max-width:420px; }.sf-bank-welcome { color:#e1dbb7;font:13px/1.6 Tahoma,sans-serif; }.sf-bank-balances { display:grid;grid-template-columns:1fr 1fr;gap:10px; }.sf-bank-balances > div { padding:12px;border:1px solid #88947b;background:#354b3c; }.sf-bank-balances dt { margin-bottom:7px;font:11px Tahoma,sans-serif;color:#ccdbba; }.sf-bank-balances dd { margin:0;font:15px Tahoma,sans-serif;color:#fff0b9;overflow-wrap:anywhere; }
 .sf-bank-form > label { display:block;margin:15px 0 6px;font:12px Tahoma,sans-serif; }.sf-bank-form input { box-sizing:border-box;width:100%;padding:10px;background:#303e32;color:#fff0c5;border:1px solid #a6b28b;font:16px Tahoma,sans-serif; }.sf-bank-form > div { display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px; }.sf-bank-form button { padding:9px;color:#f7e4b1;background:#526c4c;border:1px solid #9dac82;cursor:pointer; }.sf-bank-status { min-height:3em;color:#dbe0ba;font:12px/1.5 Tahoma,sans-serif; }.sf-bank-status[data-error="true"] { color:#f3b5a0; }

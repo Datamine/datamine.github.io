@@ -36,7 +36,7 @@ test('Green Bank retains its homepage link and connects the entrance, furnished 
     assert.equal(bank.interiorObstacles.length,3);assert.ok(bank.object.hi[1]>bank.object.base+4.8,'the rooftop billboard rises above the bank');
 });
 
-test('Ray, the guild interior and every Sunset Whole Foods peptide spawn have native connected routes',()=>{
+test('Ray, the guild interior and every Technologist’s Farmers Market peptide spawn have native connected routes',()=>{
     const ray=world.merchants.find(n=>n.id==='guild-ray'),lodge=world.places.find(p=>p.id==='freemasons-guild'),store=world.places.find(p=>p.id==='sunset-whole-foods');
     assert.equal(ray.name,'Ray');assert.equal(ray.shirt,'#b7393f');assert.equal(ray.pants,'#8e2932');assert.ok(world.peptideSpawns.length>=3);
     assert.ok(store.y>world.parkSouthEdge.south&&store.x<40,'the store is in the Sunset, south of Golden Gate Park');
@@ -53,10 +53,10 @@ test('sand collection, the GPU Factory and its buyer connect through real city a
     assert.equal(world.clearAt(GPU_FACTORY.x-.5,GPU_FACTORY.z-.5),false,'the factory building is solid');for(const tree of world.southernNeighborhood.trees)assert.equal(inGPUFactoryGrounds(tree.x,tree.z,.9),false,'the buyer and factory sign remain clear of trees');
 });
 
-test('the slow bus connects the street behind Nightlife to Market and every road crossing has visible signals',()=>{
+test('the bus connects Nightlife to Market and only its route has traffic lights',()=>{
     const b=world.slowBus;assert.equal(b.route.originStreet,'Alemany Boulevard');assert.equal(b.route.destinationStreet,'Market Street');assert.ok(b.route.points[0].z<NIGHTLIFE.z-NIGHTLIFE.d/2);assert.ok(Math.abs(b.route.points[0].x-NIGHTLIFE.x)<.1);assert.equal(b.bus.speed,4.6/2);assert.equal(b.bus.sight.description,"the world's slowest bus");
     for(let i=1;i<b.route.points.length;i++){const a=b.route.points[i-1],p=b.route.points[i],steps=Math.ceil(Math.hypot(p.x-a.x,p.z-a.z)/.1);for(let n=0;n<=steps;n++){const x=a.x+(p.x-a.x)*n/steps,z=a.z+(p.z-a.z)*n/steps;assert.equal(world.groundSurfaceAt(x,z),'road');assert.ok(world.landClearAt(x-.5,z-.5));}}
-    assert.ok(b.signals.junctions.length>150);assert.deepEqual(b.signals.missing,[]);
+    const routeNodes=new Set(b.route.points.filter(p=>p.node!==null).map(p=>p.node));assert.ok(b.signals.junctions.length>0&&b.signals.junctions.length<=routeNodes.size);assert.deepEqual(b.signals.missing,[]);for(const j of b.signals.junctions)assert.ok(routeNodes.has(j.id),'every light belongs to the bus route');for(const [id] of world.streetTraffic.nodes.entries())if(!routeNodes.has(id))assert.equal(b.signals.has(id),false);assert.equal(b.bus.sight.label,'Bus');
     for(const j of b.signals.junctions){assert.equal(j.fixtures.length,j.approaches.length);for(const f of j.fixtures){const p=b.signals.fixtures[f];assert.ok(Number.isFinite(p.base));if(!p.overhead)assert.ok(world.landClearAt(p.x-.5,p.z-.5),'a signal pole must fit on clear ground');}}
     for(const p of b.route.points)if(p.node!==null&&world.streetTraffic.nodes[p.node].neighbors.length>=3)assert.ok(b.signals.has(p.node),'every junction along the bus route is signalled');
 });
@@ -217,7 +217,7 @@ test('They Live characters stand on connected ground and the Berkeley courtyard 
         assert.ok(Math.abs(hit.point[1]-world.characterGround(p.x,p.z))<1e-7);
         for(const [a,b] of [[world.spawn,target],[target,world.spawn]]){const path=world.pathTo(b.x,b.y,a);assert.ok(path);let previous=a;for(const next of path){assert.ok(world.canTravel(previous.x,previous.y,next.x,next.y));previous=next;}assert.deepEqual(previous,b);}
     }
-    const unreachable=c.point(10,2.65);assert.equal(world.clearAt(unreachable.x-.5,unreachable.z-.5),false,'the campus must not make surrounding ground walkable');
+    const lawn=c.point(10,2.65);assert.equal(world.clearAt(lawn.x-.5,lawn.z-.5),true,'the countryside surrounding the campus is walkable grass');
 });
 
 test('the square is inhabited and the skateboarding dog now patrols next to Dolores Park',()=>{
@@ -762,4 +762,32 @@ test('airport field billboards occupy the west green strip with clear roads, hom
         for(const house of world.southernNeighborhood.houses)if(house.footprint)assert.ok(tilePolygonOverlap(ad.clearing,house.footprint)<1e-7,'a billboard overlaps a home');
         for(const t of world.southernNeighborhood.trees)assert.ok(Math.abs(t.x-ad.x)>2.1||Math.abs(t.z-ad.z)>1.5,'tree obscures airport advertising');
     }
+});
+
+test('Marin hills have connected native walking routes, matching terrain picks and a solid jail boundary',()=>{
+ const hills=[[15,-15],[30,-20],[40,-10],[0,-25],[55,-30]];
+ for(const [x,z] of hills){const to={x:x-.5,y:z-.5};assert.ok(world.landClearAt(to.x,to.y));for(const [from,goal] of [[world.spawn,to],[to,world.spawn]]){const path=world.pathTo(goal.x,goal.y,from);assert.ok(path);let previous=from;for(const point of path){assert.ok(world.canTravel(previous.x,previous.y,point.x,point.y));previous=point;}}
+  const hit=world.marinLand.raycast({origin:[x,100,z],dir:[0,-1,0]});assert.ok(hit);assert.ok(Math.abs(hit.point[1]-world.terrainHeight(x,z))<.25);assert.ok(world.minimapTarget(to.x,to.y,world.spawn));
+ }
+ const cell=world.detention;assert.equal(world.landClearAt(cell.x-.5,cell.z-.5),false);assert.equal(world.pathTo(cell.x-.5,cell.z-.5,world.spawn),null);assert.equal(world.marinLand.segment({x:cell.x-4,y:cell.z-.5},{x:cell.x+4,y:cell.z-.5}),false);
+ const bear=world.wilderness.actors[0],home={x:bear.x,z:bear.z},saved=world.wilderness.snapshot();try{for(let i=0;i<240;i++){world.wilderness.update(.05,[]);assert.ok(world.landClearAt(bear.x-.5,bear.z-.5));}assert.ok(Math.hypot(bear.x-home.x,bear.z-home.z)>1);}finally{world.wilderness.sync(saved);}
+});
+test('the wizard is inside a reachable house and tablet arrivals connect to the real ground graph',()=>{
+ const npc=world.tabletWizard,house=world.places.find(p=>p.id==='home');assert.equal(npc.interior,house);assert.ok(world.pathTo(world.approaches.merchant(npc).x,world.approaches.merchant(npc).y,world.spawn));
+ for(const p of Object.values(world.tabletDestinations)){assert.ok(world.landClearAt(p.x-.5,p.z-.5));assert.equal(p.y,world.characterGround(p.x,p.z));assert.ok(world.pathTo(p.x-.5,p.z-.5,world.spawn));}
+});
+
+
+test('all four Matrix-style market farmers stand in reachable vendor spots with conversation approaches',()=>{
+ const market=world.places.find(p=>p.id==='sunset-whole-foods'),farmers=world.merchants.filter(n=>n.kind==='market-farmer');assert.equal(farmers.length,4);assert.equal(market.name,"Technologist's Farmers Market");
+ assert.equal(farmers.filter(n=>n.interior===market).length,3);assert.equal(farmers.filter(n=>!n.interior).length,1);
+ for(const n of farmers){assert.equal(n.coat,true);assert.equal(n.sunglasses,true);assert.ok(world.landClearAt(n.x-.5,n.z-.5));const a=world.approaches.merchant(n);assert.ok(a);assert.ok(world.pathTo(a.x,a.y,world.spawn));assert.ok(world.canTravel(n.x-.5,n.z-.5,a.x,a.y));}
+});
+
+test('Berkeley connects to the Tahoe route through grass as well as the one-tile highway',()=>{
+ const start=world.sights.find(s=>s.id==='berkeley-esoteric').entry,goals=[{x:180,y:-10},{x:350,y:-150},{x:720,y:-530},{x:1000,y:-730},world.tahoe.baseEntry];
+ let from=start;for(const to of [...goals,...goals.slice(0,-1).reverse(),start]){assert.ok(world.clearAt(to.x,to.y));const path=world.pathTo(to.x,to.y,from);assert.ok(path,'no grass route to '+JSON.stringify(to));let previous=from;for(const next of path){assert.ok(world.canTravel(previous.x,previous.y,next.x,next.y),'bad regional transition '+JSON.stringify({previous,next}));previous=next;}assert.deepEqual(previous,to);from=to;}
+ for(const p of goals.slice(0,-1)){assert.ok(world.minimapTarget(p.x,p.y,start));const x=p.x+.5,z=p.y+.5;assert.equal(world.groundSurfaceAt(x,z),'grass');assert.ok(Math.abs(world.characterGround(x,z)-world.countryside.height(x,z))<.05);}
+ for(const site of world.highwaySites)for(const o of site.solidParcels||[])if(!world.tahoe.contains(o.x,o.z))assert.equal(world.landClearAt(o.x-.5,o.z-.5),false,'roadside buildings and pumps stay solid');
+ const tower=world.esotericCampus.point(-6.6,8.8);assert.equal(world.landClearAt(tower.x-.5,tower.z-.5),false,'the campus campanile stays solid');
 });

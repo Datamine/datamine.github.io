@@ -1,3 +1,4 @@
+import {ITEM_STATS} from './item-stats.js';
 export const ALIEN_TARGETS=Object.freeze([
     {id:'alien-civic',area:'City Hall forecourt'},
     {id:'alien-ferry',area:'Ferry Building promenade'},
@@ -26,7 +27,7 @@ export function createTheyLiveQuest(saved={},onChange=()=>{}){
         return {ok:true};
     }
     function defeat(id,options){const result=attack(id,options);if(!result.ok)return result;state.defeated.push(id);save();return {ok:true,message:'Alien defeated ('+state.defeated.length+'/'+ALIEN_TARGETS.length+'). '+(clear()?'Return to the City Hall clerk for your reward.':'Your permit is in order. The police leave you alone.')};}
-    function reward(){if(state.completed)return {ok:false,message:'You already received your skateboard.'};if(!state.permit||!clear())return {ok:false,message:'The clerk is waiting for you to defeat all six aliens.'};state.completed=true;state.skateboard=true;save();return {ok:true,message:'Quest complete: They Live! The clerk thanks you and gives you a skateboard. Ride it with K or the Skateboard button. You keep the sunglasses.'};}
+    function reward(){if(state.completed)return {ok:false,message:'You already received your skateboard.'};if(!state.permit||!clear())return {ok:false,message:'The clerk is waiting for you to defeat all six aliens.'};state.completed=true;state.skateboard=true;save();return {ok:true,message:'Quest complete: They Live! The clerk thanks you and gives you a skateboard. Ride it with K or the Skateboard button. You keep the sunglasses. The American Industrial Center’s full stock is now unlocked.'};}
     function entry(){
         const stage=state.completed?'completed':clear()?'carrying':state.started?'accepted':'not-started';
         const description=state.completed?'The invasion is over. Your skateboard and sunglasses are yours to keep.':!state.started?'Pick up the sunglasses on Ocean Beach.':!state.evidence?'Talk to the City Hall clerk, then report the disguised aliens to the Berkeley Institute for Esoteric Studies, across the Bay Bridge.':!state.permit?'Bring your Alien Evidence Certificate to the City Hall clerk.':clear()?'All six aliens are defeated. Return to the City Hall clerk for your skateboard.':!state.bayonet?'Get a bayonet from the American Industrial Center, two blocks northeast of UCSF Hospital. A bayonet is required to cut the green spectres apart; training strength improves your damage.':'Wear the sunglasses and cut the six green spectres apart with your bayonet. Your permit protects you from arrest for these attacks.';
@@ -35,7 +36,7 @@ export function createTheyLiveQuest(saved={},onChange=()=>{}){
     return {state,start,certificate,permit,weapon,attack,defeat,reward,entry,isTarget:id=>alienIDs.has(id),isDefeated:id=>state.defeated.includes(id)};
 }
 
-export function theyLiveDialogue(npc,quest){
+export function theyLiveDialogue(npc,quest,{buyBattleaxe}={}){
     const s=quest.state,p={...npc,decline:'Leave'};
     if(npc.questRole==='clerk'){
         if(!s.started)return {...p,intro:'City Hall issues a permit for nearly everything. Sometimes the category has to be invented first.',question:'What do you do here?',choice:'Ask about the office',receipt:'Permits, certificates, authorizations. Come back when you have an activity that needs permitting.'};
@@ -50,6 +51,7 @@ export function theyLiveDialogue(npc,quest){
         if(!s.evidence)return {...p,intro:'Skull-faced beings hiding behind ordinary faces? Subliminal commands in the advertisements? Yes, that is a fairly conclusive Tuesday.',question:'Tell the institute about the aliens?',choice:'Report the aliens',accept:quest.certificate};
         return {...p,intro:'Your Alien Evidence Certificate is authentic. We used the good paper.',question:'Where do I take it?',choice:'Ask about the certificate',receipt:'Take it to the City Hall clerk in San Francisco. The city insists on issuing its own permit. Naturally.'};
     }
+    if(npc.questRole==='armorer'&&s.completed)return {...p,intro:'Your civic service has unlocked the American Industrial Center’s full stock. Welcome back! Our battleaxe sits between a bayonet and a railgun in damage, with a very satisfying heft.',question:'Browse the unlocked stock?',choices:[{label:'Buy battleaxe · '+ITEM_STATS.battleaxe.price+' coins',accept:buyBattleaxe||(()=>({ok:false,message:'Speak to the armorer at the American Industrial Center.'}))},{label:'Ask about the workshop',receipt:'Precision instruments, impractical ambitions, and fifty-coin battleaxes. Please keep the bayonet for spectres.'}]};
     if(npc.questRole==='armorer')return {...p,intro:!s.started?'Welcome to the American Industrial Center. Workshops, machine tools, and objects with very specific uses.':!s.permit?'A bayonet? Show me a municipal alien-removal permit, then we can talk.':s.bayonet?'A bayonet is a tool. Your permit is the paperwork. Please keep track of both.':'Valid permit. Here is a well-made bayonet for a deeply unusual civic assignment.',question:s.permit&&!s.bayonet?'Take the bayonet?':'Ask about the workshop?',choice:s.permit&&!s.bayonet?'Collect bayonet':'Ask about industrial supplies',accept:s.permit&&!s.bayonet?quest.weapon:undefined,receipt:'We manufacture precision instruments. For this job, precision begins with identifying your target through the sunglasses.'};
     throw new Error('Unknown They Live quest role');
 }

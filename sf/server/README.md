@@ -68,7 +68,7 @@ Admission therefore costs 24 vials if earned entirely through donations.
 Hourly returns and donations count toward the same 24 promotions and can be
 mixed. Donations do not extend an existing hourly return timer.
 A vial spawns every ten minutes at a randomly selected reachable point on
-the **Sunset Whole Foods** forecourt. The spawn and its timer are shared and
+the **Technologist’s Farmers Market** forecourt. The spawn and its timer are shared and
 persisted. Everyone nearby sees the same vial; its first collector receives
 it exactly once in the server inventory. Vials expire after twenty minutes,
 and a restart never creates a backlog of missed spawns. Donation atomically
@@ -119,6 +119,16 @@ personal reward eligibility, strength XP and weapon unlocks still originate
 in the personal controllers. Server-owned shared outcomes, inventory revisions,
 PvP consent and username ownership cannot be overwritten with a checkpoint.
 
+The Marin bear and Tahoe snow/ice giants are shared creatures. The server
+owns retaliation, HP, respawns and death rolls, with the same simulation used
+by single player. Drops have the normal hunter's first-claim window and commit
+to the inventory ledger exactly once. Ice equipment and battleaxe ownership
+persist in that ledger; checkpoints cannot forge ownership. Battleaxe purchases
+require a completed They Live record, a live player beside the armorer and
+50 coins. In-N-Out pickups require its NPC counter and cost two coins.
+Only nearby wilderness creatures are broadcast, using the same 5 Hz entity
+cadence; distant players receive no stream of their movements.
+
 Ground movement is predicted by the existing client and validated against
 speed limits and the map's native adjacency graph. Illegal moves receive a
 correction. The server builds the same authored map once, without DOM or GPU
@@ -127,6 +137,11 @@ Private scripted travel has separate handling. Debug teleporting is disabled
 unless the operator sets `ALLOW_DEBUG=1`.
 
 ## Underground maps and the personal B-2
+
+The Quest Menu calls this journey **Illuminatus**. Its progress derives from
+guild membership, Illuminati initiation and persisted B-2 ownership; the first
+successful boarding completes it. Existing members and aircraft owners retain
+their progress, with no extra fee or duplicate reward on reconnect.
 
 Inside the guild, speak to the **Old Man** to donate **250,000 coins** and
 join the Illuminati. This is a separate, one-time server inventory transaction;
@@ -138,7 +153,7 @@ keeps the player centered and rotates with the camera without tilting.
 The B-2 is personal. Boarding from the cave launches it over the Pacific,
 three tiles below the airship's cruise height, rising above local terrain as
 needed. Click the main map or minimap to fly at eight tiles per second;
-hold **Control** to match the SpaceX rocket's peak cruise speed. Both rates
+hold **Shift** to match the SpaceX rocket's peak cruise speed. Both rates
 are checked by the server. **Land · Parachute out** ejects the pilot, gliding
 to a server-selected walkable landing. The abandoned aircraft flies onward,
 crashes and makes a small cosmetic explosion. Nearby players see the parachute
@@ -197,6 +212,41 @@ volume on the Redis host. Redis stores snapshots and profiles; it is not a
 per-frame message bus. A renewable ownership lease prevents two server
 processes from simulating the same Redis world. Lease loss stops writes and
 closes clients instead of allowing two conflicting world owners.
+
+### Simple database editor
+
+Stop the game server, then run from `sf/`:
+
+```sh
+npm --prefix server run admin
+```
+
+Open **http://127.0.0.1:8788**. Search by username or player ID, select a player,
+world snapshot or username, edit its JSON, and click **Save changes**. Restart
+the game server afterward; it loads these records into memory at startup.
+Do not edit while the game server is running: its periodic saves can overwrite
+your changes. Take a database backup before changing important state.
+
+The editor uses the same `STATE_FILE` / `REDIS_URL` settings as the game server:
+
+```sh
+STATE_FILE=/path/to/world.sqlite npm --prefix server run admin
+REDIS_URL=redis://127.0.0.1:6379 npm --prefix server run admin
+```
+
+The default is `server/data/world.sqlite`. The SQLite file must already exist.
+Set `ADMIN_PORT` to change port 8788. The editor only listens on loopback;
+for a remote database, run it on the database host and use an SSH tunnel
+(`ssh -L 8788:127.0.0.1:8788 your-host`). With Docker, use the same data volume
+as the game container and publish the editor's loopback port through a tunnel
+or run the script on the host with access to the database file.
+
+Saves reject stale records instead of overwriting changes made since loading.
+Redis saves also refuse to run while the simulation ownership lease is active
+(it may take 15 seconds to expire after an ungraceful stop). Username edits
+preserve owner IDs, validate the name, and enforce unique lowercase names.
+This is a direct JSON editor: keep the existing profile/world structure and
+value types intact. It does not run game commands or migrate malformed state.
 
 ## Deploy alongside GitHub Pages
 
@@ -288,3 +338,5 @@ Pub/Sub is not used as a durable world-state transport.
 To exercise the optional Redis adapter as well, install `redis-server` on the
 local test machine and run `RUN_REDIS_TESTS=1 npm --prefix sf/server test`.
 That check starts its own disposable Redis instance on a free loopback port.
+
+Teleport tablets use `teleport-tablets.mjs`: purchases require proximity to Orin and charge 20 coins; travel consumes one durable, server-owned tablet and uses fixed native-validated destinations. The server drives the 2.8-second teleport and ignores client movement during it. Jail, private instances and vehicles prevent tablet use. Disconnecting mid-flight saves the safe destination rather than an airborne position. Tablet counts are included in inventory snapshots and are excluded from client checkpoints.

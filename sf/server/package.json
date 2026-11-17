@@ -5,6 +5,7 @@
   "engines": {"node": ">=22.16.0"},
   "scripts": {
     "start": "node index.mjs",
+    "admin": "node admin.mjs",
     "test": "node --test tests/*.test.mjs",
     "load": "node load-test.mjs"
   },

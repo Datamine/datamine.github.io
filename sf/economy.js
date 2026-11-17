@@ -1,8 +1,11 @@
 import {hatById} from './hat-catalog.js';
+import {ITEM_STATS,EQUIPMENT_IDS} from './item-stats.js';
 export const TRADE_PRICES=Object.freeze({equity:10,secondary:20,grain:1,passenger:5,fish:5,sand:20,saltLetter:50,iphone:100,robotaxi:100,salesSoftware:10,salesSoftwareResale:20});
 export function createEconomy(saved={},onChange=()=>{}){
     const integer=(v,fallback)=>Number.isSafeInteger(v)&&v>=0?v:fallback;
     const state={coins:integer(saved.coins,25),equity:integer(saved.equity,0),grain:integer(saved.grain,0),fuelCans:integer(saved.fuelCans,0),fish:Math.min(1,integer(saved.fish,0)),sand:integer(saved.sand,0),saltLetters:Math.min(1,integer(saved.saltLetters,0)),saltLettersDelivered:integer(saved.saltLettersDelivered,0),ownedHats:Array.isArray(saved.ownedHats)?[...new Set(saved.ownedHats.filter(id=>hatById(id)))]:[],iphoneOwned:saved.iphoneOwned===true,iphoneEquipped:saved.iphoneOwned===true&&saved.iphoneEquipped===true,robotaxiOwned:saved.robotaxiOwned===true,softwareCopies:integer(saved.softwareCopies,0),incomeQuarters:Number.isInteger(saved.incomeQuarters)&&saved.incomeQuarters>=0&&saved.incomeQuarters<4?saved.incomeQuarters:0};
+    state.ownedEquipment=Array.isArray(saved.ownedEquipment)?[...new Set(saved.ownedEquipment.filter(id=>EQUIPMENT_IDS.includes(id)))]:[];
+    function buyEquipment(id){const item=ITEM_STATS[id];if(!EQUIPMENT_IDS.includes(id)||!item?.price)return {ok:false,message:'That item is not for sale.'};if(state.ownedEquipment.includes(id))return {ok:false,message:'You already own this item.'};if(state.coins<item.price)return {ok:false,message:'You need '+item.price+' coins.'};state.coins-=item.price;state.ownedEquipment.push(id);onChange({...state});return {ok:true,message:'You buy a '+item.name.toLowerCase()+'. Equip it in Character settings.'};}
     function income(amount){
         if(!state.iphoneEquipped)return {earned:amount,bonus:0,remainder:state.incomeQuarters};
         const quarters=amount%4+state.incomeQuarters,bonus=Math.floor(amount/4)+Math.floor(quarters/4);
@@ -15,7 +18,7 @@ export function createEconomy(saved={},onChange=()=>{}){
         if(kind==='sand-sale'&&!state.sand)return {ok:false,message:'You do not have any sand to sell. Collect a sack at the Ocean Beach sand pile and bring it to the GPU Factory.'};
         if(kind==='catch-fish'&&state.fish>=1)return {ok:false,message:'You can only carry one live fish. Sell yours to the chef at Cotogna before catching another.'};
         if(kind==='fish-sale'&&!state.fish)return {ok:false,message:'You do not have a live fish. Try the fishing spot at Fisherman’s Wharf, then bring your catch to Cotogna.'};
-        const changes={'sales-software-buy':{coins:-10,softwareCopies:1},'sales-software-sale':{coins:20,softwareCopies:-1},'salt-letter-collect':{saltLetters:1},'salt-letter-deliver':{saltLetters:-1,saltLettersDelivered:1,coins:TRADE_PRICES.saltLetter},'collect-sand':{sand:1},'sand-sale':{coins:TRADE_PRICES.sand,sand:-1},'catch-fish':{fish:1},'fish-sale':{coins:TRADE_PRICES.fish,fish:-1},'ai-lab-wage':{coins:1},'sandwich-pickup':{coins:-3},'sandwich-delivery':{coins:-4},beer:{coins:-1},'motorcycle-rental':{coins:-5},coffee:{coins:-1},'busker-tip':{coins:-1},equity:{coins:-10,equity:1},secondary:{coins:20,equity:-1},grain:{coins:-1,grain:1},feed:{grain:-1},passenger:{coins:5},rocket:{coins:-1},skis:{coins:-1},tax:{coins:-state.coins},extortion:{coins:-state.coins},capital:{coins:1000},'monkey-quest':{coins:25},'fuel-can':{coins:-state.coins,fuelCans:1},'free-fuel-can':{fuelCans:1},'use-fuel-can':{fuelCans:-1}}[kind];
+        const changes={'sales-software-buy':{coins:-10,softwareCopies:1},'sales-software-sale':{coins:20,softwareCopies:-1},'salt-letter-collect':{saltLetters:1},'salt-letter-deliver':{saltLetters:-1,saltLettersDelivered:1,coins:TRADE_PRICES.saltLetter},'collect-sand':{sand:1},'sand-sale':{coins:TRADE_PRICES.sand,sand:-1},'catch-fish':{fish:1},'fish-sale':{coins:TRADE_PRICES.fish,fish:-1},'ai-lab-wage':{coins:1},'sandwich-pickup':{coins:-ITEM_STATS.sandwich.pickupPrice},'sandwich-in-n-out':{coins:-ITEM_STATS.sandwich.inNOutPrice},'sandwich-delivery':{coins:-ITEM_STATS.sandwich.deliveryPrice},beer:{coins:-1},'motorcycle-rental':{coins:-5},coffee:{coins:-1},'busker-tip':{coins:-1},equity:{coins:-10,equity:1},secondary:{coins:20,equity:-1},grain:{coins:-1,grain:1},feed:{grain:-1},passenger:{coins:5},rocket:{coins:-1},skis:{coins:-1},tax:{coins:-state.coins},extortion:{coins:-state.coins},capital:{coins:1000},'monkey-quest':{coins:25},'fuel-can':{coins:-state.coins,fuelCans:1},'free-fuel-can':{fuelCans:1},'use-fuel-can':{fuelCans:-1}}[kind];
         if(!changes)return {ok:false,message:'That trade is unavailable.'};
         const award=changes.coins>0?income(changes.coins):null;if(award)changes.coins=award.earned;
         if(Object.entries(changes).some(([key,delta])=>!Number.isSafeInteger(state[key]+delta)||state[key]+delta<0))return {ok:false,message:kind==='secondary'?'You do not have any startup equity to sell.':kind==='feed'?'You need grain. Visit the grain merchant beside Golden Gate Park.':kind==='use-fuel-can'?'You need a fuel can. Pick one up at a gas station.':'You do not have enough coins.'};
@@ -47,7 +50,7 @@ export function createEconomy(saved={},onChange=()=>{}){
         if(state.coins<100)return {ok:false,message:'You need 100 coins to buy a robotaxi.'};
         state.coins-=100;state.robotaxiOwned=true;onChange({...state});return {ok:true};
     }
-    return {state,trade,credit,buyHat,buyPhone,equipPhone,losePhone,buyRobotaxi};
+    return {state,trade,credit,buyHat,buyEquipment,buyPhone,equipPhone,losePhone,buyRobotaxi};
 }
 
 export const MERCHANTS=Object.freeze({

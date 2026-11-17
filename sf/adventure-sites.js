@@ -59,6 +59,8 @@ export function drawHighwaySites(m,car,sites,signs){
         const start=m.data.length,p=car.sample(site.distance),side=site.id==='fuel-return'?-1:1,angle=site.id==='fuel-tahoe'?0:p.angle+(side>0?Math.PI:0);
         const x=site.id==='fuel-tahoe'?TAHOE_VILLAGE.fuel.x:p.x-Math.sin(p.angle)*side*4.2,z=site.id==='fuel-tahoe'?TAHOE_VILLAGE.fuel.z:p.z+Math.cos(p.angle)*side*4.2;
         const base=site.id==='fuel-tahoe'?tahoeHeight(x,z):p.y;
+        const parcel=(u,v,w,d)=>({x:x+u*Math.cos(angle)-v*Math.sin(angle),z:z+u*Math.sin(angle)+v*Math.cos(angle),w,d,angle});
+        site.solidParcels=site.kind==='burger'||site.kind==='dealership'?[parcel(0,0,4,2.8)]:[-.8,.8].map(u=>parcel(u,.075,.38,.35));
         pose(m,x,base,z,angle,()=>{
             m.box(-2.4,-.1,-1.9,4.8,.12,3.8,'#9ca6a3','concrete');
             if(site.kind==='burger'||site.kind==='dealership'){

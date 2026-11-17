@@ -1,7 +1,7 @@
 import {NIGHTLIFE} from './nightlife.js';
 import {advanceSignalledVehicle} from './traffic-signals.js';
 
-export const SLOW_BUS_DWELL=6;
+export const SLOW_BUS_DWELL=6,BUS_SIGNAL_STOP_SECONDS=2;
 export const SLOW_BUS_DESCRIPTION="the world's slowest bus";
 const busDistance=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const busEdgePoint=(edge,nodes,p)=>{const a=nodes[edge.from],b=nodes[edge.to],dx=b.x-a.x,dz=b.z-a.z,length=Math.hypot(dx,dz),t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.z-a.z)*dz)/(length*length)));return {x:a.x+dx*t,z:a.z+dz*t,distance:busDistance({x:a.x+dx*t,z:a.z+dz*t},p)};};
@@ -26,17 +26,18 @@ export function planNightlifeBus(network,nightlife=NIGHTLIFE){
         }
         if(!goal||!Number.isFinite(cost))continue;
         const path=[];for(let id=goal.id;id>=0;id=previous[id])path.push(id);path.reverse();
-        const points=[{...start,node:null},...path.map(id=>({x:nodes[id].x,z:nodes[id].z,node:id})),{...goal.point,node:null}].filter((p,i,list)=>!i||busDistance(p,list[i-1])>1e-6);
+        const startNode=[candidate.edge.from,candidate.edge.to].find(id=>busDistance(start,nodes[id])<1e-6);
+        const points=[{...start,node:startNode??null},...path.map(id=>({x:nodes[id].x,z:nodes[id].z,node:id})),{...goal.point,node:null}].filter((p,i,list)=>!i||busDistance(p,list[i-1])>1e-6);
         return {points,length:cost,originStreet:candidate.edge.street,originDistance:candidate.point.distance,destinationStreet:'Market Street'};
     }
     throw new Error('Nightlife and Market Street need a connected bus route');
 }
 
-export function createSlowBus({network,signals,walkingSpeed,ground,nightlife=NIGHTLIFE}){
-    const route=planNightlifeBus(network,nightlife),nodes=[...network.nodes],ids=route.points.map(p=>{if(p.node!==null)return p.node;const id=nodes.length;nodes.push({x:p.x,z:p.z});return id;}),outbound=[...ids],tour=[...ids,...ids.slice(0,-1).reverse()],endLeg=ids.length-2;
-    const bus={id:'nightlife-market-bus',from:tour[0],to:tour[1],tourIndex:0,distance:0,travel:0,speed:walkingSpeed*.5,angle:Math.atan2(nodes[tour[1]].z-nodes[tour[0]].z,nodes[tour[1]].x-nodes[tour[0]].x),x:nodes[tour[0]].x,z:nodes[tour[0]].z,dwell:SLOW_BUS_DWELL,redWait:0,arrivals:0,destination:'Market Street',sight:{id:'nightlife-market-bus',kind:'bus',label:'Nightlife–Market bus',description:SLOW_BUS_DESCRIPTION}};
+export function createSlowBus({network,signals,walkingSpeed,ground,nightlife=NIGHTLIFE,route=planNightlifeBus(network,nightlife)}){
+    const nodes=[...network.nodes],ids=route.points.map(p=>{if(p.node!==null)return p.node;const id=nodes.length;nodes.push({x:p.x,z:p.z});return id;}),outbound=[...ids],tour=[...ids,...ids.slice(0,-1).reverse()],endLeg=ids.length-2;
+    const bus={id:'nightlife-market-bus',from:tour[0],to:tour[1],tourIndex:0,distance:0,travel:0,speed:walkingSpeed*.5,angle:Math.atan2(nodes[tour[1]].z-nodes[tour[0]].z,nodes[tour[1]].x-nodes[tour[0]].x),x:nodes[tour[0]].x,z:nodes[tour[0]].z,dwell:SLOW_BUS_DWELL,redWait:0,signalStops:0,arrivals:0,destination:'Market Street',sight:{id:'nightlife-market-bus',kind:'bus',label:'Bus',description:SLOW_BUS_DESCRIPTION}};
     const state={clock:0};
     function next(v){const last=v.tourIndex;if(last===endLeg||last===tour.length-2){v.dwell=SLOW_BUS_DWELL;v.arrivals++;v.destination=last===endLeg?'Nightlife':'Market Street';}v.tourIndex=(v.tourIndex+1)%(tour.length-1);v.from=tour[v.tourIndex];v.to=tour[v.tourIndex+1];}
-    function update(dt){if(!Number.isFinite(dt)||dt<0)return;advanceSignalledVehicle(bus,dt,state.clock,{nodes,signals,next,stopDistance:1.75});state.clock+=dt;const a=nodes[bus.from],b=nodes[bus.to],length=busDistance(a,b),t=length?bus.distance/length:0;bus.x=a.x+(b.x-a.x)*t;bus.z=a.z+(b.z-a.z)*t;const angle=Math.atan2(b.z-a.z,b.x-a.x);bus.angle+=Math.max(-dt*2.5,Math.min(dt*2.5,Math.atan2(Math.sin(angle-bus.angle),Math.cos(angle-bus.angle))));bus.base=ground(bus.x,bus.z)+.045;}
+    function update(dt){if(!Number.isFinite(dt)||dt<0)return;advanceSignalledVehicle(bus,dt,state.clock,{nodes,signals,next,stopDistance:1.75,signalStopSeconds:BUS_SIGNAL_STOP_SECONDS});state.clock+=dt;const a=nodes[bus.from],b=nodes[bus.to],length=busDistance(a,b),t=length?bus.distance/length:0;bus.x=a.x+(b.x-a.x)*t;bus.z=a.z+(b.z-a.z)*t;const angle=Math.atan2(b.z-a.z,b.x-a.x);bus.angle+=Math.max(-dt*2.5,Math.min(dt*2.5,Math.atan2(Math.sin(angle-bus.angle),Math.cos(angle-bus.angle))));bus.base=ground(bus.x,bus.z)+.045;}
     update(0);return {bus,state,route,signals,nodes,outbound,update};
 }

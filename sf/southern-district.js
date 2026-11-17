@@ -60,9 +60,10 @@ export function drawRailPit(m,signs,terrain=null){
         const a=corners[i],b=corners[(i+1)%4],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1]));
         for(let j=0;j<n;j++){const x=a[0]+(b[0]-a[0])*j/n,z=a[1]+(b[1]-a[1])*j/n;m.cylinder(x,ground(x,z),z,.023,.7,'#7e8d80',8);}
     }
-    for(const xx of [x-1.8,x+1.8])m.box(xx,ground(xx,p.north-.17),p.north-.17,.07,1.3,.08,'#8d7351','wood');
-    drawPlaque(m,signs,'California high-speed rail',x,ground(x,p.north-.22)+.9,p.north-.22,4.4,.45,false);
-    return {id:'rail-pit',label:'California high-speed rail',kind:'rail-pit',navigationAccess:'observe-only',entry:{x:x-.5,y:p.north-1},start,count:m.data.length-start,lo:[p.west,p.floor,p.north-.3],hi:[p.east,Math.max(...rim.map(p=>p[1]))+1.5,p.south]};
+    const signZ=p.south+.22;
+    for(const xx of [x-1.8,x+1.8])m.box(xx,ground(xx,signZ),signZ-.04,.07,1.3,.08,'#8d7351','wood');
+    drawPlaque(m,signs,'California high-speed rail',x,ground(x,signZ)+.9,signZ,4.4,.45,true);
+    return {id:'rail-pit',label:'California high-speed rail',kind:'rail-pit',navigationAccess:'observe-only',entry:{x:x-.5,y:p.north-1},start,count:m.data.length-start,lo:[Math.min(p.west,x-2.2),p.floor,p.north],hi:[Math.max(p.east,x+2.2),Math.max(...rim.map(p=>p[1]),ground(x,signZ))+1.5,signZ+.08]};
 }
 
 export function taxDialogue(economy){

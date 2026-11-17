@@ -1,18 +1,21 @@
 import {PUBLIC_INSTANCE,privateMapInstance,ILLUMINATI_CAVE,ILLUMINATI_PRICE,guildSecretSites} from './map-instances.js';
 import {insideGuild} from './guild.js';
+import {illuminatusQuestEntry} from './illuminatus.js';
 import {createStealthBomber,BOMBER_LAUNCH,BOMBER_REPLACEMENT_MESSAGE,BOMB_COOLDOWN_MS,BOMB_FALL_MS,bombTileArea,bomberLanding,createBomberDescent} from './stealth-bomber.js';
 
 /** The browser owns presentation and personal travel. The backend owns paid
  * initiation, instance permissions, bomb cooldowns and shared cow damage. */
-export function createSecretAdventures({client=null,saved={},save=()=>{},economy,guildMember,guildSite,getPlayer,ground,landingFree=()=>false,landingFallback,cruiseHeight,boostSpeed,transition,onPurse=()=>{},onMessage=()=>{},onCowHit=()=>{},onOfflineBomb=()=>{},now=Date.now,frameTime=()=>performance.now()}){
+export function createSecretAdventures({client=null,saved={},save=()=>{},economy,guildMember,guildSite,getPlayer,ground,landingFree=()=>false,landingFallback,cruiseHeight,boostSpeed,transition,onPurse=()=>{},onMessage=()=>{},onProgress=()=>{},onCowHit=()=>{},onOfflineBomb=()=>{},now=Date.now,frameTime=()=>performance.now()}){
     let instance=PUBLIC_INSTANCE,initiated=saved.initiated===true,returnPoint=null,boardPending=false;
+    let bomberOwned=client?client.state.bomber?.owned===true:saved.bomberOwned===true||Number(saved.bombReadyAt)>0;
     const bomber=createStealthBomber({ground,now,cruiseHeight,boostSpeed}),bombs=[],crashes=[];bomber.state.bombReadyAt=Number(saved.bombReadyAt)||0;
-    const persist=()=>save({initiated,bombReadyAt:bomber.state.bombReadyAt});
+    const persist=()=>save({initiated,bomberOwned,bombReadyAt:bomber.state.bombReadyAt});
+    function completeQuest(){if(bomberOwned)return;bomberOwned=true;if(!client)persist();onMessage('Quest complete: Illuminatus! Your personal B-2 and replacement privileges are unlocked.','Quest');onProgress();}
     const sites=guildSecretSites(guildSite);
     function change(next,position,aircraft=null){instance=next;if(aircraft?.active)bomber.board(position);else bomber.stop();transition({instance,position,bomber:aircraft});}
     function accept(message){
         if(message.illuminati!==undefined)initiated=message.illuminati;
-        if(message.bomber)bomber.state.bombReadyAt=message.bomber.readyAt-(client?.state.serverOffset||0);
+        if(message.bomber){bomber.state.bombReadyAt=message.bomber.readyAt-(client?.state.serverOffset||0);if(message.type==='welcome')bomberOwned=message.bomber.owned===true;else if(message.bomber.owned)completeQuest();}
         if(message.type==='instance')change(message.instance,message.position,message.bomber);
         if(message.type==='welcome'){instance=message.instance||PUBLIC_INSTANCE;bomber.stop();}
         if(message.type==='bombLaunched')bombs.push({...message.bomb,started:frameTime(),impacted:true});
@@ -22,6 +25,7 @@ export function createSecretAdventures({client=null,saved={},save=()=>{},economy
             crashes.push({...message.crash,started:frameTime()});
             if(message.player===client?.state.id){bomber.eject(message.flight);transition({instance:PUBLIC_INSTANCE,position:message.flight.from,bomber:{active:true,phase:'parachuting'}});}
         }
+        if(message.guild||message.illuminati!==undefined||message.bomber)onProgress();
     }
     if(client){initiated=client.state.illuminati===true;if(client.state.bomber)bomber.state.bombReadyAt=client.state.bomber.readyAt-(client.state.serverOffset||0);client.subscribe(accept);}
     async function remote(action,args={}){const r=await client.command(action,args);if(r.message)onMessage(r.message,r.ok?'Illuminati':'Server');return r;}
@@ -30,7 +34,7 @@ export function createSecretAdventures({client=null,saved={},save=()=>{},economy
         const p=getPlayer();if(!guildMember()||!insideGuild(guildSite,p.x,p.z))return {ok:false,message:'Speak to the Old Man inside the guild.'};
         if(initiated)return {ok:true,message:'You are already initiated. The underground stairway is open.'};
         if(economy.state.coins<ILLUMINATI_PRICE)return {ok:false,message:'Initiation costs 250,000 coins.'};
-        economy.state.coins-=ILLUMINATI_PRICE;initiated=true;onPurse(economy.state);persist();return {ok:true,message:'You donate 250,000 coins and join the Illuminati. The passage to the underground hangar is open.'};
+        economy.state.coins-=ILLUMINATI_PRICE;initiated=true;onPurse(economy.state);persist();onProgress();return {ok:true,message:'You donate 250,000 coins and join the Illuminati. The passage to the underground hangar is open.'};
     }
     function enterCave(){
         if(client)return remote('instanceEnter',{kind:'illuminati'});
@@ -44,7 +48,7 @@ export function createSecretAdventures({client=null,saved={},save=()=>{},economy
     function boardBomber(){
         if(client)return remote('bomberBoard');
         if(!initiated||instance.kind!=='illuminati')return {ok:false,message:'Your B-2 is in the underground hangar.'};
-        change(PUBLIC_INSTANCE,BOMBER_LAUNCH,{active:true});return {ok:true,message:'You take the B-2 out over the Pacific. Click to fly; hold Control for rocket speed. Space drops a bomb. Land by parachuting out.'};
+        change(PUBLIC_INSTANCE,BOMBER_LAUNCH,{active:true});completeQuest();return {ok:true,message:'You take the B-2 out over the Pacific. Click to fly; hold Shift for rocket speed. Space drops a bomb. Land by parachuting out.'};
     }
     function returnBomber(){if(client)return remote('bomberReturn');change(privateMapInstance('illuminati','local'),{...ILLUMINATI_CAVE.boarding,y:ILLUMINATI_CAVE.floor+.025});return {ok:true,message:'You return to the underground hangar.'};}
     function ejectBomber(){
@@ -71,5 +75,5 @@ export function createSecretAdventures({client=null,saved={},save=()=>{},economy
         if(client){boardPending=true;remote('instanceEnter',{kind:'kraken'}).then(r=>{boardPending=false;if(r.ok)game.board();});return {ok:true};}
         returnPoint=getPlayer();change(privateMapInstance('kraken','local',game.ship.home),getPlayer());return game.board();
     }
-    return {bomber,bombs,crashes,sites,join,enterCave,leave,boardBomber,returnBomber,ejectBomber,dropBomb,update,boardKraken,get instance(){return instance;},get kind(){return instance.kind;},get initiated(){return initiated;},reset(){instance=PUBLIC_INSTANCE;bomber.stop();bombs.length=0;crashes.length=0;returnPoint=null;},accept};
+    return {bomber,bombs,crashes,sites,join,enterCave,leave,boardBomber,returnBomber,ejectBomber,dropBomb,update,boardKraken,questEntry:guild=>illuminatusQuestEntry({guild,initiated,bomberOwned,inHangar:instance.kind==='illuminati'}),get instance(){return instance;},get kind(){return instance.kind;},get initiated(){return initiated;},reset(){instance=PUBLIC_INSTANCE;bomber.stop();bombs.length=0;crashes.length=0;returnPoint=null;},accept};
 }

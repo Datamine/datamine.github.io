@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createGuildMembership,GUILD_RESET_MS,insideGuild} from '../guild.js';
+import {createGuildMembership,GUILD_RESET_MS,insideGuild,PEPTIDE_SPAWN_MS,peptideCountdown,marketFarmerDialogue,TECHNOLOGIST_MARKET,GUILD_BUILDINGS} from '../guild.js';
 import {sightPrimaryVerb} from '../descriptions.js';
 
 test('guild admission requires 24 actual returns, each a full hour after the last qualifying visit',()=>{
@@ -31,4 +31,11 @@ test('24 peptides grant exactly 24 ranks, and a prior instant admission converts
 test('all dropped items default to Take, and guild membership tests honor building rotation',()=>{
     for(const kind of ['loot','sunglasses'])assert.equal(sightPrimaryVerb({kind,label:'Peptides'}),'Take');
     const site={x:10,y:20,w:6,d:2,rotation:Math.PI/2};assert.equal(insideGuild(site,13,23),true);assert.equal(insideGuild(site,15,21),false);
+});
+
+
+test('farmers use the actual shared deadline and refresh their countdown when asked again',()=>{
+ const market=GUILD_BUILDINGS.find(p=>p.id==='sunset-whole-foods');assert.equal(market.name,TECHNOLOGIST_MARKET);assert.ok(market.signText.includes('\n'));
+ let time=1000000,deadline=time+PEPTIDE_SPAWN_MS;const d=marketFarmerDialogue({marketLine:'There is no spoon.'},{nextSpawnAt:()=>deadline,now:()=>time});
+ assert.match(d.intro(),/10 minutes/);time+=61000;assert.match(d.choices[0].accept().message,/8 minutes and 59 seconds/);deadline=time+1000;assert.match(d.choices[0].accept().message,/1 second\./);time+=1000;assert.match(d.intro(),/any moment now/);assert.match(peptideCountdown(undefined,time),/synchronizing/);assert.ok(!JSON.stringify(d).includes('Whole Foods'));
 });

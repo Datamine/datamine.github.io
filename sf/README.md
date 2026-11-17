@@ -22,6 +22,47 @@ The haberdasher's upper tiers are Stone of Jordan (50,000 coins), Santa Hat
 top-tier `crown` inventory ID so existing ownership and outfit selections carry
 over. Their original geometry lives in `hat-models.js`.
 
+Gameplay balancing lives in two small catalogs:
+
+- `item-stats.js`: weapon damage, strength scaling, accuracy, reach and attack
+  interval; the battleaxe's price; food prices/healing; ice equipment colors
+  and defense. Hats keep their existing `hat-catalog.js`.
+- `monster-drops.js`: monster HP, level, attacks and respawn times, plus every
+  creature's drop table. `oneIn: 20` means a 1/20 roll. `choose` selects one
+  item after a successful roll; the giants' 1/50 roll is shared between the
+  top and pants, making each individual piece 1/100.
+
+The friendly level-10 bear waits at the Marin end of the Golden Gate Bridge.
+Left-click to pet it; right-click to attack or examine. It has 20 HP and a
+1/20 peptide drop. Two snow giants (140 HP, level 18) and two ice giants
+(180 HP, level 20) patrol the foot of Tahoe's mountain. Collect their rare
+ice top/pants and equip them in Character settings for crystalline armor;
+each piece reduces incoming shared-monster/PvP damage by two.
+`wilderness.js` runs the same native navigation/combat simulation offline
+and on the server; `wilderness-models.js` contains their original meshes.
+
+The kraken now has 300 HP. In-N-Out's associate sells sandwiches for two
+coins, versus three at Lucinda's, with the same healing. Completing They Live
+unlocks the industrial armorer's full stock, including the 50-coin battleaxe.
+Character → Weapon selects it independently of the railgun. The Armory,
+at (68, 111.5), is a separate, examinable South SF landmark.
+
+**Illuminatus** appears in the Quest Menu from the beginning. Its objectives
+track Ray's 24 guild promotions, the Old Man's 250,000-coin initiation, and
+boarding the B-2 in the underground hangar. First boarding completes the quest;
+landing, crashing or reconnecting never resets it. Existing guild members and
+aircraft owners receive credit for their progress. `illuminatus.js` derives
+the journal entry, and `secret-adventures.js` persists offline completion or
+uses authoritative multiplayer aircraft ownership.
+
+The **Bus** runs from the street behind Nightlife to Market Street. Traffic
+lights exist only at junctions on that route, selected from the same road
+graph. It stops for two seconds at every signal, including green, and waits
+for a green phase before crossing. Phases still change every ten seconds;
+terminus stops last six seconds. `slow-bus.js` defines its route and dwell
+times, while `traffic-signals.js` advances vehicles through stops and signals
+using simulation time.
+
 The build validates navigation before writing the generated page. To run just
 the complete-map navigation audit, without starting a browser or a server:
 
@@ -129,3 +170,11 @@ Character rendering research:
 - [Rune-Server's animation-system explanation](https://rune-server.org/threads/runescapes-animation-system.700768/) describes grouped vertices and hierarchical joint transforms.
 
 This implementation uses that separation of geometry and animation with original geometry and poses. Foot placement, interpolation and action overlays are authored for this world. It does not load RuneScape model caches or require a server, WASM, a rendering library, or external character downloads.
+
+Marin uses `marin-land.js` for its terrain mesh, bounded terrain picking and a half-tile native walking graph. Its polygon shoreline and the detention footprint are collision boundaries. The navigation audit checks routes into the headland ridges and back across the Golden Gate; walking does not require staying on the bridge road.
+
+`loading-screen.js` displays completed initialization stages and waits for the material atlases, signs and first rendered frame before showing 100% and dismissing the overlay. `teleport-tablets.js` owns the tablet inventory and 2.8-second travel pose; `teleport-models.js` draws its purple lightning. Orin the Wizard sells both tablets for 20 coins inside the Nob Hill home. Inventory buttons break a tablet and land the player by the Tahoe gondola or Mazarine in downtown SF. Multiplayer purchases and consumption are server-authoritative; offline counts persist locally. Other players have Follow, optional PvP Attack and Walk here actions, without Examine.
+
+The Sunset peptide site is the Technologist’s Farmers Market (its stable internal site ID remains `sunset-whole-foods`). Four farmers wear dark coats and sunglasses; their dialogue reads the same spawn deadline used by the shared world. `peptideSpawnAt` is sent at login and whenever the deadline changes, so countdowns need no polling or per-second network messages. Single-player uses its persisted local spawn deadline.
+
+`countryside.js` makes the regional grass between Berkeley and Tahoe walkable. A small visibility graph routes around the campus and roadside buildings without storing a giant empty tile grid; water and the detailed Tahoe collision map retain their own boundaries. Grass picking and foot placement use the same clipped 16-tile triangles as the regional backdrop. Native route checks cover journeys over grass from Berkeley to the gondola and back. Hold Shift while flying the B-2 for rocket-speed boost; releasing Shift returns to cruise speed.

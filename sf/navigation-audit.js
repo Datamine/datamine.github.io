@@ -12,6 +12,10 @@ export function auditWorldNavigation(world){
     const destinations=[...world.places.flatMap(p=>[{id:p.id+':entrance',point:p.entry},{id:p.id+':inside',point:p.inside}]),...walkableSights.flatMap(s=>[{id:s.id,point:s.entry},...(s.inside?[{id:s.id+':inside',point:s.inside}]:[])])];
     destinations.push(...world.airship.gates.map((p,i)=>({id:'airport-gate-'+i,point:p})),{id:'bay-bridge-city-gate',point:world.regionalRoad.gate('city')},{id:'bay-bridge-tahoe-gate',point:world.regionalRoad.gate('tahoe')});
     destinations.push({id:'airship-mooring',point:{x:world.airship.home.x-.5,y:world.airship.home.z-.5}});
+    destinations.push(...(world.wilderness?.actors||[]).map(n=>({id:n.id+'-encounter',point:{x:n.x-.5,y:n.z-.5}})));
+    if(world.marinLand)destinations.push(...[[15,-15],[30,-20],[40,-10],[0,-25],[55,-30]].map(([x,z],i)=>({id:'marin-hills-'+i,point:{x:x-.5,y:z-.5}})));
+    if(world.countryside)destinations.push(...[[180,-10],[350,-150],[720,-530],[1000,-730]].map(([x,y],i)=>({id:'regional-grass-'+i,point:{x,y}})));
+    for(const [id,p] of Object.entries(world.tabletDestinations||{}))destinations.push({id:id+'-tablet-arrival',point:{x:p.x-.5,y:p.z-.5}});
     for(const [i,trail] of SOUTHERN_TRAILS.entries())for(const [j,[x,z]] of trail.points.entries())destinations.push({id:'southern-trail-'+i+'-'+j,point:{x:x-.5,y:z-.5}});
     destinations.push({id:'tiger-exit',point:SF_ZOO.exit},...SF_ZOO.wardens.map((point,i)=>({id:'animal-control-start-'+i,point})));
     const approaches=[{id:'bunny-petting',point:world.approaches.bunny(world.spawn)},{id:'sutro-ladder',point:world.approaches.sutro(world.spawn)},...world.merchants.map(npc=>({id:npc.id+'-conversation',point:world.approaches.merchant(npc)}))];

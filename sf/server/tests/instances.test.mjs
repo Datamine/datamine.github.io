@@ -46,11 +46,11 @@ test('the bomber is personal, requires the cave, launches airborne over the Paci
     assert.equal(a.p.instance.kind,'world');assert.equal(a.p.mode,'bomber');assert.ok(a.p.x<0&&a.p.y===25);assert.equal(b.p.profile.bomber,undefined);
     assert.equal((await act(game,b,'bomberBomb')).ok,false);assert.equal((await act(game,a,'bomberReturn')).ok,true);assert.equal(a.p.instance.kind,'illuminati');await game.close();
 });
-test('B-2 poses require ownership and obey separate airship/Control-boost speed limits',async()=>{
+test('B-2 poses require ownership and obey separate airship/Shift-boost speed limits',async()=>{
     const {game,advance}=await fixture(),a=await member(game,512),b=await member(game,513);await initiate(game,a);Object.assign(a.p,ILLUMINATI_CAVE.boarding);await act(game,a,'bomberBoard');
     const pose=(p,x,boost=false)=>game.receive(p,{type:'pose',pose:{x,z:p.z,y:p.y,angle:0,phase:0,motion:0,moving:true,mode:'bomber',boost,hp:30}});
     advance(100);pose(a.p,a.p.x+.8);assert.equal(a.p.x,-23.2);
-    advance(100);pose(a.p,a.p.x+10);assert.equal(a.p.x,-23.2,'rocket speed requires Control boost');
+    advance(100);pose(a.p,a.p.x+10);assert.equal(a.p.x,-23.2,'rocket speed requires Shift boost');
     advance(100);pose(a.p,a.p.x+10,true);assert.equal(a.p.x,-13.2);
     advance(100);pose(b.p,b.p.x+1,true);assert.equal(b.p.mode,'walk','unowned aircraft mode is rejected');await game.close();
 });

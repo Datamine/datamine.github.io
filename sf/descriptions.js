@@ -30,6 +30,7 @@ const citizenDescriptions=Object.freeze([
     'Seems suspiciously well rested for someone living in a city with this much coffee.'
 ]);
 export function describeCharacter(person){
+    if(person.kind==='market-farmer')return 'A farmer in a black coat and tiny dark sunglasses. Can see through the simulation, but still insists on exact change for kale.';
     if(person.kind==='banker')return 'A warm smile, a beautifully organized ledger, and a talent for remembering exactly how you take your coffee. Banking has rarely felt so hospitable.';
     if(person.kind==='illuminati-elder')return 'An Old Man with silver hair, a very discreet lapel pin, and a philanthropic interest in exactly 250,000 of your coins.';
     if(person.kind==='guild-master')return 'Ray wears a red suit, a brass lapel compass and the serene expression of a man who has never once expedited an application without peptides.';

@@ -2,11 +2,13 @@ export const TRAFFIC_LIGHT_SECONDS=10;
 const signalAngle=(a,b)=>Math.acos(Math.max(-1,Math.min(1,a.x*b.x+a.z*b.z)));
 
 /** Junctions come from the same split road graph that vehicles drive on.
+ * nodeIds limits fixtures and phases to the bus route's actual junctions.
  * Opposing approaches share a phase; distinct diagonal roads get their own. */
-export function createTrafficSignals({nodes,edges,roadWidths=new Map(),canPlace=()=>true,avoid=[]}){
+export function createTrafficSignals({nodes,edges,nodeIds=null,roadWidths=new Map(),canPlace=()=>true,avoid=[]}){
     const junctions=[],byNode=new Map(),fixtures=[],missing=[];
     const widthAt=(id,next)=>{const edge=edges.find(e=>e.from===id&&e.to===next||e.to===id&&e.from===next);return roadWidths.get(edge?.street)||.5;};
     for(const [id,node] of nodes.entries()){
+        if(nodeIds&&!nodeIds.has(id))continue;
         const approaches=[];
         for(const next of node.neighbors){const n=nodes[next],d=Math.hypot(n.x-node.x,n.z-node.z);if(d<1e-7)continue;const a={x:(n.x-node.x)/d,z:(n.z-node.z)/d,next,width:widthAt(id,next)};if(!approaches.some(b=>signalAngle(a,b)<.12))approaches.push(a);}
         if(approaches.length<3)continue;
@@ -40,23 +42,24 @@ export function createTrafficSignals({nodes,edges,roadWidths=new Map(),canPlace=
     return {junctions,fixtures,missing,byNode,phase,green,wait,has:id=>byNode.has(id)};
 }
 
-/** Consume time at exact stop lines and signal changes. A green grants the
+/** Consume time at exact stop lines, optional mandatory stops, and phase changes. A green grants the
  * entire crossing, so a phase change cannot strand a vehicle in its center. */
-export function advanceSignalledVehicle(vehicle,dt,time,{nodes,signals,next,stopDistance=1.25}){
+export function advanceSignalledVehicle(vehicle,dt,time,{nodes,signals,next,stopDistance=1.25,signalStopSeconds=0}){
     if(!Number.isFinite(dt)||dt<=0||vehicle.speed<=0)return;
     let remaining=dt,clock=time,iterations=0;vehicle.waitingForRed=false;
     while(remaining>1e-8&&iterations++<10000){
         if(vehicle.dwell>1e-8){const wait=Math.min(remaining,vehicle.dwell);vehicle.dwell-=wait;remaining-=wait;clock+=wait;continue;}
         const a=nodes[vehicle.from],b=nodes[vehicle.to],length=Math.hypot(b.x-a.x,b.z-a.z);
-        if(length<1e-8){next(vehicle);vehicle.crossingCleared=false;continue;}
+        if(length<1e-8){next(vehicle);vehicle.crossingCleared=false;vehicle.signalStopped=false;continue;}
         const stop=Math.max(0,length-Math.min(stopDistance,length*.45));
         if(signals?.has(vehicle.to)&&!vehicle.crossingCleared&&vehicle.distance>=stop-1e-8){
+            if(signalStopSeconds>0&&!vehicle.signalStopped){vehicle.signalStopped=true;vehicle.signalStops=(vehicle.signalStops||0)+1;vehicle.dwell=signalStopSeconds;continue;}
             if(signals.green(vehicle.to,a,clock)){vehicle.crossingCleared=true;vehicle.waitingForRed=false;}
             else{const wait=Math.min(remaining,Math.max(1e-8,signals.wait(vehicle.to,a,clock)));remaining-=wait;clock+=wait;vehicle.redWait=(vehicle.redWait||0)+wait;vehicle.waitingForRed=true;continue;}
         }
         const target=signals?.has(vehicle.to)&&!vehicle.crossingCleared?stop:length,distance=Math.min(Math.max(0,target-vehicle.distance),remaining*vehicle.speed),used=distance/vehicle.speed;
         vehicle.distance+=distance;vehicle.travel+=distance;remaining-=used;clock+=used;
-        if(vehicle.distance>=length-1e-8){next(vehicle);vehicle.distance=0;vehicle.crossingCleared=false;}
+        if(vehicle.distance>=length-1e-8){next(vehicle);vehicle.distance=0;vehicle.crossingCleared=false;vehicle.signalStopped=false;}
         else if(used<1e-10&&vehicle.distance<target-1e-8)break;
     }
 }

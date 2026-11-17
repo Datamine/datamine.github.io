@@ -1,6 +1,7 @@
+import {ITEM_STATS} from './item-stats.js';
 import {pose} from './geometry.js';
 
-export const DELI_PRICES=Object.freeze({pickup:3,delivery:4});
+export const DELI_PRICES=Object.freeze({pickup:ITEM_STATS.sandwich.pickupPrice,delivery:ITEM_STATS.sandwich.deliveryPrice,inNOut:ITEM_STATS.sandwich.inNOutPrice});
 export const DELIVERY_SPEED=6;
 /** Coordinates here are the navigation model's logical x/y, not mesh centers.
  * A delivery is paid for only after a real route exists. Replanning is bounded
@@ -15,7 +16,7 @@ export function createDeli({economy,health,origin,routeTo,canTravel,saved={},onS
         if(Math.hypot(previous.x-target.x,previous.y-target.y)>.01)return false;
         state.path=path.map(p=>({...p}));lastGoal={...target};return true;
     };
-    return {state,storeSandwich(amount=1){if(!Number.isSafeInteger(amount)||amount<1||!Number.isSafeInteger(state.sandwiches+amount))return false;state.sandwiches+=amount;save();return true;},pickup(){const result=economy.trade('sandwich-pickup');if(!result.ok)return result;state.sandwiches++;save();return {ok:true,message:'A fresh Lucinda’s sandwich, yours for 3 coins. Eat it to restore up to 18 hitpoints.'};},
+    return {state,storeSandwich(amount=1){if(!Number.isSafeInteger(amount)||amount<1||!Number.isSafeInteger(state.sandwiches+amount))return false;state.sandwiches+=amount;save();return true;},pickup(store='lucindas'){const burger=store==='in-n-out',result=economy.trade(burger?'sandwich-in-n-out':'sandwich-pickup');if(!result.ok)return result;state.sandwiches++;save();return {ok:true,message:'A fresh '+(burger?'In-N-Out sandwich, yours for '+DELI_PRICES.inNOut:'Lucinda’s sandwich, yours for '+DELI_PRICES.pickup)+' coins. Eat it to restore up to '+ITEM_STATS.sandwich.healing+' hitpoints.'};},
         order(target){
             if(state.pending)return {ok:false,message:'Your DoorDash cooler is already on its way.'};
             state.position={...origin};if(!findRoute(target))return {ok:false,message:'The cooler needs a route to you. Order from a street, park, or other walkable ground.'};

@@ -16,8 +16,9 @@ async function act(game,p,action,args={}){game.receive(p,{type:'command',request
 
 test('shared peptides spawn once every ten minutes and two collectors cannot both take a vial',async()=>{
     const {game,advance,store}=await guildFixture(),a=await player(game,401),b=await player(game,402);
+    assert.equal(game.shared.snapshot(a.p).peptideSpawnAt,1000000+PEPTIDE_SPAWN_MS);
     advance(PEPTIDE_SPAWN_MS-1);game.tick(.05);assert.equal(game.shared.loot.size,0);
-    advance(1);game.tick(.05);const vial=[...game.shared.loot.values()][0];assert.equal(vial.lootKind,'peptides');
+    advance(1);game.tick(.05);const vial=[...game.shared.loot.values()][0];assert.equal(vial.lootKind,'peptides');assert.equal(game.shared.snapshot(b.p).peptideSpawnAt,1000000+2*PEPTIDE_SPAWN_MS);game.broadcast();assert.equal(a.messages.filter(m=>m.type==='world').at(-1).state.peptideSpawnAt,1000000+2*PEPTIDE_SPAWN_MS);
     assert.equal(game.shared.snapshot(a.p).loot[0].id,vial.id);assert.equal(game.shared.snapshot(b.p).loot[0].id,vial.id);
     const results=await Promise.all([act(game,a.p,'collect',{id:vial.id}),act(game,b.p,'collect',{id:vial.id})]);
     assert.equal(results.filter(r=>r.ok).length,1);assert.equal(a.p.inventory.meta.peptides+b.p.inventory.meta.peptides,1);

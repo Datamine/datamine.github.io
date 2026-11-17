@@ -350,11 +350,13 @@
                 <button id="sf-recenter" aria-label="Reset camera angle and zoom">⌖</button>
             </div>
             <div class="sf-travel-controls">
-                <div id="sf-bomber-controls" class="sf-bomber-controls" role="group" aria-label="B-2 controls" hidden><span id="sf-bomber-flight">Personal B-2 · Hold Control to boost</span><button id="sf-bomber-bomb" class="sf-bike-button" type="button">Drop bomb · Space</button><button id="sf-bomber-land" class="sf-bike-button" type="button">Land · Parachute out</button></div>
+                <div id="sf-bomber-controls" class="sf-bomber-controls" role="group" aria-label="B-2 controls" hidden><span id="sf-bomber-flight">Personal B-2 · Hold Shift to boost</span><button id="sf-bomber-bomb" class="sf-bike-button" type="button">Drop bomb · Space</button><button id="sf-bomber-land" class="sf-bike-button" type="button">Land · Parachute out</button></div>
                 <button id="sf-climb-button" class="sf-bike-button" type="button" hidden>Climb down <span class="sf-key">E</span></button>
                 <button id="sf-surf-button" class="sf-bike-button" type="button" aria-pressed="false">Windsurf <span class="sf-key">F</span></button>
                 <button id="sf-pacifica-surf-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="U">Surf · U</button>
                 <button id="sf-railgun-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="G" hidden>Equip railgun · G</button>
+                <button id="sf-tablet-downtown" class="sf-bike-button" type="button" hidden>Break downtown tablet</button>
+                <button id="sf-tablet-tahoe" class="sf-bike-button" type="button" hidden>Break Tahoe tablet</button>
                 <button id="sf-grapple-button" class="sf-bike-button" type="button" hidden>Grapple airship</button>
                 <div id="sf-wave-controls" class="sf-wave-controls" role="group" aria-label="Pacifica surfing" hidden>
                     <span id="sf-wave-status" aria-live="polite">Paddling · 0 points</span>
@@ -439,6 +441,10 @@
             <label>Trousers <input data-character="pants" type="color" value="#626955"></label>
             <label>Shoes <input data-character="shoes" type="color" value="#3c3d36"></label>
             <label class="sf-hat-option">Hat <select data-character="hat" aria-describedby="sf-hat-hint"><option value="none">No hat</option></select></label>
+            <label class="sf-hat-option">Weapon <select data-character="weapon"><option value="auto">Automatic</option><option value="unarmed">Unarmed</option><option value="bayonet">Bayonet</option><option value="battleaxe">Battleaxe</option><option value="railgun">Railgun</option></select></label>
+            <label class="sf-sunglasses-option"><input data-character="iceTop" type="checkbox"> Equip ice top</label>
+            <label class="sf-sunglasses-option"><input data-character="icePants" type="checkbox"> Equip ice pants</label>
+            <small id="sf-equipment-hint" class="sf-sunglasses-hint">Hunt the giants at the foot of Tahoe for crystalline equipment.</small>
             <small id="sf-hat-hint" class="sf-sunglasses-hint">Visit the haberdasher just north of the GPU Factory to buy hats.</small>
             <label class="sf-sunglasses-option"><input id="sf-iphone-equipped" type="checkbox" aria-describedby="sf-iphone-hint" disabled> Equip iPhone (+25% earnings)</label>
             <small id="sf-iphone-hint" class="sf-sunglasses-hint">Buy an iPhone from Tim Apple’s southern donut campus.</small>
@@ -518,6 +524,10 @@
         <div><input id="sf-command-input" type="text" spellcheck="false" autocapitalize="off" aria-describedby="sf-command-status" placeholder=":debug or :tp x,y"><button type="submit">Run</button><button type="button" data-command-close aria-label="Cancel command">×</button></div>
         <p id="sf-command-status" role="status">Enter runs the command. Escape cancels.</p>
     </form>
+<div id="sf-loading" class="sf-loading" role="status" aria-live="polite" aria-label="Loading San Francisco" hidden>
+    <div class="sf-loading-card"><span class="sf-loading-spinner" aria-hidden="true"></span><strong>Explore San Francisco</strong><span data-loading-percent>0% loaded</span><progress max="100" value="0" aria-label="Loading progress"></progress><span data-loading-stage>Preparing San Francisco…</span><small data-loading-error></small></div>
+</div>
+<script>if(document.documentElement.dataset.sfEntry==='explore')document.getElementById('sf-loading').hidden=false;</script>
 <!-- SF-ENTRY:START -->
 <!-- Development sources: sf/README.md. Generate explore.html with node sf/build.mjs. -->
 <script>

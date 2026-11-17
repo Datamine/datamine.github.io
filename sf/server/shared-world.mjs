@@ -11,17 +11,20 @@ import {moveResearcherNPCs} from '../research-campuses.js';
 import {actorLevel} from '../levels.js';
 import {PEPTIDE_SPAWN_MS} from '../guild.js';
 import {BOMB_DAMAGE,cowInBombArea} from '../stealth-bomber.js';
+import {createWilderness} from '../wilderness.js';
+import {ITEM_STATS,itemLoot,equipmentOwned,equipmentDefense} from '../item-stats.js';
+import {MONSTER_STATS,rollMonsterDrops} from '../monster-drops.js';
 
 const near=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 const privateJSON=(p,key)=>{try{return JSON.parse(p.profile.privateState[key]||'{}');}catch{return {};}};
 export function createSharedWorld({geometry,players,send,dirty,random=Math.random,now=Date.now,saved={}}){
     const airship=geometry.airship||createAirship({groundHeight:(x,z)=>geometry.characterGround(x,z)}),passengers=new Set();let captain=null,clock=Number(saved.clock)||0,lootSerial=Number(saved.lootSerial)||0,focus=null;
-    const shipHome={...airship.home},shipRope={deployed:false,top:null,bottom:null},cows=Array.from({length:3},(_,i)=>({id:'south-cow-'+i,combatKind:'cow',label:'Cow',x:COW_PEN.x-1.7+i*1.55,z:COW_PEN.z+(i%2?.65:-.55),hp:20,max:20,respawn:0,angle:.3+i*1.7}));
+    const shipHome={...airship.home},shipRope={deployed:false,top:null,bottom:null},cows=Array.from({length:3},(_,i)=>({id:'south-cow-'+i,combatKind:'cow',label:'Cow',x:COW_PEN.x-1.7+i*1.55,z:COW_PEN.z+(i%2?.65:-.55),hp:MONSTER_STATS.cow.hp,max:MONSTER_STATS.cow.hp,respawn:0,angle:.3+i*1.7}));
     let nextPeptideAt=Number.isFinite(saved.nextPeptideAt)?saved.nextPeptideAt:now()+PEPTIDE_SPAWN_MS;
-    const raptor={id:'jurassic-raptor',combatKind:'raptor',label:'Velociraptor',x:JURASSIC.cage.x,z:JURASSIC.cage.z,hp:50,max:50,phase:'caged',angle:Math.PI/2,path:[],repath:0,attackIn:1,prey:null,resetAt:0,release:0};
+    const raptor={id:'jurassic-raptor',combatKind:'raptor',label:'Velociraptor',x:JURASSIC.cage.x,z:JURASSIC.cage.z,hp:MONSTER_STATS.raptor.hp,max:MONSTER_STATS.raptor.hp,phase:'caged',angle:Math.PI/2,path:[],repath:0,attackIn:1,prey:null,resetAt:0,release:0};
     const lives=geometry.lives||[],loot=new Map(),npcIndex=new SpatialIndex(),npcList=[...(geometry.merchants||[]),...lives.flatMap(l=>l?.people||[])],npcById=new Map(npcList.map(n=>[n.id,n])),pathTo=(a,b)=>geometry.pathTo(b.x-.5,b.z-.5,{x:a.x-.5,y:a.z-.5})?.map(p=>({x:p.x+.5,z:p.y+.5}));
     for(const item of saved.loot||[])if(item.expires>clock&&(!item.wallExpiresAt||item.wallExpiresAt>now()))loot.set(item.id,item);
-    for(const cow of cows){const previous=saved.cows?.find(c=>c.id===cow.id);if(previous)Object.assign(cow,{hp:Math.max(0,Math.min(20,previous.hp)),respawn:Math.max(0,Math.min(10,previous.respawn))});}
+    for(const cow of cows){const previous=saved.cows?.find(c=>c.id===cow.id);if(previous)Object.assign(cow,{hp:Math.max(0,Math.min(MONSTER_STATS.cow.hp,previous.hp)),respawn:Math.max(0,Math.min(MONSTER_STATS.cow.respawn,previous.respawn))});}
     if(saved.raptor)Object.assign(raptor,saved.raptor,{path:[],prey:null,repath:0});
     for(const previous of saved.npcs||[]){const npc=npcById.get(previous.id);if(!npc||!Number.isFinite(previous.x)||!Number.isFinite(previous.z)||!geometry.landClearAt(previous.x-.5,previous.z-.5))continue;const {roam,...fields}=previous;Object.assign(npc,fields);if(roam&&npc.roam)Object.assign(npc.roam,roam);}
     const tigerPlayer={x:SF_ZOO.exit.x,y:SF_ZOO.exit.y},tiger=createTigerEncounter({player:tigerPlayer,home:{x:SF_ZOO.cage.x-.5,y:SF_ZOO.cage.z-.5},exit:SF_ZOO.exit,wardenStarts:SF_ZOO.wardens,
@@ -31,29 +34,35 @@ export function createSharedWorld({geometry,players,send,dirty,random=Math.rando
     // after a restart; never restore dangling socket IDs as pilot authority.
     if(saved.airship?.active&&saved.airship.position){Object.assign(airship.state,saved.airship,{position:{...saved.airship.position},active:true,target:null});airship.returnHome();}
     const publicPlayer=p=>(p.instance?.kind||'world')==='world';
-    const eligible=p=>publicPlayer(p)&&p.hp>0&&!p.grappling&&!passengers.has(p.id)&&!['rocket','hidden','surf','climb','airship','bomber','parachute'].includes(p.mode);
+    const eligible=p=>publicPlayer(p)&&p.hp>0&&!p.grappling&&!passengers.has(p.id)&&!['rocket','hidden','surf','climb','airship','bomber','parachute','teleport'].includes(p.mode);
     npcIndex.rebuild(npcList);
     const level=p=>strengthStatus(privateJSON(p,'sf-strength-v1').xp).level;
     const ownsRailgun=p=>privateJSON(p,'sf-expeditions-v1').railgun===true;
+    const ownsWeapon=(p,weapon)=>weapon==='unarmed'||weapon==='railgun'&&ownsRailgun(p)||weapon==='bayonet'&&privateJSON(p,'sf-quests-v1').theyLive?.bayonet||weapon==='battleaxe'&&equipmentOwned(p.inventory.economy.state,'battleaxe');
+    const wilderness=createWilderness({spawns:geometry.wilderness?.actors||[],ground:geometry.characterGround,canTravel:(a,b)=>geometry.canTravel(a.x-.5,a.z-.5,b.x-.5,b.z-.5,true),route:pathTo,random,
+        onHit:({actor,attacker,damage})=>broadcastHit(attacker,actor,damage,attacker.weapon),onDrop:(record,attacker)=>Object.assign(drop(record.lootKind,record.x,record.z,attacker.owner,record.amount),record),onDamage:(p,amount,actor)=>hitPlayer(p,amount,actor.label,actor)});
+    wilderness.sync((saved.wilderness||[]).map(n=>({...n,enemy:null})));
+    function broadcastHit(p,target,damage,weapon){const event={type:'sharedHit',attacker:p.id,target:target.id,damage,hp:target.hp,max:target.max,weapon,from:{x:p.x,y:(p.y??p.base)+1.14,z:p.z},to:{x:target.x,y:geometry.characterGround(target.x,target.z)+.9,z:target.z}};for(const observer of players.values())if(publicPlayer(observer)&&near(observer,target)<45)send(observer,event);}
+    function monsterDrops(kind,target,owner){for(const record of rollMonsterDrops(kind,random))Object.assign(drop(record.lootKind,target.x,target.z,owner,record.amount),record,{base:geometry.characterGround(target.x,target.z)+.025});}
     function freeDeckSpot(){
         const spots=Array.from({length:16},(_,i)=>({x:-2.4+(i%4)*.8,z:-.6+Math.floor(i/4)*.4}));
         return spots.find(spot=>![...players.values()].some(p=>passengers.has(p.id)&&p.deck&&Math.hypot(p.deck.x-spot.x,p.deck.z-spot.z)<.32))||spots[0];
     }
-    function drop(kind,x,z,owner=null,amount=1){const item={id:'shared-loot-'+(++lootSerial),kind:'loot',network:true,lootKind:kind,x,z,owner,amount,unlockAt:clock+15,expires:clock+120,label:kind==='coins'?amount+' coins':kind==='sandwich'?'Sandwich':'Velociraptor remains',description:kind==='sandwich'?'A sandwich, acquired through a rather circuitous supply chain.':'Shared loot. The hunter has first claim for fifteen seconds.'};loot.set(item.id,item);return item;}
-    function hitPlayer(p,amount,source,attacker){if(!eligible(p))return;const damage=Math.min(p.hp,rollEnemyDamage(amount,level(p),random));p.hp-=damage;p.damagePending=true;send(p,{type:'damage',damage,hp:p.hp,max:30,source,attacker:attacker?.id});if(!p.hp){p.respawnAllowed=true;p.attack=null;send(p,{type:'caught',source});}dirty(p);}
-    function clearShot(p,target){
-        if(near(p,target)>5.001)return false;
+    function drop(kind,x,z,owner=null,amount=1){const item={id:'shared-loot-'+(++lootSerial),kind:'loot',network:true,...itemLoot(kind,amount),x,z,owner,unlockAt:clock+15,expires:clock+120};loot.set(item.id,item);return item;}
+    function hitPlayer(p,amount,source,attacker){if(!eligible(p))return;const damage=Math.min(p.hp,Math.max(0,rollEnemyDamage(amount,level(p),random)-equipmentDefense({iceTop:p.appearance?.iceTop&&equipmentOwned(p.inventory.economy.state,'ice-top'),icePants:p.appearance?.icePants&&equipmentOwned(p.inventory.economy.state,'ice-pants')})));p.hp-=damage;p.damagePending=true;send(p,{type:'damage',damage,hp:p.hp,max:30,source,attacker:attacker?.id});if(!p.hp){p.respawnAllowed=true;p.attack=null;send(p,{type:'caught',source});}dirty(p);}
+    function clearShot(p,target,range=5){
+        if(near(p,target)>range+.001||Math.abs(p.y-geometry.characterGround(target.x,target.z))>3)return false;
         if(!geometry.lineClear)return true;return geometry.lineClear({...p,base:p.y},{...target,base:geometry.characterGround(target.x,target.z)});
     }
-    function shoot(p,target){
-        if(!eligible(p)||!ownsRailgun(p))return {ok:false,message:'You need an equipped railgun and both feet available.'};
+    function shoot(p,target,weapon='railgun'){
+        if(!eligible(p)||!ownsWeapon(p,weapon))return {ok:false,message:'You need to own that weapon and have both feet available.'};
         if(p.shotAt>clock)return {ok:false,cooldown:true};
         if(!target||!target.hp||target===raptor&&raptor.phase!=='loose')return {ok:false,message:'That target is unavailable.'};
-        if(!clearShot(p,target))return {ok:false,message:'Move within five tiles with a clear line of fire.'};
-        p.shotAt=clock+.8;const damage=Math.min(target.hp,rollWeaponDamage(level(p),'railgun',random));target.hp-=damage;
-        const event={type:'sharedHit',attacker:p.id,target:target.id,damage,hp:target.hp,max:target.max,from:{x:p.x,y:p.y+1.14,z:p.z},to:{x:target.x,y:geometry.characterGround(target.x,target.z)+.9,z:target.z}};
-        for(const observer of players.values())if(publicPlayer(observer)&&near(observer,target)<45)send(observer,event);
-        if(!target.hp){p.attack=null;if(target===raptor){raptor.phase='dead';raptor.path=[];raptor.resetAt=clock+45;drop('raptor',target.x,target.z,p.owner);}else{target.respawn=10;drop('sandwich',target.x,target.z,p.owner);}dirty(p);}
+        if(!clearShot(p,target,ITEM_STATS[weapon].range))return {ok:false,message:'Move within weapon range with a clear line of attack.'};
+        p.shotAt=clock+ITEM_STATS[weapon].interval;
+        if(target.wilderness){const result=wilderness.strike(target.id,{...p,level:level(p),weapon});dirty(p);return result;}
+        const damage=Math.min(target.hp,rollWeaponDamage(level(p),weapon,random));target.hp-=damage;broadcastHit(p,target,damage,weapon);
+        if(!target.hp){p.attack=null;if(target===raptor){raptor.phase='dead';raptor.path=[];raptor.resetAt=clock+MONSTER_STATS.raptor.respawn;monsterDrops('raptor',target,p.owner);}else{target.respawn=MONSTER_STATS.cow.respawn;monsterDrops('cow',target,p.owner);}dirty(p);}
         return {ok:true,damage};
     }
     function leave(p){
@@ -65,11 +74,12 @@ export function createSharedWorld({geometry,players,send,dirty,random=Math.rando
     function command(p,action,args={}){
         if(action==='stopAttack'){p.attack=null;return {ok:true};}
         if(!publicPlayer(p))return {ok:false,message:'That shared-world interaction is unavailable in this private map instance.'};
-        if(action==='attack'){const target=[...cows,raptor].find(n=>n.id===args.id);const result=shoot(p,target);if(result.ok||result.cooldown)p.attack=target?.id;return result;}
+        if(action==='attack'){const target=[...cows,raptor,...wilderness.actors].find(n=>n.id===args.id),weapon=args.weapon||'railgun';const result=shoot(p,target,weapon);if(result.ok||result.cooldown){p.attack=target?.id;p.attackWeapon=weapon;}return result;}
+        if(action==='petBear'){if(!eligible(p))return {ok:false,message:'Find your feet before petting the bear.'};p.attack=null;return wilderness.pet(args.id,p);}
         if(action==='releaseRaptor'){
             if(near(p,{x:JURASSIC.x,z:JURASSIC.entry.y})>7)return {ok:false,message:'Speak to the scientist at Jurassic Biosciences.'};
             if(raptor.phase!=='caged')return {ok:true,message:'The shared recovery protocol is already in progress.'};
-            Object.assign(raptor,{phase:'releasing',release:0,hp:50,x:JURASSIC.exit.x,z:JURASSIC.cage.z,path:[],repath:0});return {ok:true};
+            Object.assign(raptor,{phase:'releasing',release:0,hp:MONSTER_STATS.raptor.hp,x:JURASSIC.exit.x,z:JURASSIC.cage.z,path:[],repath:0});return {ok:true};
         }
         if(action==='releaseTiger'){
             if(near(p,{x:SF_ZOO.entry.x+.5,z:SF_ZOO.entry.y+.5})>14)return {ok:false,message:'Go to the tiger enclosure first.'};
@@ -139,7 +149,7 @@ export function createSharedWorld({geometry,players,send,dirty,random=Math.rando
         for(const cow of cows)if(!cow.hp){cow.respawn=Math.max(0,cow.respawn-dt);if(!cow.respawn)cow.hp=cow.max;}
         for(const [id,item] of loot)if(item.expires<=clock||item.wallExpiresAt&&item.wallExpiresAt<=now())loot.delete(id);
         for(const p of players.values()){
-            if(p.attack){const target=[...cows,raptor].find(n=>n.id===p.attack);if(!target||!target.hp||!eligible(p)||near(p,target)>5.1)p.attack=null;else if(p.shotAt<=clock)shoot(p,target);}
+            if(p.attack){const target=[...cows,raptor,...wilderness.actors].find(n=>n.id===p.attack),weapon=p.attackWeapon||'railgun';if(!target||!target.hp||!eligible(p)||near(p,target)>ITEM_STATS[weapon].range+.1)p.attack=null;else if(p.shotAt<=clock)shoot(p,target,weapon);}
         }
         const event=airship.update(dt),ship=airship.state.position||shipHome;
         for(const item of loot.values())if(item.ship){const c=Math.cos(airship.state.heading),s=Math.sin(airship.state.heading);item.x=ship.x+item.deck.x*c-item.deck.z*s;item.z=ship.z+item.deck.x*s+item.deck.z*c;item.base=ship.y+AIRSHIP_BASKET.floor;}
@@ -153,16 +163,17 @@ export function createSharedWorld({geometry,players,send,dirty,random=Math.rando
             const c=Math.cos(airship.state.heading),s=Math.sin(airship.state.heading);p.x=ship.x+deck.x*c-deck.z*s;p.z=ship.z+deck.x*s+deck.z*c;p.y=ship.y+AIRSHIP_BASKET.floor;p.mode='airship';
         }
         const available=[...players.values()].filter(eligible);
+        wilderness.update(dt,available);
         focus=available.reduce((best,p)=>!best||near(p,{x:tiger.state.tiger.x+.5,z:tiger.state.tiger.y+.5})<near(best,{x:tiger.state.tiger.x+.5,z:tiger.state.tiger.y+.5})?p:best,null);
         if(focus){tigerPlayer.x=focus.x-.5;tigerPlayer.y=focus.z-.5;}tiger.update(dt);
         if(raptor.phase==='releasing'){raptor.release=Math.min(1,raptor.release+dt);raptor.z=JURASSIC.cage.z+(JURASSIC.exit.z-JURASSIC.cage.z)*raptor.release;if(raptor.release===1){raptor.phase='loose';raptor.repath=0;}}
-        else if(raptor.phase==='dead'&&clock>=raptor.resetAt){Object.assign(raptor,{phase:'caged',x:JURASSIC.cage.x,z:JURASSIC.cage.z,hp:50,path:[]});}
+        else if(raptor.phase==='dead'&&clock>=raptor.resetAt){Object.assign(raptor,{phase:'caged',x:JURASSIC.cage.x,z:JURASSIC.cage.z,hp:MONSTER_STATS.raptor.hp,path:[]});}
         else if(raptor.phase==='loose'){
             raptor.repath-=dt;raptor.attackIn-=dt;
             if(raptor.repath<=0){raptor.repath=.75;const candidates=[...available,...npcList.filter(n=>!n.expeditionDead&&!n.alienId&&!n.child&&!n.baby&&!n.dogWalker&&!n.stroller&&['Man','Woman'].includes(n.label))];candidates.sort((a,b)=>near(a,raptor)-near(b,raptor));raptor.prey=null;raptor.path=[];for(const target of candidates.slice(0,8)){const path=pathTo(raptor,target);if(path){raptor.prey=target;raptor.path=path;break;}}}
             let budget=dt*5.1;while(budget>0&&raptor.path.length){const target=raptor.path[0],distance=near(raptor,target),step=Math.min(budget,distance);if(distance>1e-7){raptor.angle=Math.atan2(target.z-raptor.z,target.x-raptor.x);raptor.x+=(target.x-raptor.x)*step/distance;raptor.z+=(target.z-raptor.z)*step/distance;}budget-=step;if(distance<=step+1e-7)raptor.path.shift();}
             const prey=raptor.prey;
-            if(prey&&near(raptor,prey)<1.15&&raptor.attackIn<=0){raptor.attackIn=1.5;if(players.has(prey.id))hitPlayer(prey,6,'velociraptor',raptor);else{
+            if(prey&&near(raptor,prey)<1.15&&raptor.attackIn<=0){raptor.attackIn=1.5;if(players.has(prey.id))hitPlayer(prey,MONSTER_STATS.raptor.damage,'velociraptor',raptor);else{
                 if(random()<.5){prey.expeditionDead=true;prey.recoverAt=clock+35;drop('coins',prey.x,prey.z,null,3+Math.floor(random()*5));}
                 if(random()<.5){raptor.hp=0;raptor.phase='dead';raptor.resetAt=clock+45;raptor.path=[];drop('raptor',raptor.x,raptor.z);}raptor.repath=0;
             }}
@@ -188,14 +199,14 @@ export function createSharedWorld({geometry,players,send,dirty,random=Math.rando
         // This is intentionally a cow-only query. No generic damage path can
         // reach players, pedestrians, the raptor, spectres or a private kraken.
         for(const cow of cows)if(cowInBombArea(cow,bomb)){
-            cow.hp=0;cow.respawn=10;drop('sandwich',cow.x,cow.z,bomb.owner);
+            cow.hp=0;cow.respawn=MONSTER_STATS.cow.respawn;monsterDrops('cow',cow,bomb.owner);
             for(const observer of players.values())if(publicPlayer(observer)&&near(observer,cow)<65)send(observer,{type:'cowBombed',attacker:bomb.attacker,target:cow.id,damage:BOMB_DAMAGE,hp:0,max:cow.max});
         }
     }
     function snapshot(observer){
         const npcs=observer?npcIndex.near(observer.x,observer.z,38,32):npcList;
         const s=airship.state;
-        return {clock,cows:cows.map(c=>({...c})),raptor:{id:raptor.id,x:raptor.x,z:raptor.z,hp:raptor.hp,max:50,phase:raptor.phase,angle:raptor.angle,release:raptor.release,preyId:raptor.prey?.id??null},tiger:{...tiger.state,tiger:{...tiger.state.tiger,path:[],target:null},wardens:tiger.state.wardens.map(w=>({...w,path:[],target:null}))},airship:{active:s.active,phase:s.phase,position:s.position||shipHome,heading:s.heading,speed:s.speed,captain,passengers:[...passengers],rope:{...shipRope},grapplers:[...players.values()].filter(p=>p.grappling).map(p=>({id:p.id,x:p.x,y:p.y,z:p.z}))},loot:[...loot.values()].filter(item=>!observer||near(observer,item)<45).slice(0,observer?64:Infinity).map(item=>{const {owner,...visible}=item;return {...visible,mine:!!observer&&owner===observer.owner};}),npcs:npcs.map(n=>({id:n.id,x:n.x,z:n.z,base:n.base,angle:n.angle,motion:n.motion||0,phase:n.phase||0,level:actorLevel(n),elapsed:n.elapsed,hold:n.hold||0,expeditionDead:!!n.expeditionDead}))};
+        return {clock,peptideSpawnAt:nextPeptideAt,wilderness:wilderness.snapshot().filter(n=>!observer||near(observer,n)<45),cows:cows.map(c=>({...c})),raptor:{id:raptor.id,x:raptor.x,z:raptor.z,hp:raptor.hp,max:50,phase:raptor.phase,angle:raptor.angle,release:raptor.release,preyId:raptor.prey?.id??null},tiger:{...tiger.state,tiger:{...tiger.state.tiger,path:[],target:null},wardens:tiger.state.wardens.map(w=>({...w,path:[],target:null}))},airship:{active:s.active,phase:s.phase,position:s.position||shipHome,heading:s.heading,speed:s.speed,captain,passengers:[...passengers],rope:{...shipRope},grapplers:[...players.values()].filter(p=>p.grappling).map(p=>({id:p.id,x:p.x,y:p.y,z:p.z}))},loot:[...loot.values()].filter(item=>!observer||near(observer,item)<45).slice(0,observer?64:Infinity).map(item=>{const {owner,...visible}=item;return {...visible,mine:!!observer&&owner===observer.owner};}),npcs:npcs.map(n=>({id:n.id,x:n.x,z:n.z,base:n.base,angle:n.angle,motion:n.motion||0,phase:n.phase||0,level:actorLevel(n),elapsed:n.elapsed,hold:n.hold||0,expeditionDead:!!n.expeditionDead}))};
     }
-    return {command,tick,snapshot,leave,dropInventory,bombCows,airship,passengers,raptor,cows,tiger,loot,npcById,get clock(){return clock;},persist:()=>({clock,lootSerial,nextPeptideAt,tiger:tiger.snapshot(),airship:{...airship.state},npcs:npcList.map(n=>({id:n.id,x:n.x,z:n.z,angle:n.angle,phase:n.phase,elapsed:n.elapsed,hold:n.hold,motion:n.motion,pause:n.pause,routeIndex:n.routeIndex,expeditionDead:n.expeditionDead,recoverAt:n.recoverAt,...(n.roam?{roam:{index:n.roam.index,pause:n.roam.pause,stops:n.roam.stops}}:{})})),loot:[...loot.values()],cows:cows.map(c=>({...c})),raptor:{x:raptor.x,z:raptor.z,hp:raptor.hp,phase:raptor.phase,angle:raptor.angle,resetAt:raptor.resetAt,release:raptor.release}})};
+    return {command,tick,snapshot,leave,dropInventory,wilderness,bombCows,airship,passengers,raptor,cows,tiger,loot,npcById,get clock(){return clock;},persist:()=>({clock,lootSerial,wilderness:wilderness.snapshot(),nextPeptideAt,tiger:tiger.snapshot(),airship:{...airship.state},npcs:npcList.map(n=>({id:n.id,x:n.x,z:n.z,angle:n.angle,phase:n.phase,elapsed:n.elapsed,hold:n.hold,motion:n.motion,pause:n.pause,routeIndex:n.routeIndex,expeditionDead:n.expeditionDead,recoverAt:n.recoverAt,...(n.roam?{roam:{index:n.roam.index,pause:n.roam.pause,stops:n.roam.stops}}:{})})),loot:[...loot.values()],cows:cows.map(c=>({...c})),raptor:{x:raptor.x,z:raptor.z,hp:raptor.hp,phase:raptor.phase,angle:raptor.angle,resetAt:raptor.resetAt,release:raptor.release}})};
 }

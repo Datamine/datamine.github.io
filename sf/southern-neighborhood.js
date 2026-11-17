@@ -1,3 +1,4 @@
+import {inArmoryGrounds} from './armory-layout.js';
 import {inAirportFieldBillboards} from './airport-billboards.js';
 import {drawSouthernStreetGardens} from './southern-street-gardens.js';
 import {southernHousingStyle} from './neighborhood-palette.js';
@@ -39,13 +40,13 @@ export function populateSouthernNeighborhood({mesh,terrain,makeTownhomeRow,tree,
     const trees=[];
     for(let i=0;i<185;i++){
         const x=21+rand(i,11,2)*50,z=99+rand(i,13,7)*70;
-        if(inAirportFieldBillboards(x,z,1)||inSouthernCraft(x,z,.65)||inSocialGrounds(x,z,1)||inTechGrounds(x,z,1)||inHaberdasherGrounds(x,z,1)||inGPUFactoryGrounds(x,z,1)||inJurassicGrounds(x,z,1)||inCowPen(x,z,1)||inCivicGrounds(x,z,1.2)||inSquareConstruction(x,z,.6)||inPacificaPark(x,z)||researchCampusAt(x,z)||gymAccess(x,z)||inTimesSquare(x,z)||roadDistance(x,z)<1.3||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,1)||x>60&&z<107||x>64&&z>128||x>74)continue;
+        if(inArmoryGrounds(x,z,1)||inAirportFieldBillboards(x,z,1)||inSouthernCraft(x,z,.65)||inSocialGrounds(x,z,1)||inTechGrounds(x,z,1)||inHaberdasherGrounds(x,z,1)||inGPUFactoryGrounds(x,z,1)||inJurassicGrounds(x,z,1)||inCowPen(x,z,1)||inCivicGrounds(x,z,1.2)||inSquareConstruction(x,z,.6)||inPacificaPark(x,z)||researchCampusAt(x,z)||gymAccess(x,z)||inTimesSquare(x,z)||roadDistance(x,z)<1.3||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,1)||x>60&&z<107||x>64&&z>128||x>74)continue;
         if(terrain.height(x,z)<2.5&&i%3)continue;
         tree(x-.5,z-.5,i%3===0?true:i%7===0?3:false);trees.push({x,z});
     }
     for(let i=0;i<360;i++){
         const x=54+rand(i,21,4)*26,z=117+rand(i,19,8)*30;
-        if(inAirportFieldBillboards(x,z,1)||inSouthernCraft(x,z,.65)||inCivicGrounds(x,z,1.2)||roadDistance(x,z)<1.15||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,.5)||entrances.some(p=>Math.hypot(p.x-x,p.z-z)<1.3))continue;
+        if(inArmoryGrounds(x,z,1)||inAirportFieldBillboards(x,z,1)||inSouthernCraft(x,z,.65)||inCivicGrounds(x,z,1.2)||roadDistance(x,z)<1.15||southernTrailDistance(x,z)<.95||inSouthernHousePlot(x,z,.5)||entrances.some(p=>Math.hypot(p.x-x,p.z-z)<1.3))continue;
         tree(x-.5,z-.5,true,true);trees.push({x,z,evergreen:true});
     }
     for(const [x,z] of [[44.3,112.1],[47.6,113.6],[52.2,109.4]])bench(x,z);

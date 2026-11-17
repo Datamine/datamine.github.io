@@ -1,4 +1,4 @@
-/** Small code-native lodge and grocery details share the existing material
+/** Small code-native lodge and market details share the existing material
  * atlas. No bitmap download or per-frame texture construction is required. */
 export function drawGuildInterior(m,b,base){
     const {x,y:z,w,d}=b;
@@ -13,14 +13,17 @@ export function drawGuildInterior(m,b,base){
     const cx=x+w/2,cz=z+d/2,brass='#c5a967';
     for(const [a,b] of [[[cx-.6,base+.025,cz+.45],[cx,base+.025,cz-.55]],[[cx,base+.025,cz-.55],[cx+.6,base+.025,cz+.45]],[[cx-.48,base+.027,cz-.05],[cx-.48,base+.027,cz+.5]],[[cx-.48,base+.027,cz+.5],[cx+.48,base+.027,cz+.5]]])m.rod(a,b,.022,brass,6,{metal:.35});
 }
-export function drawWholeFoodsInterior(m,b,base){
+export function drawTechnologistMarketInterior(m,b,base){
     const {x,y:z,w,d}=b;
     m.box(x+.12,base,z+.12,w-.24,.012,d-.24,'#c8c5ae','stone');
     for(const xx of [x+.25,x+w-.7]){
-        m.box(xx,base,z+.3,.45,.76,d-1,'#8b7955','wood');
+        m.box(xx,base,z+.3,.45,.76,d-1,'#3b4d40','wood');
+        for(let j=0;j<5;j++)m.box(xx-.025,base+.77,z+.42+j*.33,.5,.065,.28,'#a38658','wood');
+        for(let j=0;j<6;j++)m.box(xx-.06,base+1.55,z+.28+j*(d-.96)/6,.57,.055,(d-.96)/6,j%2?'#435b46':'#202c26');
         for(let j=0;j<5;j++)for(let i=0;i<2;i++)m.sphere(xx+.12+i*.2,base+.82,z+.5+j*.33,.085,.075,.08,['#b04e3d','#63854d','#d3ae50'][(i+j)%3],8,5);
     }
-    m.box(x+w/2-.5,base,z+.25,1,.74,.4,'#48654c','wood');m.box(x+w/2+.15,base+.74,z+.3,.21,.27,.12,'#4a5552');
+    m.box(x+w/2-.5,base,z+.25,1,.74,.4,'#48654c','wood');m.box(x+w/2+.15,base+.74,z+.3,.21,.27,.12,'#202d27');m.box(x+w/2+.17,base+.81,z+.422,.17,.14,.006,'#2f985d',{emissive:.25});
+    for(let i=0;i<3;i++)m.box(x+w/2+.19+i*.043,base+.84+i*.025,z+.43,.015,.055,.004,'#a6e6a1',{emissive:.3});
 }
 export function drawGuildEmblem(m,b,base,height){
     const cx=b.x+b.w/2,z=b.y+b.d+.108,y=base+height-.9,c='#c6a767';

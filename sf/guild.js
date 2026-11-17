@@ -1,7 +1,9 @@
 export const GUILD_RESET_MS=3600000,GUILD_RESETS_REQUIRED=24,PEPTIDE_SPAWN_MS=600000;
+export const TECHNOLOGIST_MARKET="Technologist's Farmers Market";
 export const GUILD_BUILDINGS=Object.freeze([
     {id:'freemasons-guild',name:"Freemasons' Guild",label:"Freemasons' Guild",category:'Nob Hill · members club',x:38,y:24,w:4.4,d:3.8,h:100,worldHeight:3.15,color:'#b8a58a',trim:'#ddd0aa',style:'civic',roof:'gable',roofColor:'#5b7779',activityBuilding:true,description:'A sandstone lodge with a checkerboard floor, brass compasses and an unusually well-funded refreshments committee. Ray, in the red suit, handles admission.'},
-    {id:'sunset-whole-foods',name:'WHOLE FOODS',label:'Sunset Whole Foods',category:'Sunset · groceries & unusual supplements',x:17,y:40,w:4,d:3,h:62,color:'#91a182',trim:'#e0d9bd',style:'shop',roof:'flat',roofColor:'#5a7061',activityBuilding:true,description:'Organic produce, immaculate shelving and an unpredictable supplement supply chain. A shared vial of peptides appears at a random spot on the forecourt every ten minutes.'}
+    // Preserve the site ID so existing visits and map references still work.
+    {id:'sunset-whole-foods',name:TECHNOLOGIST_MARKET,label:TECHNOLOGIST_MARKET,signText:"Technologist's\nFarmers Market",category:'Sunset · produce & molecular agriculture',x:17,y:40,w:4,d:3,h:62,color:'#6e927d',trim:'#dbd2b1',style:'shop',roof:'flat',roofColor:'#344b42',activityBuilding:true,description:'Heirloom produce, black coats and exceptionally small sunglasses. The farmers grow the future, mostly in vials. A shared peptide appears on the forecourt every ten minutes.'}
 ]);
 
 /** Each return requires a full server-clock hour since the last qualifying
@@ -23,7 +25,7 @@ export function createGuildMembership(saved={},now=Date.now,onSave=()=>{}){
     }
     function donate(consume){
         if(state.member)return {ok:true,message:'You are already a member. Keep your peptides; the refreshments committee is quite lively enough.',guild:status()};
-        if(!consume())return {ok:false,message:'Bring me one vial of peptides. Try the Whole Foods in the Sunset; a shared vial appears every ten minutes.',guild:status()};
+        if(!consume())return {ok:false,message:'Bring me one vial of peptides. Try the '+TECHNOLOGIST_MARKET+' in the Sunset; a shared vial appears every ten minutes.',guild:status()};
         state.visits++;state.lastVisitAt??=now();state.member=state.visits===GUILD_RESETS_REQUIRED;onSave({...state});
         return {ok:true,message:state.member?'Your twenty-fourth promotion. Rank 25! Welcome to the Freemasons’ Guild!':'One vial, one promotion. You are now Rank '+(state.visits+1)+' ('+state.visits+'/24 promotions).',guild:status()};
     }
@@ -48,5 +50,22 @@ export function peptideSpawnPoints(site,walkable){
         const x=cx+u*c-(site.d/2+v)*s,z=cz+u*s+(site.d/2+v)*c;
         if(walkable(x-.5,z-.5))points.push({x,z});
     }
-    if(!points.length)throw Error('Sunset Whole Foods needs a reachable peptide forecourt');return points;
+    if(!points.length)throw Error(TECHNOLOGIST_MARKET+' needs a reachable peptide forecourt');return points;
+}
+
+export function peptideCountdown(nextSpawnAt,time=Date.now()){
+    if(!Number.isFinite(nextSpawnAt))return 'The market clock is synchronizing. Ask me again in a moment.';
+    const seconds=Math.max(0,Math.ceil((nextSpawnAt-time)/1000));
+    if(!seconds)return 'The next peptide vial should appear any moment now.';
+    const minutes=Math.floor(seconds/60),rest=seconds%60,parts=[];
+    if(minutes)parts.push(minutes+' minute'+(minutes===1?'':'s'));
+    if(rest)parts.push(rest+' second'+(rest===1?'':'s'));
+    return 'The next shared peptide vial arrives in '+parts.join(' and ')+'.';
+}
+export function marketFarmerDialogue(npc,{nextSpawnAt,now=Date.now}){
+    const report=()=>peptideCountdown(nextSpawnAt(),now());
+    return {...npc,repeat:true,intro:()=>npc.marketLine+' '+report(),question:'What would you like to know?',decline:'Leave',choices:[
+        {label:'When is the next peptide spawn?',accept:()=>({ok:true,message:report()})},
+        {label:'What are you growing?',receipt:'Heirloom tomatoes, Swiss chard, and a shared vial of peptides every ten minutes. The vial is visible to everyone; whoever takes it first gets it. Ray accepts one vial per guild promotion.'}
+    ]};
 }

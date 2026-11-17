@@ -7,6 +7,7 @@ import {WORLD_SIZE,STREET_LAYOUT_SIZE} from './geography.js';
 import {SQUARE_DIGSITE} from './square-construction-layout.js';
 import {JURASSIC,COW_PEN} from './jurassic-layout.js';
 import {GPU_FACTORY} from './gpu-layout.js';
+import {ARMORY} from './armory-layout.js';
 const peninsulaSecond=64.5*WORLD_SIZE/STREET_LAYOUT_SIZE,peninsulaThird=70.5*WORLD_SIZE/STREET_LAYOUT_SIZE;
 export const PENINSULA_TRUNK_STREETS=Object.freeze([
     {name:'Third Street south',points:[[peninsulaThird,77.5*WORLD_SIZE/STREET_LAYOUT_SIZE],[peninsulaThird,132.5]]},
@@ -55,6 +56,7 @@ export const PENINSULA_GREENS=Object.freeze([
 // Protected public land and existing facilities. A plot must clear both this
 // registry and every actual road/path, rather than assuming empty space is a lot.
 export const PENINSULA_RESERVATIONS=Object.freeze([
+    [ARMORY.x-ARMORY.w/2-.3,ARMORY.z-ARMORY.d/2-.3,ARMORY.x+ARMORY.w/2+.3,ARMORY.z+ARMORY.d/2+.6],
     ...AIRPORT_FIELD_ADS.map(p=>[p.x-1.2,p.z-.6,p.x+1.2,p.z+.6]),
     ...[TWITTER_HQ,SALES_CONFERENCE].map(s=>[s.x-s.w/2-.25,s.z-s.d/2-.3,s.x+s.w/2+.25,s.z+s.d/2+1.2]),
     [APPLE_CAMPUS.x-3.9,APPLE_CAMPUS.z-4.3,APPLE_CAMPUS.x+3.9,APPLE_CAMPUS.z+3.9],

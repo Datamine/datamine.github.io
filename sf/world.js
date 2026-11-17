@@ -1,4 +1,13 @@
+import {createLoadingScreen,nextLoadingPaint} from './loading-screen.js';
+import {createTeleportTablets,TABLET_PLACES} from './teleport-tablets.js';
+import {drawTabletTeleport} from './teleport-models.js';
+import {createMarinLand} from './marin-land.js';
+import {createCountryside} from './countryside.js';
 import {createDebugConsole,debugMapPosition,debugTilePosition,createFrameMeter} from './debug-console.js';
+import {ITEM_STATS,selectedWeapon,equipmentOwned,equipmentDefense} from './item-stats.js';
+import {createWilderness,wildernessSpawns} from './wilderness.js';
+import {drawWildMonster} from './wilderness-models.js';
+import {drawArmory} from './armory.js';
 import {packStaticMesh,batchInFrustum} from './static-batches.js';
 import {SOUTHERN_CRAFT_SIGNS} from './southern-craft.js';
 import {GLASS_UV,isGlassVertex,meshGlassTriangles,createGlazingBatch} from './glazing.js';
@@ -46,7 +55,7 @@ import {JURASSIC_SIGNS,drawJurassicCampus,drawRaptorGate,drawVelociraptor,drawCa
 import {createForwardRoll,forwardRollTarget,applyForwardRollMesh,FORWARD_ROLL_DURATION,FORWARD_ROLL_SPEED} from './forward-roll.js';
 import {createAILabJob} from './ai-lab.js';
 import {createAIInterviewUI} from './ai-interview-ui.js';
-import {createHitpoints,createAlienBattle} from './combat.js';
+import {createHitpoints,createAlienBattle,rollEnemyDamage} from './combat.js';
 import {createDeli,drawDeliveryCooler} from './deli.js';
 import {createStreetTraffic} from './street-traffic.js';
 import {AIRPORT_FIELD_ADS,planAirportBillboards,drawAirportBillboard} from './airport-billboards.js';
@@ -98,7 +107,7 @@ import {bootMultiplayer} from './multiplayer-client.js';
 import {createWorldMultiplayer,setupMultiplayerSettings} from './multiplayer-world.js';
 import {createCombatFeedback,createCombatOverlay} from './combat-feedback.js';
 import {actorLevel} from './levels.js';
-import {GUILD_BUILDINGS,createGuildMembership,guildDialogue,insideGuild,peptideSpawnPoints,PEPTIDE_SPAWN_MS} from './guild.js';
+import {GUILD_BUILDINGS,createGuildMembership,guildDialogue,marketFarmerDialogue,insideGuild,peptideSpawnPoints,PEPTIDE_SPAWN_MS,TECHNOLOGIST_MARKET} from './guild.js';
 import {PUBLIC_INSTANCE,ILLUMINATI_CAVE,CAVE_TILES,CAVE_NAVIGATION,ILLUMINATI_PRICE} from './map-instances.js';
 import {createSecretAdventures} from './secret-adventures.js';
 import {bankerDialogue} from './banking.js';
@@ -118,7 +127,7 @@ import {drawEstateResidents} from './estate-life.js';
 import {createCityLife,clipLifeRoutes,drawStreetcar,NOE_VALLEY_BOUNDS} from './life.js';
 import {dogWalkerDialogue} from './companions.js';
 import {createTrafficSignals} from './traffic-signals.js';
-import {createSlowBus} from './slow-bus.js';
+import {createSlowBus,planNightlifeBus} from './slow-bus.js';
 import {BUS_SIGNS,drawTrafficSignalPosts,drawTrafficSignalLights,drawSlowBus} from './transit-models.js';
 import {GPU_FACTORY} from './gpu-layout.js';
 import {GPU_FACTORY_SIGNS,oceanBeachSandSite,drawBeachSand,drawGPUFactory} from './gpu-factory.js';
@@ -137,7 +146,7 @@ import {WORLD_SIZE,REFERENCE_SIZE,STREET_LAYOUT_SIZE,EAST_BAY_COAST_X,PARK_BOUND
 /* Static WebGL world entry point. Terrain and models are actual 3D triangle
    meshes; the 2D canvases below are only maps and interface labels. No game assets
    or renderer code are copied from RuneScape or private-server clients. */
-function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={}){
+function createSFWorld({headless=false,retainInteriors=false,multiplayer=null,loading=null}={}){
     const $=id=>document.getElementById(id),world=headless?null:$('sf-world'),canvas=headless?null:$('sf-canvas'),map=headless?null:$('sf-minimap');
     const gl=headless?null:canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'low-power'});
     const mc=headless?null:map.getContext('2d');
@@ -152,12 +161,14 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     const mapPolygon=points=>points.map(p=>p.map(mapPosition));
     const TERRAIN_RES=4,TERRAIN_GRID=N*TERRAIN_RES,WALK_SPEED=4.6,ACCELERATION=24,CLEARANCE=.16;
     const occupied=new Uint8Array(N*N),landMask=new Uint8Array(N*N),reserved=new Uint8Array(N*N),roadIndex=new Int16Array(N*N),roadDistance=new Float32Array(N*N);
-    const objects=[],places=[],instituteRooms=[],visited=new Set();
+    const objects=[],places=[],instituteRooms=[],visited=new Set(),policeActors=new Map();
     let multiplayerWorld=null,multiplayerSettings=null;
     let secretWorld=null,caveMesh=null,caveGPU=null,oldMan=null,secretStairs=null;
+    let wilderness=null,wildTarget=null,wildAttackIn=0,wildLootSerial=0;
     let bankService=null,bankMenu=null,banker=null;
+    let tabletService=null,tabletWizard=null,tabletDestinations=null;
     const caveExitSite={id:'illuminati-exit',kind:'cave-exit',label:'Stairs to the guild',entry:{x:13,y:24},description:'A long stairway returns to the Freemasons’ Guild above. The public minimap resumes on the surface.'};
-    const bomberSite={id:'personal-b2',kind:'stealth-bomber',label:'B-2 Stealth Bomber',entry:{x:13,y:16},description:'Your personal flying wing. Cruise just below the airship; hold Control for rocket speed. Land by parachuting out. The Illuminati covers replacement aircraft. Space drops one bomb every 30 seconds: 100 damage in a 3×3 area, affecting cows only.'};
+    const bomberSite={id:'personal-b2',kind:'stealth-bomber',label:'B-2 Stealth Bomber',entry:{x:13,y:16},description:'Your personal flying wing. Cruise just below the airship; hold Shift for rocket speed. Land by parachuting out. The Illuminati covers replacement aircraft. Space drops one bomb every 30 seconds: 100 damage in a 3×3 area, affecting cows only.'};
     let savedGuild={};if(!headless)try{savedGuild=JSON.parse(localStorage.getItem('sf-guild-v1')||'{}')||{};}catch{}
     let localPeptides=Number.isSafeInteger(savedGuild.peptides)?Math.max(0,savedGuild.peptides):0,peptideSpawns=[],nextLocalPeptideAt=Number.isFinite(savedGuild.nextPeptideAt)?savedGuild.nextPeptideAt:Date.now()+PEPTIDE_SPAWN_MS;
     function saveLocalGuild(){if(!headless&&!multiplayer)try{localStorage.setItem('sf-guild-v1',JSON.stringify({...localGuild.state,peptides:localPeptides,nextPeptideAt:nextLocalPeptideAt}));}catch{}}
@@ -209,12 +220,12 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     const quests=createQuestLog(savedQuests,state=>{if(!headless)try{localStorage.setItem('sf-quests-v1',JSON.stringify(state));}catch{}questMenu?.render();if(state.monkey!=='carrying')monkeyKeeper?.stop();if(built&&!headless)updateAdventureUI();});
     let savedExpeditions={};if(!headless)try{savedExpeditions=JSON.parse(localStorage.getItem('sf-expeditions-v1')||'{}')||{};}catch{}
     let pequodSite=null,ahabNPC=null;
-    const expeditions=createExpeditions({saved:savedExpeditions,health,economy,level:()=>strength.status.level,sharedWorld:()=>!!multiplayer,food:n=>deli?.storeSandwich(n),
+    const expeditions=createExpeditions({saved:savedExpeditions,health,economy,level:()=>strength.status.level,sharedWorld:()=>!!multiplayer,hasBayonet:()=>quests.theyLive.state.bayonet,food:n=>deli?.storeSandwich(n),
         player:()=>({x:player.x+.5,z:player.y+.5,base:playerGround(),isPlayer:true,eligible:!capture.state.active&&!chase?.state.jailed&&!flying()&&!rocket.state.active&&!surf.state.riding&&!rope.climbing&&!sutroClimb.state.active&&tahoe.state.mode==='ground'}),
         pedestrians:()=>[...(cityLife?.people||[]),...(southernLife?.people||[]),...(squareLife?.people||[])],
         routeTo:(a,b)=>pathTo(b.x-.5,b.z-.5,{x:a.x-.5,y:a.z-.5},true)?.map(p=>({x:p.x+.5,z:p.y+.5})),canTravel:(a,b)=>canTravel(a.x-.5,a.z-.5,b.x-.5,b.z-.5,true),lineClear:railgunLineClear,
         onSave:state=>{if(!headless)try{localStorage.setItem('sf-expeditions-v1',JSON.stringify(state));}catch{}questMenu?.render();},onEvent:expeditionEvent});
-    const existingQuestEntries=quests.entries;quests.entries=()=>[...existingQuestEntries(),...expeditions.entries(),...saltMail.entries()];
+    const existingQuestEntries=quests.entries;quests.entries=()=>[...existingQuestEntries(),...expeditions.entries(),...saltMail.entries(),...(secretWorld?[secretWorld.questEntry(guildStatus())]:[])];
     playerLook.cape=expeditions.state.cape&&playerLook.cape;
     // Existing sunglasses owners enter the quest too; a reload never resets it.
     if(sunglasses.state.owned)quests.theyLive.start();
@@ -245,7 +256,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     const sutroClimb=createSutroClimb(),airship=createAirship({worldSize:N,groundHeight:(x,z)=>terrainHeight(x,z)}),rope=createAirshipRope(),bayShipping=createBayShipping(MAP_SCALE),whales=createWhales(),merchants=[],tahoe=createTahoe();
     let ropeReturnHome=false,whalesSeen=false;
     const rocket=createRocketTravel({groundHeight:(x,z)=>terrainHeight(x,z)});
-    let southernLife=null,nightclub=null,goldenGate=null,regionalRoad=null,highwayMesh=null,highwayGPU=null,southernTerrain=null,southernNeighborhood=null;
+    let southernLife=null,nightclub=null,goldenGate=null,marinLand=null,regionalRoad=null,countryside=null,highwayMesh=null,highwayGPU=null,southernTerrain=null,southernNeighborhood=null;
     const flying=()=>airship.state.active&&!rope.onGround;
     const labelPool=[],niaCitizen={id:'nia',label:'Woman',named:'Nia'};
     const HILLS=SF_HILLS.map(h=>({...h,x:mapPosition(h.x),y:mapPosition(h.y),r:mapPosition(h.r)}));
@@ -331,11 +342,12 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             const target={sight:{...detail},detailTarget:true,mesh:interior.mesh,start:section.start,count:section.count,lo,hi};target.sight.object=target;objects.push(target);sights.push(target.sight);
         }
     }
-    function landClearAt(x,y){return esotericCampus?.contains(x+.5,y+.5)||goldenGate?.contains(x+.5,y+.5)||regionalRoad?.contains(x+.5,y+.5)?true:tahoe.contains(x+.5,y+.5)?tahoe.walkable(x+.5,y+.5):airship.contains(x+.5,y+.5)?true:cityNavigation?navFree(x+.5,y+.5):isWalkable(Math.floor(x),Math.floor(y));}
+    function landClearAt(x,y){return countryside?.contains(x+.5,y+.5)||marinLand?.contains(x+.5,y+.5)||esotericCampus?.contains(x+.5,y+.5)||goldenGate?.contains(x+.5,y+.5)||regionalRoad?.contains(x+.5,y+.5)?true:tahoe.contains(x+.5,y+.5)?tahoe.walkable(x+.5,y+.5):airship.contains(x+.5,y+.5)?true:cityNavigation?navFree(x+.5,y+.5):isWalkable(Math.floor(x),Math.floor(y));}
     function clearAt(x,y){if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.free(x,y);return chase?.state.jailed?detention.walkable(x+.5,y+.5):landClearAt(x,y);}
     function canTravel(ax,ay,bx,by,ignoreCustody=false){
         if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.segment({x:ax,y:ay},{x:bx,y:by});
         const endpointFree=ignoreCustody?landClearAt:clearAt;if(!endpointFree(ax,ay)||!endpointFree(bx,by))return false;
+        if(countryside?.segment({x:ax,y:ay},{x:bx,y:by})||marinLand?.segment({x:ax,y:ay},{x:bx,y:by}))return true;
         if(esotericCampus?.segment({x:ax,y:ay},{x:bx,y:by})||goldenGate?.segment({x:ax,y:ay},{x:bx,y:by})||regionalRoad?.segment({x:ax,y:ay},{x:bx,y:by}))return true;
         if(tahoe.contains(ax+.5,ay+.5)||tahoe.contains(bx+.5,by+.5))return tahoe.segment({x:ax,y:ay},{x:bx,y:by});
         if((ignoreCustody||!chase?.state.jailed)&&airship.segment({x:ax,y:ay},{x:bx,y:by}))return true;
@@ -439,6 +451,32 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         ahabNPC={id:'captain-ahab',expeditionRole:'ahab',label:'Captain Ahab',name:'Captain Ahab',x:entry.x+.5,z:entry.y+.5,shore:{x:entry.x+.5,z:entry.y+.5},base:characterGround(entry.x+.5,entry.y+.5),skin:'#ba9f7e',hair:'#c3c1ac',shirt:'#394a58',coat:true,cap:true,angle:Math.PI,height:1.95,description:'Ahab has downsized his ambitions. The procurement requirements remain formidable.',approach:{...entry}};merchants.push(ahabNPC);
         const h=terrainHeight(entry.x+.5,entry.y+.5);for(let x=coast-1.5;x<entry.x+.8;x+=.35){sceneMesh.box(x,.38,PEQUOD.z-.45,.32,.09,.9,'#a58c68','wood');if(Math.floor((x-coast)*10)%7===0)sceneMesh.rod([x,-.25,PEQUOD.z-.4],[x,h+.5,PEQUOD.z-.4],.035,'#827253',9);}
     }
+    function playerWeapon(){return selectedWeapon(playerLook.weapon,{bayonet:quests.theyLive.state.bayonet,railgun:expeditions.state.railgun&&expeditions.state.equipped,battleaxe:equipmentOwned(economy.state,'battleaxe')});}
+    function setupWilderness(){
+        const spawns=wildernessSpawns({marin:goldenGate.gate('marin'),tahoe:TAHOE.base});
+        for(const p of spawns)if(!landClearAt(p.x-.5,p.z-.5))throw Error(p.id+' needs a native walkable spawn');
+        wilderness=createWilderness({spawns,ground:characterGround,canTravel:(a,b)=>canTravel(a.x-.5,a.z-.5,b.x-.5,b.z-.5,true),route:(a,b)=>pathTo(b.x-.5,b.z-.5,{x:a.x-.5,y:a.z-.5})?.map(p=>({x:p.x+.5,z:p.y+.5})),
+            onHit:({actor,damage})=>{if(!headless)expeditionEvent({type:'shot',target:actor,damage,hp:actor.hp,max:actor.max});},
+            onDrop:record=>expeditions.state.loot.push({...record,id:'wild-loot-'+(++wildLootSerial),kind:'loot',expires:expeditions.state.clock+120}),
+            onDamage:(person,amount,actor)=>{if(headless)return;const damage=health.damage(Math.max(0,rollEnemyDamage(amount,strength.status.level)-equipmentDefense(playerLook)));expeditionEvent({type:'damage',damage,hp:health.state.hp,max:health.state.max,target:actor,message:actor.label+' hits you for '+damage+'.'});if(!health.state.hp){wildTarget=null;expeditionEvent({type:'death',message:'You have died and respawned at UCSF Hospital'});}}});
+    }
+    function attackWildMonster(npc){
+        if(capture.state.active||chase?.state.jailed||secretWorld?.bomber.state.active||flying()||rocket.state.active||surf.state.riding||rope.climbing||sutroClimb.state.active||tahoe.state.mode!=='ground')return false;
+        if(ferrari?.state.riding)return parkCarFirst();
+        const attack=()=>{if(bike.riding)parkBike();parkMotorcycle(false);skateboard.riding=false;setDancing(false);alienCombat=null;expeditions.stop();wildTarget=npc;player.path=[];player.speed=0;
+            if(multiplayerWorld){multiplayerWorld.command('attack',{id:npc.id,weapon:playerWeapon()});wildTarget=null;}return true;};
+        closeMenu();closeReader();const d=Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5);return d<=ITEM_STATS[playerWeapon()].range?attack():walkTo(npc.x-.5,npc.z-.5,attack);
+    }
+    function petBear(npc){
+        if(capture.state.active||chase?.state.jailed||secretWorld?.bomber.state.active||flying()||rocket.state.active||surf.state.riding)return false;
+        closeMenu();const pet=()=>{wildTarget=null;expeditions.stop();if(multiplayerWorld)multiplayerWorld.command('petBear',{id:npc.id});else {const r=wilderness.pet(npc.id,{x:player.x+.5,z:player.y+.5});announce(r.message,'You');}player.gesture={name:'talk',started:performance.now(),duration:1000};return true;};
+        return Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5)<1.8?pet():walkTo(npc.x-.5,npc.z-.5,pet);
+    }
+    function buyBattleaxe(){
+        if(!quests.theyLive.state.completed)return {ok:false,message:'Complete They Live to unlock the American Industrial Center’s full stock.'};
+        if(multiplayerWorld){multiplayerWorld.command('buyBattleaxe').then(r=>{dialogue.resolvePending('industrial-armorer',r.message);updateEquipmentControl();});return {ok:true,pending:true,message:'The armorer checks your civic-service record…'};}
+        const r=economy.buyEquipment('battleaxe');if(r.ok)updateEquipmentControl();return r;
+    }
     function railgunLineClear(a,b){
         const ay=(a.base||0)+1.14,by=(b.base||0)+.9,d=Math.hypot(b.x-a.x,by-ay,b.z-a.z);if(!d)return true;const ray={origin:[a.x,ay,a.z],dir:[(b.x-a.x)/d,(by-ay)/d,(b.z-a.z)/d]};
         return !objects.some(o=>o.arch&&o.arch!=='cow-pen'&&o.sight?.kind!=='park'&&o.sight?.kind!=='biosciences'&&(()=>{const hit=rayBox(ray,o.lo,o.hi);return hit!==null&&hit<d-.2;})());
@@ -463,25 +501,26 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     }
     function attackExpeditionTarget(npc){
         if(capture.state.active||chase?.state.jailed||flying()||rocket.state.active||surf.state.riding||rope.climbing||sutroClimb.state.active||tahoe.state.mode!=='ground')return false;
-        if(!expeditions.state.railgun||!expeditions.state.equipped){announce('Obtain a railgun from Jurassic Biosciences, then equip it with G.');return false;}
+        const weapon=npc.alienId||npc.combatKind==='kraken'?'railgun':playerWeapon(),range=ITEM_STATS[weapon].range;
+        if(weapon==='railgun'&&(!expeditions.state.railgun||!expeditions.state.equipped)){announce('Obtain a railgun from Jurassic Biosciences, then equip it with G.');return false;}
         if(npc.combatKind==='raptor'&&expeditions.raptor.phase==='caged'){announce('The cage is locked. Speak to the Jurassic scientist first.');return false;}
         if(npc.alienId){const permission=quests.theyLive.attack(npc.alienId,{revealed:npcRevealed(npc)});if(!permission.ok){announce(permission.message);if(permission.illegal){chase.start();$('sf-wanted').hidden=false;}return false;}npc.combatKind='spectre';npc.hp=npc.alienHP??36;npc.max=36;}
-        const shoot=()=>{if(bike.riding)parkBike();parkMotorcycle(false);skateboard.riding=false;alienCombat=null;player.path=[];player.speed=0;setDancing(false);const result=expeditions.attack(npc);if(result.message)announce(result.message,'Railgun');canvas.focus({preventScroll:true});return result.ok||result.cooldown;};
-        closeMenu();if(Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5)<=RAILGUN_RANGE&&railgunLineClear({x:player.x+.5,z:player.y+.5,base:playerGround()},npc))return shoot();
+        const shoot=()=>{if(bike.riding)parkBike();parkMotorcycle(false);skateboard.riding=false;alienCombat=null;player.path=[];player.speed=0;setDancing(false);const result=expeditions.attack(npc,weapon);if(result.message)announce(result.message,'Railgun');canvas.focus({preventScroll:true});return result.ok||result.cooldown;};
+        closeMenu();if(Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5)<=range&&railgunLineClear({x:player.x+.5,z:player.y+.5,base:playerGround()},npc))return shoot();
         if(expeditions.ship.aboard)return false;
-        const point=nearestExpeditionPoint(npc.x-.5,npc.z-.5,5,(x,y)=>{const d=Math.hypot(x+.5-npc.x,y+.5-npc.z);return d>.9&&d<4.7&&landClearAt(x,y)&&railgunLineClear({x:x+.5,z:y+.5,base:characterGround(x+.5,y+.5)},npc);});
+        const point=nearestExpeditionPoint(npc.x-.5,npc.z-.5,range,(x,y)=>{const d=Math.hypot(x+.5-npc.x,y+.5-npc.z);return d>.6&&d<range-.1&&landClearAt(x,y)&&railgunLineClear({x:x+.5,z:y+.5,base:characterGround(x+.5,y+.5)},npc);});
         if(!point){announce('Move within five tiles with a clear line of fire.');return false;}return walkTo(point.x,point.y,shoot);
     }
-    function nearestExpeditionPoint(x,y,radius,predicate){return y>=N-1.5?airship.nearest(x,y,radius,predicate):nearestNavigation(x,y,radius,predicate);}
+    function nearestExpeditionPoint(x,y,radius,predicate){if(marinLand?.onLand(x+.5,y+.5))return marinLand.nearest(x,y,radius,predicate);return y>=N-1.5?airship.nearest(x,y,radius,predicate):nearestNavigation(x,y,radius,predicate);}
     function collectExpeditionLoot(item){
         if(capture.state.active||chase?.state.jailed)return false;
-        closeMenu();const collect=()=>{if(item.lootKind==='peptides'&&!item.network){if(!expeditions.state.loot.includes(item))return false;localPeptides+=item.amount;expeditions.state.loot.splice(expeditions.state.loot.indexOf(item),1);saveLocalGuild();announce('You take the peptides. Ray at the Freemasons’ Guild accepts donations.','Loot');updateAdventureUI();return true;}const r=expeditions.collect(item);if(r.message)announce(r.message,'Loot');updateAdventureUI();return r.ok;};
+        closeMenu();const collect=()=>{if(item.lootKind==='equipment'&&!item.network){if(!expeditions.state.loot.includes(item)||equipmentOwned(economy.state,item.itemId))return false;economy.state.ownedEquipment.push(item.itemId);expeditions.state.loot.splice(expeditions.state.loot.indexOf(item),1);updatePurse(economy.state);updateEquipmentControl();announce('You take the '+ITEM_STATS[item.itemId].name+'. Equip it in Character settings.','Loot');return true;}if(item.lootKind==='peptides'&&!item.network){if(!expeditions.state.loot.includes(item))return false;localPeptides+=item.amount;expeditions.state.loot.splice(expeditions.state.loot.indexOf(item),1);saveLocalGuild();announce('You take the peptides. Ray at the Freemasons’ Guild accepts donations.','Loot');updateAdventureUI();return true;}const r=expeditions.collect(item);if(r.message)announce(r.message,'Loot');updateAdventureUI();return r.ok;};
         const distance=Math.hypot(item.x-player.x-.5,item.z-player.y-.5);if(expeditions.ship.aboard)return item.lootKind==='kraken'&&distance<2?collect():false;
         if(airship.state.active){const floor=item.base??characterGround(item.x,item.z);return distance<1.5&&Math.abs(playerGround()-floor)<2.5?collect():false;}
         if(distance<1.5)return collect();
         const point=nearestExpeditionPoint(item.x-.5,item.z-.5,1.3,(x,y)=>landClearAt(x,y));return point?walkTo(point.x,point.y,collect):false;
     }
-    function toggleRailgun(){if(expeditions.toggleWeapon()){alienCombat=null;announce(expeditions.state.equipped?'Railgun equipped. Click enemies to fire from up to five tiles.':'Railgun stowed. Use your bayonet for green spectres.','Equipment');updateAdventureUI();}canvas.focus({preventScroll:true});}
+    function toggleRailgun(){if(!expeditions.state.railgun)return false;const equipped=playerWeapon()==='railgun';playerLook.weapon='auto';expeditions.state.equipped=equipped;if(expeditions.toggleWeapon()){alienCombat=null;announce(expeditions.state.equipped?'Railgun equipped. Click enemies to fire from up to five tiles.':'Railgun stowed. Use your bayonet for green spectres.','Equipment');try{localStorage.setItem('sf-character-v1',JSON.stringify(playerLook));}catch{}updateAdventureUI();}canvas.focus({preventScroll:true});}
     function setupTigerEncounter(){
         zoo=createTigerEncounter({player,home:{x:SF_ZOO.cage.x-.5,y:SF_ZOO.cage.z-.5},exit:SF_ZOO.exit,wardenStarts:SF_ZOO.wardens,
             routeTo:(x,y,from)=>pathTo(x,y,from,true),speed:ZOO_PURSUIT_SPEED,
@@ -681,6 +720,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         register(drawPrometheus(sceneMesh,signs),sceneMesh);streetLights.push(prometheusTorchLight());
         makeTownhomeRow(SPACEPORT_HOUSES.x,SPACEPORT_HOUSES.z,SPACEPORT_HOUSES.w,SPACEPORT_HOUSES.d,0,.25);
         southernNeighborhood=populateSouthernNeighborhood({mesh:sceneMesh,terrain:southernTerrain,makeTownhomeRow,tree,bench,roadDistance:airportRoadDistance,signs,cityRoads:worldTiles.routes.filter(r=>r.kind==='road'&&r.points.some(p=>p[1]>=78)),cityBuildings:objects.filter(o=>o.arch==='townhomes'),surfaceType:(x,z)=>z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z),registerEstate:o=>objects.push(o),entrances:[...sights,...places].filter(s=>s.entry).map(s=>({x:s.entry.x+.5,z:s.entry.y+.5}))});
+        register(drawArmory(sceneMesh,signs,characterGround),sceneMesh);
         register(drawRailPit(sceneMesh,signs,southernTerrain),sceneMesh);
         for(const site of southernNeighborhood.sights)register(site,sceneMesh);
         register(drawSquareConstruction(sceneMesh,signs,southernTerrain),sceneMesh);
@@ -707,8 +747,10 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         esotericCampus=createEsotericCampus(ferrari);register(esotericCampus.draw(highwayMesh,signs,{separateInterior:true}),highwayMesh);merchants.push(esotericCampus.npc);
         esotericCampus.life=createCityLife({visible:actorInView,routes:esotericCampus.routes,surfaceType:esotericCampus.surfaceType,lamps:[],terrainHeight:esotericCampus.ground,groundHeight:characterGround,scale:MAP_SCALE,human,bicycle,maxWalkers:6,maxRiders:0,waterTraffic:false,prefix:'berkeley-scholar',regional:true});
         esotericCampus.life.update(0);
+        countryside=createCountryside({road:regionalRoad,campus:esotericCampus,parcels:highwaySites.flatMap(s=>s.solidParcels||[])});
         sights.push({id:'ferrari-car',kind:'ferrari',label:'Ferrari',get entry(){const p=ferrari.position;return {x:p.x-.5,y:p.z-.5};},description:'A very fast red Ferrari: twenty times walking speed, with a tank that lasts 56% of the drive to Tahoe.'});
         goldenGate=createGoldenGateCrossing({scale:MAP_SCALE,cityGate:sightById('golden').entry,groundHeight:terrainHeight,marinHeight:detention.terrain});
+        marinLand=createMarinLand({polygon:MARIN,scale:MAP_SCALE,detention,gate:goldenGate.gate('marin')});
         for(const value of goldenGate.mesh().data)highwayMesh.data.push(value);highwayGPU=upload(highwayMesh);
         sights.push({id:'marin-bridge-landing',kind:'bridge',label:'Marin Headlands overlook',entry:goldenGate.gate('marin'),description:'Across the Golden Gate, the Marin hills look back over the orange towers and San Francisco.'});
     }
@@ -870,6 +912,8 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         merchants.push({...merchant('salt-activist',activist.x+.5,activist.y+.5,characterGround(activist.x+.5,activist.y+.5)),id:'salt-conservationist',siteId:flats.id,regional:true,cap:true,angle:-Math.PI/2});
         const factory=sightById('gpu-factory'),buyer=serviceStaffPosition(factory.entry,{walkable:p=>landClearAt(p.x,p.y),canTravel:(a,b)=>canTravel(a.x,a.y,b.x,b.y,true)});
         merchants.push({...merchant('gpu-buyer',buyer.x+.5,buyer.y+.5,characterGround(buyer.x+.5,buyer.y+.5)),id:'gpu-factory-buyer',siteId:factory.id,regional:true,coat:true,angle:Math.PI/2});
+        const burger=sightById('in-n-out'),burgerStaff=serviceStaffPosition(burger.entry,{walkable:p=>landClearAt(p.x,p.y),canTravel:(a,b)=>canTravel(a.x,a.y,b.x,b.y,true)});
+        merchants.push({id:'in-n-out-clerk',kind:'burger-clerk',name:'In-N-Out associate',label:'In-N-Out associate',x:burgerStaff.x+.5,z:burgerStaff.y+.5,base:characterGround(burgerStaff.x+.5,burgerStaff.y+.5),skin:'#ba936d',shirt:'#f0e8d3',pants:'#c64a41',cap:true,height:1.9,regional:true,approach:{...burger.entry},description:'A cheerful associate. The paper hat is included in the employee benefits.'});
         const sites=highwaySites.filter(s=>s.kind==='fuel'||s.kind==='dealership');
         for(const site of sites){
             const p=serviceStaffPosition(site.entry,{walkable:p=>landClearAt(p.x,p.y),canTravel:(a,b)=>canTravel(a.x,a.y,b.x,b.y,true)});
@@ -881,6 +925,23 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(ferrari?.state.riding)return parkCarFirst();
         return approachNPC(npc,()=>dialogue.open({...npc,intro:motorcycle.state.rented?'Your motorcycle rental is still valid. Press M to find or ride it.':'Five coins rents the conveniently parked motorcycle beside the monkey habitat. Please arrange your rental before commencing any suspicious primate-related errands.',question:motorcycle.state.rented?'Review your rental?':'Rent the motorcycle for 5 coins?',choice:motorcycle.state.rented?'Where is my motorcycle?':'Rent · 5 coins',decline:'Leave',accept:()=>{if(motorcycle.state.rented)return {ok:true,message:'Press M to find your parked motorcycle. Your rental stays valid.'};const result=motorcycle.rent(economy,{pursued:quests.carrying});updateAdventureUI();return {...result,message:result.ok?'The motorcycle is yours to ride. Click it or press M to get on.':result.message};}}));
     }
+    function setupTabletWizard(){
+        const house=places.find(p=>p.id==='home'),center=buildingPoint(house,house.x+house.w*.5,house.y+house.d*.35);
+        const spot=nearestNavigation(center[0]-.5,center[1]-.5,1.8,(x,y)=>placeAt(x,y)===house),approach=spot&&nearestNavigation(spot.x,spot.y,1.5,(x,y)=>placeAt(x,y)===house&&Math.hypot(x-spot.x,y-spot.y)>.65);
+        if(!spot||!approach)throw Error('The tablet wizard needs a reachable room and conversation approach');
+        tabletWizard={id:'tablet-wizard',kind:'tablet-wizard',label:'Orin the Wizard',name:'Orin the Wizard',x:spot.x+.5,z:spot.y+.5,base:characterGround(spot.x+.5,spot.y+.5),interior:house,approach,angle:Math.PI/2,skin:'#bd9c7e',hair:'#cfc9b5',shirt:'#71609c',pants:'#48425f',hat:'wizard',coat:true,height:1.95,description:'A friendly wizard. He has compressed the regional transportation problem into two small purple tablets.'};merchants.push(tabletWizard);
+        const downtown=places.find(p=>p.id==='links').entry,tahoePoint={x:TAHOE.base.x+2.5,z:TAHOE.base.z+3.5};
+        tabletDestinations={downtown:{x:downtown.x+.5,z:downtown.y+.5,label:'in downtown San Francisco'},tahoe:{...tahoePoint,label:'beside the Tahoe gondola'}};
+        for(const p of Object.values(tabletDestinations)){if(!landClearAt(p.x-.5,p.z-.5))throw Error('A teleport tablet destination is blocked');p.y=characterGround(p.x,p.z);}
+        tabletService=createTeleportTablets({client:multiplayer,economy,storage:headless?null:localStorage,destinations:tabletDestinations,getPlayer:()=>({x:player.x+.5,y:playerGround(),z:player.y+.5}),canUse:canUseTablet,onPurse:updatePurse,onMessage:announce,
+            onStart:()=>{if(headless)return;multiplayerWorld?.stopFollowing(true);if(training)stopTraining();expeditions.stop();fishing.cancel();setDancing(false);forwardRoll.cancel();alienCombat=null;wildTarget=null;closeMenu();closeReader();closeCharacter();questMenu?.close();dialogue.close();keys.clear();player.path=[];player.speed=0;player.motion=0;player.gesture=null;},
+            onArrive:to=>{Object.assign(player,{x:to.x-.5,y:to.z-.5,path:[],speed:0,moving:false,motion:0});currentInterior=null;if(!headless){updateAdventureUI();updateCamera();drawMini();}}});
+    }
+    function canUseTablet(){return !capture.state.active&&!chase?.state.jailed&&secretWorld?.kind==='world'&&!secretWorld.bomber.state.active&&!flying()&&!rocket.state.active&&!surf.state.riding&&!rope.climbing&&!sutroClimb.state.active&&!bike.riding&&!motorcycle?.state.riding&&!ferrari?.state.riding&&!skateboard.riding&&tahoe.state.mode==='ground';}
+    function talkTabletWizard(npc=tabletWizard){
+        if(!canUseTablet())return false;closeMenu();closeReader();return approachNPC(npc,()=>dialogue.open({...npc,repeat:true,intro:'Welcome! A little stone, a little purple lightning, and you can skip an extraordinary amount of walking. Downtown and Tahoe teleportation tablets are 20 coins apiece.',question:'Where would you like to go?',decline:'Leave',choices:TABLET_PLACES.map(id=>({label:'Buy '+ITEM_STATS[id+'-tablet'].name+' · '+ITEM_STATS[id+'-tablet'].price+' coins',accept:()=>{tabletService.buy(id).then(r=>{dialogue.resolvePending(npc.id,r.message);updateAdventureUI();});return {ok:true,pending:true,message:'Orin carefully inscribes a tiny purple sigil…'};}}))}));
+    }
+    function useTeleportTablet(id){tabletService.use(id).then(r=>{if(r.message)announce(r.message,'Teleport');updateAdventureUI();});}
     function setupGreenBank(){
         const bank=places.find(p=>p.id==='green'),point=buildingPoint(bank,bank.x+bank.w/2,bank.y+.32);
         banker={id:'green-banker',kind:'banker',label:'Friendly banker',name:'Friendly banker',x:point[0],z:point[1],base:bank.object.base+.065,skin:'#aa7a57',hair:'#48392e',shirt:'#437855',pants:'#455747',coat:true,angle:(bank.rotation||0)+Math.PI/2,height:1.9,interior:bank};merchants.push(banker);
@@ -896,12 +957,21 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         const lodge=places.find(p=>p.id==='freemasons-guild'),store=places.find(p=>p.id==='sunset-whole-foods');
         const entry=nearestNavigation(lodge.entry.x+.8,lodge.entry.y,1.5,(x,y)=>!placeAt(x,y)&&cityNavigation.connected(player,{x,y}));
         if(!entry)throw Error('Ray needs a reachable guild entrance');
-        merchants.push({id:'guild-ray',kind:'guild-master',name:'Ray',label:'Ray',x:entry.x+.5,z:entry.y+.5,base:characterGround(entry.x+.5,entry.y+.5),skin:'#bd926d',hair:'#6e5140',shirt:'#b7393f',pants:'#8e2932',coat:true,height:1.95,angle:lodge.rotation||0});
+        merchants.push({id:'guild-ray',kind:'guild-master',name:'Ray',label:'Ray',x:entry.x+.5,z:entry.y+.5,base:characterGround(entry.x+.5,entry.y+.5),skin:'#bd926d',hair:'#171717',shirt:'#b7393f',pants:'#8e2932',coat:true,height:1.95,angle:lodge.rotation||0});
         peptideSpawns=peptideSpawnPoints(store,(x,y)=>landClearAt(x,y)&&!placeAt(x,y)&&cityNavigation.connected(player,{x,y}));
+        const farmers=[['Ada',.4,.38,'The tomatoes are heirloom. The simulation is legacy.'],['Lin',.6,.59,'There is no spoon. There is, however, an excellent seasonal chard.'],['Null',.4,.77,'I took the red pill and became a small-batch peptide farmer.'],['Root',null,null,'We grow everything locally. Even the glitches.']],occupiedFarmers=[];
+        for(const [i,[name,u,v,line]] of farmers.entries()){
+            const inside=u!==null,p=inside?buildingPoint(store,store.x+store.w*u,store.y+store.d*v):[store.entry.x+.5,store.entry.y+.5];
+            const spot=nearestNavigation(p[0]-.5,p[1]-.5,1.4,(x,y)=>(inside?placeAt(x,y)===store:!placeAt(x,y))&&cityNavigation.connected(player,{x,y})&&occupiedFarmers.every(a=>Math.hypot(x-a.x,y-a.y)>.75));
+            if(!spot)throw Error('The farmers market needs a reachable vendor position for '+name);occupiedFarmers.push(spot);
+            const approach=nearestNavigation(spot.x,spot.y,1.5,(x,y)=>(!inside||placeAt(x,y)===store)&&Math.hypot(x-spot.x,y-spot.y)>.7&&canTravel(spot.x,spot.y,x,y,true));if(!approach)throw Error('A market farmer needs a reachable conversation approach');
+            merchants.push({id:'market-farmer-'+i,kind:'market-farmer',name:'Farmer '+name,label:'Farmer '+name,x:spot.x+.5,z:spot.y+.5,base:characterGround(spot.x+.5,spot.y+.5),angle:(store.rotation||0)+Math.PI/2,skin:['#b9815d','#d0ac87','#8f634c','#bc9675'][i],hair:['#161b19','#242b25','#161616','#413a30'][i],shirt:['#202923','#151c1b','#2a302c','#19201e'][i],pants:'#161d1a',coat:true,sunglasses:true,female:i===0||i===1,longHair:i===0||i===1,height:1.95,interior:inside?store:null,approach,marketLine:line});
+        }
         let savedSecret={};if(!headless)try{savedSecret=JSON.parse(localStorage.getItem('sf-illuminati-v1')||'{}')||{};}catch{}
         secretWorld=createSecretAdventures({client:multiplayer,saved:savedSecret,economy,guildMember:()=>guildStatus().member,guildSite:lodge,getPlayer:()=>({x:player.x+.5,y:playerGround(),z:player.y+.5,angle:player.angle,hp:health.state.hp}),ground:characterGround,cruiseHeight:()=>airship.cruiseHeight-3,boostSpeed:()=>rocketCruiseSpeed(SF_SPACEPORT,tahoe.spaceport),landingFree:(x,z)=>landClearAt(x-.5,z-.5),landingFallback:{x:player.x+.5,z:player.y+.5},onPurse:updatePurse,
-            save:state=>{if(!headless&&!multiplayer)try{localStorage.setItem('sf-illuminati-v1',JSON.stringify(state));}catch{}},transition:changeMapInstance,onMessage:announce,
+            save:state=>{if(!headless&&!multiplayer)try{localStorage.setItem('sf-illuminati-v1',JSON.stringify(state));}catch{}},transition:changeMapInstance,onMessage:announce,onProgress:()=>questMenu?.render(),
             onCowHit:e=>{const cow=expeditions.cows.find(c=>c.id===e.target);if(cow){cow.hp=e.hp;cow.respawn=10;combatFeedback.hit(cow,e.damage,e.hp,e.max);}},onOfflineBomb:area=>expeditions.bombCows(area)});
+        questMenu?.render();
         const originalBoard=expeditions.board;expeditions.board=()=>secretWorld.boardKraken({...expeditions,board:originalBoard});
         const {oldMan:elder,portal}=secretWorld.sites;
         oldMan={id:'illuminati-old-man',kind:'illuminati-elder',name:'Old Man',label:'Old Man',x:elder.x,z:elder.z,base:lodge.object.base+.065,skin:'#c8ae8b',shirt:'#4e6258',pants:'#3e4941',hair:'#d8d3b9',coat:true,height:1.9,angle:Math.PI/2,interior:lodge};merchants.push(oldMan);
@@ -947,7 +1017,13 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             const r=kind==='donate'?localGuild.donate(()=>{if(!localPeptides)return false;localPeptides--;return true;}):localGuild.checkIn();saveLocalGuild();updateAdventureUI();return r;
         }})));
     }
+    function talkMarketFarmer(npc){
+        if(!canUseTablet())return false;
+        closeMenu();closeReader();return approachNPC(npc,()=>dialogue.open(marketFarmerDialogue(npc,{nextSpawnAt:()=>multiplayer?multiplayer.state.world?.peptideSpawnAt:nextLocalPeptideAt,now:()=>Date.now()+(multiplayer?.state.serverOffset||0)})));
+    }
     function talkMerchant(npc){
+        if(npc.kind==='market-farmer')return talkMarketFarmer(npc);
+        if(npc.kind==='tablet-wizard')return talkTabletWizard(npc);
         if(npc.kind==='guild-master')return talkGuildRay(npc);
         if(npc.socialActor){
             if(ferrari?.state.riding)return parkCarFirst();
@@ -979,6 +1055,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(npc.kind==='lift')return talkLiftAttendant(npc);
         if(npc.kind==='recruiter')return talkLabRecruiter();
         if(npc.kind==='deli')return talkDeli();
+        if(npc.kind==='burger-clerk')return talkBurger(npc);
         if(npc.kind==='bartender')return talkBeer();
         if(npc.questRole)return talkQuestNPC(npc);
         if(npc.researcher)return talkResearcher(npc);
@@ -996,12 +1073,12 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(chase?.state.jailed||capture.state.active||rope.climbing||sutroClimb.state.active||rocket.state.active||surf.state.riding||tahoe.state.mode!=='ground')return false;
         if(flying())return airshipUnavailable();
         closeMenu();closeReader();
-        const begin=()=>{parkMotorcycle(false);skateboard.riding=false;alienCombat=null;player.gesture=null;player.path=[];player.speed=0;keys.clear();if(!npc.seated)npc.angle=Math.atan2(player.y+.5-npc.z,player.x+.5-npc.x);const person=npc.questRole.startsWith('square-')?squareNPCDialogue(npc,economy):theyLiveDialogue(npc,quests.theyLive);dialogue.open(npc.questRole==='clerk'?saltClerkDialogue(person,saltMail):person);};
+        const begin=()=>{parkMotorcycle(false);skateboard.riding=false;alienCombat=null;player.gesture=null;player.path=[];player.speed=0;keys.clear();if(!npc.seated)npc.angle=Math.atan2(player.y+.5-npc.z,player.x+.5-npc.x);const person=npc.questRole.startsWith('square-')?squareNPCDialogue(npc,economy):theyLiveDialogue(npc,quests.theyLive,{buyBattleaxe});dialogue.open(npc.questRole==='clerk'?saltClerkDialogue(person,saltMail):person);};
         return approachNPC(npc,begin);
     }
     const npcRevealed=npc=>!!(npc.alienId&&playerLook.sunglasses);
     const npcLabel=npc=>npc.networkPlayer?npc.label+' - Level '+actorLevel(npc):(npcRevealed(npc)?'Green spectre':npc.label)+' (Level '+(npc.alienId&&!npcRevealed(npc)?1:actorLevel(npc))+')';
-    const npcPrimary=npc=>npc.networkPlayer?'examine':['raptor','cow','kraken'].includes(npc.combatKind)||npcRevealed(npc)?'attack':'talk';
+    const npcPrimary=npc=>npc.wilderness?(npc.combatKind==='bear'?'pet':'attack'):npc.police?'examine':npc.networkPlayer?'walk':['raptor','cow','kraken'].includes(npc.combatKind)||npcRevealed(npc)?'attack':'talk';
     function attackAlien(npc){
         const result=quests.theyLive.attack(npc.alienId,{revealed:npcRevealed(npc)});
         if(!result.ok){
@@ -1135,6 +1212,11 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     }
     function eatSandwich(){
         if(capture.state.active)return false;const result=deli.eat();announce(result.message,'You');updateAdventureUI();return result.ok;
+    }
+    function talkBurger(npc){
+        if(capture.state.active||chase?.state.jailed||flying()||rocket.state.active||secretWorld?.bomber.state.active)return false;
+        if(ferrari?.state.riding)return parkCarFirst();closeMenu();closeReader();
+        return approachNPC(npc,()=>dialogue.open({...npc,repeat:true,intro:'Welcome to In-N-Out! A sandwich is just '+ITEM_STATS.sandwich.inNOutPrice+' coins, versus '+ITEM_STATS.sandwich.pickupPrice+' at Lucinda’s. Same excellent emergency lunch.',question:'What can I get you?',decline:'Leave',choices:[{label:'Buy sandwich · '+ITEM_STATS.sandwich.inNOutPrice+' coins',accept:()=>deli.pickup('in-n-out')}]}));
     }
     function talkDeli(){
         if(chase?.state.jailed||flying()||capture.state.active)return false;
@@ -1413,9 +1495,13 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         return approachNPC(npc,()=>{npc.speech='';approachingNPC=npc;npc.waiting=true;dialogue.open(dogWalkerDialogue(npc));},{approach:n=>n.regional?regionalCitizenApproach(n):nearestNavigation(n.x-.5,n.z-.5,2,(x,y)=>{const d=Math.hypot(x+.5-n.x,y+.5-n.z);return d>.7&&d<1.5;})});
     }
     function interactCitizen(npc,verb){
-        if(npc.networkPlayer){if(verb==='attack')return multiplayerWorld.attackPlayer(npc);if(verb==='follow')return multiplayerWorld.followPlayer(npc);return multiplayerWorld.inspect(npc);}
+        if(npc.kind==='market-farmer'&&verb==='talk')return talkMarketFarmer(npc);
+        if(npc.wilderness)return verb==='pet'?petBear(npc):verb==='attack'?attackWildMonster(npc):examine(npc);
+        if(npc.police)return examine(npc);
+        if(npc.networkPlayer){if(verb==='attack')return multiplayerWorld.attackPlayer(npc);if(verb==='follow')return multiplayerWorld.followPlayer(npc);return walkToActor(npc);}
         if(npc.kind==='guild-master'&&verb==='talk')return talkGuildRay(npc);
         if(npc.kind==='illuminati-elder'&&verb==='talk')return talkOldMan(npc);
+        if(npc.kind==='tablet-wizard'&&verb==='talk')return talkTabletWizard(npc);
         if(npc.kind==='banker'&&verb==='talk')return talkBanker(npc);
         if(npc.dogWalker&&verb==='talk')return talkDogWalker(npc);
         if(npc.expeditionRole)return talkExpeditionNPC(npc);
@@ -1439,6 +1525,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(npc.kind==='lift')return talkLiftAttendant(npc);
         if(npc.kind==='recruiter')return talkLabRecruiter();
         if(npc.kind==='deli')return talkDeli();
+        if(npc.kind==='burger-clerk')return talkBurger(npc);
         if(npc.kind==='bartender')return talkBeer();
         if(npc.kind&&MERCHANTS[npc.kind])return talkMerchant(npc);
         if(flying())return airshipUnavailable();
@@ -1601,7 +1688,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     const glazing=createGlazingBatch();let glassGPU=null,drawingGlass=false;
     let cityLightPlan=null;
     const streetLights=[],buildingModels=[],signs=new Map(),gpuStats={triangles:0,drawCalls:0};
-    function signNames(){return [...SOUTHERN_CRAFT_SIGNS,...SOCIAL_SIGNS,...TECH_SIGNS,...HABERDASHER_SIGNS,...SALT_FLATS_SIGNS,...GPU_FACTORY_SIGNS,...BUS_SIGNS,...JURASSIC_SIGNS,...places.map(p=>p.name),'Golden Gate Park','The Panhandle','Presidio','Mazarine Coffee','City Lights','FERRY BUILDING','CHINATOWN','de Young','Conservatory','Academy of Sciences','Crissy Field','TAX AUTHORITY','California high-speed rail','SPACEX · 1 COIN','PRIVATE JET TERMINAL','PROMETHEUS','Fire is for everyone.','NIGHTLIFE',...TIMES_SQUARE_SIGNS,...SQUARE_LIFE_SIGNS,...ALIEN_SITE_SIGNS,...RESEARCH_SIGNS,...PENINSULA_SIGNS,...WOODLAND_SIGNS,...ADVENTURE_SIGNS,'GONDOLA','SKIS · 1 COIN','SF ZOO','TIGER','UCSF HOSPITAL',...RESTAURANTS.map(r=>r.name)];}
+    function signNames(){return ['THE ARMORY',...SOUTHERN_CRAFT_SIGNS,...SOCIAL_SIGNS,...TECH_SIGNS,...HABERDASHER_SIGNS,...SALT_FLATS_SIGNS,...GPU_FACTORY_SIGNS,...BUS_SIGNS,...JURASSIC_SIGNS,...places.flatMap(p=>[p.name,...(p.signText?[p.signText]:[])]),'Golden Gate Park','The Panhandle','Presidio','Mazarine Coffee','City Lights','FERRY BUILDING','CHINATOWN','de Young','Conservatory','Academy of Sciences','Crissy Field','TAX AUTHORITY','California high-speed rail','SPACEX · 1 COIN','PRIVATE JET TERMINAL','PROMETHEUS','Fire is for everyone.','NIGHTLIFE',...TIMES_SQUARE_SIGNS,...SQUARE_LIFE_SIGNS,...ALIEN_SITE_SIGNS,...RESEARCH_SIGNS,...PENINSULA_SIGNS,...WOODLAND_SIGNS,...ADVENTURE_SIGNS,'GONDOLA','SKIS · 1 COIN','SF ZOO','TIGER','UCSF HOSPITAL',...RESTAURANTS.map(r=>r.name)];}
     function initGPU(){
         const compile=(type,source)=>{const shader=gl.createShader(type);gl.shaderSource(shader,source);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(shader));return shader;};
         program=gl.createProgram();
@@ -1753,7 +1840,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         gradeStreetHeightField(heights,TERRAIN_RES,{points:fulton.points,halfWidth:fulton.w,curbWidth:TILE_CONFIG.curbWidth,contains:(x,z)=>insidePolygon(x,z,COAST)});
         naturalHeights=heights.map(row=>row.slice());
     }
-    function terrainHeight(x,z){return esotericCampus?.contains(x,z)?esotericCampus.ground(x,z):sampleTerrain(heights,x,z);}
+    function terrainHeight(x,z){if(countryside?.contains(x,z))return countryside.height(x,z);if(marinLand?.onLand(x,z))return marinLand.height(x,z);return esotericCampus?.contains(x,z)?esotericCampus.ground(x,z):sampleTerrain(heights,x,z);}
     function airportSurfaceHeight(x,z){return southernTerrain?.contains(x,z)?southernTerrain.height(x,z):AIRSHIP_TERMINAL.base;}
     function airportWalkingHeight(x,z){if(inTimesSquare(x,z))return TIMES_SQUARE.base+Math.max(.012,TILE_TYPES[airportSurfaceTypeAt(x,z)]?.height||0)+.008;if(gymAccess(x,z))return SF_FITNESS.base+.04;if(nightclub&&nightlifeAccess(x,z)&&nightlifeWalkable(x,z))return nightlifeHeight(x,z,nightclub.base,terrainHeight);return airportSurfaceHeight(x,z)+(onAirportApron(x,z)?.03:(TILE_TYPES[airportSurfaceTypeAt(x,z)]?.height||0)+.008);}
     function characterGround(x,z){
@@ -1773,6 +1860,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         return terrainHeight(x,z)+(TILE_TYPES[type]?.height||0)+.008;
     }
     function playerGround(ignoreCustody=false){
+        if(tabletService?.state.active)return tabletService.state.pose.position.y;
         if(secretWorld?.bomber.state.active)return secretWorld.bomber.state.position.y;
         if(secretWorld?.kind==='illuminati')return ILLUMINATI_CAVE.floor+.025;
         if(multiplayerWorld?.traversing)return multiplayerWorld.ground;
@@ -1848,22 +1936,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         const m=new Mesh();
         renderSurfaceTiles(m);
         southernTerrain.drawLand(m);
-        const marinHeight=(wx,wz)=>detention.terrain(wx,wz);
-        // Clip boundary cells to the actual headland polygon, keeping the shore
-        // continuous rather than exposing a checkerboard of whole terrain cells.
-        // Distant northern ridges use a coarse mesh; the visible headlands keep
-        // finer contours without a rectangular land edge behind them.
-        for(let z=mapPosition(-65);z<mapPosition(3.2);){const step=z<mapPosition(-22)?2.4:.6;
-        for(let x=mapPosition(-20);x<mapPosition(65);x+=step){
-            const points=[],insideCell=p=>p[0]>=x-1e-8&&p[0]<=x+step+1e-8&&p[1]>=z-1e-8&&p[1]<=z+step+1e-8;
-            for(const p of [[x,z],[x+step,z],[x+step,z+step],[x,z+step]])if(insidePolygon(...p,MARIN))points.push(p);
-            // Match the fine row's vertices at the terrain LOD seam.
-            if(step>1&&z+step>=mapPosition(-22))for(let dx=.6;dx<step-.01;dx+=.6){const p=[x+dx,z+step];if(insidePolygon(...p,MARIN))points.push(p);}
-            for(let i=0;i<MARIN.length;i++){const a=MARIN[i],b=MARIN[(i+1)%MARIN.length],dx=b[0]-a[0],dz=b[1]-a[1];if(insideCell(a))points.push(a);for(const xx of [x,x+step])if(Math.abs(dx)>1e-9){const t=(xx-a[0])/dx,p=[xx,a[1]+dz*t];if(t>=0&&t<=1&&insideCell(p))points.push(p);}for(const zz of [z,z+step])if(Math.abs(dz)>1e-9){const t=(zz-a[1])/dz,p=[a[0]+dx*t,zz];if(t>=0&&t<=1&&insideCell(p))points.push(p);}}
-            const unique=[...new Map(points.map(p=>[p.map(v=>v.toFixed(6)).join(','),p])).values()];if(unique.length<3)continue;const center=unique.reduce((a,p)=>[a[0]+p[0]/unique.length,a[1]+p[1]/unique.length],[0,0]);unique.sort((a,b)=>Math.atan2(a[1]-center[1],a[0]-center[0])-Math.atan2(b[1]-center[1],b[0]-center[0]));
-            for(let i=0;i<unique.length;i++){const a=unique[i],b=unique[(i+1)%unique.length];const start=m.data.length,h=marinHeight(...center),slope=Math.hypot(marinHeight(center[0]+.2,center[1])-h,marinHeight(center[0],center[1]+.2)-h)/.2;m.tri([center[0],h,center[1]],[b[0],marinHeight(...b),b[1]],[a[0],marinHeight(...a),a[1]],'#899775','grass');for(let v=start;v<m.data.length;v+=11){const x=m.data[v],z=m.data[v+2],n=unit([-(marinHeight(x+.1,z)-marinHeight(x-.1,z))/.2,1,-(marinHeight(x,z+.1)-marinHeight(x,z-.1))/.2]),dry=.5+.3*Math.sin(x*.28+z*.11)+.2*Math.sin(z*.57-x*.19),rock=Math.min(.65,Math.max(0,slope-.6)*.5),grass=[.46+dry*.13,.53+dry*.065,.36+dry*.07];for(let k=0;k<3;k++){m.data[v+3+k]=n[k];m.data[v+6+k]=grass[k]*(1-rock)+[.62,.60,.49][k]*rock;}}}
-        }
-        z+=step;}
+        marinLand.draw(m);
         for(const [p,q] of shorelineSegments(COAST,1/TERRAIN_RES)){if(Math.min(p[1],q[1])>=N-1e-8)continue;m.quad([p[0],-.25,p[1]],[q[0],-.25,q[1]],[q[0],terrainHeight(...q)+.02,q[1]],[p[0],terrainHeight(...p)+.02,p[1]],'#9c9d87','stone');}
         seaBounds=createSeaSurface(m,[{polygon:sailingCoast,width:2.8},{polygon:MARIN,width:2.2}]);decorateHeadlands(m,MARIN,MAP_SCALE);
         drawCoastalRocks(m,createCoastalRocks(),terrainHeight,(x,z)=>z>=N?southernTerrain.contains(x,z):insidePolygon(x,z,COAST));
@@ -2072,7 +2145,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         for(const [x,z] of [[17,32],[27,33],[35,28],[41,30],[25,15]])if(mapCanPlace(x,z))bench(mapTile(x),mapTile(z));
 
     }
-    function surfaceTypeAt(x,z){
+    function surfaceTypeAt(x,z){if(countryside?.contains(x,z))return 'grass';if(marinLand?.onLand(x,z))return marinLand.contains(x,z)?'grass':'building';
         const m=worldTiles,ix=Math.floor(x/m.step),iz=Math.floor(z/m.step);if(ix<0||iz<0||ix>=m.size||iz>=m.size)return 'sea';
         const tile=m.tiles[iz*m.size+ix];if(!tile.patches)return tile.type;
         return tile.patches.find(p=>insidePolygon(x/m.step-ix,z/m.step-iz,p.polygon))?.type||tile.base;
@@ -2089,12 +2162,13 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         }
     }
     function setupTransit(){
+        const route=planNightlifeBus(streetTraffic),nodeIds=new Set(route.points.filter(p=>p.node!==null).map(p=>p.node));
         const roadWidths=new Map([...worldTiles.routes,...SOUTHERN_ROADS].map(r=>[r.name,r.halfWidth??.5]));
         const avoid=[...objects.filter(o=>o.lamp).map(o=>o.lamp),...southernNeighborhood.lamps,...houseDoorPositions(objects),...[...places,...sights].filter(s=>s.entry).map(s=>({x:s.entry.x+.5,z:s.entry.y+.5}))];
-        const signals=createTrafficSignals({...streetTraffic,roadWidths,avoid,canPlace:(x,z)=>landClearAt(x-.5,z-.5)&&['sidewalk','grass','plaza','courtyard','path'].includes(z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z))});
-        if(signals.missing.length)throw new Error('Road junctions need visible traffic lights: '+signals.missing.join(', '));
+        const signals=createTrafficSignals({...streetTraffic,nodeIds,roadWidths,avoid,canPlace:(x,z)=>landClearAt(x-.5,z-.5)&&['sidewalk','grass','plaza','courtyard','path'].includes(z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z))});
+        if(signals.missing.length)throw new Error('Bus-route junctions need visible traffic lights: '+signals.missing.join(', '));
         drawTrafficSignalPosts(sceneMesh,signals,characterGround);streetTraffic.setSignals(signals);
-        slowBus=createSlowBus({network:streetTraffic,signals,walkingSpeed:WALK_SPEED,ground:characterGround});
+        slowBus=createSlowBus({network:streetTraffic,signals,route,walkingSpeed:WALK_SPEED,ground:characterGround});
     }
     function canPlaceScenery(x,z,w=1,d=1){if(worldTiles&&cityParcels.length&&!parcelFits(rectangle(x+w/2,z+d/2,w,d),{park:true}))return false;if(pavingInArea(x,z,w,d))return false;for(let yy=z;yy<z+d;yy++)for(let xx=x;xx<x+w;xx++)if(!isWalkable(xx,yy)||reserved[yy*N+xx])return false;return true;}
     const {makeBuilding,makeRestaurantPatio,addScenery,tree,bench,human,bicycle,makeLandmarks,enhanceLandmarks,addPanhandleDetails,detailedGround,mapTree,mapCanPlace,makeTownhomeRow,makeCurbShop,drawHillsideLifts,housingDetails,WATERFRONT_PIERS}=createModels({
@@ -2102,15 +2176,26 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         buildingModels,sightById,canPlaceScenery,isWalkable,pavingInArea,insidePolygon,parcelFits,
         COAST,MARIN,POND,PANHANDLE,lakes,getSceneMesh:()=>sceneMesh,rectangle
     });
-    function build(){
+    function build(){for(const step of buildSteps()){} }
+    async function buildForBrowser(){for(const step of buildSteps())await loading?.stage(...step);
+        while(!materialState.ready||!alpineState.ready||signTextureControls.pending){if(materialState.error||alpineState.error)throw Error(materialState.error||alpineState.error);await nextLoadingPaint();}
+    }
+    function* buildSteps(){
+        yield [8,'Preparing graphics…'];
         if(headless)for(const name of [...signNames(),...BILLBOARD_ART.map(a=>a.id),...RESEARCH_ART.map(a=>a.id)])signs.set(name,[[0,0],[1,0],[1,1],[0,1]]);else initGPU();
+        yield [16,'Building the hills and shoreline…'];
         initializeGeography();buildHeightField();sceneMesh=new Mesh();
+        yield [25,'Laying out neighborhoods…'];
         compileStreetTiles();setupZoo();setupCityFitness();setupJurassicCampus();setupIndustrialCenter();setupCityNightlife();makeLandmarks();enhanceLandmarks();fitLandmarksToBlocks();const grove=rectangle((COIT_GROVE.west+COIT_GROVE.east)/2,(COIT_GROVE.north+COIT_GROVE.south)/2,COIT_GROVE.east-COIT_GROVE.west,COIT_GROVE.south-COIT_GROVE.north);claimParcel({polygon:grove,kind:'parrot grove'});publicSpaces.push(grove);reserveBridgeApproach();planRestaurants();planContentBuildings();
+        yield [36,'Building homes and streets…'];
         positionNia();planBeachBillboard();protectLandmarkApproaches();planAirportAds();populateCity();buildNavigation();setupBunny();setupSkateDog();finalizeSurfaceTiles();setupSunglasses();setupOceanSand();setupFishing();setupParrots();
+        yield [53,'Connecting the peninsula and Marin…'];
         southernTerrain=createSouthernTerrain({roads:SOUTHERN_ROADS,pit:RAIL_PIT,pads:SOUTHERN_LEVEL_PADS,edgeHeight:x=>{const ix=Math.min(TERRAIN_GRID-1,Math.max(0,Math.floor(x*TERRAIN_RES))),u=x*TERRAIN_RES-ix;return heights[TERRAIN_GRID][ix]*(1-u)+heights[TERRAIN_GRID][ix+1]*u;}});
         surf.state.shore={...sightById('windsurf').entry};
-        chase=createPoliceChase({player,routeTo:officerRoute,nearest:(x,y,r,p)=>airship.contains(player.x+.5,player.y+.5)?airship.nearest(x,y,r,p):nearestNavigation(x,y,r,p),canCapture:(o,p)=>!rocket.state.active&&!flying()&&(surf.water(o.x+.5,o.y+.5)&&surf.water(p.x+.5,p.y+.5)||canTravel(o.x,o.y,p.x,p.y)),onArrest:()=>beginCapture('police',arrestPlayer)});
-        setupAirshipTerminal();setupMerchants();setupRegionalWorld();setupGuildSites();setupGreenBank();setupPacificaSurf();setupDeli();setupQuestCharacters();setupExpeditionSites();airship.setObstacles(navigationObstacles(objects.filter(o=>o.y+o.d>=N&&o.arch!=='terminal'&&!['times-square','research-institute','park','nightlife','gym','spaceport'].includes(o.sight?.kind))).map(o=>o.polygon));setupTigerEncounter();setupMonkeyEscape();setupServiceNPCs();drawDetentionFacility(sceneMesh,detention);jailStaff=detentionStaff(detention);if(!headless)makeTerrain();placeStreetLights();setupNPCRoaming();
+        chase=createPoliceChase({player,routeTo:officerRoute,nearest:(x,y,r,p)=>marinLand?.contains(player.x+.5,player.y+.5)?marinLand.nearest(x,y,r,p):airship.contains(player.x+.5,player.y+.5)?airship.nearest(x,y,r,p):nearestNavigation(x,y,r,p),canCapture:(o,p)=>!rocket.state.active&&!flying()&&(surf.water(o.x+.5,o.y+.5)&&surf.water(p.x+.5,p.y+.5)||canTravel(o.x,o.y,p.x,p.y)),onArrest:()=>beginCapture('police',arrestPlayer)});
+        yield [61,'Placing landmarks and adventures…'];
+        setupAirshipTerminal();setupMerchants();setupRegionalWorld();setupWilderness();setupGuildSites();setupGreenBank();setupPacificaSurf();setupDeli();setupQuestCharacters();setupExpeditionSites();airship.setObstacles(navigationObstacles(objects.filter(o=>o.y+o.d>=N&&o.arch!=='terminal'&&!['times-square','research-institute','park','nightlife','gym','spaceport'].includes(o.sight?.kind))).map(o=>o.polygon));setupTigerEncounter();setupMonkeyEscape();setupServiceNPCs();setupTabletWizard();drawDetentionFacility(sceneMesh,detention);jailStaff=detentionStaff(detention);yield [72,'Texturing the terrain…'];if(!headless)makeTerrain();
+        yield [82,'Bringing the city to life…'];placeStreetLights();setupNPCRoaming();
         const regionalRoutes=[...clipLifeRoutes(worldTiles.routes.filter(r=>r.kind==='road'),78,N),...clipLifeRoutes([...SOUTHERN_ROADS.map(r=>({...r,kind:'road',halfWidth:.5})),...SOUTHERN_TRAILS.map(r=>({...r,kind:'path'}))],N)];
         southernLife=createCityLife({visible:actorInView,routes:regionalRoutes,surfaceType:(x,z)=>landClearAt(x-.5,z-.5)?z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z):'grass',lamps:southernNeighborhood.lamps,terrainHeight,groundHeight:characterGround,scale:MAP_SCALE,human,bicycle,maxWalkers:92,maxRiders:8,walkerQuotas:[{count:20,contains:(x,z)=>z<96},{count:22,contains:(x,z)=>z>=96&&z<120},{count:22,contains:(x,z)=>z>=120&&z<145},{count:24,contains:(x,z)=>z>=145}],waterTraffic:false,prefix:'southern-citizen',regional:p=>p.points[Math.floor(p.points.length/2)][1]>=N-2.5});southernLife.update(0);
         const noe=NOE_VALLEY_BOUNDS,noeRoutes=clipLifeRoutes(worldTiles.routes,noe.north,noe.south).filter(r=>r.points.every(p=>p[0]>=noe.west&&p[0]<=noe.east));
@@ -2128,8 +2213,10 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             for(const mesh of new Set([sceneMesh,tahoeMesh,highwayMesh,...objects.map(o=>o.mesh),...buildingModels.map(o=>o.mesh)]))if(mesh&&!retained.has(mesh))mesh.data=[];
             built=true;return;
         }
+        yield [91,'Uploading the city to your graphics card…'];
         sceneGPU=upload(sceneMesh,{spatial:true});
         lampGlow.setLights(streetLights,terrainHeight);gpuStats.triangles+=lampGlow.stats.triangles;buildCityMap();prepareWayfinding();
+        yield [97,'Finishing textures and the minimap…'];
         built=true;setupWorldMultiplayer();updateCamera();drawMini();updateBikeButton();updateSurfButton();updateAirshipButton();updateTahoeButton();
     }
 
@@ -2139,19 +2226,21 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     // Routing starts at the live position, so a new click never snaps back to a tile.
     function setupWorldMultiplayer(){
         if(headless)return;
+        world.addEventListener('click',e=>{if(tabletService?.state.active){e.preventDefault();e.stopImmediatePropagation();}},true);
         multiplayerSettings=setupMultiplayerSettings(multiplayer,{showCharacter,announce});
+        for(const id of TABLET_PLACES)$('sf-tablet-'+id).addEventListener('click',()=>useTeleportTablet(id));
         $('sf-bomber-bomb').addEventListener('click',()=>secretAction(secretWorld.dropBomb()));
         $('sf-bomber-land').addEventListener('click',()=>secretAction(secretWorld.ejectBomber()));
         $('sf-grapple-button').addEventListener('click',()=>multiplayerWorld?.grapple());
         if(!multiplayer)return;
-        multiplayerWorld=createWorldMultiplayer({client:multiplayer,player,airship,basket,rope,expeditions,zoo,merchants:[...merchants,...[cityLife,southernLife,noeValleyLife,squareLife,esotericCampus?.life].flatMap(l=>l?.people||[])],health,economy,deli,combatFeedback,characterGround,playerGround,announce,human,signs,actorInView,
+        multiplayerWorld=createWorldMultiplayer({client:multiplayer,player,airship,basket,rope,expeditions,wilderness,zoo,merchants:[...merchants,...[cityLife,southernLife,noeValleyLife,squareLife,esotericCampus?.life].flatMap(l=>l?.people||[])],health,economy,deli,combatFeedback,characterGround,playerGround,announce,human,signs,actorInView,
             refreshUI:()=>{updateAdventureUI();updateAirshipButton();},onPurse:updatePurse,
             applyInventory:snapshot=>{Object.assign(economy.state,snapshot.purse);deli.state.sandwiches=snapshot.sandwiches;deli.state.pending=snapshot.deliveryPending&&!deli.state.arrived;if(Number.isFinite(snapshot.hp)){health.state.hp=Math.max(0,Math.min(30,snapshot.hp));localStorage.setItem('sf-hitpoints-v1',JSON.stringify(health.state));}if(!ownedHat(economy.state.ownedHats,playerLook.hat)){playerLook=normalizeCharacter({...playerLook,hat:'none'});localStorage.setItem('sf-character-v1',JSON.stringify(playerLook));}updatePurse(economy.state);updateHatControl();updatePhoneControl();updateAdventureUI();},
-            canFollow:()=>active&&multiplayer.state.connected&&secretWorld?.kind==='world'&&!secretWorld.bomber.state.active&&!capture.state.active&&!rehabilitation.state.active&&!chase.state.jailed&&!flying()&&!rope.climbing&&!sutroClimb.state.active&&!rocket.state.active&&!surf.state.riding&&!training&&tahoe.state.mode==='ground'&&!dialogue.active&&!bankMenu?.active&&!questMenu?.active&&!aiInterview.visible&&$('sf-reader').hidden&&$('sf-character').hidden&&$('sf-help').hidden,
+            canFollow:()=>active&&!tabletService?.state.active&&multiplayer.state.connected&&secretWorld?.kind==='world'&&!secretWorld.bomber.state.active&&!capture.state.active&&!rehabilitation.state.active&&!chase.state.jailed&&!flying()&&!rope.climbing&&!sutroClimb.state.active&&!rocket.state.active&&!surf.state.riding&&!training&&tahoe.state.mode==='ground'&&!dialogue.active&&!bankMenu?.active&&!questMenu?.active&&!aiInterview.visible&&$('sf-reader').hidden&&$('sf-character').hidden&&$('sf-help').hidden,
             routeFollower:(target,range)=>{const candidates=Array.from({length:12},(_,i)=>{const angle=i*Math.PI/6;return {x:target.x-.5+Math.cos(angle)*Math.min(.9,range*.75),y:target.z-.5+Math.sin(angle)*Math.min(.9,range*.75)};}).filter(p=>landClearAt(p.x,p.y)).sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y));for(const point of candidates){const path=pathTo(point.x,point.y);if(path)return path;}return null;},
             setFollowRoute:path=>{player.path=path;action=null;destination=path.at(-1)||null;},stopFollowMotion:()=>{player.path=[];player.speed=0;player.moving=false;player.motion=0;},
             preparePlayerAction:()=>{fishing.cancel();setDancing(false);alienCombat=null;player.path=[];player.speed=0;action=null;destination=null;},
-            playerWeapon:()=>expeditions.state.railgun&&expeditions.state.equipped?'railgun':quests.theyLive.state.bayonet?'bayonet':'unarmed',
+            playerWeapon,
             onPrivateAward:award=>{if(award.kind==='raptor')expeditions.recover();else if(!award.inventory){if(award.kind==='coins')economy.credit(award.amount);else if(award.kind==='sandwich')deli.storeSandwich(award.amount);}updateAdventureUI();},
             onCaught:source=>{health.damage(health.state.hp);beginCapture(source==='tiger'?'tiger':'alien',respawnAtHospital);},
             onPosition:p=>{if(p.reason==='teleport'){debugTeleport(p.x,p.z,true);return;}if(p.reason==='respawn')health.restore();if(secretWorld?.bomber.state.active)secretWorld.bomber.state.position={x:p.x,y:p.y,z:p.z};Object.assign(player,{x:p.x-.5,y:p.z-.5,path:[],speed:0,moving:false,motion:0});action=null;destination=null;if(p.reason==='disembark'||p.reason==='landed'){airship.state.active=false;rope.reset();}updateCamera();drawMini();}
@@ -2161,7 +2250,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     function publishMultiplayerPose(){
         if(!multiplayerWorld)return;
         if(chase.state.jailed&&!sentMultiplayerCustody)multiplayer.command('personalTransit',{kind:'jail'});sentMultiplayerCustody=chase.state.jailed;
-        const mode=secretWorld?.bomber.state.active?(secretWorld.bomber.state.phase==='parachuting'?'parachute':'bomber'):expeditions.ship.aboard?'hidden':rocket.state.active?(['boarding','disembarking'].includes(rocket.state.phase)?'climb':'hidden'):multiplayerWorld.traversing?'climb':flying()?'airship':surf.state.riding?'surf':ferrari?.state.riding?'ferrari':motorcycle?.state.riding?'motorcycle':bike.riding?'bike':skateboard.riding?'skateboard':tahoe.state.mode==='ski'?'ski':tahoe.state.mode==='gondola'||sutroClimb.state.active||rope.climbing?'climb':training?'train':player.dancing?'dance':forwardRoll.state.active?'roll':'walk';
+        const mode=tabletService?.state.active?'teleport':secretWorld?.bomber.state.active?(secretWorld.bomber.state.phase==='parachuting'?'parachute':'bomber'):expeditions.ship.aboard?'hidden':rocket.state.active?(['boarding','disembarking'].includes(rocket.state.phase)?'climb':'hidden'):multiplayerWorld.traversing?'climb':flying()?'airship':surf.state.riding?'surf':ferrari?.state.riding?'ferrari':motorcycle?.state.riding?'motorcycle':bike.riding?'bike':skateboard.riding?'skateboard':tahoe.state.mode==='ski'?'ski':tahoe.state.mode==='gondola'||sutroClimb.state.active||rope.climbing?'climb':training?'train':player.dancing?'dance':forwardRoll.state.active?'roll':'walk';
         multiplayerWorld.update({x:player.x+.5,z:player.y+.5,y:playerGround(),angle:player.angle,phase:player.phase,motion:Math.max(0,Math.min(1,player.motion||0)),moving:!!player.moving,mode,boost:mode==='bomber'&&secretWorld.bomber.state.boost,hp:health.state.hp,talkingTo:approachingNPC?.id,gesture:capture.state.active?'caught':player.gesture&&performance.now()-player.gesture.started<player.gesture.duration?player.gesture.name:''});
     }
     function debugTeleport(x,y,serverApproved=false){
@@ -2187,7 +2276,8 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     }
     function pathTo(tx,ty,from=player,ignoreCustody=false){
         if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.path(from,{x:tx,y:ty});
-        const path=esotericCampus?esotericCampus.path(from,{x:tx,y:ty},(a,b)=>basePathTo(b.x,b.y,a,ignoreCustody)):basePathTo(tx,ty,from,ignoreCustody);
+        const base=(a,b)=>esotericCampus?esotericCampus.path(a,b,(p,q)=>basePathTo(q.x,q.y,p,ignoreCustody)):basePathTo(b.x,b.y,a,ignoreCustody);
+        const path=marinLand?marinLand.path(from,{x:tx,y:ty},base):base(from,{x:tx,y:ty});
         if(!headless&&!guildStatus().member){const site=places.find(p=>p.id==='freemasons-guild');if(path?.some(p=>insideGuild(site,p.x+.5,p.y+.5)))return null;}
         return path;
     }
@@ -2197,7 +2287,8 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(cityNavigation?.connected(from,{x:tx,y:ty})){const route=cityPathTo(tx,ty,from,ignoreCustody);if(route)return route;}
         if(regionalRoad){
             const regionalPath=(a,b)=>regionalRoad.path(a,b,{cityPath:(p,q)=>airship.path(p,q,(to,origin)=>cityPathTo(to.x,to.y,origin,ignoreCustody)),tahoePath:(p,q)=>tahoe.path(p,q)});
-            return goldenGate?goldenGate.path(from,{x:tx,y:ty},{cityPath:regionalPath}):regionalPath(from,{x:tx,y:ty});
+            const journey=(a,b)=>goldenGate?goldenGate.path(a,b,{cityPath:regionalPath}):regionalPath(a,b);
+            return countryside?countryside.path(from,{x:tx,y:ty},journey):journey(from,{x:tx,y:ty});
         }
         if(tahoe.contains(from.x+.5,from.y+.5)||tahoe.contains(tx+.5,ty+.5))return tahoe.path(from,{x:tx,y:ty});
         return airship.path(from,{x:tx,y:ty},(to,origin)=>cityPathTo(to.x,to.y,origin,ignoreCustody));
@@ -2206,7 +2297,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         const free=ignoreCustody?landClearAt:clearAt;if(!free(tx,ty)||!free(from.x,from.y))return null;
         return cityNavigation.path(from,{x:tx,y:ty});
     }
-    function walkTo(x,y,onArrival=null) {
+    function walkTo(x,y,onArrival=null) {wildTarget=null;
         if(secretWorld?.bomber.state.active){closeMenu();closeReader();if(clickAttempt)clickAttempt.walking=true;destination={x,y};return secretWorld.bomber.target(x+.5,y+.5);}
         multiplayerWorld?.stopFollowing(false);
         expeditions.stop();
@@ -2245,7 +2336,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     }
     function enter(p) {
         if(!active||chase?.state.jailed)return;if(placeAt(player.x,player.y)!==p){goToPlace(p);return;}
-        if(p.activityBuilding){closeReader();closeMenu();visited.add(p.id);announce(p.id==='freemasons-guild'?'You enter the lodge. A checkerboard floor, brass compasses, and extremely exclusive biscuits.':'You step into Sunset Whole Foods. The supplements are apparently a competitive sport.','You');drawMini();return;}
+        if(p.activityBuilding){closeReader();closeMenu();visited.add(p.id);announce(p.id==='freemasons-guild'?'You enter the lodge. A checkerboard floor, brass compasses, and extremely exclusive biscuits.':'You enter the '+TECHNOLOGIST_MARKET+'. The farmers wear black coats and sunglasses. The produce may know kung fu.','You');drawMini();return;}
         if(p.id==='ai-lab'){closeReader();closeMenu();visited.add(p.id);if(aiLabJob.state.hired)announce('Welcome back to the AI Lab. You earn 1 coin every 2 seconds while inside.','AI Lab');else announce('You enter the AI Lab. Speak to the recruiter outside to interview for a job.','AI Lab');drawMini();return;}
         if(readerPlace===p&&!$('sf-reader').hidden)return;
         readerPlace=p;closeMenu();$('sf-help').hidden=true;world.classList.add('sf-reading');
@@ -2266,6 +2357,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     function closeMenu(){$('sf-context').hidden=true;}
     let clickAttempt=null,clickAnimation=null;
     function clicked(sx,sy,fn){
+        if(!built||tabletService?.state.active)return false;
         const previous=clickAttempt,attempt={worked:true,walking:false};clickAttempt=attempt;
         try{const result=fn();if(result===false)attempt.worked=false;return result;}
         finally{
@@ -2277,8 +2369,15 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             }
         }
     }
+    function actorWalkPoint(npc){
+        const requested={x:npc.x-.5,y:npc.z-.5};if(!Number.isFinite(requested.x)||!Number.isFinite(requested.y))return null;
+        if(clearAt(requested.x,requested.y)&&pathTo(requested.x,requested.y))return requested;
+        for(let r=.25;r<=1.75;r+=.25)for(let i=0;i<16;i++){const x=requested.x+Math.cos(i*Math.PI/8)*r,y=requested.y+Math.sin(i*Math.PI/8)*r;if(clearAt(x,y)&&pathTo(x,y))return {x,y};}return null;
+    }
+    function walkToActor(npc){const p=actorWalkPoint(npc);return p?walkTo(p.x,p.y):false;}
     function examine(p){closeMenu();announce(p?p.description:'A sun-warmed San Francisco street. Somewhere nearby, someone is building the future.','Examine');canvas.focus({preventScroll:true});}
     function showMenu(sx,sy) {
+        if(tabletService?.state.active)return false;
         if(rocket.state.active)return false;
         if(surf.state.jump)return false;
         if(tahoe.state.mode!=='ground')return false;
@@ -2298,20 +2397,23 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             menu.hidden=false;menu.style.left=Math.min(width-menu.offsetWidth-12,Math.max(12,sx))+'px';menu.style.top=Math.min(height-menu.offsetHeight-12,Math.max(12,sy))+'px';menu.querySelector('button').focus({preventScroll:true});return;
         }
         if(!npc&&surf.state.riding&&surf.state.mode==='surf'){if(waveSurf.state.ride)for(const trick of SURF_TRICKS)add(trick.label,()=>performSurfTrick(trick.id));else add('Catch wave',catchPacificaWave);add('Return to Pacifica beach',useSurf);}
-        if(npc?.networkPlayer){add('Examine '+npcLabel(npc),()=>multiplayerWorld.inspect(npc));add('Follow '+npc.label,()=>multiplayerWorld.followPlayer(npc));if(multiplayerWorld.following===npc.id)add('Stop following',()=>multiplayerWorld.stopFollowing(true));if(multiplayer.state.pvp?.enabled&&npc.pvp&&npc.mode!=='bomber'&&!secretWorld?.bomber.state.active)add('Attack '+npcLabel(npc),()=>multiplayerWorld.attackPlayer(npc));}
+        if(npc?.networkPlayer){add('Follow '+npc.label,()=>multiplayerWorld.followPlayer(npc));if(multiplayerWorld.following===npc.id)add('Stop following',()=>multiplayerWorld.stopFollowing(true));if(multiplayer.state.pvp?.enabled&&npc.pvp&&npc.mode!=='bomber'&&!secretWorld?.bomber.state.active)add('Attack '+npcLabel(npc),()=>multiplayerWorld.attackPlayer(npc));}
+        else if(npc?.police){}
+        else if(npc?.wilderness){if(npc.combatKind==='bear')add('Pet '+npcLabel(npc),()=>petBear(npc));add('Attack '+npcLabel(npc),()=>attackWildMonster(npc));}
         else if(['raptor','cow','kraken'].includes(npc?.combatKind)){add('Attack '+npcLabel(npc),()=>attackExpeditionTarget(npc));}
         else if(npc?.expeditionRole)add('Talk-To '+npcLabel(npc),()=>talkExpeditionNPC(npc));
         else if(npc?.parrot)add('Talk-To wild parrot',()=>talkParrot(npc));
         else if(npc?.rehabilitation)add('Talk-To '+npcLabel(npc),()=>talkRehabilitation(npc));
         else if(npc?.kind==='illuminati-elder')add('Talk-To '+npcLabel(npc),()=>talkOldMan(npc));
+        else if(npc?.kind==='tablet-wizard')add('Talk-To '+npcLabel(npc),()=>talkTabletWizard(npc));
         else if(npc?.kind==='banker')add('Talk-To '+npcLabel(npc),()=>talkBanker(npc));
-        else if(npc?.questRole||npc?.kind==='guild-master'||npc?.kind==='recruiter'||npc?.kind==='deli'||npc?.kind==='bartender'||npc?.researcher||npc?.kind==='rail-worker'||npc?.kind&&MERCHANTS[npc.kind])add('Talk-To '+npcLabel(npc),()=>talkMerchant(npc));
+        else if(npc?.questRole||npc?.kind==='guild-master'||npc?.kind==='market-farmer'||npc?.kind==='recruiter'||npc?.kind==='deli'||npc?.kind==='bartender'||npc?.researcher||npc?.kind==='rail-worker'||npc?.kind&&MERCHANTS[npc.kind])add('Talk-To '+npcLabel(npc),()=>talkMerchant(npc));
         else if(npc){
             const verbs=npc.child||npc.dog===true?['talk']:npcPrimary(npc)==='attack'?['attack','talk','steal']:['talk','attack','steal'];
             for(const verb of verbs)add(({talk:'Talk-To',attack:'Attack',steal:'Steal-from'})[verb]+' '+npcLabel(npc),()=>interactCitizen(npc,verb));
         }
-        if(npc&&!npc.networkPlayer&&expeditions.state.railgun&&!npc.combatKind&&!npc.expeditionRole&&!npc.child&&!npc.baby&&!npc.dog)add('Shoot railgun at '+npcLabel(npc),()=>{return attackExpeditionTarget(npc);});
         if(npc&&!npc.networkPlayer)add('Examine '+npcLabel(npc),()=>{announce(npcLabel(npc)+': '+(npcRevealed(npc)?'An aberrant green slime ghost. Railgun beams pass straight through it; a bayonet can cut it apart.':describeCharacter(npc)),'Examine');canvas.focus({preventScroll:true});});
+        if(npc){const target=actorWalkPoint(npc);if(target)add('Walk here',()=>walkTo(target.x,target.y));}
         if(s?.kind==='loot')add('Take '+s.label,()=>collectExpeditionLoot(s));
         if(s?.kind==='waymo')add('Examine Waymo',()=>examine(s));
         if(s?.enterableInstitute)add('Enter '+s.label,()=>goToSight(s));
@@ -2493,11 +2595,11 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(secretWorld?.kind==='illuminati')return CAVE_NAVIGATION.nearest(x,y,40,(a,b)=>CAVE_NAVIGATION.connected(from,{x:a,y:b}));
         if(secretWorld?.bomber.state.active)return {x,y};
         if(sailing)return nearestMinimapPoint(from,{x,y},{eligible:p=>surf.water(p.x+.5,p.y+.5),reachable:p=>!!surf.path(from,p)});
-        const origin=esotericCampus?.contains(from.x+.5,from.y+.5)?regionalRoad.gate('city'):goldenGate?.contains(from.x+.5,from.y+.5)?goldenGate.gate('city'):regionalRoad?.contains(from.x+.5,from.y+.5)||tahoe.contains(from.x+.5,from.y+.5)?regionalRoad.gate('city'):from;
+        const origin=countryside?.contains(from.x+.5,from.y+.5)?regionalRoad.gate('city'):marinLand?.contains(from.x+.5,from.y+.5)?goldenGate.gate('city'):esotericCampus?.contains(from.x+.5,from.y+.5)?regionalRoad.gate('city'):goldenGate?.contains(from.x+.5,from.y+.5)?goldenGate.gate('city'):regionalRoad?.contains(from.x+.5,from.y+.5)||tahoe.contains(from.x+.5,from.y+.5)?regionalRoad.gate('city'):from;
         const region=navigationRegionAt(origin.x,origin.y);
         return nearestMinimapPoint(from,{x,y},{
             eligible:p=>{
-                if(esotericCampus?.contains(p.x+.5,p.y+.5)||goldenGate?.contains(p.x+.5,p.y+.5)||regionalRoad?.contains(p.x+.5,p.y+.5)||airship.contains(p.x+.5,p.y+.5))return true;
+                if(countryside?.contains(p.x+.5,p.y+.5)||marinLand?.contains(p.x+.5,p.y+.5)||esotericCampus?.contains(p.x+.5,p.y+.5)||goldenGate?.contains(p.x+.5,p.y+.5)||regionalRoad?.contains(p.x+.5,p.y+.5)||airship.contains(p.x+.5,p.y+.5))return true;
                 if(tahoe.contains(p.x+.5,p.y+.5))return tahoe.walkable(p.x+.5,p.y+.5);
                 return cityNavigation.free(p.x,p.y)&&cityNavigation.regionAt(p.x,p.y)===region;
             },reachable:p=>!!pathTo(p.x,p.y,from)
@@ -2546,6 +2648,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
 
     function update(dt,t) {
         multiplayerWorld?.beforeUpdate(dt);multiplayerSettings?.update();
+        if(tabletService?.state.active){tabletService.update();if(tabletService.state.active){const pose=tabletService.state.pose;player.x=pose.position.x-.5;player.y=pose.position.z-.5;player.path=[];player.speed=0;player.motion=0;if(pose.incoming)currentInterior=null;}updateAdventureUI();updateCamera();drawMini();return;}
         if(multiplayerWorld?.traversing){updateCamera();drawMini();return;}
         tech.advanceTo(t,{eligible:active&&!document.hidden});
         aiLabJob.update(dt,{inside:placeAt(player.x,player.y)?.id==='ai-lab',eligible:active&&!document.hidden&&!capture.state.active&&!rehabilitation.state.active&&!chase?.state.jailed&&!flying()&&!rocket.state.active&&!surf.state.riding&&!rope.climbing&&!sutroClimb.state.active&&tahoe.state.mode==='ground'});
@@ -2575,6 +2678,9 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         updateAdventureUI();
         if(alienCombat&&(bike.riding||motorcycle?.state.riding||surf.state.riding||ferrari?.state.riding||flying()||rocket.state.active||dialogue.active||training||rope.climbing||sutroClimb.state.active||tahoe.state.mode!=='ground')){alienCombat=null;player.gesture=null;}
         if(!blocked)updateAlienCombat(dt,t);
+        if(!multiplayer&&!blocked){const eligible=!capture.state.active&&!chase?.state.jailed&&!flying()&&!secretWorld?.bomber.state.active&&!rocket.state.active&&!surf.state.riding&&tahoe.state.mode==='ground';wilderness?.update(dt,eligible?[{id:'local',x:player.x+.5,z:player.y+.5}]:[]);
+            wildAttackIn-=dt;if(wildTarget&&eligible&&wildAttackIn<=0){const weapon=playerWeapon(),r=wilderness.strike(wildTarget.id,{id:'local',x:player.x+.5,z:player.y+.5,level:strength.status.level,weapon});if(!r.ok||!wildTarget.hp)wildTarget=null;wildAttackIn=ITEM_STATS[weapon].interval;}
+        }
         skateDog?.update(dt,t,{x:player.x+.5,z:player.y+.5},{paused:blocked,canGreet:!jailed&&!rocket.state.active&&!flying()&&!surf.state.riding&&!sutroClimb.state.active&&!rope.climbing&&tahoe.state.mode==='ground'});
         if(!quests.carrying)monkeyKeeper?.stop();
         if(monkeyKeeper?.update(blocked?0:dt)==='caught'){updateCamera();drawMini();return;}
@@ -2584,7 +2690,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             if(turn||tilt)setCamera(camera.yaw+turn*dt*1.2,camera.pitch+tilt*dt*.8);
         }
         const airborne=!!secretWorld?.bomber.state.active;
-        secretWorld?.update(airborne&&secretWorld.bomber.state.phase==='flying'&&blocked?0:dt,{boost:keys.has('control')});
+        secretWorld?.update(airborne&&secretWorld.bomber.state.phase==='flying'&&blocked?0:dt,{boost:keys.has('shift')});
         if(airborne){const b=secretWorld.bomber.state;player.x=b.position.x-.5;player.y=b.position.z-.5;player.angle=b.heading;player.moving=!!b.target;player.speed=b.speed;player.path=[];player.motion=0;if(!b.target)destination=null;updateAdventureUI();updateCamera();drawMini();return;}
         if(training){const elapsed=Math.max(0,Math.min(1,(t-trainingLast)/1000));trainingLast=t;const level=blocked?null:strength.train(elapsed);if(level){announce('Strength level '+level+'!'+(level===10?' Sand Hill Road Capital Partners will now fund you.':''),'Gym');if(level===10)stopTraining();}chase?.update(dt,WALK_SPEED);updateAdventureUI();updateCamera();drawMini();return;}
         if(expeditions.ship.aboard){const ship=expeditions.ship;player.x=ship.x-.5;player.y=ship.z-.5;player.path=[];player.speed=0;player.moving=false;player.motion=0;chase?.update(blocked?0:dt,WALK_SPEED);updateCamera();drawMini();updateAdventureUI();return;}
@@ -2713,7 +2819,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     function terrainIntersection(ray){
         if(secretWorld?.kind==='illuminati'||secretWorld?.kind==='kraken'){const floor=secretWorld.kind==='illuminati'?ILLUMINATI_CAVE.floor+.025:.025,t=(floor-ray.origin[1])/ray.dir[1];return t>0&&Number.isFinite(t)?{point:ray.origin.map((v,i)=>v+ray.dir[i]*t),distance:t}:null;}
         if(chase?.state.jailed){const t=(detention.base+.18-ray.origin[1])/ray.dir[1];return t>0&&Number.isFinite(t)?{point:ray.origin.map((v,i)=>v+ray.dir[i]*t),distance:t}:null;}
-        const campusHit=esotericCampus?.raycast(ray),bridgeHit=goldenGate?.raycast(ray),highwayHit=regionalRoad?.raycast(ray),clubHit=nightclub?raycastNightlife(ray,nightclub,terrainHeight):null,instituteHit=activeInstituteRoom()?raycastInstituteFloor(activeInstituteRoom(),ray):null,roadHit=[campusHit,bridgeHit,highwayHit,clubHit,instituteHit].filter(Boolean).sort((a,b)=>a.distance-b.distance)[0],southHit=southernTerrain?.raycast(ray);
+        const countrysideHit=countryside?.raycast(ray),marinHit=marinLand?.raycast(ray),campusHit=esotericCampus?.raycast(ray),bridgeHit=goldenGate?.raycast(ray),highwayHit=regionalRoad?.raycast(ray),clubHit=nightclub?raycastNightlife(ray,nightclub,terrainHeight):null,instituteHit=activeInstituteRoom()?raycastInstituteFloor(activeInstituteRoom(),ray):null,roadHit=[countrysideHit,marinHit,campusHit,bridgeHit,highwayHit,clubHit,instituteHit].filter(Boolean).sort((a,b)=>a.distance-b.distance)[0],southHit=southernTerrain?.raycast(ray);
         if(nearTahoe(player.x+.5,player.y+.5,400)){const hit=raycastTahoe(ray);if(hit)return roadHit&&roadHit.distance<hit.distance?roadHit:hit;}
         // Traverse terrain grid cells and intersect the actual rendered triangles.
         // This remains exact at shorelines and steep hills, where ray marching can skip a ridge.
@@ -2822,11 +2928,12 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         const carryingFish=!!(economy.state.fish&&!rolling&&!fishing.state.active&&!player.dancing&&!capture.state.active&&!ferrari?.state.riding&&!bike.riding&&!motorcycle?.state.riding&&!skateboard.riding&&!flying()&&!rope.climbing&&!sutroClimb.state.active&&!rocket.state.active&&tahoe.state.mode==='ground');
         if(training)drawGymExercise(m,gymSelection,t,characterAppearance(playerLook),{reduced});
         else if(tahoe.state.mode==='ski')drawSkiRider(m,tahoe.state,t,reduced,characterAppearance(playerLook));
+        else if(tabletService?.state.active){const p=tabletService.state.pose;human(m,p.position.x,p.position.z,p.position.y,player.angle,0,false,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),phone:false,battleaxe:false,mode:'idle',action:'teleport',actionT:p.arms,ground:null});drawTabletTeleport(m,p,t);}
         else if(secretWorld?.bomber.state.active){const b=secretWorld.bomber.state;if(b.phase==='parachuting'){human(m,b.position.x,b.position.z,b.position.y,b.heading,0,false,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),mode:'idle',action:'parachute',actionT:1,ground:null});drawParachute(m,b.position,b.heading,t);}else drawStealthBomber(m,b.position,b.heading,{bank:b.bank,time:t});}
         else if(surf.state.riding&&surf.state.mode==='surf')drawWaveSurfer(m,player.x+.5,player.y+.5,playerGround(),player.angle,t,waveSurf.pose,{appearance:characterAppearance(playerLook),moving:player.moving,reduced});
         else if(surf.state.riding)drawWindsurfer(m,player.x+.5,player.y+.5,playerGround(),player.angle,t,{appearance:characterAppearance(playerLook),moving:player.moving&&!surf.state.jump,reduced,pitch:surf.state.jump?.pitch||0});
         else{const riderStart=m.data.length,rocketPose=rocket.state.active?rocket.state.pose:null,onSutro=sutroClimb.state.active,networkClimb=!!multiplayerWorld?.traversing,climbing=networkClimb||onSutro&&sutroClimb.state.phase!=='top'||rope.climbing||rocketPose?.mode==='climb',riderPose=networkClimb?{mode:'climb'}:rocketPose||(rope.climbing?{mode:'climb'}:sutroClimb.state.pose);
-        human(m,player.x+.5,player.y+.5,base+(ferrari?.state.riding?.12:bike.riding?.3:motorcycle?.state.riding?.13:skateboard.riding?.155:0),player.angle,phase,bike.riding,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),phone:economy.state.iphoneEquipped&&!carryingFish&&!rolling&&!player.dancing&&!bike.riding&&!motorcycle?.state.riding&&!ferrari?.state.riding&&!flying()&&!climbing&&!rocketPose&&!(expeditions.state.railgun&&expeditions.state.equipped),carryingFish,railgun:expeditions.state.railgun&&expeditions.state.equipped&&!rolling&&!player.dancing&&!fishing.state.active,bayonet:!(expeditions.state.railgun&&expeditions.state.equipped)&&!rolling&&!fishing.state.active&&quests.theyLive.state.bayonet&&!skateboard.riding&&!bike.riding&&!motorcycle?.state.riding&&!flying(),height:ferrari?.state.riding?.65:1,mode:rolling?'idle':ferrari?.state.riding?'sit':capture.state.active?'idle':rocketPose?rocketPose.mode:climbing?riderPose.mode:bike.riding?'cycle':motorcycle?.state.riding?'motorcycle':skateboard.riding?'skate':'move',motion:rolling||reduced?0:player.motion,run:rolling?0:player.runBlend,time:reduced?0:t*.001,action:rolling?'forward-roll':capture.state.active?'caught':fishing.state.active?'fish':player.dancing?'dance':trick?'skate-trick':climbing||rocketPose||reduced||actionT>=1?null:gesture?.name,actionT:rolling?forwardRoll.progress:capture.state.active?capture.pose.hands:fishing.state.active?fishing.progress:trick?trick.progress:actionT,ground:rolling||capture.state.active||networkClimb?null:expeditions.ship.aboard?()=>PEQUOD.deck+.01:rocketPose?(riderPose.mode==='climb'?null:()=>rocket.state.position.y+.008):tahoe.state.mode==='gondola'?()=>tahoe.state.position.y+.01:rope.climbing?null:flying()?()=>airship.state.position.y+AIRSHIP_BASKET.floor+.008:onSutro?(riderPose.mode==='climb'?null:()=>sutroClimb.state.position.y+.008):bike.riding||motorcycle?.state.riding||skateboard.riding?null:chase.state.jailed?()=>detention.base+.19:characterGround});
+        human(m,player.x+.5,player.y+.5,base+(ferrari?.state.riding?.12:bike.riding?.3:motorcycle?.state.riding?.13:skateboard.riding?.155:0),player.angle,phase,bike.riding,playerLook.skin,playerLook.shirt,{...characterAppearance(playerLook),battleaxe:playerWeapon()==='battleaxe'&&!rolling&&!player.dancing,phone:economy.state.iphoneEquipped&&!carryingFish&&!rolling&&!player.dancing&&!bike.riding&&!motorcycle?.state.riding&&!ferrari?.state.riding&&!flying()&&!climbing&&!rocketPose&&!(expeditions.state.railgun&&expeditions.state.equipped),carryingFish,railgun:playerWeapon()==='railgun'&&!rolling&&!player.dancing&&!fishing.state.active,bayonet:playerWeapon()==='bayonet'&&!rolling&&!fishing.state.active&&quests.theyLive.state.bayonet&&!skateboard.riding&&!bike.riding&&!motorcycle?.state.riding&&!flying(),height:ferrari?.state.riding?.65:1,mode:rolling?'idle':ferrari?.state.riding?'sit':capture.state.active?'idle':rocketPose?rocketPose.mode:climbing?riderPose.mode:bike.riding?'cycle':motorcycle?.state.riding?'motorcycle':skateboard.riding?'skate':'move',motion:rolling||reduced?0:player.motion,run:rolling?0:player.runBlend,time:reduced?0:t*.001,action:rolling?'forward-roll':capture.state.active?'caught':fishing.state.active?'fish':player.dancing?'dance':trick?'skate-trick':climbing||rocketPose||reduced||actionT>=1?null:gesture?.name,actionT:rolling?forwardRoll.progress:capture.state.active?capture.pose.hands:fishing.state.active?fishing.progress:trick?trick.progress:actionT,ground:rolling||capture.state.active||networkClimb?null:expeditions.ship.aboard?()=>PEQUOD.deck+.01:rocketPose?(riderPose.mode==='climb'?null:()=>rocket.state.position.y+.008):tahoe.state.mode==='gondola'?()=>tahoe.state.position.y+.01:rope.climbing?null:flying()?()=>airship.state.position.y+AIRSHIP_BASKET.floor+.008:onSutro?(riderPose.mode==='climb'?null:()=>sutroClimb.state.position.y+.008):bike.riding||motorcycle?.state.riding||skateboard.riding?null:chase.state.jailed?()=>detention.base+.19:characterGround});
         if(rolling)applyForwardRollMesh(m,riderStart,player.x+.5,base,player.y+.5,player.angle,forwardRoll.progress,chase.state.jailed?()=>detention.base+.18:characterGround,(x,z)=>clearAt(x-.5,z-.5));
         if(!rolling&&!capture.state.active&&inebriation.intensity&&!flying()&&!bike.riding&&!rocket.state.active)swayCharacter(m,riderStart,player.x+.5,base,player.y+.5,t,inebriation.intensity);
         if(fishing.state.active)drawFishingRod(m,{x:player.x+.5,z:player.y+.5,site:fishing.state.site},base,fishing.progress);
@@ -2836,7 +2943,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(motorcycle?.state.riding){drawMotorcycle(m,player.x+.5,player.y+.5,base,player.angle,motorcycle.state.travel);pitchMotorcycleMesh(m,riderStart,player.x+.5,base,player.y+.5,player.angle,characterGround);}
         if(bike.riding)bicycle(m,player.x+.5,player.y+.5,base,player.angle,phase);
         if(rocketPose)tiltRocketMesh(m,riderStart,rocket.state.vehicle,rocket.state);
-        if(!rolling&&!capture.state.active&&!climbing&&!ferrari?.state.riding&&!bike.riding&&!motorcycle?.state.riding&&!flying()){if(playerLook.cape&&expeditions.state.cape)drawKrakenCape(m,player.x+.5,player.y+.5,base,player.angle,t,signs);if(expeditions.state.railgun&&expeditions.state.equipped&&!player.dancing&&!fishing.state.active)drawRailgun(m,player.x+.5+Math.cos(player.angle)*.08,base+1.14,player.y+.5+Math.sin(player.angle)*.08,player.angle);}
+        if(!rolling&&!capture.state.active&&!climbing&&!ferrari?.state.riding&&!bike.riding&&!motorcycle?.state.riding&&!flying()){if(playerLook.cape&&expeditions.state.cape)drawKrakenCape(m,player.x+.5,player.y+.5,base,player.angle,t,signs);if(playerWeapon()==='railgun'&&!player.dancing&&!fishing.state.active)drawRailgun(m,player.x+.5+Math.cos(player.angle)*.08,base+1.14,player.y+.5+Math.sin(player.angle)*.08,player.angle);}
         if(capture.state.active)collapseCharacterMesh(m,riderStart,player.x+.5,base,player.y+.5,player.angle,capture.pose.fall);}
         if(tahoe.state.mode==='gondola')drawGondolaCabin(m,tahoe.state.position,tahoe.state.angle);
         drawRegionalBackdrop(m,player.x+.5,player.y+.5,playerGround());
@@ -2850,7 +2957,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         dynamicTargets=[];
         actorTags=[];
         const addTarget=(start,metadata,end=m.data.length)=>{const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(let i=start;i<end;i+=11)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],m.data[i+k]);hi[k]=Math.max(hi[k],m.data[i+k]);}dynamicTargets.push({mesh:m,start:start/11,count:(end-start)/11,lo,hi,...metadata});};
-        drawExpeditionActors(m,t,addTarget);multiplayerWorld?.draw(m,t,addTarget,actorTags);
+        drawExpeditionActors(m,t,addTarget);for(const monster of wilderness?.actors||[])if(monster.hp>0&&Math.hypot(monster.x-player.x-.5,monster.z-player.y-.5)<40){const start=m.data.length;drawWildMonster(m,monster,t);addTarget(start,{npc:monster});}multiplayerWorld?.draw(m,t,addTarget,actorTags);
         for(const bomb of secretWorld?.bombs||[])drawBombEffect(m,bomb,performance.now(),terrainHeight(bomb.x,bomb.z));
         for(const crash of secretWorld?.crashes||[])drawBomberCrash(m,crash,performance.now());
         if(currentInterior?.id==='freemasons-guild'&&secretStairs){const start=m.data.length;drawSecretStair(m,secretStairs.x,currentInterior.object.base+.065,secretStairs.z,currentInterior.rotation||0);addTarget(start,{sight:secretStairs});}
@@ -2925,7 +3032,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             if(quests.theyLive.isDefeated(npc.alienId)&&(!npc.defeatAt||t-npc.defeatAt>750))continue;
             if(Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5)>32||!actorInView(npc.x,npc.z,npc.base))continue;
             const walking=(npc.researcher||npc.roam)&&npc.motion>.01;
-            const start=m.data.length,g=npc.gesture,gt=g?(t-g.started)/g.duration:1;if(npcRevealed(npc))drawSpectre(m,npc,t);else human(m,npc.x,npc.z,npc.base,npc.angle,walking&&!reduced?(npc.phase||0):0,false,npc.skin,npc.shirt,{phone:npc.phone,alien:npcRevealed(npc),action:npc.defeatAt?'caught':npc.thinking?'ponder':gt<1?g.name:null,actionT:npc.defeatAt?1:gt,mode:npc.seated?'sit':walking?'move':'idle',female:!!npc.female,longHair:!!npc.longHair,hairstyle:npc.hairstyle,hair:npc.hair,motion:reduced?0:npc.motion||0,ground:npc.roam?characterGround:null,backpack:false,cap:npc.kind==='crew'||!!npc.cap,uniform:npc.kind==='crew',time:reduced?0:t*.001,pants:npc.pants||(npc.kind==='tax'?'#c7a752':npc.kind==='crew'?'#35465c':'#555e55'),coat:npc.kind==='tax'||!!npc.coat,topHat:npc.kind==='tax',chef:npc.kind==='chef',gilded:npc.kind==='tax'});if(npc.defeatAt)collapseCharacterMesh(m,start,npc.x,npc.base,npc.z,npc.angle,Math.min(1,(t-npc.defeatAt)/700));else addTarget(start,{npc});if(npc.regional)actorTags.push(npc);
+            const start=m.data.length,g=npc.gesture,gt=g?(t-g.started)/g.duration:1;if(npcRevealed(npc))drawSpectre(m,npc,t);else human(m,npc.x,npc.z,npc.base,npc.angle,walking&&!reduced?(npc.phase||0):0,false,npc.skin,npc.shirt,{sunglasses:!!npc.sunglasses,phone:npc.phone,alien:npcRevealed(npc),action:npc.defeatAt?'caught':npc.thinking?'ponder':gt<1?g.name:null,actionT:npc.defeatAt?1:gt,mode:npc.seated?'sit':walking?'move':'idle',hat:npc.hat,female:!!npc.female,longHair:!!npc.longHair,hairstyle:npc.hairstyle,hair:npc.hair,motion:reduced?0:npc.motion||0,ground:npc.roam?characterGround:null,backpack:false,cap:npc.kind==='crew'||!!npc.cap,uniform:npc.kind==='crew',time:reduced?0:t*.001,pants:npc.pants||(npc.kind==='tax'?'#c7a752':npc.kind==='crew'?'#35465c':'#555e55'),coat:npc.kind==='tax'||!!npc.coat,topHat:npc.kind==='tax',chef:npc.kind==='chef',gilded:npc.kind==='tax'});if(npc.defeatAt)collapseCharacterMesh(m,start,npc.x,npc.base,npc.z,npc.angle,Math.min(1,(t-npc.defeatAt)/700));else addTarget(start,{npc});if(npc.regional)actorTags.push(npc);
         }
         if(currentInterior===niaCitizen.interior)actorTags.push(niaCitizen);
         for(const npc of parrots){if(Math.hypot(npc.x-player.x-.5,npc.z-player.y-.5)>35)continue;const start=m.data.length;drawParrot(m,npc,t,reduced);addTarget(start,{npc});}
@@ -2935,9 +3042,10 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         const officers=detained?[{x:detention.x-3.5,y:detention.z+2.8,angle:-Math.PI/2,index:0,phase:0},{x:detention.x+3,y:detention.z+2.8,angle:-Math.PI/2,index:1,phase:0}]:chase.state.officers;
         for(const o of officers){
             if(Math.hypot(o.x-player.x,o.y-player.y)>27)continue;
-            const water=surf.water(o.x+.5,o.y+.5),base=water?.06:detained?detention.terrain(o.x+.5,o.y+.5)+.07:terrainHeight(o.x+.5,o.y+.5)+.07;
+            const start=m.data.length,water=surf.water(o.x+.5,o.y+.5),base=water?.06:detained?detention.terrain(o.x+.5,o.y+.5)+.07:terrainHeight(o.x+.5,o.y+.5)+.07;
             if(water)drawWindsurfer(m,o.x+.5,o.y+.5,base,o.angle,t,{police:true,moving:!detained,reduced});
             else human(m,o.x+.5,o.y+.5,base,o.angle,reduced?0:o.phase*Math.PI*2/(10*CHARACTER_CLIPS.run.stride),false,'#ba9476','#304b66',{pants:'#2d4055',cap:true,uniform:true,backpack:false,mode:'move',motion:reduced||detained?0:1,run:1,time:reduced?0:t*.001,ground:detained?(x,z)=>detention.terrain(x,z)+.01:characterGround});
+            let officer=policeActors.get(o.index);if(!officer){officer={id:'personal-police-'+o.index,label:'Police',police:true,kind:'police',height:1.95,description:'A tireless police officer. Their cardio budget is apparently unlimited.'};policeActors.set(o.index,officer);}Object.assign(officer,{x:o.x+.5,z:o.y+.5,base,angle:o.angle});addTarget(start,{npc:officer});
             const phrases=['Stop!','You are under arrest!','Stop right there!'],speaking=Math.floor(chase.state.elapsed/2.8)%3===o.index,speech=!detained&&speaking&&chase.state.elapsed%2.8<2.25?phrases[Math.floor(chase.state.elapsed/2.8)%phrases.length]:'';
             actorTags.push({x:o.x+.5,z:o.y+.5,base,height:water?3.3:1.95,label:'Police',police:true,chasing:chase.state.wanted&&!detained&&!capture.state.active,speech,speechUntil:Infinity});
         }
@@ -2955,7 +3063,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(entries.length)entries.push({target:player,hp:health.state.hp,max:health.state.max});
         combatFeedback.engage(entries);
         const visible=combatFeedback.entries().map(a=>a.target===player?{...a,hp:health.state.hp,max:health.state.max}:a);
-        combatOverlay.draw(visible,n=>n===player?{x:player.x+.5,y:playerGround()+2.35,z:player.y+.5}:{x:n.x,y:(n.base??characterGround(n.x,n.z))+(n.combatKind==='kraken'?3.4:n.combatKind==='cow'?1.7:n.combatKind==='raptor'?2:2.35),z:n.z},project,width,height);
+        combatOverlay.draw(visible,n=>n===player?{x:player.x+.5,y:playerGround()+2.35,z:player.y+.5}:{x:n.x,y:(n.base??characterGround(n.x,n.z))+(n.height??(n.combatKind==='kraken'?3.4:n.combatKind==='cow'?1.7:n.combatKind==='raptor'?2:2.35)),z:n.z},project,width,height);
     }
     function drawActorLabels(t){
         let used=0;
@@ -2989,13 +3097,13 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
 
     function frame(t){if(!active)return;const dt=Math.min((t-last)/1000,.075);last=t;render(t,dt);raf=requestAnimationFrame(frame);}
     function startLoop(){cancelAnimationFrame(raf);last=performance.now();trainingLast=last;raf=requestAnimationFrame(frame);}
-    function setMode(on) {
+    async function setMode(on) {
         if(!on&&bankMenu?.active)bankMenu.close();
         tech.suspend();social.suspend();
         if(!on)debugConsole?.close();
         if(!on){aiInterview?.close();forwardRoll.cancel();}
         if(on===active)return;active=on;
-        if(on){scrollBefore=scrollY;world.hidden=false;document.body.classList.add('sf-mode');classic.inert=true;classic.setAttribute('aria-hidden','true');if(!built)build();resize();updateCamera();canvas.focus({preventScroll:true});startLoop();}
+        if(on){scrollBefore=scrollY;world.hidden=false;document.body.classList.add('sf-mode');classic.inert=true;classic.setAttribute('aria-hidden','true');if(!built){world.inert=true;loading?.show();await loading?.stage(4,'Connecting to your world…');await buildForBrowser();world.inert=false;}resize();updateCamera();render(performance.now(),0);await loading?.done();canvas.focus({preventScroll:true});startLoop();}
         else{fishing.cancel();parkMotorcycle(false);monkeyKeeper?.save();if(training)stopTraining();if(ferrari?.state.riding)parkFerrari();strength.save();questMenu?.close();closeCharacter();setDancing(false);dialogue.close();const rocketEntry=rocket.state.active?rocket.state.from.entry:null;rocket.cancel();updateRocketControls();if(rocketEntry)Object.assign(player,rocketEntry);rope.reset();const landing=airship.cancel(),entry=sutroClimb.cancel();if(landing){player.x=landing.x;player.y=landing.y;}else if(entry){player.x=entry.x-.5;player.y=entry.z-.5;}updateClimbButton();cancelAnimationFrame(raf);keys.clear();pointers.clear();clearTimeout(pressTimer);gesture=false;hovered=null;currentInterior=null;readerPlace=null;world.classList.remove('sf-reading');$('sf-hover').hidden=true;player.path=[];player.speed=0;action=null;closeMenu();$('sf-reader').hidden=true;$('sf-help').hidden=true;$('sf-reader-shade').hidden=true;playerSpeechUntil=0;$('sf-player-speech').hidden=true;world.hidden=true;document.body.classList.remove('sf-mode');classic.inert=false;classic.removeAttribute('aria-hidden');window.scrollTo(0,scrollBefore);$('sf-toggle').focus({preventScroll:true});}
         $('sf-toggle').setAttribute('aria-pressed',String(on));$('sf-toggle-label').textContent=on?'Classic page':'Explore SF';
     }
@@ -3003,9 +3111,10 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     function parkCarFirst(){announce('Park the Ferrari with R before doing that.','Ferrari');return false;}
     function updateAdventureUI(){
         if(headless)return;
+        const tablets=tabletService?.inventory()||{};for(const id of TABLET_PLACES){const b=$('sf-tablet-'+id);b.hidden=!tablets[id];b.disabled=!!tabletService?.state.active||!canUseTablet();b.textContent=(id==='tahoe'?'Tahoe':'Downtown')+' tablet · '+(tablets[id]||0);b.title='Break a '+id+' teleportation tablet';}
         const coffee=bankService?.snapshot().coffee||0;$('sf-drink-coffee').hidden=!coffee;$('sf-drink-coffee').disabled=capture.state.active||!!secretWorld?.bomber.state.active||!!chase?.state.jailed;
         const bankBalance=bankService?.snapshot().balance||0;$('sf-bank-character').textContent='Green Bank · '+bankBalance.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' coins deposited · 5% per hour';
-        const aircraft=!!secretWorld?.bomber.state.active,parachuting=secretWorld?.bomber.state.phase==='parachuting',bombSeconds=secretWorld?.bomber.bombSeconds||0;$('sf-bomber-controls').hidden=!aircraft;$('sf-bomber-bomb').disabled=!aircraft||parachuting||bombSeconds>0||!multiplayer?.state.connected&&!!multiplayer;$('sf-bomber-bomb').textContent=bombSeconds?'Reloading · '+bombSeconds+'s':'Drop bomb · Space';$('sf-bomber-land').disabled=parachuting;$('sf-bomber-flight').textContent=parachuting?'Parachuting to safety':secretWorld?.bomber.state.boost?'B-2 · Rocket-speed boost':'Personal B-2 · Hold Control to boost';
+        const aircraft=!!secretWorld?.bomber.state.active,parachuting=secretWorld?.bomber.state.phase==='parachuting',bombSeconds=secretWorld?.bomber.bombSeconds||0;$('sf-bomber-controls').hidden=!aircraft;$('sf-bomber-bomb').disabled=!aircraft||parachuting||bombSeconds>0||!multiplayer?.state.connected&&!!multiplayer;$('sf-bomber-bomb').textContent=bombSeconds?'Reloading · '+bombSeconds+'s':'Drop bomb · Space';$('sf-bomber-land').disabled=parachuting;$('sf-bomber-flight').textContent=parachuting?'Parachuting to safety':secretWorld?.bomber.state.boost?'B-2 · Rocket-speed boost':'Personal B-2 · Hold Shift to boost';
         const layer=$('sf-instance-level'),kind=secretWorld?.kind||'world';layer.hidden=kind==='world';layer.textContent=kind==='illuminati'?'Underground · Private hangar':'Private kraken waters';
         updatePhoneControl();
         const pitch=social.state.pitch,sales=$('sf-sales-status');sales.hidden=!pitch;if(pitch){const text='Sales pitch · '+Math.ceil(pitch.remaining)+'s · '+Math.round(pitch.chance*100)+'% chance';if(sales.textContent!==text)sales.textContent=text;}
@@ -3022,7 +3131,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         const skate=$('sf-skateboard-button');skate.hidden=!q.skateboard;skate.disabled=!!(capture.state.active||chase?.state.jailed||rocket.state.active);skate.setAttribute('aria-pressed',String(skateboard.riding));const skateText=skateboard.riding?'Put away board · K':'Skateboard · K';if(skate.textContent!==skateText)skate.textContent=skateText;
         $('sf-skate-tricks').hidden=!skateboard.riding;for(const button of world.querySelectorAll('[data-skate-trick]'))button.disabled=skateTricks.state.active||capture.state.active||chase?.state.jailed;
         const employment=$('sf-employment'),working=aiLabJob.state.hired&&placeAt(player.x,player.y)?.id==='ai-lab';employment.hidden=!aiLabJob.state.hired;const jobText=working?(economy.state.iphoneEquipped?'AI Lab · earning 1.25 coins / 2s':'AI Lab · earning 1 coin / 2s'):'AI Lab · employed';if(employment.textContent!==jobText)employment.textContent=jobText;
-        const railgun=$('sf-railgun-button');railgun.hidden=!expeditions.state.railgun;railgun.textContent=expeditions.state.equipped?'Railgun equipped · G':'Equip railgun · G';railgun.setAttribute('aria-pressed',String(expeditions.state.equipped));
+        const railgun=$('sf-railgun-button');railgun.hidden=!expeditions.state.railgun;railgun.textContent=playerWeapon()==='railgun'?'Railgun equipped · G':'Equip railgun · G';railgun.setAttribute('aria-pressed',String(playerWeapon()==='railgun'));
         const hpText='Hitpoints '+health.state.hp+'/'+health.state.max,enemy=alienCombat?.battle.state||multiplayerWorld?.combatTarget||(expeditions.state.target?.max?expeditions.state.target:null);
         if($('sf-hitpoints-text').textContent!==hpText)$('sf-hitpoints-text').textContent=hpText;
         $('sf-hitpoints-meter').value=health.state.hp;
@@ -3161,9 +3270,15 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         if(!ownedHat(economy.state.ownedHats,id))return false;
         playerLook=normalizeCharacter({...playerLook,hat:id});if(!headless){try{localStorage.setItem('sf-character-v1',JSON.stringify(playerLook));}catch{}updateHatControl();if(!$('sf-character').hidden)drawCharacterPreview($('sf-character-preview'),{...playerLook,phone:economy.state.iphoneEquipped});}return true;
     }
+    function updateEquipmentControl(){
+        if(headless)return;for(const [key,id] of [['iceTop','ice-top'],['icePants','ice-pants']]){const field=world.querySelector('[data-character="'+key+'"]');field.disabled=!equipmentOwned(economy.state,id);if(field.disabled)playerLook[key]=false;field.checked=playerLook[key];}
+        const field=world.querySelector('[data-character="weapon"]');for(const option of field.options)option.disabled=option.value==='battleaxe'?!equipmentOwned(economy.state,'battleaxe'):option.value==='bayonet'?!quests.theyLive.state.bayonet:option.value==='railgun'?!expeditions.state.railgun:false;
+    }
     function updateCapeControl(){const field=world.querySelector('[data-character="cape"]');field.disabled=!expeditions.state.cape;field.checked=playerLook.cape;$('sf-cape-hint').textContent=expeditions.state.cape?KRAKEN_CAPE_TEXT:'Defeat the kraken with Ahab to unlock.';}
     function changeCharacter(field){
         const key=field.dataset.character;
+        if(key==='iceTop'&&!equipmentOwned(economy.state,'ice-top')||key==='icePants'&&!equipmentOwned(economy.state,'ice-pants')){field.checked=false;return;}
+        if(key==='weapon'&&field.selectedOptions[0]?.disabled)return;
         if(key==='sunglasses'&&!sunglasses.state.owned){field.checked=false;return;}
         if(key==='hat'&&!ownedHat(economy.state.ownedHats,field.value)){field.value=playerLook.hat;return;}
         if(key==='cape'&&!expeditions.state.cape){field.checked=false;return;}
@@ -3176,7 +3291,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         questMenu?.close();closeMenu();closeReader();closeHelp();dialogue.close();keys.clear();player.path=[];player.speed=0;setDancing(false);
         updateSunglassesControl();updateHatControl();updatePhoneControl();
         for(const field of world.querySelectorAll('[data-character]')){if(field.type==='checkbox')field.checked=playerLook[field.dataset.character];else field.value=playerLook[field.dataset.character];}
-        updateCapeControl();$('sf-character').hidden=false;$('sf-reader-shade').hidden=false;drawCharacterPreview($('sf-character-preview'),{...playerLook,phone:economy.state.iphoneEquipped});$('sf-close-character').focus({preventScroll:true});
+        updateCapeControl();updateEquipmentControl();$('sf-character').hidden=false;$('sf-reader-shade').hidden=false;drawCharacterPreview($('sf-character-preview'),{...playerLook,phone:economy.state.iphoneEquipped});$('sf-close-character').focus({preventScroll:true});
     }
     function closeCharacter(){if(headless||$('sf-character').hidden)return;$('sf-character').hidden=true;$('sf-reader-shade').hidden=true;canvas.focus({preventScroll:true});}
     function sayPhrase(text){
@@ -3187,7 +3302,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     function closeHelp(){$('sf-help').hidden=true;$('sf-reader-shade').hidden=true;canvas.focus({preventScroll:true});}
     if(headless){
         build();
-        return {bankService,banker,secretWorld,caveMesh,oldMan,secretStairs,guildStatus,peptideSpawns,cityLife,lives:[cityLife,southernLife,noeValleyLife,squareLife,esotericCampus?.life].filter(Boolean),social,socialLife,tech,saltMail,sandSite,slowBus,expeditions,surf,waveSurf,pacificaSurfSite,noeValleyLife,instituteRooms,instituteRoomAt,forwardRoll,aiLabJob,health,deli,streetTraffic,airportAds,airportFieldAds,groundSurfaceAt:(x,z)=>z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z),economy,inebriation,rehabilitation,jailStaff,parrots,fishing,fishingSite,sunglasses,sunglassesSite,beachBillboard,quests,skateboard,skateTricks,motorcycle,monkeyKeeper,esotericCampus,squareLife,specialNPCLife,cityLightPlan,tiles:worldTiles,navigation:cityNavigation,objects,places,sights,parkSouthEdge,southernLife,southernNeighborhood,spawn:{x:player.x,y:player.y},merchants,bunny,skateDog,airship,tahoe,ferrari,strength,highwaySites,nightclub,restaurantDiners,regionalRoad,goldenGate,southernTerrain,terrainHeight,characterGround,pathTo,minimapTarget,lineClear:railgunLineClear,canTravel,clearAt,landClearAt,cityPathTo,navigationRegionAt,nearestNavigation,approaches:{bunny:bunnyApproach,sutro:sutroApproach,merchant:merchantApproach}};
+        return {countryside,tabletService,tabletWizard,tabletDestinations,marinLand,detention,wilderness,bankService,banker,secretWorld,caveMesh,oldMan,secretStairs,guildStatus,peptideSpawns,cityLife,lives:[cityLife,southernLife,noeValleyLife,squareLife,esotericCampus?.life].filter(Boolean),social,socialLife,tech,saltMail,sandSite,slowBus,expeditions,surf,waveSurf,pacificaSurfSite,noeValleyLife,instituteRooms,instituteRoomAt,forwardRoll,aiLabJob,health,deli,streetTraffic,airportAds,airportFieldAds,groundSurfaceAt:(x,z)=>z>=N?airportSurfaceTypeAt(x,z):surfaceTypeAt(x,z),economy,inebriation,rehabilitation,jailStaff,parrots,fishing,fishingSite,sunglasses,sunglassesSite,beachBillboard,quests,skateboard,skateTricks,motorcycle,monkeyKeeper,esotericCampus,squareLife,specialNPCLife,cityLightPlan,tiles:worldTiles,navigation:cityNavigation,objects,places,sights,parkSouthEdge,southernLife,southernNeighborhood,spawn:{x:player.x,y:player.y},merchants,bunny,skateDog,airship,tahoe,ferrari,strength,highwaySites,nightclub,restaurantDiners,regionalRoad,goldenGate,southernTerrain,terrainHeight,characterGround,pathTo,minimapTarget,lineClear:railgunLineClear,canTravel,clearAt,landClearAt,cityPathTo,navigationRegionAt,nearestNavigation,approaches:{bunny:bunnyApproach,sutro:sutroApproach,merchant:merchantApproach}};
     }
     window.SFMapDiagnostics=Object.freeze({
         navigation:Object.freeze({audit:()=>cityNavigation?auditNavigationGrid(cityNavigation):null,position:(x,y)=>cityNavigation?.describe(x,y),connected:(from,to)=>cityNavigation?.connected(from,to)||false,route:(from,to)=>built?pathTo(to.x,to.y,from):null}),
@@ -3195,7 +3310,7 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     });
     $('sf-toggle').hidden=false;$('sf-toggle').addEventListener('click',()=>{
         if(document.documentElement.dataset.sfEntry==='explore'){window.location.href=new URL('./index.html',window.location.href).href;return;}
-        setMode(!active);
+        setMode(!active).catch(error=>loading?.fail(error));
     });
     $('sf-drive-tahoe').addEventListener('click',()=>driveFerrari(TAHOE.base.x-.5,TAHOE.base.z-.5));$('sf-drive-dealer').addEventListener('click',()=>{const p=ferrari.sample(ferrari.dealer);driveFerrari(p.x-.5,p.z-.5);});
     $('sf-railgun-button').addEventListener('click',toggleRailgun);
@@ -3249,12 +3364,12 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
         const pointer=pointers.get(e.pointerId);if(pointer){pointer.x=e.clientX;pointer.y=e.clientY;if(Math.hypot(pointer.x-pointer.startX,pointer.y-pointer.startY)>9)clearTimeout(pressTimer);}
         if(pointers.size===2){const [a,b]=[...pointers.values()],dist=Math.hypot(a.x-b.x,a.y-b.y);if(pinchDistance>0)setZoom(zoom*Math.pow(dist/pinchDistance,1.5));pinchDistance=dist;return;}
         if(e.pointerType==='touch')return;const citizen=hitCitizen(e.clientX,e.clientY);hovered=citizen||hitSight(e.clientX,e.clientY)||hitPlace(e.clientX,e.clientY);
-        const tip=$('sf-hover');tip.hidden=!hovered||!$('sf-context').hidden;if(hovered){tip.textContent=citizen?(citizen.networkPlayer?npcLabel(citizen):({talk:'Talk-To',attack:'Attack',examine:'Examine'})[npcPrimary(citizen)]+' '+npcLabel(citizen)):(hovered.source?(currentInterior===hovered&&!hovered.activityBuilding?'Browse':'Enter'):hovered.id==='sutro'&&sutroClimb.state.active?'Climb down':sightPrimaryVerb(hovered))+' '+hovered.label;tip.style.left=Math.max(8,Math.min(width-300,e.clientX+17))+'px';tip.style.top=Math.min(height-38,e.clientY+22)+'px';}
+        const tip=$('sf-hover');tip.hidden=!hovered||!$('sf-context').hidden;if(hovered){tip.textContent=citizen?(citizen.networkPlayer?npcLabel(citizen):({talk:'Talk-To',attack:'Attack',examine:'Examine',pet:'Pet'})[npcPrimary(citizen)]+' '+npcLabel(citizen)):(hovered.source?(currentInterior===hovered&&!hovered.activityBuilding?'Browse':'Enter'):hovered.id==='sutro'&&sutroClimb.state.active?'Climb down':sightPrimaryVerb(hovered))+' '+hovered.label;tip.style.left=Math.max(8,Math.min(width-300,e.clientX+17))+'px';tip.style.top=Math.min(height-38,e.clientY+22)+'px';}
     });
     canvas.addEventListener('pointerup',e=>{
         clearTimeout(pressTimer);const p=pointers.get(e.pointerId);pointers.delete(e.pointerId);if(pointers.size===0&&gesture){gesture=false;return;}if(!p||gesture||longPressed||e.button!==0||Math.hypot(e.clientX-p.startX,e.clientY-p.startY)>12)return;
         clicked(e.clientX,e.clientY,()=>{
-            const tile=tileAt(e.clientX,e.clientY),selectedPlayer=p.npc?.networkPlayer?p.npc:hitCitizen(e.clientX,e.clientY);if(selectedPlayer?.networkPlayer)return multiplayerWorld.inspect(selectedPlayer);
+            const tile=tileAt(e.clientX,e.clientY),selectedPlayer=p.npc?.networkPlayer?p.npc:hitCitizen(e.clientX,e.clientY);if(selectedPlayer?.networkPlayer)return walkToActor(selectedPlayer);if(selectedPlayer?.police)return examine(selectedPlayer);
             if(secretWorld?.bomber.state.active)return walkTo(tile.x,tile.y);
             const selectedItem=hitSight(e.clientX,e.clientY);if(selectedItem?.kind==='loot')return collectExpeditionLoot(selectedItem);
             if(chase?.state.jailed){const npc=p.npc||hitCitizen(e.clientX,e.clientY);return npc?.rehabilitation?talkRehabilitation(npc):walkTo(tile.x,tile.y);}
@@ -3276,8 +3391,8 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
     canvas.addEventListener('pointerleave',()=>{$('sf-hover').hidden=true;hovered=null;});
     document.addEventListener('pointerdown',e=>{if(!$('sf-context').hidden&&!$('sf-context').contains(e.target)&&e.target!==canvas)closeMenu();});
     document.addEventListener('keydown',e=>{
-        if(!active)return;
-        if(e.key==='Control'&&secretWorld?.bomber.state.phase==='flying'){e.preventDefault();keys.add('control');return;}
+        if(!active||!built||tabletService?.state.active)return;
+        if(e.key==='Shift'&&secretWorld?.bomber.state.phase==='flying'){e.preventDefault();keys.add('shift');return;}
         if(e.ctrlKey||e.metaKey||e.altKey)return;
         if(debugConsole.handleKey(e))return;
         if(capture.state.active||rehabilitation.state.active)return;const key=e.key.toLowerCase();
@@ -3306,10 +3421,10 @@ function createSFWorld({headless=false,retainInteriors=false,multiplayer=null}={
             merchants.push({...npc,id:id+'-attendant',siteId:id,angle:Math.PI});
         }if(highwayMesh)highwayGPU=upload(highwayMesh);for(const o of buildingModels)o.gpu=upload(o.mesh);updateCamera();if(active)startLoop();});
     window.addEventListener('resize',resize);
-    if(document.documentElement.dataset.sfEntry==='explore')setMode(true);
+    if(document.documentElement.dataset.sfEntry==='explore')setMode(true).catch(error=>loading?.fail(error));
 }
 
 /** Build the actual authored world without DOM, canvas, WebGL, images or a server.
  * Geometry placement is shared; rasterization, upload and UI initialization are skipped. */
 export function createWorldModel({retainInteriors=false}={}){return createSFWorld({headless:true,retainInteriors});}
-if(typeof document!=='undefined')bootMultiplayer().then(multiplayer=>createSFWorld({multiplayer})).catch(error=>{console.error('Multiplayer initialization:',error);createSFWorld();});
+if(typeof document!=='undefined'){const loading=createLoadingScreen(document.getElementById('sf-loading'));if(document.documentElement.dataset.sfEntry==='explore')loading.show();bootMultiplayer().then(multiplayer=>createSFWorld({multiplayer,loading})).catch(error=>{console.error('World initialization:',error);loading.fail(error);});}

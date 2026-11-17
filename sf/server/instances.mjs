@@ -11,7 +11,7 @@ export function createServerInstances({geometry,shared,pvp,players,send,dirty,no
     const kind=p=>p.instance?.kind||'world',alive=p=>p.hp>0&&!p.respawnAllowed&&!p.personalJailed;
     const bomberStatus=p=>({owned:p.profile.bomber===true,active:!!p.bomberActive,readyAt:p.profile.bombReadyAt||0});
     const position=p=>({x:p.x,y:p.y,z:p.z,angle:p.angle,hp:p.hp});
-    function savePosition(p){return kind(p)!=='world'||p.bomberActive?{...(p.instanceReturn||position(p)),hp:p.hp}:position(p);}
+    function savePosition(p){if(p.tabletTeleport)return {...p.tabletTeleport.to,hp:p.hp,angle:p.angle};return kind(p)!=='world'||p.bomberActive?{...(p.instanceReturn||position(p)),hp:p.hp}:position(p);}
     function transition(p,instance,to){
         shared.leave(p);pvp.stop(p);p.attack=null;p.instance=instance;p.seen.clear();p.sharedVersions.clear();p.npcVersions.clear();
         Object.assign(p,to,{moving:false,motion:0,lastPoseAt:now(),mode:p.bomberActive?'bomber':'walk'});p.revision++;dirty(p);
@@ -50,7 +50,7 @@ export function createServerInstances({geometry,shared,pvp,players,send,dirty,no
         if(action==='bomberBoard'){
             if(!alive(p)||!p.profile.illuminati||kind(p)!=='illuminati'||Math.hypot(p.x-ILLUMINATI_CAVE.boarding.x,p.z-ILLUMINATI_CAVE.boarding.z)>3)return {ok:false,message:'Walk to your B-2 in the underground hangar.'};
             p.profile.bomber=true;p.bomberActive=true;transition(p,PUBLIC_INSTANCE,{...BOMBER_LAUNCH,y:bomberFlightHeight(BOMBER_LAUNCH.x,BOMBER_LAUNCH.z,geometry.characterGround,(geometry.airship?.cruiseHeight||28)-3),angle:0});
-            return {ok:true,bomber:bomberStatus(p),message:'You take your personal B-2 out over the Pacific. Click to fly; hold Control for rocket speed. Space drops a bomb. Land by parachuting out.'};
+            return {ok:true,bomber:bomberStatus(p),message:'You take your personal B-2 out over the Pacific. Click to fly; hold Shift for rocket speed. Space drops a bomb. Land by parachuting out.'};
         }
         if(action==='bomberReturn'){
             if(!alive(p)||!p.bomberActive||p.parachute||!p.profile.illuminati)return {ok:false,message:'You are not flying your B-2.'};

@@ -11,16 +11,18 @@ import {guildStatusFor,guildAction,guildMayEnter} from './guild.mjs';
 import {createServerInstances} from './instances.mjs';
 import {PUBLIC_INSTANCE,sameMapInstance} from '../map-instances.js';
 import {bankSnapshotFor,bankAction} from './banking.mjs';
+import {equipmentOwned} from '../item-stats.js';
+import {createServerTablets} from './teleport-tablets.mjs';
 
 const clone=value=>structuredClone(value);
 const parse=(value,fallback={})=>{try{return JSON.parse(value);}catch{return fallback;}};
-function appearance(value={}){const result={gender:value.gender==='woman'?'woman':'man',cape:value.cape===true,sunglasses:value.sunglasses===true,hat:typeof value.hat==='string'?value.hat.slice(0,48):'none'};for(const key of ['skin','shirt','pants','hair','shoes'])if(/^#[0-9a-f]{6}$/i.test(value[key]))result[key]=value[key];return result;}
+function appearance(value={}){const result={gender:value.gender==='woman'?'woman':'man',cape:value.cape===true,iceTop:value.iceTop===true,icePants:value.icePants===true,weapon:['auto','unarmed','bayonet','battleaxe','railgun'].includes(value.weapon)?value.weapon:'auto',sunglasses:value.sunglasses===true,hat:typeof value.hat==='string'?value.hat.slice(0,48):'none'};for(const key of ['skin','shirt','pants','hair','shoes'])if(/^#[0-9a-f]{6}$/i.test(value[key]))result[key]=value[key];return result;}
 const speedLimits={walk:4.6,bike:8.2,ferrari:100,motorcycle:14,skateboard:7.6,surf:12,ski:100,climb:8,rocket:3000,hidden:3000,airship:10,roll:6.3,dance:0,train:0};
 
 /** One authoritative owner for the common world. HTTP/WebSocket and storage
  * adapters are deliberately outside the fixed-step simulation. */
 export async function createGame({geometry,store,now=Date.now,random=Math.random,maxPlayers=2000,allowDebug=false}={}){
-    const players=new Map(),profiles=new Map(),identities=new Map(),names=new Map(),nameOwners=new Map(),authenticating=new Map(),dirtyProfiles=new Set(),revisions=new Map(),persistedRevisions=new Map(),cleanupTasks=new Set(),playerIndex=new SpatialIndex(),worldNPCIndex=new SpatialIndex(),lootIndex=new SpatialIndex(8);
+    const players=new Map(),profiles=new Map(),identities=new Map(),names=new Map(),nameOwners=new Map(),authenticating=new Map(),dirtyProfiles=new Set(),revisions=new Map(),persistedRevisions=new Map(),cleanupTasks=new Set(),playerIndex=new SpatialIndex(),worldNPCIndex=new SpatialIndex(),lootIndex=new SpatialIndex(8),wildernessIndex=new SpatialIndex();
     for(const row of await store.names()){names.set(row.canonical,row.owner);nameOwners.set(row.owner,row);}
     const saved=await store.get('world')||{},jail=createDetentionSite(1.5);let serial=saved.serial||0,tickNumber=0,flushing=null,clockMs=now(),nextEntitySnapshot=0,closing=false;
     const metrics={connected:0,frames:0,bytes:0,corrections:0,rejected:0,slowClients:0,tickMs:0,broadcastMs:0};
@@ -29,10 +31,11 @@ export async function createGame({geometry,store,now=Date.now,random=Math.random
     const shared=createSharedWorld({geometry,players,send,dirty,random,now,saved:saved.shared});
     const pvp=createPvpCombat({players,now,random,geometry,send,dirty,onDeath:pvpDeath});
     const instances=createServerInstances({geometry,shared,pvp,players,send,dirty,now});
+    const tablets=createServerTablets({geometry,shared,pvp,players,send,dirty,now});
     function mergePrivate(p,input){
         const incoming=sanitizePrivateState(input);for(const [key,value] of Object.entries(incoming))if(!INVENTORY_KEYS.has(key))p.profile.privateState[key]=value;
         const level=strengthStatus(parse(p.profile.privateState['sf-strength-v1']).xp).level;if(level!==p.level){p.level=level;p.revision++;}
-        const look=appearance(parse(p.profile.privateState['sf-character-v1']||'{}'));if(!p.inventory.economy.state.ownedHats.includes(look.hat))look.hat='none';
+        const look=appearance(parse(p.profile.privateState['sf-character-v1']||'{}'));if(!p.inventory.economy.state.ownedHats.includes(look.hat))look.hat='none';look.iceTop=look.iceTop&&equipmentOwned(p.inventory.economy.state,'ice-top');look.icePants=look.icePants&&equipmentOwned(p.inventory.economy.state,'ice-pants');
         if(JSON.stringify(look)!==JSON.stringify(p.appearance)){p.appearance=look;p.revision++;}dirty(p);
     }
     function pvpDeath(victim,killer){
@@ -89,7 +92,8 @@ export async function createGame({geometry,store,now=Date.now,random=Math.random
         if(!validNetworkPose(input)){metrics.rejected++;return;}
         p.lastSeen=now();
         if(typeof input.talkingTo==='string'){const npc=shared.npcById.get(input.talkingTo);if(npc&&Math.hypot(npc.x-p.x,npc.z-p.z)<3.5)npc.hold=1.2;}
-        if(p.airship||p.grappling||p.parachute)return;
+        if(p.airship||p.grappling||p.parachute||p.tabletTeleport)return;
+        if(input.mode==='teleport'){correction(p,'Use a teleportation tablet to teleport.');return;}
         if(p.respawnAllowed&&input.mode!=='hidden'){if(Math.hypot(input.x-p.x,input.z-p.z)<.15){p.gesture='caught';p.motion=0;}else correction(p,'Respawn pending');return;}
         if(!instances.validPose(p,input)){correction(p,'That movement is outside your current map layer.');return;}
         if(instances.kind(p)==='world'&&!p.bomberActive&&!guildMayEnter(p,geometry,input.x,input.y,input.z)){correction(p,'The guild admits members only. Speak to Ray.');return;}
@@ -118,14 +122,25 @@ export async function createGame({geometry,store,now=Date.now,random=Math.random
     }
     async function command(p,message){
         const {action,args={}}=message;let result;
-        if(message.privateState&&['buyGrapple','attack','releaseRaptor','pvpAttack','instanceEnter'].includes(action)){mergePrivate(p,message.privateState);}
-        if(['bankStatus','bankDeposit','bankWithdraw','bankCoffee','bankCoffeeDrink'].includes(action)){
+        if(p.tabletTeleport&&!['stopAttack','rename','personalTransit','teleport'].includes(action)){send(p,{type:'result',request:message.request,action,ok:false,message:'Finish your teleport first.'});return;}
+        if(message.privateState&&['buyGrapple','buyBattleaxe','attack','releaseRaptor','pvpAttack','instanceEnter'].includes(action)){mergePrivate(p,message.privateState);}
+        if(action==='buyTablet'||action==='useTablet'){
+            if(message.inventoryEpoch!==p.inventory.meta.epoch)result={ok:false,message:'Your inventory changed. Please try again.',inventory:p.inventory.snapshot()};
+            else {result=tablets.command(p,action,args);if(result.ok)await durable(p);}
+        }else if(action==='buyBattleaxe'){
+            const npc=geometry.merchants.find(n=>n.id==='industrial-armorer');
+            if(message.inventoryEpoch!==p.inventory.meta.epoch)result={ok:false,message:'Your inventory changed. Try again.'};
+            else if(!p.hp||p.personalJailed||p.bomberActive||instances.kind(p)!=='world'||!npc||Math.hypot(p.x-npc.x,p.z-npc.z)>2.6||!parse(p.profile.privateState['sf-quests-v1']).theyLive?.completed)result={ok:false,message:'Complete They Live, then visit the American Industrial Center armorer.'};
+            else {result=p.inventory.economy.buyEquipment('battleaxe');if(result.ok){p.inventory.save();dirty(p);await durable(p);}result.inventory=p.inventory.snapshot();}
+        }else if(['bankStatus','bankDeposit','bankWithdraw','bankCoffee','bankCoffeeDrink'].includes(action)){
             if(action!=='bankStatus'&&message.inventoryEpoch!==p.inventory.meta.epoch)result={ok:false,message:'Your inventory changed. Please try again.',inventory:p.inventory.snapshot()};
             else {result=bankAction(p,action,args,{geometry,now,dirty});if(result.ok&&action!=='bankStatus')await durable(p);}
         }else if(['joinIlluminati','instanceEnter','instanceLeave','bomberBoard','bomberReturn','bomberEject','bomberBomb'].includes(action)){
             result=instances.command(p,action,args);if(result.ok){dirty(p);await durable(p);}
         }else if(action==='inventory'){
-            if(message.inventoryEpoch!==p.inventory.meta.epoch)result={ok:false,message:'Your inventory changed. Please try again.',inventory:p.inventory.snapshot()};
+            const burger=args.op==='pickup'&&args.store==='in-n-out',clerk=burger&&geometry.merchants.find(n=>n.id==='in-n-out-clerk');
+            if(burger&&(!p.hp||p.personalJailed||instances.kind(p)!=='world'||p.bomberActive||!clerk||Math.hypot(p.x-clerk.x,p.z-clerk.z)>2.6))result={ok:false,message:'Visit the In-N-Out counter to buy a sandwich.',inventory:p.inventory.snapshot()};
+            else if(message.inventoryEpoch!==p.inventory.meta.epoch)result={ok:false,message:'Your inventory changed. Please try again.',inventory:p.inventory.snapshot()};
             else {result=p.inventory.operation(args.op,args,p);if(result.ok){dirty(p);if(['buyHat','buyPhone','buyRobotaxi'].includes(args.op))await durable(p);}result={...result,inventory:{...p.inventory.snapshot(),...(args.op==='eat'?{hp:p.hp}:{})}};}
         }else if(action==='guildCheckIn'||action==='guildDonate'){
             if(action==='guildDonate'&&message.inventoryEpoch!==p.inventory.meta.epoch)result={ok:false,message:'Your inventory changed. Please try again.',inventory:p.inventory.snapshot()};
@@ -141,10 +156,10 @@ export async function createGame({geometry,store,now=Date.now,random=Math.random
         }else if(action==='teleport'){
             if(!allowDebug)result={ok:false,message:'Debug teleporting is disabled on this server.'};
             else if(!Number.isFinite(args.x)||!Number.isFinite(args.z)||!geometry.landClearAt(args.x-.5,args.z-.5))result={ok:false,message:'That point is blocked.'};
-            else {if(instances.kind(p)!=='world'||p.bomberActive)instances.reset(p);shared.leave(p);Object.assign(p,{x:args.x,z:args.z,y:geometry.characterGround(args.x,args.z),mode:'walk',lastPoseAt:now()});correction(p,'teleport');result={ok:true};}
+            else {p.tabletTeleport=null;if(instances.kind(p)!=='world'||p.bomberActive)instances.reset(p);shared.leave(p);Object.assign(p,{x:args.x,z:args.z,y:geometry.characterGround(args.x,args.z),mode:'walk',lastPoseAt:now()});correction(p,'teleport');result={ok:true};}
         }else if(action==='personalTransit'){
-            if(instances.kind(p)!=='world'||p.bomberActive)instances.reset(p);
             if(args.kind==='jail'){
+                p.tabletTeleport=null;if(instances.kind(p)!=='world'||p.bomberActive)instances.reset(p);
                 const cell=createDetentionSite(1.5);shared.leave(p);Object.assign(p,{x:cell.x,z:cell.z,y:cell.base+.18,mode:'walk',personalJailed:true,lastPoseAt:now()});correction(p,'jail');result={ok:true};
             }else if(args.kind==='rehabilitation'&&p.personalJailed){
                 const entry=geometry.hospital||{x:74.7,y:89.5};Object.assign(p,{x:entry.x+.5,z:entry.y+.5,y:geometry.characterGround(entry.x+.5,entry.y+.5),hp:30,personalJailed:false,mode:'walk',lastPoseAt:now()});correction(p,'respawn');result={ok:true};
@@ -168,7 +183,7 @@ export async function createGame({geometry,store,now=Date.now,random=Math.random
         if(message.type==='say'){if(now()-(p.spokeAt||0)<700)return;p.spokeAt=now();if(!['yo','ok','no'].includes(message.text))return;for(const other of playerIndex.near(p.x,p.z,25))if(sameMapInstance(p,other))send(other,{type:'say',id:p.id,text:message.text});return;}
         p.queue=p.queue.then(()=>message.type==='checkpoint'?checkpoint(p,message):message.type==='command'?command(p,message):undefined).catch(error=>{console.error('Player command:',error.message);send(p,{type:'result',request:message.request,ok:false,message:'Unable to complete this action. Try again.'});});
     }
-    function tick(dt=1/20){const start=performance.now();tickNumber++;clockMs+=dt*1000;shared.tick(dt);instances.tick();pvp.tick();for(const p of players.values())if(p.gestureUntil&&now()>p.gestureUntil){p.gesture='';p.gestureUntil=0;}metrics.tickMs=performance.now()-start;}
+    function tick(dt=1/20){const start=performance.now();tickNumber++;clockMs+=dt*1000;shared.tick(dt);instances.tick();tablets.tick();pvp.tick();for(const p of players.values())if(p.gestureUntil&&now()>p.gestureUntil){p.gesture='';p.gestureUntil=0;}metrics.tickMs=performance.now()-start;}
     function broadcast(){
         const start=performance.now();playerIndex.rebuild([...players.values()].filter(p=>instances.kind(p)==='world'));
         const entityFrame=shared.clock>=nextEntitySnapshot;if(entityFrame)nextEntitySnapshot=shared.clock+.2;
@@ -176,7 +191,7 @@ export async function createGame({geometry,store,now=Date.now,random=Math.random
         // records. A crowd must not multiply identical NPC JSON work by 2,000.
         const compact=value=>JSON.stringify(value,(_key,v)=>typeof v==='number'?Math.round(v*1000)/1000:v);
         const world=entityFrame?shared.snapshot():null,encoded=new Map(),npcEncoded=new Map();
-        if(world){worldNPCIndex.rebuild(world.npcs);lootIndex.rebuild(world.loot);for(const key of ['cows','raptor','tiger','airship'])encoded.set(key,compact(world[key]));for(const n of world.npcs)npcEncoded.set(n.id,compact([n.id,n.x,n.z,n.base??null,n.angle,n.motion,n.phase,n.elapsed??null,n.expeditionDead?1:0,n.hold||0,n.level||1]));}
+        if(world){worldNPCIndex.rebuild(world.npcs);lootIndex.rebuild(world.loot);wildernessIndex.rebuild(world.wilderness);for(const key of ['cows','raptor','tiger','airship','peptideSpawnAt'])encoded.set(key,compact(world[key]));for(const n of world.npcs)npcEncoded.set(n.id,compact([n.id,n.x,n.z,n.base??null,n.angle,n.motion,n.phase,n.elapsed??null,n.expeditionDead?1:0,n.hold||0,n.level||1]));}
         for(const p of players.values()){
             if(p.transport.bufferedAmount>262144){metrics.slowClients++;continue;}
             // Keep valid nearby interests stable. Re-ranking a packed spawn
@@ -187,10 +202,11 @@ export async function createGame({geometry,store,now=Date.now,random=Math.random
             if(enter.length||remove.length)send(p,{type:'interest',enter,remove});p.seen=seen;
             send(p,encodePlayerFrame(visible,tickNumber,now()));metrics.frames++;
             if(entityFrame){
-                if(instances.kind(p)!=='world'){send(p,{type:'world',state:{clock:shared.clock,cows:[],raptor:null,tiger:null,airship:null,loot:[],npcs:[]},population:players.size,self:null});continue;}
+                if(instances.kind(p)!=='world'){send(p,{type:'world',state:{clock:shared.clock,cows:[],raptor:null,tiger:null,airship:null,loot:[],npcs:[],wilderness:[]},population:players.size,self:null});continue;}
                 const parts=['"clock":'+Math.round(world.clock*1000)/1000];
                 for(const [key,value] of encoded)if(p.sharedVersions.get(key)!==value){parts.push(JSON.stringify(key)+':'+value);p.sharedVersions.set(key,value);}
                 const loot=lootIndex.near(p.x,p.z,45,64),lootJSON=compact(loot);if(p.sharedVersions.get('loot')!==lootJSON){parts.push('"loot":'+lootJSON);p.sharedVersions.set('loot',lootJSON);}
+                const wildJSON=compact(wildernessIndex.near(p.x,p.z,45,12));if(p.sharedVersions.get('wilderness')!==wildJSON){parts.push('\"wilderness\":'+wildJSON);p.sharedVersions.set('wilderness',wildJSON);}
                 const npcDelta=[],seenNPC=new Map();for(const npc of worldNPCIndex.near(p.x,p.z,38,32)){const value=npcEncoded.get(npc.id);seenNPC.set(npc.id,value);if(p.npcVersions.get(npc.id)!==value)npcDelta.push(value);}p.npcVersions=seenNPC;parts.push('"npcs":['+npcDelta.join(',')+']');
                 const self=p.airship||p.grappling?{...privatePosition(p),airship:p.airship,grappling:!!p.grappling,deck:p.deck,mode:p.mode,angle:p.angle,phase:p.phase,moving:p.moving,motion:p.motion}:null;
                 send(p,'{"type":"world","state":{'+parts.join(',')+'},"population":'+players.size+',"self":'+compact(self)+'}');

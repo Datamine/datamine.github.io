@@ -1,14 +1,14 @@
+import {ITEM_STATS} from './item-stats.js';
 export const MAX_HITPOINTS=30;
 export const ALIEN_HITPOINTS=36;
-export const SANDWICH_HEALING=18;
+export const SANDWICH_HEALING=ITEM_STATS.sandwich.healing;
 
 const combatLevel=value=>Math.max(1,Math.min(10,Math.floor(value)||1));
 const combatRandom=random=>Math.max(0,Math.min(1-Number.EPSILON,Number(random())||0));
 export function weaponDamageRange(level=1,weapon='unarmed'){
     const bonus=combatLevel(level)-1;
-    if(weapon==='railgun')return {min:8+Math.floor(bonus*.3),max:12+Math.floor(bonus*.7),accuracy:Math.min(.99,.95+bonus*.004)};
-    if(weapon==='bayonet')return {min:4+Math.floor(bonus*.4),max:11+bonus,accuracy:Math.min(.98,.92+bonus*.006)};
-    return {min:1,max:2+Math.floor(bonus*.8),accuracy:Math.min(.9,.65+bonus*.02)};
+    const item=ITEM_STATS[weapon]?.slot==='weapon'?ITEM_STATS[weapon]:ITEM_STATS.unarmed;
+    return {min:Math.floor(item.min+bonus*item.minPerLevel),max:Math.floor(item.max+bonus*item.maxPerLevel),accuracy:Math.min(item.accuracyCap,item.accuracy+bonus*item.accuracyPerLevel)};
 }
 export function rollWeaponDamage(level,weapon,random=Math.random){
     const range=weaponDamageRange(level,weapon);

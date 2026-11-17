@@ -3,7 +3,7 @@ import {Mesh} from './geometry.js';
 import {drawCharacter} from './characters.js';
 import {drawKrakenCape} from './jurassic-models.js';
 
-export const CHARACTER_DEFAULTS=Object.freeze({gender:'man',skin:'#bd9369',shirt:'#707b4b',pants:'#626955',hair:'#453a30',shoes:'#3c3d36',hairstyle:'short',sunglasses:false,cape:false,hat:'none'});
+export const CHARACTER_DEFAULTS=Object.freeze({gender:'man',skin:'#bd9369',shirt:'#707b4b',pants:'#626955',hair:'#453a30',shoes:'#3c3d36',hairstyle:'short',sunglasses:false,cape:false,hat:'none',weapon:'auto',iceTop:false,icePants:false});
 export function normalizeCharacter(value={}){
     const result={...CHARACTER_DEFAULTS};
     for(const key of ['skin','shirt','pants','hair','shoes'])if(/^#[0-9a-f]{6}$/i.test(value?.[key]))result[key]=value[key];
@@ -12,9 +12,10 @@ export function normalizeCharacter(value={}){
     result.sunglasses=value?.sunglasses===true;
     result.cape=value?.cape===true;
     result.hat=hatById(value?.hat)?.id||'none';
+    result.weapon=['auto','unarmed','bayonet','battleaxe','railgun'].includes(value?.weapon)?value.weapon:'auto';result.iceTop=value?.iceTop===true;result.icePants=value?.icePants===true;
     return result;
 }
-export function characterAppearance(settings){const female=settings.gender==='woman';return {...settings,hairstyle:female?'long':'short',female,longHair:female,backpack:false};}
+export function characterAppearance(settings){const female=settings.gender==='woman';return {...settings,battleaxe:settings.weapon==='battleaxe',hairstyle:female?'long':'short',female,longHair:female,backpack:false};}
 
 export function drawCharacterPreview(canvas,settings){
     const ctx=canvas.getContext('2d'),m=new Mesh();if(!ctx)return;

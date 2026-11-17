@@ -1,6 +1,6 @@
 import {drawPiercedWall} from './wall-openings.js';
 import {drawAILabInterior} from './ai-lab.js';
-import {drawGuildInterior,drawWholeFoodsInterior,drawGuildEmblem} from './guild-models.js';
+import {drawGuildInterior,drawTechnologistMarketInterior,drawGuildEmblem} from './guild-models.js';
 import {drawBankInterior,drawBankBillboard} from './bank-models.js';
 import {Mesh,rand,tint,unit,pose} from './geometry.js';
 import {createRestaurantPatio} from './restaurants.js';
@@ -38,7 +38,7 @@ export function createModels({
         if(id==='ai-lab'){drawAILabInterior(m,b,base);return residents;}
         if(id==='green'){drawBankInterior(m,b,base);return residents;}
         if(id==='freemasons-guild'){drawGuildInterior(m,b,base);b.interiorObstacles=[[[x+.2,z+.6],[x+.65,z+.6],[x+.65,z+d-.7],[x+.2,z+d-.7]],[[x+w-.65,z+.6],[x+w-.2,z+.6],[x+w-.2,z+d-.7],[x+w-.65,z+d-.7]],[[x+w/2-.6,z+.25],[x+w/2+.6,z+.25],[x+w/2+.6,z+.8],[x+w/2-.6,z+.8]]];return residents;}
-        if(id==='sunset-whole-foods'){drawWholeFoodsInterior(m,b,base);b.interiorObstacles=[...[[x+.25,.45],[x+w-.7,.45]].map(([xx,ww])=>[[xx,z+.3],[xx+ww,z+.3],[xx+ww,z+d-.7],[xx,z+d-.7]]),[[x+w/2-.5,z+.25],[x+w/2+.5,z+.25],[x+w/2+.5,z+.65],[x+w/2-.5,z+.65]]];return residents;}
+        if(id==='sunset-whole-foods'){drawTechnologistMarketInterior(m,b,base);b.interiorObstacles=[...[[x+.25,.45],[x+w-.7,.45]].map(([xx,ww])=>[[xx,z+.3],[xx+ww,z+.3],[xx+ww,z+d-.7],[xx,z+d-.7]]),[[x+w/2-.5,z+.25],[x+w/2+.5,z+.25],[x+w/2+.5,z+.65],[x+w/2-.5,z+.65]]];return residents;}
         m.box(x+.6,base+.025,z+.5,w-1.2,.035,Math.max(.6,d-1),'#88533c');
         if(id==='writing'||id==='books'){
             for(let i=0;i<w-1;i++){m.box(x+.2+i*.85,base,z+.18,.72,1.15,.25,'#60482f');for(let row=0;row<3;row++)for(let j=0;j<5;j++)m.box(x+.24+i*.85+j*.12,base+.12+row*.32,z+.4,.08,.23+(j%2)*.04,.07,['#8e503f','#5d7449','#b69d55','#697b82','#bd8c63'][(j+row)%5]);}
@@ -99,9 +99,9 @@ export function createModels({
                 m.box(door-.06,base+1.7,z+d+.008,doorWidth+.12,.08,.075,trim);
                 if(!enterable){m.box(door,base+.03,z+d+.012,doorWidth,1.62,.035,b.doorColor||'#455e54');m.box(door+.07,base+.85,z+d+.05,Math.max(.12,doorWidth-.14),.55,.012,'#8ba9a1');m.sphere(door+doorWidth-.065,base+.74,z+d+.07,.02,.02,.02,'#cfb776',5,3);}
                 for(let step=0;step<3;step++)m.box(door-.07,base-.04,z+d+.03+step*.07,doorWidth+.14,.12-step*.027,.075,'#bdb7a0');
-                if(b.name)sign(m,x+w/2,base+H-.53,z+d+.105,Math.min(w-.14,2.7),.32,b.name);
+                if(b.name)sign(m,x+w/2,base+H-.53,z+d+.105,Math.min(w-.14,2.7),.32+(b.signText?.includes('\n')?.16:0),b.signText||b.name);
             }
-            if(b.name&&side===3)sign(m,x+w+.105,base+H-.53,z+d/2,Math.min(d-.14,2.7),.32,b.name,'side');
+            if(b.name&&side===3)sign(m,x+w+.105,base+H-.53,z+d/2,Math.min(d-.14,2.7),.32+(b.signText?.includes('\n')?.16:0),b.signText||b.name,'side');
             walls.push({side,windows:windowSpecs,start:begin/11,count:(m.data.length-begin)/11});
         }
         let roofDetails;

@@ -1,5 +1,5 @@
 export const MP_PROTOCOL=3,MP_TICK_HZ=20,MP_BROADCAST_HZ=10,MP_VIEW_RADIUS=38,MP_MAX_NEIGHBORS=32;
-export const MP_MODES=Object.freeze(['walk','bike','ferrari','motorcycle','skateboard','surf','ski','climb','rocket','airship','roll','dance','train','hidden','bomber','parachute']);
+export const MP_MODES=Object.freeze(['walk','bike','ferrari','motorcycle','skateboard','surf','ski','climb','rocket','airship','roll','dance','train','hidden','bomber','parachute','teleport']);
 export const MP_GESTURES=Object.freeze(['','attack','flinch','talk','caught','roll','drink']);
 export const MP_FRAME_HEADER=12,MP_PLAYER_BYTES=32;
 export function unpackNetworkNPC(value){return Array.isArray(value)?{id:value[0],x:value[1],z:value[2],base:value[3]??undefined,angle:value[4],motion:value[5],phase:value[6],elapsed:value[7]??undefined,expeditionDead:!!value[8],hold:value[9]||0,level:value[10]||1}:value;}
