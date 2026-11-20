@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Pondwater Research — models with depth, allegedly</title>
+  <rect width="600" height="400" fill="#174f50"/>
+  <g stroke="#80c5ae" fill="none"><ellipse cx="444" cy="209" rx="114" ry="25" stroke-width="3"/><ellipse cx="444" cy="209" rx="80" ry="16" stroke-width="2"/><path d="M420 204v-89c-36 3-41-33-15-41-2-32 35-40 46-18 33-24 65 13 39 36 27 19 10 51-19 42v70m-22-148v148m-29-91 29-19 23 20m-23 37-29-13" stroke-width="5" stroke-linecap="round"/></g>
+  <g fill="#def0d5" font-family="Arial,sans-serif"><text x="27" y="90" font-size="55" font-weight="bold">Pondwater</text><text x="30" y="135" font-size="31" letter-spacing="4">RESEARCH</text><text x="31" y="278" font-size="16" letter-spacing="5">FOUNDATIONAL MODELS</text><text x="30" y="328" font-size="34" font-weight="bold">Models with depth.</text><text x="32" y="372" font-size="26">Allegedly.</text></g>
+
+</svg>

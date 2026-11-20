@@ -1,6 +1,6 @@
 /** Shared terrain/water shadow filter. Wider weighted taps soften angular
  * model silhouettes without adding texture samples to the main material pass. */
-export const SF_SHADOW_GLSL=`
+export const SF_SHADOW_GLSL = `
 float sfShadow(vec4 coordinate,float bias){
     vec3 p=coordinate.xyz/coordinate.w*.5+.5;
     if(uShadows<.5||p.x<=0.||p.x>=1.||p.y<=0.||p.y>=1.)return 0.;

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Anser Analytics — quantify your honks</title>
+  <rect width="600" height="400" fill="#193e7b"/>
+  <defs><linearGradient id="glow" x2="0" y2="1"><stop stop-color="#8fe3d2"/><stop offset="1" stop-color="#5a97d4" stop-opacity="0"/></linearGradient></defs>
+  <g stroke="#7ca2d7" stroke-width="1" opacity=".32"><path d="M0 70h600M0 140h600M0 210h600M0 280h600M0 350h600M75 0v400M150 0v400M225 0v400M300 0v400M375 0v400M450 0v400M525 0v400"/></g>
+  <path d="m22 244 88-35 63 16 65-71 55 38 88-78 55 22 136-103v233H22Z" fill="url(#glow)"/>
+  <path d="m22 244 88-35 63 16 65-71 55 38 88-78 55 22 136-103" fill="none" stroke="#a2ebcf" stroke-width="5"/>
+  <g fill="#fff7db" font-family="Arial,sans-serif"><text x="28" y="90" font-size="61" font-weight="900">ANSER</text><text x="31" y="125" font-size="23" letter-spacing="6">ANALYTICS</text><text x="28" y="315" font-size="32" font-weight="bold">QUANTIFY YOUR HONKS.</text><text x="30" y="353" font-size="19">Predictive AI for territorial advantage.</text><text x="30" y="380" font-size="12" letter-spacing="2">A GOOSE CORP COMPANY</text></g>
+
+</svg>

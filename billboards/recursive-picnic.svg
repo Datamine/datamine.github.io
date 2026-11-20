@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Recursive Picnic AI — we have aligned lunch</title>
+  <rect width="600" height="400" fill="#ed8268"/>
+  <circle cx="457" cy="170" r="103" fill="#f7cda9"/>
+  <g fill="none" stroke="#622f42" stroke-width="17"><path d="M470 81a94 94 0 1 1-78 151"/><path d="m439 66 33 16-10 34"/></g>
+  <g transform="translate(426 135) rotate(-12)"><path d="M-49 11Q0-49 49 11v34H-49Z" fill="#f5d689" stroke="#622f42" stroke-width="5"/><path d="m-49 31 18 9 22-9 20 10 21-9 17 8v14H-49" fill="#6e985b"/><path d="M-49 55h98v16h-98Z" fill="#aa503b"/><path d="M-49 73h98v20h-98Z" fill="#f5d689" stroke="#622f42" stroke-width="5"/></g>
+  <g fill="#622f42" font-family="Georgia,serif" font-weight="bold"><text x="28" y="118" font-size="57">Recursive</text><text x="28" y="182" font-size="65">Picnic</text></g>
+  <text x="32" y="229" fill="#622f42" font-family="Arial,sans-serif" font-size="19" letter-spacing="5">AI FOR LUNCH</text>
+  <path d="M32 297h536" stroke="#622f42" stroke-width="2"/>
+  <text x="32" y="344" fill="#622f42" font-family="Arial,sans-serif" font-size="28" font-weight="bold">WE HAVE ALIGNED LUNCH.</text>
+  <text x="32" y="375" fill="#622f42" font-family="Arial,sans-serif" font-size="14">Your next meeting could have been a sandwich.</text>
+
+</svg>

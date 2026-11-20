@@ -1,0 +1,28 @@
+{
+  "players": 2000,
+  "seconds": 15,
+  "framesPerPlayerSecond": 5.43,
+  "frameGapP95Ms": 455.22,
+  "frameGapP99Ms": 935.21,
+  "snapshotLatencyP95Ms": 0,
+  "receivedMBPerSecond": 14.91,
+  "unexpectedCloses": 0,
+  "server": {
+    "ok": true,
+    "players": 2000,
+    "capacity": 2000,
+    "store": "sqlite",
+    "uptimeSeconds": 125,
+    "eventLoopP99Ms": 76,
+    "tickMs": 5.02,
+    "broadcastMs": 64.77
+  },
+  "protocol": 4,
+  "workload": "2000 independent WebSocket clients; destination actions every 500 ms; crowded spawn; native production map; SQLite WAL",
+  "notes": [
+    "Movement records are deltas: idle interests produce no packet, so delivered frames/s and frame gaps are not the configured 10 Hz broadcast cadence.",
+    "Snapshot latency is loopback wire latency, not action-to-result or WAN latency.",
+    "Tick and broadcast times are last health samples, not percentiles.",
+    "This differs from the older continuous-pose workload; compare bandwidth with that limitation."
+  ]
+}

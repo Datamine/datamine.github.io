@@ -1,0 +1,196 @@
+{
+  "players": 2000,
+  "scenario": "follow",
+  "seconds": 60,
+  "protocol": 4,
+  "clientsWithLearnedRoutes": 1,
+  "actionsSent": 117,
+  "actionsAccepted": 117,
+  "actionsRejected": 0,
+  "actionsSuperseded": 0,
+  "actionsExpired": 0,
+  "pendingAtEnd": 0,
+  "rejectionReasons": {},
+  "framesPerPlayerSecond": 9.12,
+  "receivedMBPerSecond": 30.61,
+  "unexpectedCloses": 0,
+  "clientTimings": {
+    "pingRttMs": {
+      "samples": 59400,
+      "mean": 17.213,
+      "p50": 11,
+      "p95": 58,
+      "p99": 73,
+      "max": 102
+    },
+    "wireLatencyMs": {
+      "samples": 1094073,
+      "mean": 0.035,
+      "p50": 0,
+      "p95": 0,
+      "p99": 1,
+      "max": 2
+    },
+    "frameGapMs": {
+      "samples": 1092073,
+      "mean": 111.554,
+      "p50": 107.678,
+      "p95": 151.572,
+      "p99": 288.134,
+      "max": 432.901
+    },
+    "actionLatencyMs": {
+      "samples": 117,
+      "mean": 21.363,
+      "p50": 16.556,
+      "p95": 70.935,
+      "p99": 91.334,
+      "max": 107.17
+    }
+  },
+  "server": {
+    "ok": true,
+    "players": 2000,
+    "capacity": 2000,
+    "store": "redis",
+    "checkpoint": {
+      "id": "world",
+      "status": "active",
+      "version": 6898899,
+      "persistedVersion": 6854895,
+      "writing": true,
+      "intervalMs": 1000
+    },
+    "uptimeSeconds": 478,
+    "eventLoopP99Ms": 94,
+    "tickMs": 17.21,
+    "broadcastMs": 22.97,
+    "timings": {
+      "loopGapMs": {
+        "samples": 33851,
+        "mean": 21.255,
+        "p50": 13.225,
+        "p95": 61.622,
+        "p99": 81.655,
+        "max": 102.202
+      },
+      "broadcastMs": {
+        "samples": 4377,
+        "mean": 21.973,
+        "p50": 18.887,
+        "p95": 61.432,
+        "p99": 63.816,
+        "max": 67.41
+      },
+      "movementMs": {
+        "samples": 9297,
+        "mean": 12.364,
+        "p50": 12.967,
+        "p95": 18.554,
+        "p99": 21.028,
+        "max": 29.484
+      },
+      "sharedMs": {
+        "samples": 9297,
+        "mean": 1.621,
+        "p50": 1.442,
+        "p95": 2.554,
+        "p99": 3.219,
+        "max": 3.825
+      },
+      "systemsMs": {
+        "samples": 9297,
+        "mean": 0.049,
+        "p50": 0.016,
+        "p95": 0.056,
+        "p99": 0.714,
+        "max": 1.224
+      },
+      "personalMs": {
+        "samples": 9297,
+        "mean": 3.069,
+        "p50": 2.959,
+        "p95": 4.113,
+        "p99": 4.701,
+        "max": 5.312
+      },
+      "tickMs": {
+        "samples": 9297,
+        "mean": 17.134,
+        "p50": 17.762,
+        "p95": 23.579,
+        "p99": 25.998,
+        "max": 33.627
+      },
+      "checkpointPrepareMs": {
+        "samples": 456,
+        "mean": 21.425,
+        "p50": 20.394,
+        "p95": 32.1,
+        "p99": 34.895,
+        "max": 36.549
+      },
+      "actionMs": {
+        "samples": 492878,
+        "mean": 0.034,
+        "p50": 0.014,
+        "p95": 0.15,
+        "p99": 0.439,
+        "max": 0.676
+      }
+    },
+    "resources": {
+      "rssMiB": 1782.28,
+      "heapUsedMiB": 1388.95,
+      "externalMiB": 21.76,
+      "cpuPercent": 94.33,
+      "outboundMBps": 32.952,
+      "movementFramesPerSecond": 18421.23
+    },
+    "actions": {
+      "pending": 0,
+      "highWater": 2008,
+      "yields": 9847,
+      "coalescedMoves": 0
+    },
+    "routes": {
+      "requests": 743509,
+      "hits": 296716,
+      "coreHits": 34531,
+      "direct": 407281,
+      "blocked": 4131,
+      "searches": 850,
+      "evictions": 411087,
+      "deferred": 50937,
+      "searchMs": 7540.070689988417,
+      "entries": 745,
+      "points": 1399
+    },
+    "network": {
+      "bytes": 5517256872,
+      "movementFrames": 3810080,
+      "slowClientSkips": 0
+    }
+  },
+  "resourcePeaks": {
+    "rssMiB": 1873.11,
+    "heapUsedMiB": 1513.29,
+    "cpuPercent": 121.93,
+    "outboundMBps": 35.858
+  },
+  "notes": [
+    "Real WebSockets; application actions every 500ms, staggered across clients. Warmup learns walkable endpoints before measurement.",
+    "Client percentile samples retain the latest 100,000 observations per metric. Server timings retain the latest 1,200.",
+    "Loopback measurements exclude WAN/TLS; client and server share host resources.",
+    "Delta silence is expected: movement frame gaps are not a measure of simulation tick health."
+  ],
+  "loadHost": {
+    "node": "v22.16.0",
+    "cpu": "Apple M4 Max",
+    "logicalCPUs": 16,
+    "ramGiB": 64
+  },
+  "combatHitMessages": 0,
+  "followersObservedMoving": 1999,
+  "closeReasons": {}
+}

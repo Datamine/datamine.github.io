@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Soft Launch Intelligence — AGI, pending a quick nap</title>
+  <rect width="600" height="400" fill="#ece5d6"/>
+  <g transform="translate(160 30) scale(.7)">
+  <path d="m413 69 135 55-118 56-111-49Z" fill="#b6abd2" stroke="#63547c" stroke-width="4"/><path d="m430 180 118-56-39 101-79 24Z" fill="#9584b5" stroke="#63547c" stroke-width="4"/><path d="m430 180-111-49 46 95 65 23Z" fill="#d6cbea" stroke="#63547c" stroke-width="4"/><path d="m381 126 32-57 17 111 52-83" fill="none" stroke="#63547c" stroke-width="3"/>
+  </g>
+  <g fill="#493e61" font-family="Georgia,serif"><text x="30" y="111" font-size="67">Soft Launch</text><text x="33" y="162" font-size="34">Intelligence</text></g>
+  <path d="M33 282h534" stroke="#9483aa"/>
+  <text x="32" y="330" fill="#493e61" font-family="Arial,sans-serif" font-size="30" font-weight="bold">AGI. PENDING A QUICK NAP.</text>
+  <text x="34" y="369" fill="#756981" font-family="Arial,sans-serif" font-size="19">Gentle models. Unreasonable ambitions.</text>
+
+</svg>

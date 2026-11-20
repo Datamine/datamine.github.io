@@ -1,0 +1,7 @@
+# Used only by edit-state.sh, so the game process does not receive admin secrets.
+services:
+  game:
+    env_file:
+      - ${ADMIN_ENV_FILE:-.env}
+    environment:
+      ADMIN_ENV_FILE: ''

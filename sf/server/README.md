@@ -1,254 +1,53 @@
-# Loeberland multiplayer
+# Server operations
 
-The browser remains a static WebGL client. One Node process owns the common
-world and communicates over WebSockets. The server simulates at 20 Hz and
-sends nearby-player movement at approximately 10 Hz. Rendering interpolates
-between snapshots and never waits for a database.
+Run, configure, deploy and recover the Explore SF backend. For the local
+client workflow, builds, tests and source layout, start with [sf/README.md](../README.md).
+Gameplay is documented in [sf/DOCUMENTATION.md](../DOCUMENTATION.md).
+Performance tuning and measured workloads are in [CAPACITY.md](CAPACITY.md).
+
+Commands run from the **repository root** unless a block explicitly changes
+directory or runs inside an EC2 session.
+
+- [Run locally](#run-locally)
+- [Deployment](#deployment)
+- [Persistence](#persistence)
+- [Hourly SQLite backups](#hourly-sqlite-backups)
+- [State editor](#simple-database-editor)
+- [Configuration](#configuration)
+- [Health and diagnostics](#health-and-diagnostics)
 
 ## Run locally
 
-Use Node 24 LTS (Node 22.16+ also works).
+Use Node.js >=22.16 (the image uses Node 24):
 
 ```sh
+npm ci --prefix sf
 npm ci --prefix sf/server
 node sf/build.mjs
 npm --prefix sf/server start
 ```
 
-Open **http://127.0.0.1:8787/explore.html**. The local server supplies its own
-connection configuration. Use an incognito window or a different browser
-profile for a second player. Two tabs with the same anonymous identity control
-one character; the newer tab replaces the older connection.
+Open **http://127.0.0.1:8787/explore.html**. The server serves the static site,
+`/multiplayer-config.json`, `/healthz`, and WebSockets at `/ws`. Without
+`REDIS_URL`, saves go to `sf/server/data/world.sqlite`.
 
-Character settings contain username, PvP and connection settings. Names are unique
-without regard to case, have 1–12 ASCII letters/digits/underscores, and can be
-changed once every 60 seconds. Validation, common profanity/leet substitutions,
-name reservations, and the cooldown run on the backend. Names remain reserved
-when their owners are offline. An old name becomes available after a rename.
-
-The browser keeps a random 256-bit anonymous credential. Only its SHA-256 hash
-is stored as the account key. Clearing browser storage loses access to that
-character; this initial version has no account recovery or password sign-in.
-
-## Players, levels and PvP
-
-Left-click another player to inspect their Strength Level. Right-click for
-**Follow**; following uses the native tile graph, replans as the target moves,
-and stops when you click a new walking destination. NPC interaction menus and
-examinations also show their level. Type `:debug` to see coordinates and live
-rendering FPS. FPS is independent of the server's 20 Hz simulation.
-
-Both players must enable PvP in Character settings before either can attack
-the other. Enabling it starts a server-enforced 30-second cooldown before it
-can be disabled; reconnecting does not clear the timer. Right-click an eligible
-player for **Attack**. The server checks consent, range and line of sight,
-then rolls damage from Strength Level and weapon at the weapon's attack rate.
-Combat displays hitpoint bars and damage splats.
-
-Only a death caused by another player drops all of the victim's coins,
-sandwiches, iPhone and owned hats, including unequipped hats. Animal and other
-personal deaths do not trigger these PvP drops. Other progression and unlocks
-are retained. The killer has first claim for 15 seconds, after which anyone
-can collect the drops; uncollected PvP drops expire after five minutes. Coins
-are transferred without applying the iPhone earnings bonus. The victim
-respawns at UCSF with a short protection period.
-
-## Shared versus personal
-
-The Nob Hill **Freemasons' Guild** is run by **Ray**, in a red suit. The first
-check-in starts Rank 1. Each qualifying return must be at least one full hour
-after the previous qualifying visit and raises the rank by one. Admission
-requires 24 promotions (Rank 25); the hourly-return route takes at least
-24 elapsed hours. Missing
-several hours still earns only one promotion on returning. Rank, timestamps
-and membership belong to the server and survive reconnects and restarts.
-
-Alternatively, donate one **peptide vial** to Ray for one immediate promotion.
-Admission therefore costs 24 vials if earned entirely through donations.
-Hourly returns and donations count toward the same 24 promotions and can be
-mixed. Donations do not extend an existing hourly return timer.
-A vial spawns every ten minutes at a randomly selected reachable point on
-the **Technologist’s Farmers Market** forecourt. The spawn and its timer are shared and
-persisted. Everyone nearby sees the same vial; its first collector receives
-it exactly once in the server inventory. Vials expire after twenty minutes,
-and a restart never creates a backlog of missed spawns. Donation atomically
-consumes one vial and saves the new rank, granting membership at Rank 25.
-Character settings show guild rank
-and carried peptides. Ground-item hover/default actions say **Take {name}**;
-their context menus offer Take followed by Examine.
-
-| Shared, owned by the server | Personal, stored privately per anonymous identity |
-| --- | --- |
-| Player presence, usernames, levels, PvP consent and combat | Quest state and alien/spectre visibility |
-| Inventory ledger, PvP deaths and dropped inventory | Sunglasses, billboard appearances and outfit configuration |
-| Roaming pedestrians, researchers and service NPCs | Local dialogue and personal interactions |
-| Cow HP, kills, respawn timers and loot | Ferrari, bicycle, motorcycle and skateboard progression |
-| Released tiger, animal control and raptor encounters | Police pursuit, detention and rehabilitation |
-| Raptor attacks on pedestrians and dropped coins | The kraken hunt and its rewards |
-| The airship, pilot, basket passengers, rope and grappling | Rocket animations, Tahoe activities and private travel |
-
-Only the server rolls shared/PvP combat damage, kills/respawns cows, releases
-animals, awards shared loot, or decides airship ownership. A loot drop has a
-15-second first-claim window for its hunter, then becomes available to others.
-Loot collection is serialized and awarded once. Pending rewards survive a
-disconnect; client acknowledgement and an atomic local checkpoint prevent a
-lost reply from duplicating or discarding a reward.
-
-Coins, food, phones and hats use an owner-private server inventory ledger.
-Inventory operations are ordered, shared pickups are serialized, and a death
-advances an inventory epoch. Delayed checkpoints or pre-death operations
-cannot restore dropped items. The inventory change and shared death drops
-are persisted together before the death is reported to clients.
-
-Green Bank keeps deposits in a separate, owner-private account, outside the
-carried inventory and PvP drops. The authoritative clock accrues 5% compound
-interest per elapsed hour, including offline time; interest is settled lazily
-on account access rather than on every game tick. Transfers move whole coins
-directly between the purse and account, without the iPhone income bonus.
-Fractional interest remains deposited. Balances and transfer timestamps survive
-restarts, and deposits, withdrawals and complimentary coffee use durable,
-inventory-epoch-checked commands. Transfers and coffee collection require a
-visit to the banker; a carried coffee can be drunk elsewhere.
-
-The existing personal adventure controllers still run in the browser and
-checkpoint their private progression every three seconds. These checkpoints
-are bounded and restricted to a fixed list of game keys; they are never sent
-to other players. These checkpoints cannot overwrite the inventory ledger.
-This is not a complete anti-cheat migration of every personal quest or reward:
-personal reward eligibility, strength XP and weapon unlocks still originate
-in the personal controllers. Server-owned shared outcomes, inventory revisions,
-PvP consent and username ownership cannot be overwritten with a checkpoint.
-
-The Marin bear and Tahoe snow/ice giants are shared creatures. The server
-owns retaliation, HP, respawns and death rolls, with the same simulation used
-by single player. Drops have the normal hunter's first-claim window and commit
-to the inventory ledger exactly once. Ice equipment and battleaxe ownership
-persist in that ledger; checkpoints cannot forge ownership. Battleaxe purchases
-require a completed They Live record, a live player beside the armorer and
-50 coins. In-N-Out pickups require its NPC counter and cost two coins.
-Only nearby wilderness creatures are broadcast, using the same 5 Hz entity
-cadence; distant players receive no stream of their movements.
-
-Ground movement is predicted by the existing client and validated against
-speed limits and the map's native adjacency graph. Illegal moves receive a
-correction. The server builds the same authored map once, without DOM or GPU
-resources; it does not download assets or use browser-based navigation tests.
-Private scripted travel has separate handling. Debug teleporting is disabled
-unless the operator sets `ALLOW_DEBUG=1`.
-
-## Underground maps and the personal B-2
-
-The Quest Menu calls this journey **Illuminatus**. Its progress derives from
-guild membership, Illuminati initiation and persisted B-2 ownership; the first
-successful boarding completes it. Existing members and aircraft owners retain
-their progress, with no extra fee or duplicate reward on reconnect.
-
-Inside the guild, speak to the **Old Man** to donate **250,000 coins** and
-join the Illuminati. This is a separate, one-time server inventory transaction;
-guild membership and physical proximity are required. The stairway then opens
-into an underground hangar at elevation −7.5. Its minimap replaces the surface
-map with the cave's actual floor tiles, parked aircraft and exit stairs. It
-keeps the player centered and rotates with the camera without tilting.
-
-The B-2 is personal. Boarding from the cave launches it over the Pacific,
-three tiles below the airship's cruise height, rising above local terrain as
-needed. Click the main map or minimap to fly at eight tiles per second;
-hold **Shift** to match the SpaceX rocket's peak cruise speed. Both rates
-are checked by the server. **Land · Parachute out** ejects the pilot, gliding
-to a server-selected walkable landing. The abandoned aircraft flies onward,
-crashes and makes a small cosmetic explosion. Nearby players see the parachute
-and crash; the chat confirms that the Illuminati will pay for a replacement.
-The server drives the descent, and reconnecting restores the safe landing
-instead of stranding the pilot in midair. A fresh aircraft awaits in the cave.
-**Space** or **Drop bomb** releases a bomb while flying.
-The server allows one bomb per 30 seconds, persists that deadline, and applies
-the blast after a short fall. Damage is **100**, restricted to live cows in
-the aligned **3×3 tile** impact area. Players, spectres, pedestrians, the
-raptor and the kraken are excluded from the damage query. Cow deaths, loot and
-respawns remain shared. Other surface players can see each pilot's aircraft.
-
-Map templates and their tile rules live in `sf/map-instances.js`. A private
-instance has its own ID, tile bounds and layer; the same coordinates in two
-instances do not imply visibility or interaction. The server filters player
-interests, chat, PvP and shared-world commands by instance. Cave movement uses
-the same authored adjacency graph on client and server. Each player's cave
-and **Ahab's kraken-hunting waters** are separate private instances. Boarding
-the Pequod enters the latter; sailing back restores the public map. The
-existing kraken encounter remains personal, including its HP, loot and cape.
-
-Disconnecting in a cave, on the hunt or in the bomber saves a safe surface
-return point; initiation, aircraft ownership and the bomb cooldown persist.
-Reconnects start on the surface. Protocol version 3 requires deploying matching
-server and static-client builds together.
-
-## Airship and close inspection
-
-Rent the common airship at the private jet terminal. Its first passenger is
-the pilot. Other passengers can walk in the basket but cannot steer. If the
-pilot leaves, control passes to the next passenger. An unattended ship returns
-to its mooring; after a server restart, a saved in-flight ship returns safely.
-
-Buy a **5-coin grappling hook** from the terminal's airship menu. The inventory
-button **Grapple airship** works within six tiles horizontally beneath an
-occupied aircraft. The hook and ascent are visible to other players. The
-pilot's lowered rope is shared too; it can be used to climb up or down.
-
-Zoom now reaches **650%** using the slider, wheel or pinch, allowing close
-inspection of the kraken cape's lettering. Camera settings are entirely local.
-
-## Persistence
-
-SQLite is the default. Its WAL database lives at `sf/server/data/world.sqlite`,
-which is ignored by Git. All database operations run in a separate worker;
-normal movement never performs synchronous filesystem I/O. Dirty profiles and
-world snapshots are batched every five seconds. Shared rewards, PvP deaths,
-PvP consent, names and major inventory purchases are persisted before success
-is reported. Graceful shutdown drains writes.
-Back up the database with SQLite's backup tooling rather than copying only
-the main file while the server is running.
-
-Set `REDIS_URL` to use Redis instead. Enable Redis AOF/persistence and a durable
-volume on the Redis host. Redis stores snapshots and profiles; it is not a
-per-frame message bus. A renewable ownership lease prevents two server
-processes from simulating the same Redis world. Lease loss stops writes and
-closes clients instead of allowing two conflicting world owners.
-
-### Simple database editor
-
-Stop the game server, then run from `sf/`:
+For Docker Compose with Redis:
 
 ```sh
-npm --prefix server run admin
+npm ci --prefix sf
+node sf/build.mjs
+docker compose -f sf/server/compose.yaml up --build -d game
+docker compose -f sf/server/compose.yaml logs -f game
 ```
 
-Open **http://127.0.0.1:8788**. Search by username or player ID, select a player,
-world snapshot or username, edit its JSON, and click **Save changes**. Restart
-the game server afterward; it loads these records into memory at startup.
-Do not edit while the game server is running: its periodic saves can overwrite
-your changes. Take a database backup before changing important state.
+Stop with Ctrl+C for Node, or `docker compose -f sf/server/compose.yaml down`.
+Both allow a graceful final checkpoint. Keep Docker volumes; `down -v` removes
+persisted state. Run **one simulation process per world**; do not scale game
+replicas or put independent world processes behind a load balancer.
 
-The editor uses the same `STATE_FILE` / `REDIS_URL` settings as the game server:
+## Deployment
 
-```sh
-STATE_FILE=/path/to/world.sqlite npm --prefix server run admin
-REDIS_URL=redis://127.0.0.1:6379 npm --prefix server run admin
-```
-
-The default is `server/data/world.sqlite`. The SQLite file must already exist.
-Set `ADMIN_PORT` to change port 8788. The editor only listens on loopback;
-for a remote database, run it on the database host and use an SSH tunnel
-(`ssh -L 8788:127.0.0.1:8788 your-host`). With Docker, use the same data volume
-as the game container and publish the editor's loopback port through a tunnel
-or run the script on the host with access to the database file.
-
-Saves reject stale records instead of overwriting changes made since loading.
-Redis saves also refuse to run while the simulation ownership lease is active
-(it may take 15 seconds to expire after an ungraceful stop). Username edits
-preserve owner IDs, validate the name, and enforce unique lowercase names.
-This is a direct JSON editor: keep the existing profile/world structure and
-value types intact. It does not run game commands or migrate malformed state.
-
-## Deploy alongside GitHub Pages
+### Docker Compose and static hosting
 
 GitHub Pages cannot run the backend. It can continue serving the homepage and
 `explore.html`; run the backend on a host with long-lived WebSocket connections.
@@ -257,9 +56,9 @@ GitHub Pages cannot run the backend. It can continue serving the homepage and
 docker compose -f sf/server/compose.yaml up --build -d game
 ```
 
-This exposes the backend on host loopback port 8787 and persists SQLite in a
-named volume. For public HTTPS/WSS using the included Caddy proxy, point a
-backend hostname at the host, set `GAME_DOMAIN` and `ALLOWED_ORIGINS`, and run:
+This exposes the backend on host loopback port 8787 and stores checkpoints in
+the included Redis service's named volume. For public HTTPS/WSS using Caddy,
+point a backend hostname at the host, set `GAME_DOMAIN` and `ALLOWED_ORIGINS`, and run:
 
 ```sh
 GAME_DOMAIN=game.example.com \
@@ -270,73 +69,382 @@ docker compose -f sf/server/compose.yaml --profile production up --build -d
 Create a root `multiplayer-config.json` in the static site's deployment:
 
 ```json
-{"endpoint":"wss://game.example.com/ws"}
+{ "endpoint": "wss://game.example.com/ws" }
 ```
 
 Alternatively enter that address in Character → Multiplayer connection. A
 local `file://` page can use `?server=ws://127.0.0.1:8787/ws`. Production HTTPS
 pages require `wss://`. File origins are accepted only by the default loopback
-server, unless explicitly enabled. Without a configured backend, the static
-single-player game continues to work and is clearly marked as single player.
+server, unless explicitly enabled. Without a configured backend, the client
+shows the connection form and waits for authentication.
 
-Environment variables:
+### Single EC2 instance with Terraform
 
-| Variable | Default |
-| --- | --- |
-| `HOST` / `PORT` | `127.0.0.1` / `8787` |
-| `STATE_FILE` | `sf/server/data/world.sqlite` |
-| `REDIS_URL` | Unset; SQLite is used |
-| `MAX_PLAYERS` | `2000` |
-| `ALLOWED_ORIGINS` | Loopback origins; add the static site's exact origins |
-| `ALLOW_DEBUG` | `0` |
-| `ALLOW_FILE_ORIGIN` | Off for non-loopback deployments |
+`sf/server/deploy/` provisions one Ubuntu 24.04 x86_64 instance in **us-west-1**,
+an Elastic IP, security group, instance role, and private S3 bucket. It uses
+the region's existing default VPC/public subnets. Only HTTP/HTTPS are open;
+administration uses AWS Systems Manager Session Manager, without SSH keys.
+The default instance is `t3.large` with an encrypted 40 GiB gp3 root disk.
+Instance sizing has not been load-tested on EC2. EC2, EBS, public IPv4 and S3
+incur AWS charges.
 
-Run **one simulation process/replica** for this common world. Do not put
-independent world processes behind a round-robin load balancer. The service
-has `/healthz`, WebSocket heartbeats, payload/rate limits, bounded queues, and
-slow-client disconnect/resynchronization. Keep port 8787 behind a TLS reverse
-proxy for public use. No deployment is performed by these source changes.
-
-## Capacity and checks
-
-Interest management limits each client to 32 stable nearby player interests
-and 32 nearby NPC updates, plus at most 64 nearby loot drops. A dense crowd
-cannot make every client render or
-receive 2,000 full character meshes. Player movement uses 32-byte records in
-binary packets; entity updates are quantized deltas. Texture/model assets
-are loaded from static hosting, never broadcast by the server.
+Install Terraform >=1.6 and authenticate the AWS CLI to your deployment
+account. From the repository root, build and package the **current working tree**,
+including uncommitted changes, then configure the backend hostname you control:
 
 ```sh
-npm --prefix sf/server test
-node --test sf/tests/*.test.mjs
-node sf/server/load-test.mjs --players 2000 --seconds 30 \
-  --url ws://127.0.0.1:8787/ws --output /tmp/loeberland-capacity.json
+node sf/build.mjs
+bash sf/server/deploy/package.sh
+cd sf/server/deploy
+cp terraform.tfvars.example terraform.tfvars
+# Edit game_domain in terraform.tfvars. Region defaults to us-west-1.
+terraform init
+terraform plan
+terraform apply
 ```
 
-The load test creates real independent WebSocket connections, sends movement,
-receives snapshots, and reports delivered update rate, packet latency,
-disconnects, event-loop delay and bandwidth. Run it against a disposable
-database: it creates 2,000 anonymous profiles. A local result is evidence for
-the implementation, not a production SLA; repeat it on the intended host,
-network and proxy before opening the world to 2,000 visitors.
+Packaging excludes local databases/backups, dependencies, environment files,
+Terraform state and AWS/Codex credential directories. The archive includes
+the static site, game modules, world cache, textures and billboard assets.
+Terraform uploads it to S3. First boot installs Docker, Compose, the AWS CLI
+and cron, builds the game image, and starts game + Redis + Caddy. Caddy manages
+HTTPS for `game_domain`. Point that hostname's DNS **A record** to the
+`elastic_ip` output and remove any stale AAAA record pointing elsewhere.
+Bootstrap may take several minutes after Terraform finishes. Check:
 
-The checked-in [local capacity result](benchmarks/local-2000.json) used an
-Apple M4 Max, Node 22.16, the production map, SQLite, shared roaming NPCs and
-three-second progress checkpoints. Over 30 measured seconds, 2,000 moving
-connections received 9.70 movement frames/player/second, with a 125.14 ms
-99th-percentile frame gap and no unexpected disconnects. Aggregate received
-traffic was 36.05 MB/s on loopback. This used the instance/PvP/inventory-capable server
-with crowded-spawn interest management; it does not model simultaneous mass
-combat, WAN loss or a production TLS proxy.
+```sh
+terraform output -raw connect
+# Run the printed aws ssm start-session command (requires the session-manager plugin).
+# Inside the session:
+sudo tail -n 100 /var/log/cloud-init-output.log
+sudo docker compose --env-file /etc/loeberland/compose.env \
+  -f /opt/loeberland/current/sf/server/compose.yaml --profile production ps
+```
 
-Protocol/library references: [ws](https://github.com/websockets/ws),
-[SQLite WAL](https://sqlite.org/wal.html), and
-[Redis Pub/Sub delivery semantics](https://redis.io/docs/latest/develop/pubsub/).
-The simulation broadcasts current state directly over WebSockets; Redis
-Pub/Sub is not used as a durable world-state transport.
+Visit the `game_url` output. For a separately hosted GitHub Pages frontend,
+put the `websocket_url` output in its root `multiplayer-config.json`, as shown
+above. Add that frontend's exact origin to `allowed_origins`. The backend's
+own HTTPS origin is always included.
 
-To exercise the optional Redis adapter as well, install `redis-server` on the
-local test machine and run `RUN_REDIS_TESTS=1 npm --prefix sf/server test`.
-That check starts its own disposable Redis instance on a free loopback port.
+The hourly cron is installed automatically, with seven days of local SQLite
+backups and 30-day expiration in the versioned S3 bucket (noncurrent versions
+are removed 30 days later). Redis also keeps its normal AOF
+in a Docker volume. To list/download off-host backups from an authenticated
+operator machine:
 
-Teleport tablets use `teleport-tablets.mjs`: purchases require proximity to Orin and charge 20 coins; travel consumes one durable, server-owned tablet and uses fixed native-validated destinations. The server drives the 2.8-second teleport and ignores client movement during it. Jail, private instances and vehicles prevent tablet use. Disconnecting mid-flight saves the safe destination rather than an airborne position. Tablet counts are included in inventory snapshots and are excluded from client checkpoints.
+```sh
+aws s3 ls "s3://$(terraform output -raw backup_bucket)/backups/"
+aws s3 cp "s3://$(terraform output -raw backup_bucket)/backups/CHOSEN.sqlite" ./restore.sqlite
+```
+
+To update code, run `package.sh` again and `terraform apply` to upload the
+new archive, then run the command printed by `terraform output -raw deploy_update`.
+It builds before replacing the game container, whose graceful shutdown saves
+the final checkpoint. Reconnects recover from Redis. Check the returned SSM
+command's status and `/healthz`; deploying is not a zero-downtime operation.
+Only successful deployments update the `current` link and cron script.
+Failed builds preserve the running game; a failed game startup needs operator
+intervention using the retained previous release under `/opt/loeberland/releases`.
+
+Terraform deliberately ignores AMI/bootstrap changes on an existing instance
+to avoid replacing a live world during an ordinary code update. Changes to
+domain/origins require editing `/etc/loeberland/compose.env` on that host and
+running `/usr/local/sbin/loeberland-deploy`; revised bootstrap/AMI settings need
+an intentional instance replacement and recovery from backup. Root disk/Docker
+volumes do not survive replacement. Preserve the Terraform state and download
+a backup before rebuilding an instance. Initial deployment starts an empty
+world; moving an existing world requires the [restore procedure](#hourly-sqlite-backups).
+
+The S3 bucket refuses automatic deletion while it contains objects; retain or
+explicitly empty it when dismantling the stack. Source archives are versioned
+and old versions expire after 30 days. Old unpacked releases/images on the
+instance remain available for rollback and need occasional pruning.
+
+References: [Ubuntu AMI discovery](https://ubuntu.com/aws/docs/aws-how-to/instances/find-ubuntu-images/),
+[Terraform EC2 resource](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance),
+[Redis atomic read scripts](https://redis.io/docs/latest/develop/interact/programmability/).
+
+## Persistence
+
+The active world, player profiles and username reservations live in ordinary
+in-process objects/maps. Gameplay reads and mutations use RAM; commands share
+an ordered queue in the world's owning Node process. Sockets, timers, queued
+promises and simulation controllers stay outside the serializable state.
+
+Set `REDIS_URL` to enable Redis checkpoints. Docker Compose configures Redis
+automatically. Every `CHECKPOINT_INTERVAL_MS` (default **1000 ms**), changed games
+capture a detached snapshot inside their action queue before asynchronous I/O.
+Each document has a monotonically increasing version and an `active` or
+`completed` status. Only one write per game can run at a time. Busy cycles are
+coalesced; a successful write acknowledges only its captured version. A failed
+write is logged and remains pending for the next cycle.
+
+Redis atomically saves the document and its discovery registry at
+`loeberland:v1:checkpoint:game:<id>` and `loeberland:v1:checkpoint:games`.
+Startup restores all registered documents **before listening for gameplay**.
+Reconnects receive fresh authoritative snapshots. Completed games remain
+registered and cannot be reopened. Old world/player/name records in the same
+backend are imported once, when no checkpoint registry exists; after that,
+legacy records are ignored. The state editor transparently edits the checkpoint.
+
+SIGTERM and SIGINT stop new actions and checkpoint scheduling, drain accepted
+mutations, coordinate in-flight writes, and attempt the latest changed-game
+checkpoints before closing Redis. Shutdown is idempotent and bounded by
+`SHUTDOWN_TIMEOUT_MS` (default **10000 ms**, including storage close). Failure or
+timeout is logged and shutdown finishes; no async `exit` handler is used.
+Recovery restores the **latest successful checkpoint**. Changes since then can
+be lost, including acknowledged purchases/rewards; outages can make that window
+longer than one second. Personal travel resumes using the existing safe-position
+rules rather than restoring sockets, animations or pending input commands.
+
+Run **one owning Node process for the common world**, without cluster workers
+or overlapping replicas. Redis's renewable ownership lease rejects a second
+owner and fences checkpoint writes. Lease loss closes clients and suspends the
+simulation. This handles application restarts and graceful deployments;
+distributed simulation/failover is outside scope. Use the backups below for
+host disaster recovery.
+
+Without `REDIS_URL`, local development retains the SQLite fallback at
+`sf/server/data/world.sqlite`, using the same RAM/checkpoint lifecycle and a
+worker for disk I/O. Switching from SQLite to Redis does not copy data between
+backends: use the existing backend for an existing world until its data has
+been migrated. Redis in Compose uses a named volume and AOF.
+
+### Hourly SQLite backups
+
+`backup.mjs` exports every registered Redis game checkpoint into one standalone
+SQLite database compatible with the existing SQLite store and state editor.
+This includes world records, all saved player profiles/inventories, username
+reservations, versions and completed games. Usernames are embedded in the game
+checkpoint documents; the legacy `usernames` table is intentionally empty.
+It excludes the transient simulation ownership lease and obsolete legacy keys.
+The export reads the registry and all documents atomically with a read-only
+Redis script. It does not acquire ownership or stop the running game.
+
+Backups contain the latest **successful Redis checkpoint**, not unsaved RAM,
+connections or pending actions. Reading the full snapshot briefly occupies
+Redis. SQLite output is integrity-checked and published by atomic rename;
+failed exports leave any previous output intact. Files have mode 0600 and
+contain private player identity data.
+
+On a Linux Docker Compose host, rebuild the image once, then run from the
+repository root:
+
+```sh
+docker compose -f sf/server/compose.yaml build game
+bash sf/server/backup.sh
+```
+
+The wrapper takes a nonblocking lock, writes UTC timestamped files under
+`sf/server/backups/` (override with Compose's `BACKUP_DIR`), and removes files
+older than seven days after a successful run. It requires Bash, Docker Compose,
+Python 3 and `flock`. Set `COMPOSE_ENV_FILE` if your Compose settings live
+outside `sf/server/.env`. Set `S3_BACKUP_URI=s3://your-bucket/backups` to upload
+each completed file using the AWS CLI before pruning local backups.
+
+For Node without Docker:
+
+```sh
+REDIS_URL=redis://127.0.0.1:6379 node sf/server/backup.mjs --output /safe/path/world.sqlite
+```
+
+The EC2 bootstrap installs `deploy/loeberland-backup.cron` at
+`/etc/cron.d/loeberland-backup`. It runs at minute zero every hour, with a
+50-minute timeout and rotated logs at `/var/log/loeberland-backup.log`.
+Local backups live at `/var/lib/loeberland/backups`; S3 expires them after 30
+days (noncurrent versions are removed 30 days later).
+To trigger it manually on EC2:
+
+```sh
+sudo bash -ec '. /etc/loeberland/backup.env; bash /opt/loeberland/current/sf/server/backup.sh'
+```
+
+To recover into Redis, stop the game and use `--restore` instead of `--output`.
+Restore requires an **empty Redis database** and refuses to overwrite existing
+data or a live ownership lease. For example, on EC2, use an unused Redis
+database (here DB 1), preserving the previous DB 0:
+
+```sh
+sudo -i
+cd /opt/loeberland/current
+compose=(docker compose --env-file /etc/loeberland/compose.env -f sf/server/compose.yaml)
+"${compose[@]}" stop game
+# Copy the chosen SQLite file to /var/lib/loeberland/backups/restore.sqlite first.
+"${compose[@]}" run --rm --no-deps -T --user 0:0 --entrypoint node \
+  --env REDIS_URL=redis://redis:6379/1 game backup.mjs --restore /backups/restore.sqlite
+# Only after restore succeeds, set REDIS_URL=redis://redis:6379/1 in
+# /etc/loeberland/compose.env, then restart using the same env file:
+"${compose[@]}" up -d --wait game
+```
+
+For SQLite recovery instead, stop the server and run it with `REDIS_URL` unset
+and `STATE_FILE` pointing at the backup. Keep the original backup unchanged;
+use a working copy when resuming gameplay or editing it.
+
+### Simple database editor
+
+The admin panel lists world records, per-player state and username reservations
+from the latest saved Redis checkpoint (or the selected SQLite file). Search by
+username or player ID, select a record and inspect its JSON. Refresh the list
+or reload a record to read a newer checkpoint.
+
+The page and every API endpoint require **HTTP Basic Auth**. The Node entry
+point automatically loads `sf/server/.env`; the Docker launcher reads that file
+on the host and passes it to the temporary admin container. The file is
+Git-ignored and excluded from Docker images and deployment archives.
+
+For initial setup, copy `sf/server/.env.example` to `sf/server/.env` if a file
+is not already present, and set:
+
+```dotenv
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD="your-long-random-password"
+```
+
+Run `chmod 600 sf/server/.env`. Both values are required; the username cannot
+contain a colon. Quote passwords containing `#` or spaces. Generate a password
+with a password manager or `openssl rand -hex 32`. The panel refuses to start
+with missing credentials and never prints the password.
+
+From the repository root on a Docker Compose host:
+
+```sh
+docker compose -f sf/server/compose.yaml build game
+# Read-only inspection while the game keeps running:
+bash sf/server/edit-state.sh --view
+```
+
+Open **http://127.0.0.1:8788** and enter the `.env` credentials in the browser's
+login prompt. `--view` disables writes in both the UI and API and does not
+stop or restart the game. For an editing session, exit inspection and run:
+
+```sh
+bash sf/server/edit-state.sh
+```
+
+The launcher validates authentication before interrupting gameplay, starts
+Redis if necessary, stops the game to flush its final checkpoint, and opens
+the editor. Change a record's JSON and click **Save changes**. Press Ctrl+C in
+the terminal to close the editor; the launcher restarts the game if it was
+running before the session, including when the editor exits with an error.
+If it was already off, it stays off.
+
+**Only edit usefully while the game is stopped.** The simulation holds its state
+in RAM and can overwrite database edits. Redis saves also reject an active
+simulation ownership lease; after an ungraceful stop, allow up to 15 seconds
+for that lease to expire. Restart after saving to load the changed state.
+Take a backup first. Saves reject stale records; reload them before retrying.
+Username edits preserve the owner ID and enforce name validation/uniqueness.
+This is a JSON editor, so keep existing record structure and value types intact.
+
+For a Redis server reachable directly from Node:
+
+```sh
+REDIS_URL=redis://127.0.0.1:6379 ADMIN_READ_ONLY=1 npm --prefix sf/server run admin
+```
+
+Stop the game and remove `ADMIN_READ_ONLY=1` for an editing session. For SQLite,
+leave `REDIS_URL` unset and set `STATE_FILE` to the existing database. The default
+is `sf/server/data/world.sqlite`; a missing file is an error. For example:
+
+```sh
+STATE_FILE=/path/to/world.sqlite npm --prefix sf/server run admin
+```
+
+Use `ADMIN_PORT` to change port 8788. The Node panel binds to loopback by
+default; the Docker launcher binds inside the container and publishes only
+host loopback. Keep it behind an SSH/SSM tunnel for remote use. Basic Auth
+should not be sent over an unencrypted public HTTP connection.
+
+For custom credential/settings files:
+
+```sh
+ADMIN_ENV_FILE=/secure/path/.env \
+COMPOSE_ENV_FILE=/path/to/compose.env \
+bash sf/server/edit-state.sh --view
+```
+
+`ADMIN_ENV_FILE` also works with `npm --prefix sf/server run admin`. Explicit
+process environment variables take precedence over values loaded by Node.
+The wrapper uses `COMPOSE_ENV_FILE` for the same project and Redis settings
+as the game; credentials are passed as a file, without appearing in command
+arguments. Rebuild the game image after changing admin code.
+
+On Terraform-managed EC2, keep the password outside the unpacked release
+so deployments preserve it. Create `/etc/loeberland/.env` with the two credential
+lines above and mode 0600, then launch:
+
+```sh
+sudo env ADMIN_ENV_FILE=/etc/loeberland/.env \
+  COMPOSE_ENV_FILE=/etc/loeberland/compose.env \
+  bash /opt/loeberland/current/sf/server/edit-state.sh --view
+```
+
+Remove `--view` for an editing session. Use SSM port forwarding to local port 8788. On a host configured for SSH, `ssh -L 8788:127.0.0.1:8788 your-host`
+provides the equivalent tunnel. Keep the tunnel open while using the panel.
+
+## Configuration
+
+These are the defaults when running Node directly. Compose sets `HOST=0.0.0.0`
+inside the container, selects its Redis service and supplies the configured
+allowed origins. It publishes game port 8787 on host loopback only.
+
+| Variable                            | Default / purpose                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| `HOST` / `PORT`                     | `127.0.0.1` / `8787`                                                       |
+| `STATE_FILE`                        | `sf/server/data/world.sqlite`; used when Redis is unset                    |
+| `REDIS_URL`                         | Unset for Node; Compose defaults to `redis://redis:6379`                   |
+| `CHECKPOINT_INTERVAL_MS`            | `1000`                                                                     |
+| `SHUTDOWN_TIMEOUT_MS`               | `10000`                                                                    |
+| `MAX_PLAYERS`                       | `2000`; admission limit, not a capacity guarantee                          |
+| `ALLOWED_ORIGINS`                   | Comma-separated exact frontend origins; loopback is accepted locally       |
+| `ALLOW_DEBUG`                       | `0`; set to `1` only for local/debug server actions                        |
+| `ALLOW_FILE_ORIGIN`                 | Off for non-loopback servers; explicitly allows `file://` clients          |
+| `ADMIN_HOST` / `ADMIN_PORT`         | Editor bind address/port: `127.0.0.1` / `8788`                             |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Required HTTP Basic Auth credentials; no default                           |
+| `ADMIN_ENV_FILE`                    | Admin credentials/settings file; defaults to `sf/server/.env`              |
+| `ADMIN_READ_ONLY`                   | `0`; set `1` for inspection with writes disabled (`--view` sets it)        |
+| `GAME_DOMAIN`                       | Compose/Caddy hostname; default `localhost`, set a real hostname for HTTPS |
+| `BACKUP_DIR`                        | Compose backup bind directory; default `sf/server/backups/`                |
+| `COMPOSE_ENV_FILE`                  | Backup/admin launchers' Compose env file; default `sf/server/.env`         |
+| `S3_BACKUP_URI`                     | Optional backup-wrapper upload destination, such as `s3://bucket/backups`  |
+
+For a non-Terraform Compose deployment, keep `GAME_DOMAIN`, `ALLOWED_ORIGINS`
+and other persistent settings in `sf/server/.env` and use that file for every
+Compose command. Terraform stores its host settings at
+`/etc/loeberland/compose.env`; pass it with `--env-file` to avoid selecting a
+different Compose project or Redis database.
+
+## Health and diagnostics
+
+```sh
+curl -fsS http://127.0.0.1:8787/healthz
+docker compose -f sf/server/compose.yaml ps
+docker compose -f sf/server/compose.yaml logs --tail 100 game redis
+```
+
+On EC2, add `--env-file /etc/loeberland/compose.env` and use the Compose file
+at `/opt/loeberland/current/sf/server/compose.yaml`.
+
+`/healthz` reports player counts/capacity, the active storage backend,
+checkpoint versions and interval, event-loop delay, tick/broadcast timings,
+CPU/memory/bandwidth, action backlog and route-cache statistics. Failed
+ownership or shutdown makes it return 503. Watch checkpoint versions advance
+when the world changes; repeated checkpoint errors mean recovery will use an
+older save. See [CAPACITY.md](CAPACITY.md) for metric definitions and load tests.
+
+Gameplay commands operate on RAM inside one ordered mutation queue. Clients
+send intents and cosmetic preferences; the server owns positions, health,
+inventory, XP and quest progress. The browser interpolates server movement.
+Simulation runs at 20 Hz, player replication at 10 Hz and world/private
+replication at 5 Hz (`sf/config/gameplay.js`). World and private messages carry
+their server sample time. The renderer uses a bounded snapshot buffer for NPC
+movement and gait, including personal police and shared animal chases, rather
+than running client-side paths or increasing the simulation/broadcast rates.
+The current protocol version is defined in `sf/multiplayer-protocol.js`;
+deploy matching static-client and server builds together when changing it.
+Server-only code is excluded from the client build.
+
+For anonymous accounts, the browser holds the credential and the server stores
+its hash. Losing browser storage loses access to the identity. Backing up server
+state does not recover a credential deleted from the browser.

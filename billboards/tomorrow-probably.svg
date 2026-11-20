@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Tomorrow Probably — general intelligence, eventually</title>
+  <rect width="600" height="400" fill="#f1df57"/>
+  <circle cx="470" cy="157" r="91" fill="#273f41"/>
+  <path d="m440 116 13 20-13 20m56-40-13 20 13 20" fill="none" stroke="#f1df57" stroke-width="7" stroke-linecap="round"/>
+  <path d="M433 181q38 32 74 0" fill="none" stroke="#f1df57" stroke-width="7" stroke-linecap="round"/>
+  <path d="m405 50 12 19m66-40-2 24m65-1-14 19" stroke="#273f41" stroke-width="5" stroke-linecap="round"/>
+  <g fill="#273f41" font-family="Arial,sans-serif" font-weight="900"><text x="28" y="110" font-size="56">Tomorrow,</text><text x="28" y="171" font-size="60">Probably.</text></g>
+  <text x="31" y="270" fill="#273f41" font-family="Arial,sans-serif" font-size="15" letter-spacing="3">AN ARTIFICIAL INTELLIGENCE COMPANY</text>
+  <path d="M30 284h540" stroke="#273f41" stroke-width="3"/>
+  <text x="30" y="332" fill="#273f41" font-family="Georgia,serif" font-size="30">General intelligence.</text>
+  <text x="30" y="373" fill="#273f41" font-family="Georgia,serif" font-style="italic" font-size="30">Eventually.</text>
+
+</svg>

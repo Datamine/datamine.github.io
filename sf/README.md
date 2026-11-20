@@ -1,180 +1,304 @@
 # Explore SF
 
-The editable world uses ES modules. The build produces a self-contained `explore.html` with classic JavaScript and an embedded SVG texture atlas, so opening `index.html` directly with `file://` works. Production needs only static hosting, or the local files.
+A static WebGL client backed by one authoritative Node.js game server. The
+backend serves the site and WebSocket endpoint; SQLite is the local default,
+and Docker Compose uses Redis. Gameplay requires a connected backend.
 
-`index.html` is the homepage and HTML template. Its Explore SF button navigates to `explore.html`; Classic page returns to `index.html`. Edit the source files below and rebuild the generated experience:
+Run commands below from the **repository root**, the directory containing
+`sf/`, `index.html` and `new.css`.
+
+- [Run locally](#run-locally)
+- [Develop and rebuild](#develop-and-rebuild)
+- [Checks](#checks)
+- [Deploy](#deploy)
+- [Admin panel](#admin-panel)
+- [Source layout](#source-layout)
+- [Troubleshooting](#troubleshooting)
+
+Gameplay, quests, vehicles and world details are in [DOCUMENTATION.md](DOCUMENTATION.md).
+Server configuration, backups, recovery and deployment procedures are in the
+[server operations guide](server/README.md).
+
+## Run locally
+
+Use Node.js **22.16 or later** and npm; the Docker image uses Node 24.
 
 ```sh
+npm ci --prefix sf
+npm ci --prefix sf/server
 node sf/build.mjs
+npm --prefix sf/server start
 ```
 
-Green Bank's friendly banker offers deposits, withdrawals and a complimentary
-coffee. Deposits earn 5% per elapsed hour, compounded continuously, including
-offline time: 100 coins becomes 105 after one hour and 110.25 after two. Banked
-coins are separate from spendable inventory; whole coins can be withdrawn while
-fractional interest stays in the account. `banking.js` contains the shared
-account rules, `bank-ui.js` the account window and offline adapter, and
-`bank-models.js` the counter, coffee and rooftop billboard. Multiplayer uses
-the authoritative account in `server/banking.mjs`.
+Open **http://127.0.0.1:8787/explore.html**. The backend provides its own
+`multiplayer-config.json`. Stop with Ctrl+C so it can save the final checkpoint.
+Local state is saved to `sf/server/data/world.sqlite` unless `STATE_FILE` or
+`REDIS_URL` selects another store.
 
-The haberdasher's upper tiers are Stone of Jordan (50,000 coins), Santa Hat
-(75,000), and Blue Partyhat (100,000). The partyhat preserves the previous
-top-tier `crown` inventory ID so existing ownership and outfit selections carry
-over. Their original geometry lives in `hat-models.js`.
-
-Gameplay balancing lives in two small catalogs:
-
-- `item-stats.js`: weapon damage, strength scaling, accuracy, reach and attack
-  interval; the battleaxe's price; food prices/healing; ice equipment colors
-  and defense. Hats keep their existing `hat-catalog.js`.
-- `monster-drops.js`: monster HP, level, attacks and respawn times, plus every
-  creature's drop table. `oneIn: 20` means a 1/20 roll. `choose` selects one
-  item after a successful roll; the giants' 1/50 roll is shared between the
-  top and pants, making each individual piece 1/100.
-
-The friendly level-10 bear waits at the Marin end of the Golden Gate Bridge.
-Left-click to pet it; right-click to attack or examine. It has 20 HP and a
-1/20 peptide drop. Two snow giants (140 HP, level 18) and two ice giants
-(180 HP, level 20) patrol the foot of Tahoe's mountain. Collect their rare
-ice top/pants and equip them in Character settings for crystalline armor;
-each piece reduces incoming shared-monster/PvP damage by two.
-`wilderness.js` runs the same native navigation/combat simulation offline
-and on the server; `wilderness-models.js` contains their original meshes.
-
-The kraken now has 300 HP. In-N-Out's associate sells sandwiches for two
-coins, versus three at Lucinda's, with the same healing. Completing They Live
-unlocks the industrial armorer's full stock, including the 50-coin battleaxe.
-Character → Weapon selects it independently of the railgun. The Armory,
-at (68, 111.5), is a separate, examinable South SF landmark.
-
-**Illuminatus** appears in the Quest Menu from the beginning. Its objectives
-track Ray's 24 guild promotions, the Old Man's 250,000-coin initiation, and
-boarding the B-2 in the underground hangar. First boarding completes the quest;
-landing, crashing or reconnecting never resets it. Existing guild members and
-aircraft owners receive credit for their progress. `illuminatus.js` derives
-the journal entry, and `secret-adventures.js` persists offline completion or
-uses authoritative multiplayer aircraft ownership.
-
-The **Bus** runs from the street behind Nightlife to Market Street. Traffic
-lights exist only at junctions on that route, selected from the same road
-graph. It stops for two seconds at every signal, including green, and waits
-for a green phase before crossing. Phases still change every ten seconds;
-terminus stops last six seconds. `slow-bus.js` defines its route and dwell
-times, while `traffic-signals.js` advances vehicles through stops and signals
-using simulation time.
-
-The build validates navigation before writing the generated page. To run just
-the complete-map navigation audit, without starting a browser or a server:
+For a local Redis-backed stack instead:
 
 ```sh
-node --experimental-default-type=module sf/audit-navigation.mjs
+npm ci --prefix sf
+node sf/build.mjs
+docker compose -f sf/server/compose.yaml up --build -d game
 ```
 
-This builds the actual production layout, including procedural housing and shop
-walls, through `createWorldModel()` in `world.js`. It skips DOM, WebGL, texture
-loading and ground rasterization; geometry is used to establish the same placed
-bounds, then its vertex buffers are released. Tests do not use screenshots,
-recorded map snapshots, or substitute city routes.
+Use `docker compose -f sf/server/compose.yaml logs -f game` for logs and
+`docker compose -f sf/server/compose.yaml down` to stop. Keep the named volumes;
+`down -v` deletes the saved world.
 
-`navigation.js` compiles the rendered tile materials and placed collision
-footprints into one graph. Every material has an explicit `walkable` rule in
-`TILE_TYPES`; building floors remain walkable while their walls and door gaps
-provide collision. Shoreline cells use their actual typed polygons. A cell has
-at most eight adjacency bits, with blocked-corner clearance for diagonals. This
-is a sparse adjacency representation, rather than a quadratic matrix.
+Use another browser profile or an incognito window to test a second player.
+Two tabs sharing one anonymous credential control one character; the newest
+connection replaces the previous one. Clearing browser storage loses that
+credential; there is no account recovery.
 
-Connected components, direct travel checks, A* and waypoint smoothing share
-that graph. Disconnected queries reject before searching, and A* reuses stamped
-working buffers instead of allocating map-sized arrays for every click or NPC.
-The minimap imports the same component-labeling rule. Nearest-position searches
-use an actual circular radius and the same logical/world coordinate conversion.
+## Develop and rebuild
 
-`navigation-audit.js` checks every graph edge for reciprocal connectivity and
-corner clearance. It checks routes in both directions to named destinations,
-shop interiors, actual conversation/petting/ladder approaches, animal-control
-dispatch points, regional junctions and southern trails, including full journeys
-from the zoo to Tahoe. Airport and Tahoe/highway paths retain their own pure
-regional geometry adapters; the audit uses their real city graph connection.
-The offshore Prometheus statue and the rail pit declare `navigationAccess:
-'observe-only'` in their source data. Other sights require walking access by
-default. Isolated background courtyards are reported, but a required
-destination in one fails validation. The full-world tests also seal a real shop
-door deliberately and verify that its interior becomes unreachable.
-
-Use these deterministic checks for reachability and collision. Browser checks
-cover the integration that the graph cannot prove: pointer projection, minimap
-click dispatch, rendered geometry, camera motion, and UI layout. For diagnosis
-in the running game, `SFMapDiagnostics.navigation` exposes `audit()`,
-`position(x, y)`, `connected(from, to)` (city grid), and `route(from, to)` (regional
-walking routes). `position` explains whether a cell is blocked by terrain or a
-named footprint. Coordinates here match `player.x` / `player.y`.
-
-For development, run:
+Keep the backend running on port 8787. In a second terminal, start the source
+module preview:
 
 ```sh
 node sf/dev.mjs
 ```
 
-Open `http://127.0.0.1:8742/`. The Explore page loads source modules directly; the development server assembles the material atlas and reference page on request, so refreshing shows SVG edits without a build. Restart the server after changing the material catalog. `explore.html?built` previews the generated version over HTTP. Rebuild before testing through `file://` or publishing.
+Open **http://127.0.0.1:8742/explore.html?server=ws://127.0.0.1:8787/ws**.
+Refresh to load edited client modules. Restart the backend after changing
+server code or shared gameplay/configuration modules.
 
-- `wayfinding.js`: shared vector symbols for homepage destinations, minimap projection and inverse click coordinates, icon spacing, destination flags and navigation regions. The minimap follows the player, including beyond the city boundaries, with the player indicator fixed at its exact center. It stays flat, rotates with the camera, and uses the same live origin for click coordinates and destination flags. Content icons stay clear of the center; only visible icons are selectable. The minimap routes directly into the world; there is no larger map. Matching glowing symbols above content buildings are clickable, with a legend in the ? guide.
-- `world.js`: scene state, street and parcel planning, navigation, rendering, maps and controls. Zoom, vehicle actions, Say and Help share a compact bottom-right card; flight and climbing keep their relevant action beside Say and Help. S or Say displays a short-lived “yo” above the moving player, including while cycling, climbing or flying. Click feedback uses a shrinking yellow X for accepted actions and a red X for rejected ones; NPC selection adds five pixels around projected geometry while respecting occlusion.
-- `geography.js`: 96 × 96 world dimensions, shared park boundaries, smoother named hills and valleys, Marin ridges and small building pads. Elevations are a stylized geographic model rather than surveyed data.
-- `transamerica.js`: the original Transamerica Pyramid mesh: individually recessed window bays, pale cladding, an exposed braced lobby, closed upper service wings and a separate metal lattice spire. It fits the existing two-tile parcel and joins the static scene batch. Architectural references: [official tower history](https://transamericapyramid.com/transamerica-pyramid) and [Foster + Partners restoration notes](https://www.fosterandpartners.com/news/the-column-transamerica-pyramid-center).
-- `downtown.js`: shared downtown coordinates, the Market/Ferry alignment, Salesforce south of Market, a connected First Street bridge ramp and higher-detail waterfront landmarks. Runtime diagnostics reject broken connections.
-- `environment.js`: one sea surface with shared shallow-water depths, coastal bluffs and Marin landscape details. Deep-water spans retain neighboring edge vertices to prevent cracks; offshore pieces meet the static sea without coplanar overlap and follow the player without a sailing limit. Sea reflections, ripples and surf use the existing procedural shader and rendering pass.
-- `airship.js`: the private jet terminal south of the city, parked jet models, cached airship mesh and rental controller. A walks along a connected southern approach to the rental stand; choose Rent airship to ascend above the highest structure. Ground/minimap clicks set flight destinations, and A returns to the same mooring before descending. The camera and minimap remain centered throughout; a small envelope cutaway keeps the centered rider visible; arrows rotate/tilt the camera. Terminal routes avoid parked jets and connect back into city navigation.
-- `shipping.js`: two cached tanker models on one continuous bay channel loop, sampled by distance for steady movement, opposite phases and a closed seam. Hull extents are checked against the sailing coastline during browser verification.
-- `soma-pyramid.js`: detailed asymmetric glass spire on the existing one-tile SoMa parcel, with separate glazing bays, floor bands, metal mullions, structural diagonals, an entrance canopy and a small crown.
-- `restaurants.js`: Cotogna near Coit Tower and a signed Rich Table house on Oak Street in Hayes Valley. Their private parcels are reserved before surrounding buildings; patio furniture preserves the paving beneath it. Rich Table has a clear aisle and two seated diners sharing a meal, with a distance-culled eating gesture on the existing character rig. Signs retain their requested lettering and use the existing sign atlas. Reference identities: [Cotogna](https://www.cotognasf.com/) and [Rich Table](https://www.richtablesf.com/location/rich-table/).
-- `life.js`: checked pavement routes for pedestrians and cyclists, ferries, tangent-facing gull flight and the streetcar model. Gulls fly wider continuous loops with wingbeats, or glide gently under reduced motion; distant actors are culled before mesh construction.
-- `characters.js`: original indexed character meshes, 16 joint groups, two-weight skinning, cached clothing/hair variants and palette recoloring. Walking/running phases follow distance traveled; foot targets and two-bone IK maintain contacts on terrain. Idle, seated, cycling, windsurfing and ladder-climbing poses share the rig, with upper-body talk, reach and attack gestures. Transformed vertices join the existing dynamic batch without another rendering pass.
-- `windsurfing.js`: the Crissy Field launch, unrestricted open-water sailing, board, sail and rider meshes. Exact coastline intersections and a cached visibility graph route around SF, Marin and Yerba Buena Island. A camera-centered sea surface follows the rider beyond the city map. F launches or returns to shore.
-- `encounters.js`: constant-speed police pursuit, capture, and the barred Carceral Urbanist Facility in the Marin Headlands. Talking is peaceful; attacking or stealing starts pursuit. Officers continue through menus and follow the player onto the bay. Detention permits walking inside the cell, with routes around the bunk and no passage through the bars. Camera, zoom and help remain available; travel and interactions outside the cell remain disabled. The Classic page switch remains available.
-- `models.js`: building, landmark, furniture, character and bicycle mesh factories. The world supplies placement and GPU services through `createModels`. Trees and park benches retain their underlying surface textures and terrain; their collision footprints do not paint building foundations or flatten a square into the ground.
-- `housing.js`: curb-height entrances, fitted hillside plots, four roof profiles, façades, garden stairs, balconies and animated private funiculars. Townhomes keep their street orientation and a maximum of two main storeys; downhill sides can expose a walk-out basement.
-- `sutro.js`: shared ridge-site coordinates, ladder radii and the original 3D Sutro Tower mesh, including its three legs, grated upper platform, antenna masts and guy wires. Click or right-click the tower to choose Climb Sutro Tower, or press E nearby. The reversible traversal follows the visible ladder, keeps the character centered as the camera rises, and returns to the same navigable trail point. Climb down or E descends; it also works partway up. The climbing rig follows vertical distance, keeping planted hands and feet on their rungs. Travel and vehicle actions are unavailable until back on the ground; camera and zoom controls remain available.
-- `lighting.js`: detailed curbside lamps and one depth-tested additive pass for warm halos and terrain-following light pools. Salesforce Tower’s crown uses a small procedural metaball shader for subtle, slowly merging pale-blue light behind the top-floor glazing; it shares the main time uniform and freezes with reduced motion. Emissive glass and metal use reserved GPU style values; the glow buffers rebuild after WebGL context restoration.
-- `geometry.js`: mesh primitives, transforms, picking math and the shared camera-facing cutaway mask.
-- `tiles.js`: configurable surface types, polygon partitioning, connectivity checks and tile regressions. Water-edge intervals and heights are checked alongside road and curb connections; an aligned land/water transition requires a shoreline authored on both neighbors.
-- `water-tiles.js`: shared, precomputed land/ocean/lake partitions. Boundary cells split the two terrain triangles against the actual coastline and lake outlines, preserving concave coves and narrow inlets. Rendering uses these same typed fragments; waterfront footprints preserve water beneath piers, and connected Lake Merced lobes share one level.
-- `material-catalog.mjs`: the shared list of material names, stable GPU slots, source filenames, labels and intended uses, plus atlas dimensions. `MATERIAL_IDS` is derived from this catalog.
-- `materials.js`: texture loading, context restoration, stable room appearances and the separate lettering atlas. Residential glazing uses a dedicated ambient shader style with restrained warm light in roughly one fifth of rooms; it does not blend the atlas’s pane pattern into the glass. Bay and shop windows sit clear of their backing panels to avoid depth fighting. The glass SVG provides faint reflection detail for glazed towers.
-- `../textures/materials/*.svg`: the editable material sources. Each standalone 256 × 256 SVG has a title, usage description, and named background/detail groups. For example, edit `grass.svg` for grass, or `roof-tile.svg` for clay roof tiles.
-- `../textures/materials/preview.html`: generated visual reference with swatches, names, slot numbers, intended uses and links to each source. Open it directly with `file://` or through the development server.
-- `../textures/sf-materials.svg`: the generated 1024 × 1024 atlas. The build arranges all 16 named materials into the catalog’s 4 × 4 grid. Do not edit this generated file.
-- `build-materials.mjs`: validates the catalog and SVG references, then assembles the atlas and visual reference. `build.mjs` runs this automatically.
-- `build.mjs`: validates and combines the module graph and graphics into `../explore.html`. Do not edit the generated HTML directly.
-- `dev.mjs`: serves the modular development view and public assets with caching disabled.
-
-Material lookup follows the geometry, rather than SVG element IDs. A model asks for a named material, such as `m.box(..., "brick")`. `Mesh.tri` looks up `MATERIAL_IDS.brick` (slot 6), storing that selection in the mesh’s UV data. The fragment shader converts slot 6 to column 2, row 1 (zero-based), repeats that region using world coordinates, and multiplies the sampled detail by the model color. SVG IDs are local artwork references; the renderer uploads the entire sheet once and samples pixels from it. Atlas dimensions and the special glass slot come from the catalog too.
-
-To change artwork, find the material in `textures/materials/preview.html`, edit its linked SVG, and run `node sf/build.mjs`. This rebuilds the atlas, reference and standalone experience. The production build embeds a compact copy of the atlas, preserving the single texture upload and `file://` support.
-
-Run the dependency-free checks with Node 22 or later:
+Rebuild after changing map layouts, models or configuration, including when
+using the source preview, and before publishing:
 
 ```sh
-node --experimental-default-type=module --test sf/tests/*.test.mjs
+node sf/build.mjs
 ```
 
-Ordinary NPC names remain in interaction menus; overhead labels are limited to police and active speech. House paints vary saturation and brightness independently within the existing neighborhood palettes. Foundation skirts meet each body’s lower edge without overlapping wall or retaining faces; they extend into the sampled ground to close the terrain seam. The foundation regression checks competing coplanar materials on flat and sloped townhomes, urban blocks and shops at multiple rotations.
+The build validates navigation, compiles versioned map chunks, assembles the
+material atlas/reference, and writes `explore.html`. Deploy the generated HTML
+and `sf/world-cache/` together. Preview the generated page at
+**http://127.0.0.1:8742/explore.html?built&server=ws://127.0.0.1:8787/ws**.
 
-The checks also reject an outdated generated experience, material atlas or visual reference. After entering Explore SF, `SFMapDiagnostics.report` contains the full-map surface and street-frontage checks, including `water.edges` and `water.shorelineTiles`. The sea regression also checks every interior mesh edge for an exact neighbor, including transitions between fine shallows and merged deep-water spans.
+| Change                           | Edit                                                            | Follow-up                                            |
+| -------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------- |
+| Homepage or HTML template        | `index.html`, `new.css`                                         | Rebuild `explore.html`                               |
+| Map layout or models             | `sf/*layout.js`, geometry/model modules                         | Rebuild and restart the backend                      |
+| Balance, items or NPC appearance | [sf/config/](config/README.md)                                  | Keep saved IDs stable; rebuild and restart           |
+| Material artwork                 | `textures/materials/*.svg`                                      | Rebuild; restart the preview if the catalog changes  |
+| Billboard artwork                | [billboards/](../billboards/README.md), `billboards/catalog.js` | Rebuild production assets                            |
+| Server behavior                  | `sf/server/*.mjs`                                               | Restart; rebuild the client when shared code changes |
 
-Cutaway wall indices are north, south, west, east in each building's local coordinates. Rendering, shadows and picking use `cutawayWallMask`; keep these paths on the same visibility rule.
+Do not hand-edit generated `explore.html`, `textures/sf-materials.svg`,
+`textures/materials/preview.html` or compiled world-cache files. The preview
+assembles material SVGs on request; production embeds the generated atlas.
 
-Character rendering research:
+Deploy compatible client and server builds together when changing the protocol;
+its version is defined in `sf/multiplayer-protocol.js`.
 
-- [Lost City Model.ts](https://github.com/LostCityRS/Client-TS/blob/274/src/dash3d/Model.ts) stores indexed triangles, face colors and vertex labels; its animation path groups labeled vertices and transforms them around pivots.
-- [Lost City AnimFrame.ts](https://github.com/LostCityRS/Client-TS/blob/274/src/dash3d/AnimFrame.ts) separates frame timing and joint transformations from the model.
-- [Rune-Server's animation-system explanation](https://rune-server.org/threads/runescapes-animation-system.700768/) describes grouped vertices and hierarchical joint transforms.
+## Checks
 
-This implementation uses that separation of geometry and animation with original geometry and poses. Foot placement, interpolation and action overlays are authored for this world. It does not load RuneScape model caches or require a server, WASM, a rendering library, or external character downloads.
+Build before running the client suite: it checks that generated assets match
+the source. Run the relevant focused tests while editing, then the suites
+needed by the change:
 
-Marin uses `marin-land.js` for its terrain mesh, bounded terrain picking and a half-tile native walking graph. Its polygon shoreline and the detention footprint are collision boundaries. The navigation audit checks routes into the headland ridges and back across the Golden Gate; walking does not require staying on the bridge road.
+```sh
+npm --prefix sf run lint
+npm --prefix sf run format:check
+node --test --test-concurrency=4 sf/tests/*.test.mjs
+npm --prefix sf/server test
+```
 
-`loading-screen.js` displays completed initialization stages and waits for the material atlases, signs and first rendered frame before showing 100% and dismissing the overlay. `teleport-tablets.js` owns the tablet inventory and 2.8-second travel pose; `teleport-models.js` draws its purple lightning. Orin the Wizard sells both tablets for 20 coins inside the Nob Hill home. Inventory buttons break a tablet and land the player by the Tahoe gondola or Mazarine in downtown SF. Multiplayer purchases and consumption are server-authoritative; offline counts persist locally. Other players have Follow, optional PvP Attack and Walk here actions, without Examine.
+For the optional Redis integration tests, install `redis-server` locally:
 
-The Sunset peptide site is the Technologist’s Farmers Market (its stable internal site ID remains `sunset-whole-foods`). Four farmers wear dark coats and sunglasses; their dialogue reads the same spawn deadline used by the shared world. `peptideSpawnAt` is sent at login and whenever the deadline changes, so countdowns need no polling or per-second network messages. Single-player uses its persisted local spawn deadline.
+```sh
+RUN_REDIS_TESTS=1 npm --prefix sf/server test
+```
 
-`countryside.js` makes the regional grass between Berkeley and Tahoe walkable. A small visibility graph routes around the campus and roadside buildings without storing a giant empty tile grid; water and the detailed Tahoe collision map retain their own boundaries. Grass picking and foot placement use the same clipped 16-tile triangles as the regional backdrop. Native route checks cover journeys over grass from Berkeley to the gondola and back. Hold Shift while flying the B-2 for rocket-speed boost; releasing Shift returns to cruise speed.
+Those tests create disposable Redis instances on free loopback ports. To audit
+the production navigation graph without a browser or server:
+
+```sh
+node --experimental-default-type=module sf/audit-navigation.mjs
+```
+
+The build also validates interaction approaches. The focused server check is
+`node --test sf/server/tests/interaction-access.test.mjs`. Use a browser to
+check rendering, picking, UI and camera changes; graph tests cannot verify them.
+For load tests, metrics and tuning, see [server/CAPACITY.md](server/CAPACITY.md).
+Use a disposable world for load tests because they create real player profiles.
+
+## Deploy
+
+The [server operations guide](server/README.md#deployment) covers Docker Compose,
+GitHub Pages with a separate backend, and a single EC2 instance with Terraform.
+The Terraform default region is **us-west-1**. Build before packaging so the
+archive includes the current generated client and map:
+
+```sh
+node sf/build.mjs
+bash sf/server/deploy/package.sh
+cd sf/server/deploy
+cp terraform.tfvars.example terraform.tfvars
+# Set game_domain and allowed_origins before proceeding.
+terraform init
+terraform plan
+terraform apply
+```
+
+The guide covers DNS, HTTPS, subsequent releases and health checks. EC2 bootstrap
+installs the hourly Redis-to-SQLite cron backup and S3 upload. Review
+[backup and restore](server/README.md#hourly-sqlite-backups) before moving an
+existing world or replacing an instance.
+
+## Admin panel
+
+The admin panel shows the latest saved Redis checkpoint, including per-player
+state, world state and usernames. Search for a username or player ID, select a
+record, and inspect its JSON. **Only edit while the game is stopped**: the live
+server owns its state in RAM, and Redis rejects admin saves while its ownership
+lease is active. Restart the game after saving to load the edited state.
+
+The page and all API routes require HTTP Basic Auth. Credentials live in the
+gitignored **`sf/server/.env`**:
+
+```dotenv
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD="your-long-random-password"
+```
+
+Use the existing file if present. For a new checkout, copy
+`sf/server/.env.example` to `sf/server/.env`, set a password, and run
+`chmod 600 sf/server/.env`. An empty password prevents the panel from starting.
+Keep this file out of deployment archives and container images.
+
+For the Docker Compose Redis stack, rebuild the image after updating admin
+code, then choose inspection or editing:
+
+```sh
+docker compose -f sf/server/compose.yaml build game
+# Inspect without stopping the game; writes are disabled.
+bash sf/server/edit-state.sh --view
+# Or open an editing session; stops the game and restarts it when you exit.
+bash sf/server/edit-state.sh
+```
+
+Open **http://127.0.0.1:8788** and sign in with the `.env` credentials. Refresh
+the list or reload a record to see a newer saved checkpoint. In an editing
+session, change the JSON and click **Save changes**, then press Ctrl+C in the
+launcher to close the panel and restart the game. A game that was already off
+stays off; start it yourself after editing.
+
+For a Redis server reachable directly from Node:
+
+```sh
+REDIS_URL=redis://127.0.0.1:6379 ADMIN_READ_ONLY=1 npm --prefix sf/server run admin
+```
+
+Stop the game and omit `ADMIN_READ_ONLY=1` to enable edits. The Node launcher
+loads `sf/server/.env` automatically. Use `STATE_FILE` instead of `REDIS_URL`
+to inspect a local SQLite save. Keep the panel on loopback and use an SSH/SSM
+tunnel for remote access; see the [admin operations guide](server/README.md#simple-database-editor)
+for EC2 credentials and custom env-file paths.
+
+## Source layout
+
+| Path                                                                | Responsibility                                                                                                       |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `index.html`, `new.css`                                             | Homepage, HTML template and styling                                                                                  |
+| `sf/world.js`, `sf/world/`                                          | Browser entry, composition, map construction, navigation, rendering, HUD, minimap, interactions and runtime services |
+| `sf/client/controllers.js`, `sf/ui/`                                | Explicit server-command views and scheduled DOM updates                                                              |
+| `sf/rendering/`                                                     | Cached GPU character geometry, skinning shader, picking reference and dynamic buffers                                |
+| `sf/build.mjs`, `sf/build-bundle.mjs`, `sf/dev.mjs`                 | Scoped esbuild production bundle, asset inlining, source maps and native-module preview                              |
+| `sf/build-world-inputs.mjs`                                         | Semantic geometry inputs for independently versioned map compilation                                                 |
+| `sf/config/`                                                        | Shared editable definitions; [editing guide](config/README.md)                                                       |
+| `sf/dialogues/`                                                     | [NPC conversations](dialogues/README.md), Goose Corp lore and original source posts                                  |
+| `sf/world-stream.js`, `sf/world-codec.js`, `sf/world-tile-codec.js` | Static map loading and encoding                                                                                      |
+| `sf/navigation.js`, `sf/regional-navigation.js`                     | Shared navigation and reachability                                                                                   |
+| `sf/multiplayer-*.js`, `sf/server-connection.js`                    | Client protocol, synchronization and connection gate                                                                 |
+| `sf/server/index.mjs`, `sf/server/game.mjs`                         | HTTP/WebSocket server and simulation lifecycle                                                                       |
+| `sf/server/store.mjs`, `sf/server/checkpoints.mjs`                  | Persistence adapters and RAM checkpoint lifecycle                                                                    |
+| `sf/server/deploy/`                                                 | Packaging, Terraform and EC2 bootstrap                                                                               |
+| `sf/tests/`, `sf/server/tests/`                                     | Client/shared-rule and backend tests                                                                                 |
+
+Detailed module descriptions and rendering/navigation design are in
+[DOCUMENTATION.md](DOCUMENTATION.md#implementation-reference).
+
+## Troubleshooting
+
+- **Character rendering:** body shapes are uploaded once as indexed bind
+  meshes. Bone poses, placement and cached color palettes drive the GPU shader
+  each frame. Rocket and clock wearables share this cache; changing flame/clock
+  revisions reuse their buffers. The 64 MiB character cache budget is configured
+  in `sf/config/rendering.js`, separately from scenery. Dynamic props use three
+  reusable buffers to avoid reallocating storage each frame. Exact posed body
+  triangles are generated only for a candidate mouse ray; conservative bone
+  bounds cover selection in between. Rolls and capture collapse retain the
+  existing CPU path. Small previews also use the CPU reference.
+  `SFMapDiagnostics.characters` and `.dynamicGeometry` expose cache hits,
+  uploads, memory and per-frame work. `?characterRenderer=cpu` provides a
+  comparison/fallback. Context restoration creates fresh GPU buffers from
+  cached source meshes. Whole-mesh transforms must use
+  `rendering/mesh-transform.js` so CPU triangles, deferred GPU characters and
+  picking stay aligned. [The visual audit](tools/character-gpu-audit.html)
+  compares the CPU and GPU paths and benchmarks 32-character construction.
+- **Chase animation:** `snapshot-motion.js` buffers movement samples on the
+  server clock; `pursuit-presentation.js` applies this to police, the zookeeper,
+  tiger, animal control and raptor. `npc-network.js` uses the same sampler for
+  ordinary NPCs and combat creatures. Positions, facing and gait interpolate
+  every rendered frame, 250 ms behind server samples (one 5 Hz update plus
+  50 ms of jitter allowance). HP and chase/capture state apply immediately.
+  Movement holds at the latest known sample if packets stall, freezes on
+  disconnection, and resets on teleports, instance changes and reconnects.
+- **Connection screen or frozen world:** check `http://127.0.0.1:8787/healthz`,
+  the backend logs and the configured WebSocket endpoint. The game waits for
+  authentication; `?offline=1` does not bypass the connection gate.
+- **Separate preview cannot connect:** use the `?server=ws://127.0.0.1:8787/ws`
+  URL above. Endpoint selection uses the URL override, then the saved browser
+  setting, then `multiplayer-config.json`.
+- **Old or failed map load:** rebuild, then use Help → Refresh map data. This
+  clears the `sf-static-world` IndexedDB cache without deleting character identity
+  or server progress. Deploy both the HTML and compiled map chunks.
+- **Map or performance diagnosis:** inspect `SFMapDiagnostics.streaming`,
+  `SFMapDiagnostics.navigation` and `SFMapDiagnostics.report` in the browser
+  console. `:debug` shows coordinates and rendering FPS in the game.
+- **Server refuses to start:** check its logs, storage connection and whether
+  another process owns the Redis world. Run one simulation process per world.
+
+## Build and runtime boundaries
+
+Run `npm ci --prefix sf` for the pinned build tools. `npm --prefix sf run format`
+formats source; `lint` rejects undefined bindings, unused imports/variables,
+unreachable code and duplicate imports. Keep native ES module imports: esbuild
+follows the graph, preserves module scope and removes unused bundled code.
+The static build still embeds artwork and works with `file://`. Deploy
+`sf/explore.js.map` for browser source debugging; `sf/bundle-meta.json` records
+per-module bundle contributions. Neither is required for gameplay.
+
+`world/scene.js` composes explicit services through live dependency bindings.
+`world/model.js` exposes the DOM-free authoritative map constructor. World
+construction, navigation, rendering, minimap, HUD, interactions, synchronization
+and runtime animation have separate modules. Add server intents in
+`client/controllers.js`; do not patch domain methods after construction. Client
+views share snapshot state and selectors with domain controllers but omit local
+simulation and persistence clocks. Node/headless construction uses the original
+controllers. Browser movement and authoritative simulation fallbacks are removed.
+
+Rigid airship hulls, Ferrari bodies/tires, streetcars and parked rockets use
+`rendering/cached-mesh.js` and the GPU mesh cache. Rotors/spokes remain animated;
+transparent runs retain the sorted glass path. Small CPU previews still work.
+HUD, settings/countdowns and minimap redraws run at most 10 Hz during ordinary
+frames; action-triggered HUD/minimap refreshes apply immediately. Camera rotation refreshes the minimap on the same frame to preserve alignment. Cached DOM
+handles skip identical property writes. Character/camera rendering stays at the
+display cadence.
+
+Map invalidation hashes semantic ASTs of geometry/layout inputs, independently
+of browser HUD, interaction, dialogue, networking, HTML and artwork edits.
+Formatting does not change the map version. An unchanged map reuses its saved
+navigation audit and skips model construction and mesh baking entirely. Geometry
+changes still rebuild and validate the map. Compiled chunks remain content-addressed.
+
+Server replication uses versioned immutable private component snapshots in
+`server/player-components.mjs`. Ordinary walking/idle samples reuse component
+records; active pursuits and travel compare their explicit fields. Only changed
+component revisions are sent. Global rounded snapshots are prepared once per
+broadcast, rather than parsed for each recipient. The simulation owner, ordered
+action queue, interest bounds, protocol and checkpoint semantics are unchanged.
+See [capacity documentation](server/CAPACITY.md) for measurements and limits.

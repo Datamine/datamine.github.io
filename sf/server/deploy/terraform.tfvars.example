@@ -1,0 +1,5 @@
+aws_region      = "us-west-1"
+game_domain     = "game.example.com"
+allowed_origins = ["https://johnloeber.com", "https://www.johnloeber.com", "https://datamine.github.io"]
+# Uses the region's default VPC and one of its default public subnets.
+instance_type = "t3.large"

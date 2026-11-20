@@ -1,0 +1,653 @@
+{
+  "conversations": {
+    "yohji": {
+      "intro": "Clothes should give you room to exist. Bring me one bison hide from Golden Gate Park and I’ll make you a cool black cloak: a very loose long-sleeved top and a skirt down to the ground.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Make me a cloak from my bison hide.",
+          "action": "tailor"
+        },
+        {
+          "label": "Why so much fabric?",
+          "receipt": "Because a person is more interesting than a measurement. And because the wind needs something to do."
+        }
+      ]
+    },
+    "rehabilitation": {
+      "intro": "I can offer complimentary rehabilitation and transport back to San Francisco. Would you like to proceed?",
+      "decline": "No thanks. I’ll stay here.",
+      "choices": [
+        {
+          "label": "Yes. Are there any side effects?",
+          "next": {
+            "intro": "Not at all.",
+            "decline": "I’ve changed my mind.",
+            "choices": [
+              {
+                "label": "All right. Begin rehabilitation.",
+                "action": "begin",
+                "receipt": "Stand still, please. The apparatus is ready."
+              }
+            ]
+          }
+        },
+        {
+          "label": "What does rehabilitation involve?",
+          "receipt": "A brief appointment with our specialist, followed by transport to UCSF. No forms to fill out. We take care of everything.",
+          "repeat": true
+        }
+      ]
+    },
+    "tax": {
+      "intro": "Welcome to the Tax Authority. You may contribute your entire coin purse, or ask how we spend it.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Pay taxes · all coins",
+          "action": "payTaxes"
+        },
+        {
+          "label": "I have some questions.",
+          "next": {
+            "skipIntro": true,
+            "choices": [
+              {
+                "label": "Where is my money going?",
+                "receipt": "We are building California high-speed rail right here in our backyard. You can inspect the excavation behind the headquarters."
+              },
+              {
+                "label": "What goods and services are being provided to me?",
+                "receipt": "California high-speed rail. Our excavation currently provides an excellent view of the future."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "banker": {
+      "intro": "Welcome to Green Bank! Deposits earn 5% compound interest per hour, even while you’re away. Deposited coins stay out of your carried purse. And please, have a coffee on us.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "I’d like to deposit or withdraw coins.",
+          "action": "bank",
+          "receipt": "Of course. Let’s open your account."
+        },
+        {
+          "label": "A free coffee, please.",
+          "action": "coffee"
+        }
+      ]
+    },
+    "parrot": {
+      "intro": "{greeting}",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Any neighborhood advice?",
+          "receipt": "“Coit Tower up the hill, Cotogna down the hill. Shanghai Kelly’s if you have a spare coin. SQUAWK.”"
+        },
+        {
+          "label": "What do you think of the city?",
+          "receipt": "“Plenty of trees. Strange mammals. Excellent acoustics for unsolicited opinions.”"
+        }
+      ]
+    },
+    "founder": {
+      "intro": "Welcome to our startup HQ! One share of startup equity costs {equityPrice} coins. You can sell it to the secondary purchaser by the Venture Exchange.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Buy one share · {equityPrice} coins",
+          "trade": "equity",
+          "receipt": "One share of startup equity is yours. The secondary purchaser by the Venture Exchange may be interested."
+        }
+      ]
+    },
+    "secondary": {
+      "intro": "Startup equity? Fantastic! I’ll pay {secondaryPrice} coins for each share you bring me.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Sell one share · {secondaryPrice} coins",
+          "trade": "secondary",
+          "receipt": "A pleasure doing business! I’ve bought one of your shares."
+        }
+      ]
+    },
+    "grain": {
+      "intro": "The ducks in Golden Gate Park love a little grain. One bag costs {grainPrice} coin.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Buy duck grain · {grainPrice} coin",
+          "trade": "grain",
+          "receipt": "One bag of grain. Take it to the pond and choose Feed ducks."
+        }
+      ]
+    },
+    "chef": {
+      "intro": "Fresh fish! Bring me a live one from Fisherman’s Wharf and I’ll pay {fishPrice} coins. One fish at a time, please; this is a kitchen, not an aquarium.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Sell my live fish · {fishPrice} coins",
+          "trade": "fish-sale",
+          "receipt": "Beautiful catch. Bring me another whenever you like!"
+        }
+      ]
+    },
+    "gpu-buyer": {
+      "intro": "We turn sand into GPUs. There are a few steps in the middle, but procurement asked me to keep this simple. Bring sand from Ocean Beach and I’ll pay {sandPrice} coins per sack.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Sell one sack of sand · {sandPrice} coins",
+          "trade": "sand-sale",
+          "receipt": "Excellent. The next training run is practically in the bag."
+        }
+      ]
+    },
+    "passenger": {
+      "intro": "May I climb aboard? I’ll pay you {passengerPrice} coins when I reach the basket.",
+      "choices": [
+        {
+          "label": "Come aboard.",
+          "action": "board"
+        }
+      ]
+    },
+    "rocket": {
+      "intro": "Our reusable rocket flies {destination} for {rocketPrice} coin. Enjoy the view from the capsule!",
+      "choices": [
+        {
+          "label": "Launch · {rocketPrice} coin",
+          "action": "launch",
+          "receipt": "Ready to launch. Press OK to board."
+        }
+      ],
+      "decline": "I’ll stay here."
+    },
+    "ski-lift": {
+      "intro": "Welcome to the summit. Skis cost {skiPrice} coin to rent. The groomed trail has four ramps; the gondola runs both ways.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Rent skis · {skiPrice} coin",
+          "action": "rentSkis"
+        },
+        {
+          "label": "Any advice for the descent?",
+          "receipt": "Click to steer, stay on the snow, and press Space to flip while airborne. If you’d rather keep your feet off the ground, the gondola will take you back down."
+        }
+      ]
+    },
+    "wizard": {
+      "intro": "A little stone, a little purple lightning, and you can skip an extraordinary amount of walking. Tablets cost {tabletPrice} coins apiece. Buy one here, then use it from your travel controls.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Buy downtown tablet · {tabletPrice} coins",
+          "action": "buyTablet",
+          "args": ["downtown"]
+        },
+        {
+          "label": "Buy Tahoe tablet · {tabletPrice} coins",
+          "action": "buyTablet",
+          "args": ["tahoe"]
+        }
+      ]
+    },
+    "bartender": {
+      "intro": "Welcome to Shanghai Kelly’s. One coin a beer. The floor is quite level; any disagreement is between you and the floor.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "One beer, please · 1 coin",
+          "action": "beer"
+        }
+      ]
+    },
+    "hiking-supplies": {
+      "intro": "A hiking backpack costs 100 coins and holds twenty sandwiches. Your regular bag holds five.",
+      "choices": [
+        {
+          "label": "Buy a hiking backpack · 100 coins",
+          "action": "buy"
+        }
+      ]
+    },
+    "neighborhood-mazarine": {
+      "intro": "Welcome to Mazarine. The coffee is busy, and the floor could use a sweep.",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "sweep",
+          "label": "May I sweep the floors?",
+          "action": "service",
+          "args": ["sweep"],
+          "receipt": "Of course. Thank you for helping with the floor."
+        }
+      ]
+    },
+    "deli": {
+      "intro": "Welcome to Lucinda’s Deli. A sandwich costs {sandwichPrice} coins here, or {deliveryPrice} delivered by our tiny DoorDash cooler. Each restores up to {healing} hitpoints.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Buy a sandwich · {sandwichPrice} coins",
+          "action": "pickup"
+        },
+        {
+          "label": "Order delivery · {deliveryPrice} coins",
+          "action": "delivery"
+        }
+      ]
+    },
+    "burger": {
+      "intro": "Welcome to In-N-Out! A sandwich is {burgerPrice} coins and restores up to {healing} hitpoints. Emergency lunch at a very reasonable price.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Buy a sandwich · {burgerPrice} coins",
+          "action": "pickup"
+        }
+      ]
+    },
+    "motorcycle-rental": {
+      "intro": "Five coins rents the motorcycle beside the monkey habitat. Arrange your rental before starting any suspicious primate-related errands.",
+      "choices": [
+        {
+          "label": "Rent the motorcycle · 5 coins",
+          "action": "rent"
+        }
+      ]
+    },
+    "motorcycle-rented": {
+      "intro": "Your motorcycle rental is still valid.",
+      "choices": [
+        {
+          "label": "Where is my motorcycle?",
+          "receipt": "Press M to find your parked motorcycle or get on it. Your rental remains valid."
+        }
+      ]
+    },
+    "ai-recruiter": {
+      "intro": "Our interview is two minutes of mental arithmetic. Score at least 40 to get the job. Once hired, you earn one coin every two seconds while inside the lab.",
+      "choices": [
+        {
+          "label": "I’d like to take the interview.",
+          "action": "interview",
+          "receipt": "The interview screen is ready. Press Start when you’re ready for two minutes of arithmetic."
+        }
+      ]
+    },
+    "ai-employee": {
+      "intro": "Welcome back. The GPU racks are humming, and payroll runs every two seconds while you’re inside the lab.",
+      "choices": [
+        {
+          "label": "I’m ready to work.",
+          "action": "work",
+          "receipt": "Come inside to start earning. You can leave whenever you like."
+        }
+      ]
+    },
+    "square-coffee": {
+      "intro": "Welcome to Square Coffee. The espresso is local. The skyline is undergoing a somewhat dramatic identity crisis.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "A coffee, please · 1 coin",
+          "action": "coffee",
+          "receipt": "Here’s your coffee. Enjoy it while the excavator takes a dignified pause."
+        },
+        {
+          "label": "How is the neighborhood?",
+          "receipt": "The book cart has good company, June plays every afternoon, and Vic has learned to idle the digger during the quiet songs. It’s becoming a place."
+        }
+      ]
+    },
+    "square-busker": {
+      "intro": "Afternoon! I’m June. Every street sounds a little better with a bass line.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Here’s a tip · 1 coin",
+          "action": "tip",
+          "receipt": "Thanks! This next flourish is for you."
+        },
+        {
+          "label": "What’s this song?",
+          "receipt": "“I Left My Heart in a Pending Environmental Review.” The chorus is surprisingly catchy."
+        }
+      ]
+    },
+    "software-vendor": {
+      "intro": "I sell sales software. Buy a copy for {softwarePrice} coins, then pitch it to another salesman for {softwareResalePrice}. They take ten seconds to decide. Confidence improves with inebriation.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Buy sales software · {softwarePrice} coins",
+          "trade": "sales-software-buy",
+          "receipt": "One copy of sales software. Find another conference salesman and pitch it to them."
+        }
+      ]
+    },
+    "software-buyer": {
+      "intro": "Can your software help me sell software that helps people sell software? I’ll need ten seconds to consider it. Your current chance of a sale is {chance}%.",
+      "choices": [
+        {
+          "label": "Pitch a copy · {softwareResalePrice} coins if accepted",
+          "action": "pitch"
+        }
+      ]
+    },
+    "software-thinking": {
+      "intro": "I’m still considering your previous pitch. Please give me a moment.",
+      "choices": [
+        {
+          "label": "What are you considering?",
+          "receipt": "Whether your software will help me sell software. My software calls this a touchpoint."
+        }
+      ]
+    },
+    "haberdasher": {
+      "intro": "Welcome. A good hat opens doors. A truly magnificent hat makes people forget to ask why. Choose a hat below; purchases are fitted immediately. You can change into any owned hat from the Character menu."
+    },
+    "phone-shop": {
+      "intro": "Hello, I’m Tim Apple. An equipped iPhone increases earned coins by 25%, but doomscrolling costs 5 hitpoints every two minutes. Death or arrest loses the phone.",
+      "choices": [
+        {
+          "label": "Buy an iPhone · {phonePrice} coins",
+          "action": "buy"
+        }
+      ]
+    },
+    "phone-owned": {
+      "intro": "Your iPhone is {phoneStatus}. Equip it for the income bonus and doomscrolling; put it away to pause both.",
+      "choices": [
+        {
+          "label": "{phoneToggle} iPhone",
+          "action": "toggle",
+          "receipt": "Your iPhone is now {phoneNewStatus}."
+        }
+      ]
+    },
+    "robotaxi-shop": {
+      "intro": "One hundred coins buys a robotaxi. It earns 20 coins every minute while you explore, or 25 with an equipped iPhone. No offline income, fuel cans, or driving required.",
+      "choices": [
+        {
+          "label": "Buy a robotaxi · {robotaxiPrice} coins",
+          "action": "buy"
+        }
+      ]
+    },
+    "robotaxi-owned": {
+      "intro": "Your robotaxi is already out finding fares. We have monetized the part where you’re doing something else.",
+      "choices": [
+        {
+          "label": "How is the robotaxi doing?",
+          "action": "status"
+        }
+      ]
+    },
+    "fuel-paid": {
+      "intro": "Fuel costs every coin you carry. If your Ferrari is stranded, take a full fuel can back to it. The can costs the same as a refill.",
+      "choices": [
+        {
+          "id": "refuel",
+          "label": "Refuel · {fuelPrice}",
+          "action": "refuel"
+        },
+        {
+          "label": "Fuel can · {fuelPrice}",
+          "action": "fuelCan"
+        }
+      ]
+    },
+    "fuel-free": {
+      "intro": "Complimentary fuel, including portable cans. Take a can along if your Ferrari is stranded.",
+      "choices": [
+        {
+          "id": "refuel",
+          "label": "Refuel · {fuelPrice}",
+          "action": "refuel"
+        },
+        {
+          "label": "Fuel can · {fuelPrice}",
+          "action": "fuelCan"
+        }
+      ]
+    },
+    "growth-capital": {
+      "intro": "We sell growth equity in {growthBatches} coin batches. Take it to the Times Square stockbroker to list it. There’s a 5% listing fee and a three-minute trading window. You can lose money as well as make it. Founders at Strength Level 10 can also claim 1,000 coins of funding.",
+      "repeat": true
+    },
+    "growth-exchange": {
+      "intro": "Listing your private growth equity costs 5% of its purchase value. Prices change every second for three minutes. Watch the quote beside your purse and sell here whenever you like; remaining shares sell automatically at the end.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Take my growth equity public · 5% fee",
+          "action": "list"
+        },
+        {
+          "label": "Sell my listed shares at the current quote",
+          "action": "sell"
+        }
+      ]
+    },
+    "illuminati-member": {
+      "intro": "Welcome back, initiate. Your aircraft is waiting in the underground hangar.",
+      "choices": [
+        {
+          "label": "Where is the hangar?",
+          "receipt": "Take the stairway inside the lodge. Your personal B-2 is waiting below. Your initiation donation has already been paid."
+        }
+      ]
+    },
+    "airship": {
+      "intro": "The next hourly reset is in {countdown}. Everyone aboard returns safely to the terminal, and the rental price starts again at {initialPrice} coins. Each rental or takeover costs {increment} coins more than the last. {lastPayment}Your quoted price is {price} coins. {availability} A paid takeover can always be outbid by the next higher payment.",
+      "repeat": false,
+      "choices": [
+        {
+          "id": "board",
+          "label": "{boardLabel}",
+          "action": "board"
+        },
+        {
+          "id": "recall",
+          "label": "Outbid and recall · {price} coins",
+          "action": "recall"
+        },
+        {
+          "id": "reset",
+          "label": "How long until the next reset?",
+          "action": "reset"
+        }
+      ]
+    },
+    "market-farmer": {
+      "intro": "{marketLine} {countdown}",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "When is the next peptide spawn?",
+          "action": "countdown"
+        },
+        {
+          "label": "What are you growing?",
+          "receipt": "Heirloom tomatoes, Swiss chard, and a shared vial of peptides every ten minutes. The vial is visible to everyone; whoever takes it first gets it. Ray accepts one vial per guild promotion."
+        }
+      ]
+    },
+    "neighborhood-dog-pony": {
+      "intro": "I run the dog and pony show. One coin buys the entire programme. Both artists have agreed to a backflip.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "What is a dog and pony show?",
+          "receipt": "One dog. One pony. An astonishing quantity of administration. The performance itself is refreshingly literal."
+        },
+        {
+          "id": "watch",
+          "label": "Pay 1 coin and watch the show",
+          "action": "service",
+          "args": ["watch"],
+          "receipt": "Places, everyone! One dog, one pony, two backflips. Thank you for supporting the performing arts."
+        }
+      ]
+    },
+    "neighborhood-tea": {
+      "intro": "The kettle is on. Would you like jasmine or mint?",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "jasmine",
+          "label": "Jasmine tea · 1 coin",
+          "action": "service",
+          "args": ["jasmine"],
+          "receipt": "You sip jasmine tea. Five hitpoints restored, and the afternoon comes a little more into focus."
+        },
+        {
+          "id": "mint",
+          "label": "Mint tea · 1 coin",
+          "action": "service",
+          "args": ["mint"],
+          "receipt": "Fresh mint, a warm cup, and a quiet moment. You recover five hitpoints and sober up a little."
+        }
+      ]
+    },
+    "neighborhood-books": {
+      "intro": "Pick something to read. The best books fit an afternoon.",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "garden",
+          "label": "Read A Small Theory of Gardens",
+          "action": "service",
+          "args": ["garden"],
+          "receipt": "“A garden is a very slow conversation with the weather. Most of the work is listening.” You turn the page; somebody has pressed a tiny fern between the leaves."
+        },
+        {
+          "id": "mind",
+          "label": "Read The Consciousness of Teapots",
+          "action": "service",
+          "args": ["mind"],
+          "receipt": "“The teapot declined to establish whether it was conscious. It did, however, make excellent tea.” The bibliography is longer than the book."
+        },
+        {
+          "id": "coast",
+          "label": "Read Walking the Peninsula",
+          "action": "service",
+          "args": ["coast"],
+          "receipt": "The margin contains a hand-drawn route past the lake, the cow pasture, and a bench overlooking the water. “Take the longer path,” somebody has written."
+        }
+      ]
+    },
+    "neighborhood-flowers": {
+      "intro": "Hydrangeas for foggy mornings, lavender for absolutely everything else.",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "bouquet",
+          "label": "Arrange a bouquet · 2 coins",
+          "action": "service",
+          "args": ["bouquet"],
+          "receipt": "You choose blue hydrangeas, lavender, and a sprig of rosemary. The florist wraps your bouquet in brown paper."
+        },
+        {
+          "id": "water",
+          "label": "Help water the flowers · Earn 1 coin",
+          "action": "service",
+          "args": ["water"],
+          "receipt": "You water the pots while the florist checks the soil. “A little at the roots. They are flowers, not submarines.”"
+        },
+        {
+          "id": "advice",
+          "label": "Ask about the hydrangeas",
+          "action": "service",
+          "args": ["advice"],
+          "receipt": "“Morning light, plenty of mulch, and patience. The blue comes from the soil. The pride comes from the neighbors.”"
+        }
+      ]
+    },
+    "neighborhood-bakery": {
+      "intro": "The bread is warm. I can make you a sandwich for the walk.",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "sandwich",
+          "label": "Buy a sandwich · 2 coins",
+          "action": "service",
+          "args": ["sandwich"],
+          "receipt": "A warm sandwich, wrapped for the road. It will restore fifteen hitpoints when you eat it."
+        }
+      ]
+    },
+    "neighborhood-pottery": {
+      "intro": "Would you like to try the wheel?",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "wheel",
+          "label": "Help throw a little bowl · Earn 1 coin",
+          "action": "service",
+          "args": ["wheel"],
+          "receipt": "You coax the clay into something almost circular. The potter calls its wobble “a useful record of the human hand.”"
+        },
+        {
+          "id": "glaze",
+          "label": "Ask about the sea-green glaze",
+          "action": "service",
+          "args": ["glaze"],
+          "receipt": "“Copper, a hot kiln, and several very educational disasters. The recipe is pinned beside the kettle.”"
+        }
+      ]
+    },
+    "neighborhood-workshop": {
+      "intro": "We mend things here. Sometimes the right tool is a conversation.",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "repair",
+          "label": "Help restore a garden chair · Earn 1 coin",
+          "action": "service",
+          "args": ["repair"],
+          "receipt": "You sand an old cedar chair and tighten its joints. It is ready for another decade of afternoons."
+        }
+      ]
+    },
+    "neighborhood-market": {
+      "intro": "Take your time. There is no express lane for a pleasant afternoon.",
+      "repeat": true,
+      "choices": [
+        {
+          "id": "taste",
+          "label": "Try a slice of the local citrus",
+          "action": "service",
+          "args": ["taste"],
+          "receipt": "You try a slice of mandarin. It tastes like the optimistic part of winter."
+        }
+      ]
+    }
+  },
+  "parrot_greetings": [
+    "“Squawk! Exceptional views. Unconscionable seed prices.”",
+    "“I have reviewed your pitch. Needs more sunflower seeds.”",
+    "“Telegraph Hill! Telegraph Hill! We were here before your app!”"
+  ],
+  "text": {
+    "airship-active": "The airship is currently out{pilot}. You can outbid its renter and recall it.",
+    "airship-prepaid": "You have already paid. Board within one minute at no extra cost, unless another player outbids you.",
+    "airship-reserved": "The ship is waiting for {reservedName}. You can outbid that reservation too.",
+    "airship-moored": "The airship is at the mooring.",
+    "airship-last-payment": "The last renter paid {lastPrice} coins. ",
+    "airship-reset": "The next airship reset is in {countdown}. The timetable continues even when the server restarts.",
+    "airship-board": "Walk to the basket to rent the airship for {price} coins. If someone outbids this quote first, ask for a new quote.",
+    "airship-board-prepaid": "Your flight basket is waiting. You have already paid.",
+    "growth-funding": "Claim founder funding · Strength Level 10",
+    "growth-buy": "Buy growth equity · {amount} coins"
+  }
+}

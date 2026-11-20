@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Goose Corp — a goose in pursuit</title>
+  <rect width="600" height="400" fill="#f3b92d"/>
+  <!-- The advertisement offers no explanation. -->
+  <path d="M0 310 600 270v130H0" fill="#e8a51e"/>
+  <text x="30" y="82" fill="#192f32" font-family="Arial,sans-serif" font-weight="900" font-size="69" letter-spacing="-3">GOOSE CORP</text>
+  <!-- The pursued executive: a flying tie, briefcase, and regrettable shoes. -->
+  <ellipse cx="472" cy="350" rx="68" ry="12" fill="#d59018"/>
+  <g stroke="#20373a" stroke-width="15" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="m463 220-25 50 48 24 25 45m-62-68-38 51-39-5m82-80 42-22 20 25m-68-10-33-25-24 14"/>
+  </g>
+  <path d="m451 208 29 13-24 59-35-16" fill="#20373a"/>
+  <circle cx="479" cy="189" r="20" fill="#20373a"/>
+  <path d="m464 226-35-12-17 7 37 18" fill="#ed6940"/>
+  <rect x="503" y="252" width="55" height="36" rx="4" fill="#20373a" transform="rotate(18 530 270)"/>
+  <path d="m522 253 4-13 16 5-4 13" fill="none" stroke="#20373a" stroke-width="5"/>
+  <!-- A domestic goose, displaying distinctly executive ambition. -->
+  <ellipse cx="231" cy="349" rx="116" ry="15" fill="#d59018"/>
+  <path d="m183 300-16 33-39 7 39 10 21-13 9-31m66-5 25 18 36-4-15 18-34-1-30-20" fill="#ef692b"/>
+  <path d="m108 239-33-40 63 22c36-31 99-38 135-8 19-10 16-31 23-62 6-27 21-40 43-38 19 2 26 12 25 23-2 18-17 23-24 37-12 21-8 75-24 102-20 35-71 48-117 33-41-3-78-28-91-69Z" fill="#fff9df" stroke="#20373a" stroke-width="5" stroke-linejoin="round"/>
+  <path d="m347 143 56 14-52 13Z" fill="#ef692b" stroke="#20373a" stroke-width="4"/>
+  <path d="m158 239 65-27 48 25-60 38Z" fill="#e2ddc8"/>
+  <path d="m169 245 42 12 26-7m-61 8 31 12" fill="none" stroke="#b3b3a3" stroke-width="4"/>
+  <path d="m327 131 16 4" stroke="#20373a" stroke-width="4"/><circle cx="337" cy="140" r="3" fill="#20373a"/>
+  <path d="M38 258h49m-65 25h72m-46 27h51" stroke="#20373a" stroke-width="5" stroke-linecap="round"/>
+
+</svg>

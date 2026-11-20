@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y docker.io docker-compose-v2 awscli python3 cron
+systemctl enable --now docker cron
+snap start amazon-ssm-agent
+install -d -m 700 /etc/loeberland /var/lib/loeberland/backups
+install -d /opt/loeberland/releases
+printf '%s' '${compose_env}' | base64 --decode > /etc/loeberland/compose.env
+cat > /etc/loeberland/backup.env <<'ENV'
+export COMPOSE_ENV_FILE=/etc/loeberland/compose.env
+export S3_BACKUP_URI=s3://${bucket}/backups
+export AWS_DEFAULT_REGION=${region}
+ENV
+chmod 600 /etc/loeberland/*.env
+
+cat > /usr/local/sbin/loeberland-deploy <<'DEPLOY'
+#!/usr/bin/env bash
+set -euo pipefail
+exec 8>/var/lock/loeberland-deploy.lock
+flock -n 8 || { echo 'A deployment is already running.'; exit 1; }
+release=$(mktemp -d /opt/loeberland/releases/release-XXXXXXXX)
+aws s3 cp s3://${bucket}/releases/game.tar.gz "$release/game.tar.gz" --region '${region}' --only-show-errors
+tar -xzf "$release/game.tar.gz" -C "$release"
+compose=(docker compose --env-file /etc/loeberland/compose.env -f "$release/sf/server/compose.yaml" --profile production)
+# Build first so the old game continues serving during dependency installation.
+"$${compose[@]}" build game
+"$${compose[@]}" up -d --wait --wait-timeout 300 redis game
+"$${compose[@]}" up -d proxy
+ln -sfn "$release" /opt/loeberland/current
+install -m 644 "$release/sf/server/deploy/loeberland-backup.cron" /etc/cron.d/loeberland-backup
+cat > /etc/logrotate.d/loeberland-backup <<'ROTATE'
+/var/log/loeberland-backup.log {
+    weekly
+    rotate 4
+    compress
+    missingok
+    notifempty
+}
+ROTATE
+echo 'Deployment complete. Check /healthz and point DNS at the Elastic IP.'
+DEPLOY
+chmod 755 /usr/local/sbin/loeberland-deploy
+/usr/local/sbin/loeberland-deploy

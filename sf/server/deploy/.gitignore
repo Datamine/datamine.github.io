@@ -1,0 +1,7 @@
+game.tar.gz
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+crash.log

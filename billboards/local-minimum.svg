@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Local Minimum AI — let your loss go down</title>
+  <rect width="600" height="400" fill="#b9dcd0"/>
+  <circle cx="474" cy="99" r="58" fill="#ed9b70"/>
+  <path d="M0 253 68 132l92 125 100-144 91 120 93-64 156 116v115H0Z" fill="#508e85"/>
+  <path d="M0 281q116 80 250-20t350 24v115H0Z" fill="#e4c995"/>
+  <path d="M330 139q70 125 120 97t88-88" fill="none" stroke="#f4edcf" stroke-width="4" stroke-dasharray="8 8"/>
+  <path d="m529 157 9-9 4 14" fill="none" stroke="#f4edcf" stroke-width="4"/>
+  <g fill="#1c504b" font-family="Georgia,serif"><text x="28" y="71" font-size="59">Local Minimum</text><text x="32" y="111" font-size="24" letter-spacing="6">ARTIFICIAL INTELLIGENCE</text><text x="29" y="343" font-size="37">Let your loss go down.</text></g>
+  <text x="32" y="381" fill="#42675c" font-family="Arial,sans-serif" font-size="18">A little gradient descent by the sea.</text>
+
+</svg>

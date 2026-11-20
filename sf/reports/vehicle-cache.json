@@ -1,0 +1,57 @@
+{
+  "note": "Warm CPU geometry construction, not total rendering FPS.",
+  "vehicles": [
+    {
+      "name": "airship",
+      "cpu": {
+        "msPerFrame": 1.5041,
+        "dynamicVertices": 15168,
+        "cachedDraws": 0
+      },
+      "gpu": {
+        "msPerFrame": 0.0551,
+        "dynamicVertices": 219,
+        "cachedDraws": 1
+      }
+    },
+    {
+      "name": "ferrari",
+      "cpu": {
+        "msPerFrame": 0.7002,
+        "dynamicVertices": 9378,
+        "cachedDraws": 0
+      },
+      "gpu": {
+        "msPerFrame": 0.0679,
+        "dynamicVertices": 615,
+        "cachedDraws": 5
+      }
+    },
+    {
+      "name": "streetcar",
+      "cpu": {
+        "msPerFrame": 0.2317,
+        "dynamicVertices": 3708,
+        "cachedDraws": 0
+      },
+      "gpu": {
+        "msPerFrame": 0.0016,
+        "dynamicVertices": 3,
+        "cachedDraws": 1
+      }
+    },
+    {
+      "name": "rocket",
+      "cpu": {
+        "msPerFrame": 0.3645,
+        "dynamicVertices": 3522,
+        "cachedDraws": 0
+      },
+      "gpu": {
+        "msPerFrame": 0.0017,
+        "dynamicVertices": 3,
+        "cachedDraws": 1
+      }
+    }
+  ]
+}

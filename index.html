@@ -331,7 +331,7 @@
     <div id="sf-status" class="sf-sr-only" role="status" aria-live="polite"></div>
 
     <div class="sf-bottom-bar">
-        <div class="sf-journal"><div id="sf-log" role="log" aria-label="Adventure log"><div><time>Guide</time> Welcome to San Francisco. Make yourself at home.</div><div><time>Tip</time> Visit a storefront to discover what's inside.</div></div><div id="sf-dialogue" class="sf-dialogue" role="group" aria-label="Conversation" hidden></div></div>
+        <div class="sf-journal"><div id="sf-log" role="log" aria-label="Adventure log"><div><time>Guide</time> Welcome to San Francisco. Make yourself at home.</div></div><div id="sf-dialogue" class="sf-dialogue" role="group" aria-label="Conversation" hidden></div></div>
         <div class="sf-actions" role="group" aria-label="Exploration controls" data-mode="ground">
             <div class="sf-purse" aria-live="polite"><span>◉ <strong id="sf-coins">25</strong> coins</span><span id="sf-inebriation" hidden></span><span id="sf-inventory">0 equity · 0 grain</span>
             <span id="sf-sales-status" hidden></span><span id="sf-employment" hidden></span><span id="sf-phone-status" hidden></span><span id="sf-robotaxi-status" hidden></span><span id="sf-quest-inventory" class="sf-quest-inventory" hidden></span></div>
@@ -339,7 +339,7 @@
             <div class="sf-hitpoints"><label><span id="sf-hitpoints-text">Hitpoints 30/30</span><meter id="sf-hitpoints-meter" min="0" max="30" low="9" high="20" optimum="30" value="30" aria-label="Hitpoints"></meter></label><span id="sf-enemy-health" hidden></span></div>
             <div class="sf-food-controls"><button id="sf-order-doordash" class="sf-bike-button" type="button">DoorDash · 4 coins</button><button id="sf-eat-sandwich" class="sf-bike-button" type="button" hidden>Eat sandwich</button></div>
             <button id="sf-drink-coffee" class="sf-bike-button" type="button" hidden>Drink complimentary coffee</button>
-            <div class="sf-strength"><span id="sf-strength-text">Strength Level 1 · 0% to 2</span><progress id="sf-strength-progress" max="100" value="0" aria-label="Progress toward strength level 2"></progress>
+            <div class="sf-strength"><span id="sf-hp-level">Hitpoints Level 1 · 0% to 2</span><span id="sf-strength-text">Strength Level 1 · 0% to 2</span><progress id="sf-strength-progress" max="100" value="0" aria-label="Progress toward strength level 2"></progress>
             </div>
             <div id="sf-fuel-card" class="sf-fuel-card" hidden>
                 <label>Ferrari <span id="sf-fuel-text">100% gas</span><meter id="sf-fuel-meter" min="0" max="1" low=".15" high=".55" optimum="1" value="1">Full</meter></label>
@@ -350,7 +350,7 @@
                 <button id="sf-recenter" aria-label="Reset camera angle and zoom">⌖</button>
             </div>
             <div class="sf-travel-controls">
-                <div id="sf-bomber-controls" class="sf-bomber-controls" role="group" aria-label="B-2 controls" hidden><span id="sf-bomber-flight">Personal B-2 · Hold Shift to boost</span><button id="sf-bomber-bomb" class="sf-bike-button" type="button">Drop bomb · Space</button><button id="sf-bomber-land" class="sf-bike-button" type="button">Land · Parachute out</button></div>
+                <div id="sf-bomber-controls" class="sf-bomber-controls" role="group" aria-label="B-2 controls" hidden><span id="sf-bomber-flight">Personal B-2 · Hold Shift to boost</span><button id="sf-bomber-roll" class="sf-bike-button" type="button">Barrel roll · R</button><button id="sf-bomber-bomb" class="sf-bike-button" type="button">Drop bomb · Space</button><button id="sf-bomber-land" class="sf-bike-button" type="button">Land · Parachute out</button></div>
                 <button id="sf-climb-button" class="sf-bike-button" type="button" hidden>Climb down <span class="sf-key">E</span></button>
                 <button id="sf-surf-button" class="sf-bike-button" type="button" aria-pressed="false">Windsurf <span class="sf-key">F</span></button>
                 <button id="sf-pacifica-surf-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="U">Surf · U</button>
@@ -359,9 +359,9 @@
                 <button id="sf-tablet-tahoe" class="sf-bike-button" type="button" hidden>Break Tahoe tablet</button>
                 <button id="sf-grapple-button" class="sf-bike-button" type="button" hidden>Grapple airship</button>
                 <div id="sf-wave-controls" class="sf-wave-controls" role="group" aria-label="Pacifica surfing" hidden>
-                    <span id="sf-wave-status" aria-live="polite">Paddling · 0 points</span>
+                    <span id="sf-wave-status" aria-live="polite">Paddling</span>
                     <button id="sf-wave-catch" class="sf-bike-button" type="button" aria-keyshortcuts="Space">Catch wave · Space</button>
-                    <button class="sf-bike-button" type="button" data-surf-trick="air-360" aria-keyshortcuts="1">Air 360 · 1</button>
+                    <button class="sf-bike-button" type="button" data-surf-trick="air-360" aria-keyshortcuts="1 Space">Air 360 · 1 / Space</button>
                     <button class="sf-bike-button" type="button" data-surf-trick="kickflip" aria-keyshortcuts="2">Kickflip · 2</button>
                     <button class="sf-bike-button" type="button" data-surf-trick="backflip" aria-keyshortcuts="3">Backflip · 3</button>
                 </div>
@@ -382,18 +382,26 @@
                     <button class="sf-bike-button" type="button" data-say="no" aria-label="Say no">no</button>
                 </div>
                 <button id="sf-roll-button" class="sf-bike-button" type="button" aria-keyshortcuts="V" title="Forward roll (V)">Forward roll <span class="sf-key">V</span></button>
+                <button id="sf-rocket-hop" class="sf-bike-button" type="button" aria-keyshortcuts="Space" title="Jump with your burning back rocket (Space)" hidden>Rocket hop <span class="sf-key">Space</span></button>
                 <button id="sf-dance-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="D">Dance <span class="sf-key">D</span></button>
+                <button id="sf-sit-button" class="sf-bike-button" type="button" aria-pressed="false" aria-keyshortcuts="X" title="Sit down and sober up twice as fast (X)">Sit <span class="sf-key">X</span></button>
                 <button id="sf-ferrari-button" class="sf-bike-button" type="button" aria-keyshortcuts="R">Ferrari · R</button>
                 <button id="sf-gym-button" class="sf-bike-button" type="button">SF Fitness</button>
+                <button id="sf-collection-button" class="sf-bike-button" type="button" aria-haspopup="dialog" aria-controls="sf-collection">Collection log</button>
                 <button id="sf-quests-button" class="sf-bike-button" type="button" aria-haspopup="dialog" aria-controls="sf-quests" aria-keyshortcuts="Q">Quests <span class="sf-key">Q</span></button>
                 <button id="sf-character-button" class="sf-bike-button" type="button" aria-haspopup="dialog" aria-controls="sf-character">Character <span class="sf-key">C</span></button>
-                <button id="sf-multiplayer-button" class="sf-bike-button sf-multiplayer-button" type="button"><span id="sf-multiplayer-status">Single player · Connect</span></button>
+                <div id="sf-growth-ticker" class="sf-growth-ticker" aria-live="polite" hidden></div>
+                <button id="sf-duel-button" class="sf-bike-button" type="button">Duel Arena</button>
                 <button id="sf-help-button" class="sf-bike-button" type="button" aria-label="Help: controls and icon legend">Help</button>
             </div>
         </div>
     </div>
     <section id="sf-reader" class="sf-reader" role="region" aria-labelledby="sf-reader-title" hidden><div class="sf-reader-top"><span id="sf-reader-category" class="sf-eyebrow"></span><button id="sf-close-reader" aria-label="Close place">×</button></div><h2 id="sf-reader-title"></h2><p id="sf-reader-description" class="sf-reader-description"></p><div id="sf-reader-content"></div><div class="sf-reader-footer">From johnloeber.com <span>↗ Links open in a new tab</span></div></section>
     <div id="sf-reader-shade" class="sf-reader-shade" hidden></div>
+    <section id="sf-collection" class="sf-help sf-collection" role="dialog" aria-modal="true" aria-labelledby="sf-collection-title" hidden>
+        <button id="sf-close-collection" class="sf-character-close" type="button" aria-label="Close collection log">×</button>
+        <h2 id="sf-collection-title">Collection log</h2><p id="sf-collection-summary"></p><ul id="sf-collection-list"></ul>
+    </section>
     <section id="sf-quests" class="sf-help sf-quests" role="dialog" aria-modal="true" aria-labelledby="sf-quests-title" hidden>
         <button id="sf-close-quests" class="sf-character-close" type="button" aria-label="Close quests">×</button>
         <span class="sf-eyebrow">YOUR ADVENTURES</span><h2 id="sf-quests-title">Quest Menu</h2>
@@ -422,6 +430,13 @@
         <button data-bank-coffee type="button" class="sf-primary">A coffee, on the house</button>
         <p class="sf-help-note">Banked coins stay in your account. Withdrawals transfer whole coins; fractional interest keeps accruing.</p>
     </section>
+    <section id="sf-duel" class="sf-help sf-duel" role="dialog" aria-modal="true" aria-labelledby="sf-duel-title" hidden>
+        <button id="sf-close-duel" class="sf-character-close" type="button" aria-label="Close duel arena">×</button>
+        <h2 id="sf-duel-title">Duel Arena</h2><p id="sf-duel-status" role="status"></p>
+        <form id="sf-duel-form"><label>Opponent <select id="sf-duel-opponent"></select></label><label>Coins each <input id="sf-duel-stake" type="number" min="1" max="1000000000" step="1" value="100"></label><button class="sf-primary" type="submit">Offer equal stakes</button></form>
+        <button id="sf-duel-accept" class="sf-primary" type="button" hidden>Accept</button><button id="sf-duel-decline" type="button" hidden>Decline / cancel offer</button>
+        <p class="sf-help-note">Both players agree to the same stake. A fair coin flip awards both stakes to one player. Leaving before acceptance cancels the offer without transferring coins.</p>
+    </section>
     <section id="sf-character" class="sf-help sf-character" role="dialog" aria-modal="true" aria-labelledby="sf-character-title" hidden>
         <button id="sf-close-character" class="sf-character-close" type="button" aria-label="Close character settings">×</button>
         <h2 id="sf-character-title">Your character</h2>
@@ -429,34 +444,33 @@
         <p id="sf-bank-character" class="sf-guild-status">Green Bank · 0.00 coins deposited</p>
         <div class="sf-pvp-option"><label><input id="sf-pvp-enabled" type="checkbox" aria-describedby="sf-pvp-status"> Enable PvP</label><small id="sf-pvp-status" role="status">Both players must opt in. Wait 30 seconds before disabling PvP.</small><p>Player kills drop all your coins, sandwiches, iPhone and owned hats.</p></div>
         <form id="sf-username-form" class="sf-username-form" autocomplete="off">
-            <label for="sf-username">Username</label><div><input id="sf-username" type="text" maxlength="12" pattern="[A-Za-z0-9_]{1,12}" aria-describedby="sf-username-status" autocapitalize="off" spellcheck="false"><button id="sf-save-username" type="submit">Save name</button></div>
-            <small id="sf-username-status" role="status">Connect to the common world to reserve a username.</small>
+            <label for="sf-username">Username</label><div><input id="sf-username" data-username-input type="text" maxlength="12" pattern="[A-Za-z0-9_]{1,12}" aria-describedby="sf-username-status" autocapitalize="off" spellcheck="false"><button id="sf-save-username" data-username-save type="submit">Save name</button></div>
+            <small id="sf-username-status" data-username-status role="status">Connect to the common world to reserve a username.</small>
         </form>
         <div class="sf-character-body"><canvas id="sf-character-preview" width="240" height="240" aria-label="Preview of your character"></canvas>
         <div class="sf-character-fields">
             <label>Gender <select data-character="gender"><option value="man">Man</option><option value="woman">Woman</option></select></label>
             <label>Skin <input data-character="skin" type="color" value="#bd9369"></label>
             <label>Hair <input data-character="hair" type="color" value="#453a30"></label>
+            <label>Hairstyle <select data-character="hairstyle"><option value="short">Short</option><option value="crop">Close crop</option><option value="side-part">Side part</option><option value="short-curls">Curls</option></select></label>
             <label>Shirt <input data-character="shirt" type="color" value="#707b4b"></label>
             <label>Trousers <input data-character="pants" type="color" value="#626955"></label>
             <label>Shoes <input data-character="shoes" type="color" value="#3c3d36"></label>
             <label class="sf-hat-option">Hat <select data-character="hat" aria-describedby="sf-hat-hint"><option value="none">No hat</option></select></label>
-            <label class="sf-hat-option">Weapon <select data-character="weapon"><option value="auto">Automatic</option><option value="unarmed">Unarmed</option><option value="bayonet">Bayonet</option><option value="battleaxe">Battleaxe</option><option value="railgun">Railgun</option></select></label>
-            <label class="sf-sunglasses-option"><input data-character="iceTop" type="checkbox"> Equip ice top</label>
-            <label class="sf-sunglasses-option"><input data-character="icePants" type="checkbox"> Equip ice pants</label>
-            <small id="sf-equipment-hint" class="sf-sunglasses-hint">Hunt the giants at the foot of Tahoe for crystalline equipment.</small>
-            <small id="sf-hat-hint" class="sf-sunglasses-hint">Visit the haberdasher just north of the GPU Factory to buy hats.</small>
+            <label class="sf-hat-option">Weapon <select data-character="weapon"><option value="unarmed">Fist</option></select></label>
+            <label class="sf-hat-option">Back <select data-character="back"><option value="none">Nothing on back</option></select></label>
+            <label class="sf-hat-option">Necklace <select data-character="neck"><option value="none">No necklace</option></select></label>
+            <label class="sf-hat-option">Torso <select data-character="torso"><option value="shirt">Regular shirt</option></select></label>
+            <label class="sf-hat-option">Legs <select data-character="legs"><option value="trousers">Regular trousers</option></select></label>
+            <button id="sf-light-decorative-rocket" type="button" hidden>Light rocket · 10 seconds</button>
+            <small id="sf-equipment-hint" class="sf-sunglasses-hint"></small>
+            <small id="sf-hat-hint" class="sf-sunglasses-hint"></small>
             <label class="sf-sunglasses-option"><input id="sf-iphone-equipped" type="checkbox" aria-describedby="sf-iphone-hint" disabled> Equip iPhone (+25% earnings)</label>
-            <small id="sf-iphone-hint" class="sf-sunglasses-hint">Buy an iPhone from Tim Apple’s southern donut campus.</small>
+            <small id="sf-iphone-hint" class="sf-sunglasses-hint"></small>
             <label class="sf-sunglasses-option"><input data-character="sunglasses" type="checkbox" aria-describedby="sf-sunglasses-hint" disabled> Wear sunglasses</label>
-            <small id="sf-sunglasses-hint" class="sf-sunglasses-hint">Find a pair on Ocean Beach to unlock.</small>
-            <label class="sf-sunglasses-option sf-cape-option"><input data-character="cape" type="checkbox" aria-describedby="sf-cape-hint" disabled> Wear kraken cape</label>
-            <small id="sf-cape-hint" class="sf-sunglasses-hint">Defeat the kraken with Ahab to unlock.</small>
+            <small id="sf-sunglasses-hint" class="sf-sunglasses-hint"></small>
+            <small id="sf-cape-hint" class="sf-sunglasses-hint"></small>
         </div></div>
-        <details class="sf-connection-settings"><summary>Multiplayer connection</summary>
-            <form id="sf-connection-form"><label for="sf-server-endpoint">Server address</label><div><input id="sf-server-endpoint" type="url" placeholder="wss://your-server.example/ws" aria-describedby="sf-connection-status"><button type="submit">Connect</button></div><small id="sf-connection-status" role="status">One common world. Your quests and personal vehicles stay yours.</small></form>
-            <button id="sf-play-offline" type="button">Play single player</button>
-        </details>
         <p class="sf-help-note">Appearance saves immediately. Multiplayer progress is also checkpointed to the server.</p>
         <button id="sf-character-done" class="sf-primary" type="button">Done</button>
     </section>
@@ -493,11 +507,12 @@
             <dt>M / Motorcycle</dt><dd>Talk to the rental clerk beside the zoo’s monkey habitat to rent the conveniently parked motorcycle for five coins before taking the monkey. Click to ride; M parks or finds your rental. The tiger-speed zookeeper pursues monkey thieves and takes the monkey back if he catches you. Trying to steal the motorcycle summons the police.</dd>
             <dt>A / Airship</dt><dd>Rent an airship at the private jet terminal south of the city. Click the basket floor to walk around, or click the ground or minimap to fly. A returns you to the terminal.</dd>
             <dt>V / Forward roll</dt><dd>Tuck into a forward roll, moving 18% faster than walking. Roll along your walking route, or roll in the direction you are facing when standing still. Walls and water still block your path.</dd>
+            <dt>X / Sit</dt><dd>Sit down and rest. Inebriation wears off twice as fast: 1% every 1.5 seconds. Press X again or walk to stand up.</dd>
             <dt>D / Dance</dt><dd>Dance until you press D again or start walking. Try your moves at Nightlife in the South Mission.</dd>
             <dt>C / Character</dt><dd>Choose your gender and colors. Men have short hair; women have long hair. Changes apply immediately and are saved in this browser.</dd>
             <dt>R / Ferrari</dt><dd>Borrow a Ferrari at the dealership beyond the Bay Bridge. Click the road or minimap to drive; R parks. Your tank lasts 56% of the drive to Tahoe. The two highway gas stations take all your coins; the dealership and Tahoe gondola refill for free.</dd>
             <dt>SF Fitness / Strength</dt><dd>Visit SF Fitness east of the zoo for bench presses, dumbbell curls, barbell squats, or overhead presses. Use the gym’s exercise options to switch while training; all earn the same strength XP. Level 10 takes about twenty minutes, with harder levels as you improve. Sand Hill Road Capital Partners offers a one-time 1,000-coin investment at level 10. Progress is saved in this browser.</dd>
-            <dt>U / Pacifica surfing</dt><dd>Borrow a surfboard at Pacifica beach. Click the water to paddle, then press Space near a foam line to catch a wave. Click to steer while riding; 1 / 2 / 3 perform an Air 360, kickflip, or backflip. Land tricks to earn points. U or F returns you to the beach.</dd>
+            <dt>U / Pacifica surfing</dt><dd>Borrow a surfboard at Pacifica beach. Click the water to paddle, then press Space near a foam line to catch a wave. Click to steer while riding; 1 / 2 / 3 perform an Air 360, kickflip, or backflip. U or F returns you to the beach.</dd>
             <dt>Twitter / sales conference</dt><dd>Three blocks south of SF Zoo: Twitter HQ’s bottle-post backend drains into the ocean. Being inside adds 3% inebriation per second. Next door, buy sales software for 10 coins and pitch it for 20. Buyers think for ten seconds; you can keep exploring. Success rises from 10% sober to 50% at full inebriation. A refusal leaves your copy intact.</dd>
             <dt>Tim Apple / robotaxis</dt><dd>South of Coastal Gardens Road, Tim Apple’s donut campus sells iPhones for 100 coins. Equip yours in Character: all income rises 25%, including fractional bonuses on small payments, but you lose 5 HP every two equipped minutes. Unequipping pauses doomscrolling; death or arrest loses the phone. The nearby Tesla dealer sells one robotaxi business for 100 coins. It pays 20 coins each minute (25 with an equipped iPhone) while the world is open and visible. Partial timers are saved; there are no offline payouts.</dd>
             <dt>Haberdasher</dt><dd>The hat shop just north of the GPU Factory sells nine hats, from a 1-coin folded paper hat to the 100,000-coin Crown of Excess. Talk to the haberdasher to buy and wear one. Purchases are permanent; open Character (C) to switch between owned hats or remove your hat.</dd>
@@ -510,12 +525,13 @@
         </dl>
         <p>A yellow X confirms a click; a red X means that action is unavailable. Talk to people for local tips. Attacking or stealing starts a police chase; capture means detention in Marin, where you can walk within your cell.</p>
         <p class="sf-help-note">Streets and distances are simplified for exploring.</p>
+        <button class="sf-primary" type="button" data-refresh-map>Refresh map data</button>
         <button id="sf-help-start" class="sf-primary">Let's wander ↗</button>
     </section>
 </section>
     <section id="sf-debug" class="sf-debug" aria-label="Debug menu" hidden>
         <header><strong>Debug</strong><button type="button" data-debug-close aria-label="Close debug menu">×</button></header>
-        <dl><dt>X</dt><dd><output id="sf-debug-x">0.000</output></dd><dt>Y</dt><dd><output id="sf-debug-y">0.000</output></dd><dt>FPS</dt><dd><output id="sf-debug-fps">—</output></dd></dl>
+        <dl><dt>X</dt><dd><output id="sf-debug-x">0.000</output></dd><dt>Y</dt><dd><output id="sf-debug-y">0.000</output></dd><dt>FPS</dt><dd><output id="sf-debug-fps">—</output></dd><dt>CPU frame</dt><dd><output id="sf-debug-cpu">—</output></dd><dt>Actor CPU</dt><dd><output id="sf-debug-actors">—</output></dd><dt>Map tiles</dt><dd><output id="sf-debug-tiles">—</output></dd><dt>Disk cache</dt><dd><output id="sf-debug-cache">—</output></dd></dl>
         <p>X increases east. Y increases south.</p>
         <button type="button" data-debug-teleport>Teleport…</button>
     </section>
@@ -524,8 +540,30 @@
         <div><input id="sf-command-input" type="text" spellcheck="false" autocapitalize="off" aria-describedby="sf-command-status" placeholder=":debug or :tp x,y"><button type="submit">Run</button><button type="button" data-command-close aria-label="Cancel command">×</button></div>
         <p id="sf-command-status" role="status">Enter runs the command. Escape cancels.</p>
     </form>
-<div id="sf-loading" class="sf-loading" role="status" aria-live="polite" aria-label="Loading San Francisco" hidden>
-    <div class="sf-loading-card"><span class="sf-loading-spinner" aria-hidden="true"></span><strong>Explore San Francisco</strong><span data-loading-percent>0% loaded</span><progress max="100" value="0" aria-label="Loading progress"></progress><span data-loading-stage>Preparing San Francisco…</span><small data-loading-error></small></div>
+<section id="sf-server-required" class="sf-server-required" role="dialog" aria-modal="true" aria-labelledby="sf-server-required-title" hidden>
+    <div class="sf-server-required-card">
+        <h2 id="sf-server-required-title">Connect to San Francisco</h2>
+        <p data-connection-message role="status" aria-live="polite">Connecting to the server…</p>
+        <form><label for="sf-required-endpoint">Game server address</label><input id="sf-required-endpoint" type="url" placeholder="wss://your-server.example/ws" required spellcheck="false" autocapitalize="off"><button type="submit">Connect</button></form>
+        <a href="./index.html">Return to homepage</a>
+    </div>
+</section>
+<div id="sf-loading" class="sf-loading" role="dialog" aria-modal="true" aria-labelledby="sf-loading-title" tabindex="-1" hidden>
+    <div class="sf-loading-card">
+        <canvas class="sf-loading-npc" width="288" height="312" aria-hidden="true" data-loading-npc></canvas>
+        <strong id="sf-loading-title">Explore San Francisco</strong><span data-loading-percent aria-live="polite">0% loaded</span><progress max="100" value="0" aria-label="Loading progress"></progress><span data-loading-stage>Preparing San Francisco…</span><small data-loading-error></small><button type="button" data-refresh-map hidden>Reload map data</button>
+        <form class="sf-username-form sf-loading-username" data-loading-username autocomplete="off">
+            <label for="sf-loading-name">Username</label>
+            <div><input id="sf-loading-name" data-username-input type="text" maxlength="12" pattern="[A-Za-z0-9_]{1,12}" aria-describedby="sf-loading-name-status" placeholder="Choose a username" autocapitalize="off" spellcheck="false"><button data-username-save type="submit" disabled>Save name</button></div>
+            <small id="sf-loading-name-status" data-username-status role="status">Choose a name while your world loads.</small>
+        </form>
+        <ul class="sf-loading-tips">
+            <li>left click to walk</li>
+            <li>right click for options</li>
+            <li>rotate the camera with your arrow keys</li>
+        </ul>
+        <button class="sf-loading-play" data-loading-play type="button" hidden>Play</button>
+    </div>
 </div>
 <script>if(document.documentElement.dataset.sfEntry==='explore')document.getElementById('sf-loading').hidden=false;</script>
 <!-- SF-ENTRY:START -->

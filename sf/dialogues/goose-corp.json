@@ -1,0 +1,171 @@
+{
+  "conversations": {
+    "square-books": {
+      "intro": "Used books! Architecture, poetry, and one extremely optimistic book on finishing public works.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Can you recommend a book?",
+          "receipt": "Invisible Cities. Particularly useful when the city you remember is currently under an excavator."
+        },
+        {
+          "label": "What is that rare edition?",
+          "receipt": "Leo lowers his voice. “The Quarterly Honk. A Goose Corp annual report, before they recalled the copies with the ownership diagram. Some people keep them in their houses. I never said that.”"
+        },
+        {
+          "label": "Who is Goose Corp?",
+          "receipt": "“Powerful and Evil Goose Corporation. Their legal department insists that is the full name.” Leo glances at the billboard. “I sell fiction. I would very much like that to remain a professional distinction.”"
+        }
+      ]
+    },
+    "guild-rumours": {
+      "intro": "Some lodge traditions are best discussed quietly.",
+      "choices": [
+        {
+          "label": "Who sponsors the refreshments?",
+          "receipt": "Ray lowers his voice. “The Powerful and Evil Goose Corporation. An old arrangement. Please don’t repeat it near the biscuits. There’s a ledger inside, if you insist on reading things.”"
+        }
+      ]
+    }
+  },
+  "ambient": [
+    {
+      "id": "goose_corp_1",
+      "title": "The landlord above the landlord",
+      "tags": ["goose-corp", "rumours"],
+      "start": "start",
+      "nodes": {
+        "start": {
+          "speaker": "npc",
+          "text": "Keep your voice down. That goose on the billboard? My landlord reports to it.",
+          "choices": [
+            {
+              "text": "Who is behind all this?",
+              "next": "company"
+            },
+            {
+              "text": "Where can I learn more?",
+              "next": "reading"
+            },
+            {
+              "text": "I should get going.",
+              "next": "leave"
+            }
+          ]
+        },
+        "company": {
+          "speaker": "npc",
+          "text": "Powerful and Evil Goose Corporation. Their legal department insists that is the full name. Please keep your voice down near the refreshments.",
+          "end": true
+        },
+        "reading": {
+          "speaker": "npc",
+          "text": "Ask Leo about The Quarterly Honk, or Ray about the lodge refreshments. Some houses have books on ponds and executive waterfowl. Read carefully. Quietly.",
+          "end": true
+        },
+        "leave": {
+          "speaker": "npc",
+          "text": "Of course. Walk casually. Do not make eye contact with the billboard.",
+          "end": true
+        }
+      }
+    },
+    {
+      "id": "goose_corp_2",
+      "title": "The pond with a legal department",
+      "tags": ["goose-corp", "rumours"],
+      "start": "start",
+      "nodes": {
+        "start": {
+          "speaker": "npc",
+          "text": "Quietly, please. I asked who owned the pond and received a cease-and-desist written entirely in footprints.",
+          "choices": [
+            {
+              "text": "Who is behind all this?",
+              "next": "company"
+            },
+            {
+              "text": "Where can I learn more?",
+              "next": "reading"
+            },
+            {
+              "text": "I should get going.",
+              "next": "leave"
+            }
+          ]
+        },
+        "company": {
+          "speaker": "npc",
+          "text": "Powerful and Evil Goose Corporation. Their legal department insists that is the full name. Please keep your voice down near the refreshments.",
+          "end": true
+        },
+        "reading": {
+          "speaker": "npc",
+          "text": "Ask Leo about The Quarterly Honk, or Ray about the lodge refreshments. Some houses have books on ponds and executive waterfowl. Read carefully. Quietly.",
+          "end": true
+        },
+        "leave": {
+          "speaker": "npc",
+          "text": "Of course. Walk casually. Do not make eye contact with the billboard.",
+          "end": true
+        }
+      }
+    }
+  ],
+  "books": {
+    "goose-invoice": {
+      "title": "Goose Corp invoice",
+      "color": "#e8dfbf",
+      "format": "torn-invoice",
+      "subtitle": "The rest of the invoice has been torn off.",
+      "paragraphs": ["Goose Corp"]
+    },
+    "pond-deeds": {
+      "title": "On the Ownership of Ponds",
+      "color": "#496b64",
+      "subtitle": "A slim volume with a surprisingly extensive legal appendix.",
+      "paragraphs": [
+        "The pond belongs to the park. The water belongs to the city. The reflection belongs to a holding company registered in a jurisdiction with no known landmass.",
+        "The author recommends reading any document before feeding it breadcrumbs. In the most recent edition, this advice has been struck out.",
+        "An ownership diagram unfolds from the back cover. Every arrow leads to the same small drawing of a goose. Beneath it: Powerful and Evil Goose Corporation. The word “Evil” has been underlined by a previous reader."
+      ]
+    },
+    "executive-waterfowl": {
+      "title": "A Field Guide to Executive Waterfowl",
+      "color": "#a3614c",
+      "subtitle": "The dust jacket promises an indispensable companion for the modern naturalist.",
+      "paragraphs": [
+        "The ordinary goose defends a patch of grass. The executive goose defends a diversified portfolio of patches of grass.",
+        "If approached, remain calm. Do not make eye contact with its quarterly guidance. Do not run: it has already acquired the pavement.",
+        "The chapter on distinguishing a honk from a binding tender offer has been carefully removed. A pencilled note reads: “Ask at the lodge. Quietly.”"
+      ]
+    },
+    "quarterly-honk": {
+      "title": "The Quarterly Honk",
+      "color": "#444b79",
+      "subtitle": "A household magazine, addressed to “The Current Beneficial Occupant”.",
+      "paragraphs": [
+        "Dear stakeholder: thank you for your continued presence in our addressable habitat. Your local pond has exceeded expectations.",
+        "Our subsidiaries now include Anser Analytics, a refreshments distributor, and a company that owns the idea of walking away briskly. We remain committed to long-term pursuit.",
+        "A photograph shows an empty boardroom. Every chair has been nibbled at precisely the same height. The caption reads: “Management is delighted.”"
+      ]
+    },
+    "lodge-minutes": {
+      "title": "Minutes of the Refreshments Committee",
+      "color": "#793c40",
+      "subtitle": "A red ledger rests open beside the lodge’s biscuits.",
+      "paragraphs": [
+        "Motion 1: renew the tea contract. Carried unanimously, apart from an unusually forceful honk from the empty chair.",
+        "Motion 2: thank our discreet benefactor, the Powerful and Evil Goose Corporation. The secretary asks whether “Evil” is strictly necessary in the minutes. The motion to omit it is defeated.",
+        "Motion 3: remove the pond from the balance sheet. Deferred. The pond is apparently our balance sheet.",
+        "The final page is blank except for a webbed footprint and the instruction: “Please do not discuss the parent company within earshot of the refreshments.”"
+      ]
+    }
+  },
+  "home_books": {
+    "house-search-1": "pond-deeds",
+    "house-search-3": "executive-waterfowl",
+    "house-search-7": "goose-invoice",
+    "house-search-8": "quarterly-honk"
+  }
+}

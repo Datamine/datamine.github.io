@@ -1,0 +1,3 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+0 * * * * root . /etc/loeberland/backup.env && /usr/bin/timeout 50m /bin/bash /opt/loeberland/current/sf/server/backup.sh >> /var/log/loeberland-backup.log 2>&1

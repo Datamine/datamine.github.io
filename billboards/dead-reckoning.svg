@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Dead Reckoning AI — confidently off course</title>
+  <rect width="600" height="400" fill="#122f3d"/>
+  <g transform="translate(440 150)" fill="none" stroke="#75c9c5"><circle r="96" stroke-width="2"/><circle r="76" stroke-dasharray="2 11" stroke-width="10"/><path d="M-111 0h222M0-111v222" stroke-width="2"/><path d="m-40-59 69 39 10 88-41-62Z" fill="#e2ba77" stroke="#e2ba77" stroke-width="2"/><circle r="9" fill="#122f3d" stroke-width="3"/></g>
+  <g fill="#dcf0dd" font-family="Arial,sans-serif" font-weight="900"><text x="28" y="90" font-size="57">DEAD</text><text x="28" y="152" font-size="49">RECKONING</text><text x="31" y="204" font-size="29" letter-spacing="10">AI</text></g>
+  <path d="M27 284h546" stroke="#75c9c5"/>
+  <text x="29" y="329" fill="#e2ba77" font-family="Arial,sans-serif" font-weight="bold" font-size="29">CONFIDENTLY OFF COURSE.</text>
+  <text x="30" y="369" fill="#abd7cf" font-family="Georgia,serif" font-size="21">The captain has accepted our recommendation.</text>
+
+</svg>

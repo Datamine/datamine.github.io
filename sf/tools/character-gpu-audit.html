@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <meta charset="utf-8" /><title>Character GPU parity and cache audit</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #26342e;
+      color: #f0ebdc;
+      font: 15px system-ui;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 12px 20px;
+    }
+    button,
+    select {
+      font: inherit;
+    }
+    canvas {
+      display: block;
+      width: 100vw;
+      height: calc(100vh - 100px);
+    }
+    p {
+      margin: 0;
+      padding: 8px 20px;
+      font: 13px monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+  <header>
+    <strong>CPU reference / GPU cached rig</strong
+    ><select id="mode"></select
+    ><select id="wardrobe">
+      <option>Regular</option>
+      <option>Cloak & rocket</option>
+      <option>Ice armor</option></select
+    ><button id="pause">Pause</button><button id="benchmark">Benchmark 32 characters</button>
+  </header>
+  <canvas></canvas>
+  <p id="stats"></p>
+  <script type="module">
+    import { Mesh, matrixMultiply, unit, sub, cross, dot } from '../geometry.js';
+    import { characterVertexShader, createCharacterGPU } from '../rendering/character-gpu.js';
+    import { drawCharacter } from '../characters.js';
+    import { drawRemotePlayer } from '../remote-player-models.js';
+    import { createActorAnimation } from '../animation-presentation.js';
+    import { characterAppearance, normalizeCharacter } from '../character-config.js';
+    import { SF_FITNESS } from '../southern-layout.js';
+    import { swayCharacter } from '../inebriation.js';
+    import { pitchMotorcycleMesh } from '../motorcycle.js';
+    import { tiltRocketMesh, ROCKET_CABIN_HEIGHT } from '../rocket.js';
+    const canvas = document.querySelector('canvas'),
+      gl = canvas.getContext('webgl', { antialias: false, preserveDrawingBuffer: true }),
+      mode = document.querySelector('#mode'),
+      stats = document.querySelector('#stats');
+    if (!gl) throw Error('WebGL unavailable');
+    const modes = [
+      'walk',
+      'dance',
+      'sit',
+      'bench',
+      'bike',
+      'motorcycle',
+      'ferrari',
+      'skateboard',
+      'climb',
+      'gondola',
+      'roll',
+      'ski',
+      'surf',
+      'train',
+      'bomber',
+      'parachute',
+      'teleport',
+      'capture',
+      'inebriation',
+      'motorcycle slope',
+      'rocket pitch',
+    ];
+    for (const name of modes) mode.add(new Option(name, name));
+    const compile = (type, source) => {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+        throw Error(gl.getShaderInfoLog(shader));
+      return shader;
+    };
+    const program = gl.createProgram();
+    gl.attachShader(
+      program,
+      compile(
+        gl.VERTEX_SHADER,
+        characterVertexShader(
+          'attribute vec3 aPosition,aNormal,aColor;attribute vec2 aUV;uniform mat4 uVP;varying vec3 vColor;varying vec2 vUV;void main(){vColor=aColor*(.6+.4*max(0.,dot(normalize(aNormal),normalize(vec3(-.45,.85,.55)))));vUV=aUV;gl_Position=uVP*vec4(aPosition,1.);}',
+        ),
+      ),
+    );
+    gl.attachShader(
+      program,
+      compile(
+        gl.FRAGMENT_SHADER,
+        'precision highp float;varying vec3 vColor;varying vec2 vUV;void main(){gl_FragColor=vec4(vColor+vec3(vUV.y*.000001),1.);}',
+      ),
+    );
+    for (const [i, name] of ['aPosition', 'aNormal', 'aColor', 'aUV', 'aRig'].entries())
+      gl.bindAttribLocation(program, i, name);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS))
+      throw Error(gl.getProgramInfoLog(program));
+    gl.useProgram(program);
+    Object.assign(program, { position: 0, normal: 1, color: 2, uv: 3 });
+    const vp = gl.getUniformLocation(program, 'uVP'),
+      buffer = gl.createBuffer(),
+      gpu = createCharacterGPU(gl, program);
+    let paused = false,
+      at = 0,
+      animation = createActorAnimation();
+    const eye = [3.4, 2.5, 4.5],
+      target = [0, 1.05, 0],
+      back = unit(sub(eye, target)),
+      right = unit(cross([0, 1, 0], back)),
+      up = cross(back, right),
+      view = new Float32Array([
+        right[0],
+        up[0],
+        back[0],
+        0,
+        right[1],
+        up[1],
+        back[1],
+        0,
+        right[2],
+        up[2],
+        back[2],
+        0,
+        -dot(right, eye),
+        -dot(up, eye),
+        -dot(back, eye),
+        1,
+      ]);
+    function look() {
+      const kind = document.querySelector('#wardrobe').selectedIndex;
+      return characterAppearance(
+        normalizeCharacter({
+          gender: 'woman',
+          hairstyle: 'braid',
+          hat: kind ? 'blue-partyhat' : 'none',
+          torso: kind === 1 ? 'black-cloak-top' : kind === 2 ? 'ice-top' : 'shirt',
+          legs: kind === 1 ? 'black-cloak-bottom' : kind === 2 ? 'ice-pants' : 'trousers',
+          back: kind === 1 ? 'new-year-rocket' : 'none',
+          neck: kind === 1 ? 'clock-amulet' : 'none',
+        }),
+      );
+    }
+    function upload(mesh) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(mesh.data), gl.DYNAMIC_DRAW);
+      for (const [i, size, offset] of [
+        [0, 3, 0],
+        [1, 3, 12],
+        [2, 3, 24],
+        [3, 2, 36],
+      ]) {
+        gl.enableVertexAttribArray(i);
+        gl.vertexAttribPointer(i, size, gl.FLOAT, false, 44, offset);
+      }
+      gl.drawArrays(gl.TRIANGLES, 0, mesh.data.length / 11);
+    }
+    function draw(time = at) {
+      at = time;
+      canvas.width = innerWidth;
+      canvas.height = innerHeight - 100;
+      gl.enable(gl.DEPTH_TEST);
+      gl.clearColor(0.15, 0.2, 0.18, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.useProgram(program);
+      const name = mode.value,
+        p = {
+          id: 1,
+          x: 0,
+          y: 0,
+          z: 0,
+          angle: 0.4,
+          phase: name === 'roll' ? ((time / 2000) % 1) * Math.PI * 2 : time * 0.004,
+          motion: 1,
+          moving: true,
+          mode:
+            name === 'capture' || name === 'inebriation' || name === 'rocket pitch'
+              ? 'walk'
+              : name === 'motorcycle slope'
+                ? 'motorcycle'
+                : name,
+          hp: name === 'capture' ? 0 : 30,
+          max: 30,
+          gesture: name === 'surf' ? 'surfboard' : '',
+        };
+      if (name === 'capture') animation.sample(p, 0);
+      const pose = animation.sample(p, time),
+        outfit = look(),
+        half = canvas.width / 2,
+        scale = ['surf', 'gondola', 'ski', 'bomber', 'train'].includes(name) ? 2.2 : 1.5,
+        projection = new Float32Array([
+          canvas.height / half / scale,
+          0,
+          0,
+          0,
+          0,
+          1 / scale,
+          0,
+          0,
+          0,
+          0,
+          -0.03,
+          0,
+          0,
+          0,
+          0,
+          1,
+        ]);
+      gl.uniformMatrix4fv(vp, false, matrixMultiply(projection, view));
+      let cpuVertices = 0;
+      for (let side = 0; side < 2; side++) {
+        const mesh = new Mesh();
+        if (side) mesh.characters = gpu.begin();
+        drawRemotePlayer(mesh, p, time, {
+          look: outfit,
+          animation: pose,
+          ground: () => 0,
+          serverTime: 100000,
+        });
+        if (name === 'inebriation') swayCharacter(mesh, 0, 0, 0, 0, time, 0.9);
+        if (name === 'motorcycle slope')
+          pitchMotorcycleMesh(mesh, 0, 0, 0, 0, 0.4, (x, z) => 0.2 * x + 0.1 * z);
+        if (name === 'rocket pitch')
+          tiltRocketMesh(
+            mesh,
+            0,
+            { x: 0, y: -ROCKET_CABIN_HEIGHT, z: 0 },
+            { pitch: 1.2, heading: 0.4 },
+          );
+        // The gym is authored in world coordinates; the comparison focuses on its local body.
+        if (name === 'train') {
+          mesh.characters?.transform(
+            0,
+            new Float32Array([
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              -SF_FITNESS.x,
+              -SF_FITNESS.base,
+              -SF_FITNESS.z,
+              1,
+            ]),
+          );
+          for (let i = 0; i < mesh.data.length; i += 11) {
+            mesh.data[i] -= SF_FITNESS.x;
+            mesh.data[i + 1] -= SF_FITNESS.base;
+            mesh.data[i + 2] -= SF_FITNESS.z;
+          }
+        }
+        gl.viewport(side * half, 0, half, canvas.height);
+        upload(mesh);
+        if (side) gpu.draw();
+        else cpuVertices = mesh.data.length / 11;
+      }
+      const error = gl.getError();
+      if (error) throw Error('WebGL error ' + error);
+      window.auditStats = { ...gpu.stats, cpuVertices };
+      stats.textContent = JSON.stringify(window.auditStats);
+    }
+    window.auditDraw = (name, time = 1400, wardrobe = 0) => {
+      paused = true;
+      mode.value = name;
+      document.querySelector('#wardrobe').selectedIndex = wardrobe;
+      animation = createActorAnimation();
+      draw(time);
+      return window.auditStats;
+    };
+    window.auditPixels = () => {
+      const w = canvas.width / 2,
+        h = canvas.height,
+        a = new Uint8Array(w * h * 4),
+        b = new Uint8Array(w * h * 4);
+      gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, a);
+      gl.readPixels(w, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, b);
+      let differing = 0,
+        max = 0,
+        visible = 0;
+      for (let i = 0; i < a.length; i += 4) {
+        const error = Math.max(...[0, 1, 2].map((k) => Math.abs(a[i + k] - b[i + k])));
+        if (error > 2) differing++;
+        max = Math.max(max, error);
+        if (a[i] !== 38 || a[i + 1] !== 51 || a[i + 2] !== 46) visible++;
+      }
+      return { differing, visible, pixels: w * h, max };
+    };
+    window.auditBenchmark = () => {
+      const outfit = look(),
+        times = {},
+        bytes = {};
+      for (const gpuMode of [false, true]) {
+        for (let warm = 0; warm < 3; warm++) {
+          const m = new Mesh();
+          if (gpuMode) m.characters = gpu.begin();
+          for (let i = 0; i < 32; i++)
+            drawCharacter(
+              m,
+              i % 8,
+              Math.floor(i / 8),
+              0,
+              0,
+              warm * 0.2,
+              false,
+              outfit.skin,
+              outfit.shirt,
+              { ...outfit, mode: 'move', motion: 1, phase: warm * 0.2 },
+            );
+        }
+        const start = performance.now();
+        let floats = 0;
+        for (let f = 0; f < 40; f++) {
+          const m = new Mesh();
+          if (gpuMode) m.characters = gpu.begin();
+          for (let i = 0; i < 32; i++)
+            drawCharacter(
+              m,
+              i % 8,
+              Math.floor(i / 8),
+              0,
+              0,
+              f * 0.2,
+              false,
+              outfit.skin,
+              outfit.shirt,
+              { ...outfit, mode: 'move', motion: 1, time: f / 60 },
+            );
+          floats = m.data.length;
+        }
+        times[gpuMode ? 'gpuSubmitMs' : 'cpuBuildMs'] = (performance.now() - start) / 40;
+        bytes[gpuMode ? 'gpuDynamicBytes' : 'cpuDynamicBytes'] = floats * 4;
+      }
+      return (window.benchmark = { ...times, ...bytes });
+    };
+    document.querySelector('#benchmark').onclick = () => {
+      stats.textContent = JSON.stringify(window.auditBenchmark());
+      paused = true;
+    };
+    document.querySelector('#pause').onclick = () => (paused = !paused);
+    mode.onchange = () => (animation = createActorAnimation());
+    function frame(t) {
+      if (!paused) draw(t);
+      requestAnimationFrame(frame);
+    }
+    draw(0);
+    window.auditReady = true;
+    requestAnimationFrame(frame);
+  </script>
+</html>

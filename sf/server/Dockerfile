@@ -5,6 +5,7 @@ RUN npm ci --prefix sf/server --omit=dev --ignore-scripts
 COPY sf ./sf
 COPY index.html new.css explore.html ./
 COPY textures ./textures
+COPY billboards ./billboards
 RUN mkdir -p /app/sf/server/data && chown -R node:node /app/sf/server/data
 USER node
 WORKDIR /app/sf/server

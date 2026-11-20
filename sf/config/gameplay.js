@@ -1,0 +1,22 @@
+/** Gameplay balance shared by the authoritative server and offline simulation. */
+export const GAMEPLAY = Object.freeze({
+  startingCoins: 25,
+  maxHitpoints: 30,
+  strengthXPPerSecond: 10,
+  strengthLevel10XP: 12000,
+  monsterHitChance: 0.9,
+  monsterMinMultiplier: 0.25,
+  monsterMaxMultiplier: 1.25,
+  walkSpeed: 4.6,
+  rollSpeed: 4.6 * 1.18,
+  interactionRange: 2.6,
+  fishingSeconds: 3.2,
+  sandCollectSeconds: 1,
+  playerHz: 10,
+  simulationHz: 20,
+  worldHz: 5,
+  maxNearbyPlayers: 32,
+  maxNearbyNPCs: 32,
+  maxNearbyLoot: 64,
+  viewRadius: 38,
+});

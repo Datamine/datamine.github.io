@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title">
+  <title id="title">Borrowed Neuron — intelligence on a rolling basis</title>
+  <rect width="600" height="400" fill="#d4eaeb"/>
+  <g stroke="#356171" fill="none" stroke-width="4"><path d="m412 68 37 58 77-49m-77 49-41 60 105 34m-64-94 64 94"/><circle cx="412" cy="68" r="23" fill="#eea370"/><circle cx="449" cy="126" r="30" fill="#7db7bc"/><circle cx="526" cy="77" r="18" fill="#ead18a"/><circle cx="408" cy="186" r="22" fill="#7db7bc"/><circle cx="513" cy="220" r="25" fill="#eea370"/></g>
+  <g fill="#264958" font-family="Arial,sans-serif" font-weight="900"><text x="28" y="94" font-size="59">Borrowed</text><text x="28" y="156" font-size="62">Neuron</text></g>
+  <text x="31" y="207" fill="#356171" font-family="Arial,sans-serif" font-size="18" letter-spacing="5">ELASTIC INTELLIGENCE</text>
+  <path d="M29 285h542" stroke="#356171" stroke-width="2"/>
+  <text x="30" y="329" fill="#264958" font-family="Georgia,serif" font-size="30">Intelligence on a rolling basis.</text>
+  <text x="31" y="371" fill="#356171" font-family="Arial,sans-serif" font-size="18">Please return the neuron by Friday.</text>
+
+</svg>

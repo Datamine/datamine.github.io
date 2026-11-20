@@ -1,0 +1,8 @@
+node_modules/
+server/node_modules/
+world-cache/
+server/deploy/.terraform/
+server/benchmarks/*.json
+explore.js.map
+bundle-meta.json
+reports/*.csv

@@ -12,3 +12,5 @@ Thumbs.db
 sf/server/node_modules/
 sf/server/data/
 sf/server/.env
+
+sf/node_modules/
