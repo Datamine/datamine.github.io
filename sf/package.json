@@ -1,24 +1,41 @@
 {
   "devDependencies": {
+    "@types/eslint-scope": "8.4.0",
+    "@types/espree": "10.1.0",
+    "@types/node": "22.20.5",
+    "@types/ws": "8.18.2",
+    "@typescript-eslint/eslint-plugin": "8.73.0",
+    "@typescript-eslint/parser": "8.73.0",
     "esbuild": "0.28.2",
     "eslint": "10.15.0",
     "eslint-scope": "9.1.2",
     "espree": "11.2.0",
     "globals": "17.14.0",
-    "prettier": "3.10.1"
+    "prettier": "3.10.1",
+    "tsx": "4.20.5",
+    "typescript": "5.8.3"
   },
-  "name": "loeberland-client",
+  "name": "loeberland",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=22.16.0"
   },
   "scripts": {
-    "build": "node build.mjs",
-    "dev": "node dev.mjs",
-    "test": "node --test --test-concurrency=4 tests/*.test.mjs",
-    "lint": "eslint . --max-warnings 0",
+    "build": "npm run build:client && npm run build:runtime",
+    "dev": "node --import tsx dev.mts",
+    "test": "npm run test:client && npm --prefix server test",
+    "lint": "node --import tsx tools/lint.mts",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build:editor": "node --import tsx build-editor.mts",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build:runtime": "node --import tsx tools/build-runtime.mts",
+    "build:client": "npm run typecheck && node --import tsx build.mts",
+    "test:client": "node --import tsx --test --test-concurrency=4 tests/*.test.mts",
+    "setup": "npm ci && npm --prefix server ci"
+  },
+  "dependencies": {
+    "ajv": "6.15.0"
   }
 }

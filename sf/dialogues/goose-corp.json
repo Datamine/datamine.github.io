@@ -10,11 +10,19 @@
         },
         {
           "label": "What is that rare edition?",
-          "receipt": "Leo lowers his voice. “The Quarterly Honk. A Goose Corp annual report, before they recalled the copies with the ownership diagram. Some people keep them in their houses. I never said that.”"
+          "receipt": "Leo lowers his voice. “The Quarterly Honk. A Goose Corp annual report, before they recalled the copies with the ownership diagram. An unusually nervous piece of publishing.”"
         },
         {
           "label": "Who is Goose Corp?",
-          "receipt": "“Powerful and Evil Goose Corporation. Their legal department insists that is the full name.” Leo glances at the billboard. “I sell fiction. I would very much like that to remain a professional distinction.”"
+          "receipt": "“The Powerful and Evil Goose Corporation. Their legal department insists that is the full name.” Leo glances at the billboard. “I sell fiction. I would very much like that to remain a professional distinction.”"
+        },
+        {
+          "label": "Why does their name say Evil?",
+          "receipt": "Leo checks the window. “Truth in advertising. A rare corporate virtue, deployed under unfortunate circumstances.”"
+        },
+        {
+          "label": "What do they want?",
+          "receipt": "“A controlling interest,” Leo says. “In what? They have been admirably reluctant to specify.”"
         }
       ]
     },
@@ -23,7 +31,7 @@
       "choices": [
         {
           "label": "Who sponsors the refreshments?",
-          "receipt": "Ray lowers his voice. “The Powerful and Evil Goose Corporation. An old arrangement. Please don’t repeat it near the biscuits. There’s a ledger inside, if you insist on reading things.”"
+          "receipt": "Ray lowers his voice. “The Powerful and Evil Goose Corporation. An old arrangement. Please don’t repeat it near the biscuits.”"
         }
       ]
     }
@@ -55,8 +63,17 @@
         },
         "company": {
           "speaker": "npc",
-          "text": "Powerful and Evil Goose Corporation. Their legal department insists that is the full name. Please keep your voice down near the refreshments.",
-          "end": true
+          "text": "The Powerful and Evil Goose Corporation. Their legal department insists that is the full name. Please keep your voice down near the refreshments.",
+          "choices": [
+            {
+              "text": "Why put Evil in the name?",
+              "next": "branding"
+            },
+            {
+              "text": "What do they actually own?",
+              "next": "ownership"
+            }
+          ]
         },
         "reading": {
           "speaker": "npc",
@@ -66,6 +83,16 @@
         "leave": {
           "speaker": "npc",
           "text": "Of course. Walk casually. Do not make eye contact with the billboard.",
+          "end": true
+        },
+        "branding": {
+          "speaker": "npc",
+          "text": "The branding consultant proposed leaving it implied. The board said that lacked ambition. The consultant now works in a pond.",
+          "end": true
+        },
+        "ownership": {
+          "speaker": "npc",
+          "text": "The pond, the company that owns the pond, and the company investigating who owns the pond. The bread budget is the only part anyone can audit.",
           "end": true
         }
       }
@@ -96,8 +123,17 @@
         },
         "company": {
           "speaker": "npc",
-          "text": "Powerful and Evil Goose Corporation. Their legal department insists that is the full name. Please keep your voice down near the refreshments.",
-          "end": true
+          "text": "The Powerful and Evil Goose Corporation. Their legal department insists that is the full name. Please keep your voice down near the refreshments.",
+          "choices": [
+            {
+              "text": "Why put Evil in the name?",
+              "next": "branding"
+            },
+            {
+              "text": "What do they actually own?",
+              "next": "ownership"
+            }
+          ]
         },
         "reading": {
           "speaker": "npc",
@@ -107,6 +143,16 @@
         "leave": {
           "speaker": "npc",
           "text": "Of course. Walk casually. Do not make eye contact with the billboard.",
+          "end": true
+        },
+        "branding": {
+          "speaker": "npc",
+          "text": "The branding consultant proposed leaving it implied. The board said that lacked ambition. The consultant now works in a pond.",
+          "end": true
+        },
+        "ownership": {
+          "speaker": "npc",
+          "text": "The pond, the company that owns the pond, and the company investigating who owns the pond. The bread budget is the only part anyone can audit.",
           "end": true
         }
       }
@@ -127,7 +173,7 @@
       "paragraphs": [
         "The pond belongs to the park. The water belongs to the city. The reflection belongs to a holding company registered in a jurisdiction with no known landmass.",
         "The author recommends reading any document before feeding it breadcrumbs. In the most recent edition, this advice has been struck out.",
-        "An ownership diagram unfolds from the back cover. Every arrow leads to the same small drawing of a goose. Beneath it: Powerful and Evil Goose Corporation. The word “Evil” has been underlined by a previous reader."
+        "An ownership diagram unfolds from the back cover. Every arrow leads to the same small drawing of a goose. Beneath it: The Powerful and Evil Goose Corporation. The word “Evil” has been underlined by a previous reader."
       ]
     },
     "executive-waterfowl": {

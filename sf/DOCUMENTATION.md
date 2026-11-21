@@ -23,22 +23,22 @@ Green Bank's friendly banker offers deposits, withdrawals and a complimentary
 coffee. Deposits earn 5% per elapsed hour, compounded continuously, including
 offline time: 100 coins becomes 105 after one hour and 110.25 after two. Banked
 coins are separate from spendable inventory; whole coins can be withdrawn while
-fractional interest stays in the account. `banking.js` contains the shared
-account rules, `bank-ui.js` the account window and server-only adapter, and
-`bank-models.js` the counter, coffee and rooftop billboard. Multiplayer uses
-the authoritative account in `server/banking.mjs`.
+fractional interest stays in the account. `banking.ts` contains the shared
+account rules, `bank-ui.ts` the account window and server-only adapter, and
+`bank-models.ts` the counter, coffee and rooftop billboard. Multiplayer uses
+the authoritative account in `server/banking.mts`.
 
 The haberdasher's upper tiers are Stone of Jordan (50,000 coins), Santa Hat
 (75,000), and Blue Partyhat (100,000). The partyhat preserves the previous
 top-tier `crown` inventory ID so existing ownership and outfit selections carry
-over. Their original geometry lives in `hat-models.js`.
+over. Their original geometry lives in `hat-models.ts`.
 
 Gameplay balancing lives in the `config/` catalogs:
 
-- `config/item-stats.js`: weapon damage, strength scaling, accuracy, reach and attack
+- `config/item-stats.ts`: weapon damage, strength scaling, accuracy, reach and attack
   interval; the battleaxe's price; food prices/healing; ice equipment colors
-  and defense. Hat definitions are in `config/hats.js`; `hat-catalog.js` provides runtime lookup helpers.
-- `config/monster-drops.js`: monster HP, level, attacks and respawn times, plus every
+  and defense. Hat definitions are in `config/hats.ts`; `hat-catalog.ts` provides runtime lookup helpers.
+- `config/monster-drops.ts`: monster HP, level, attacks and respawn times, plus every
   creature's drop table. `oneIn: 20` means a 1/20 roll. `choose` selects one
   item after a successful roll; the giants' 1/50 roll is shared between the
   top and pants, making each individual piece 1/100.
@@ -49,7 +49,7 @@ Left-click to pet it; right-click to attack or examine. It has 20 HP and a
 (180 HP, level 20) patrol the foot of Tahoe's mountain. Collect their rare
 ice top/pants and equip them in Character settings for crystalline armor;
 each piece reduces incoming shared-monster/PvP damage by two.
-`wilderness.js` supplies the server’s native navigation/combat simulation; `wilderness-models.js` contains their original meshes.
+`wilderness.ts` supplies the server’s native navigation/combat simulation; `wilderness-models.ts` contains their original meshes.
 
 In-N-Out's associate sells sandwiches for two
 coins, versus three at Lucinda's, with the same healing. Completing They Live
@@ -61,15 +61,15 @@ at (68, 111.5), is a separate, examinable South SF landmark.
 track Ray's 24 guild promotions, the Old Man's 250,000-coin initiation, and
 boarding the B-2 in the underground hangar. First boarding completes the quest;
 landing, crashing or reconnecting never resets it. Existing guild members and
-aircraft owners receive credit for their progress. `illuminatus.js` derives
-the journal entry, and `secret-adventures.js` presents authoritative aircraft ownership and instance events.
+aircraft owners receive credit for their progress. `illuminatus.ts` derives
+the journal entry, and `secret-adventures.ts` presents authoritative aircraft ownership and instance events.
 
 The **Bus** runs from the street behind Nightlife to Market Street. Traffic
 lights exist only at junctions on that route, selected from the same road
 graph. It stops for two seconds at every signal, including green, and waits
 for a green phase before crossing. Phases still change every ten seconds;
-terminus stops last six seconds. `slow-bus.js` defines its route and dwell
-times, while `traffic-signals.js` advances vehicles through stops and signals
+terminus stops last six seconds. `slow-bus.ts` defines its route and dwell
+times, while `traffic-signals.ts` advances vehicles through stops and signals
 using simulation time.
 
 ## Players, levels and PvP
@@ -208,15 +208,17 @@ enrages at half health: base damage 18 every two seconds. Its 100-coin reward
 and cape remain personal. Each owned, equipped ice armor piece reduces incoming
 combat damage by **2** (4 together), including kraken, spectre, shared-monster and
 PvP attacks. This does not reduce environmental damage such as doomscrolling.
-Balance values live in `sf/config/monster-drops.js` and `sf/config/item-stats.js`.
+Balance values live in `sf/config/monster-drops.ts` and `sf/config/item-stats.ts`.
 
-Map templates and their tile rules live in `sf/map-instances.js`. A private
+Map templates and their tile rules live in `sf/map-instances.ts`. A private
 instance has its own ID, tile bounds and layer; the same coordinates in two
 instances do not imply visibility or interaction. The server filters player
 interests, chat, PvP and shared-world commands by instance. Cave movement uses
-the same authored adjacency graph on client and server. Each player's cave
-and **Ahab's kraken-hunting waters** are separate private instances. Boarding
-the Pequod enters the latter; sailing back restores the public map. The
+the same authored adjacency graph on client and server. The fixed Illuminati
+passage leads to one shared underground hangar, where initiates can see each
+other and chat. Aircraft ownership remains personal. **Ahab's kraken-hunting
+waters** use a separate private instance per player. Boarding the Pequod enters
+those waters; sailing back restores the public map. The
 existing kraken encounter remains personal, including its HP, loot and cape.
 
 Disconnecting in a cave, on the hunt or in the bomber saves a safe surface
@@ -239,7 +241,7 @@ reservation. Boarding as a passenger is free. Returning the ship, disconnecting,
 or letting a reservation expire does not reduce the next price. Prices and the
 hourly timetable survive restarts; only the hourly reset returns the price to
 5 coins. The server rejects stale quotes without charging the player. Timing,
-prices and reservation duration live in `sf/config/airship.js`.
+prices and reservation duration live in `sf/config/airship.ts`.
 
 Buy a **5-coin grappling hook** from the terminal's airship menu. The inventory
 button **Grapple airship** works within six tiles horizontally beneath an
@@ -259,7 +261,7 @@ net return after the listing fee. Sell through the broker, or let the window
 close automatically. Holdings and quote clocks survive reconnects/restarts;
 listed holdings settle on the next visit if their window ended while the owner was disconnected.
 Returned investment principal receives no iPhone income multiplier.
-`sf/config/finance.js` contains the fee, batches, volatility and duration.
+`sf/config/finance.ts` contains the fee, batches, volatility and duration.
 
 The small southern garden arena offers consensual coin wagers. Both players
 must be present, out of combat, and able to afford the identical stake. An offer
@@ -279,7 +281,7 @@ so walking into a district brings its vendors into view even in a busy world.
 
 ### Server authority and module boundaries
 
-`server-connection.js` blocks world input and simulation until the backend has
+`server-connection.ts` blocks world input and simulation until the backend has
 authenticated the browser. Missing configuration and legacy `?offline=1` URLs
 show the connection form. Disconnects cancel conversations, pending receipts
 and deferred actions, freeze gameplay, and reconnect automatically. A successful
@@ -289,12 +291,12 @@ Native headless geometry and shared rules remain available for simulation and te
 
 Online authority is divided into small domain modules:
 
-- `server/game.mjs`: identity, command dispatch, persistence and lifecycle.
-- `server/movement.mjs`: native routes, movement budgets, vehicles, flight and travel.
-- `server/player-state.mjs`: private quests, combat, training, fishing, deliveries,
+- `server/game.mts`: identity, command dispatch, persistence and lifecycle.
+- `server/movement.mts`: native routes, movement budgets, vehicles, flight and travel.
+- `server/player-state.mts`: private quests, combat, training, fishing, deliveries,
   robotaxi income, phone damage, drinking, interviews and wages.
-- `server/shared-world.mjs`: common NPCs, animals, loot and the airship.
-- `server/replication.mjs`: player interest, binary movement and shared/private deltas.
+- `server/shared-world.mts`: common NPCs, animals, loot and the airship.
+- `server/replication.mts`: player interest, binary movement and shared/private deltas.
 
 Clients send destinations, buttons, dialogue choices and arithmetic answers.
 They cannot upload positions, HP, XP, balances, quest completion, weapon unlocks,
@@ -304,7 +306,7 @@ start with server defaults, not imported local-storage progression. Existing
 server profiles retain their progress. Private does not mean client-authoritative: personal gameplay is
 simulated and persisted on the server too.
 
-Protocol **4** requires deploying the rebuilt `explore.html` and restarting the
+Protocol **4** requires deploying the rebuilt `sf/index.html` and restarting the
 backend together. Old clients must reload.
 
 The server builds the authored map without DOM or GPU resources. Clients send
@@ -313,13 +315,13 @@ poses, which the browser interpolates. Debug teleporting requires `ALLOW_DEBUG=1
 
 ### Following and replication
 
-Following is server-owned. `followPlayer` starts an intent (optionally `attack: true` for PvP approach); `stopFollowing` cancels it. `server/following.mjs` advances routes at 20 Hz and replans at most twice per second when the target changes quarter-tile cells. Replans are staggered across followers. All online movement ignores incoming client position claims; followers receive their own position/animation in the 10 Hz binary movement frame, in addition to nearby players. Clients interpolate those samples; browser focus and render cadence never drive pursuit. Following stops on blocked routes, unsupported transport, map changes, death or disconnect, and respects guild access. Immutable route edges are checked once when entered; changing `geometry.navigationRevision` forces revalidation. Ordinary follow does not run weapon line-of-sight tests.
+Following is server-owned. `followPlayer` starts an intent (optionally `attack: true` for PvP approach); `stopFollowing` cancels it. `server/following.mts` advances routes at 20 Hz and replans at most twice per second when the target changes quarter-tile cells. Replans are staggered across followers. All online movement ignores incoming client position claims; followers receive their own position/animation in the 10 Hz binary movement frame, in addition to nearby players. Clients interpolate those samples; browser focus and render cadence never drive pursuit. Following stops on blocked routes, unsupported transport, map changes, death or disconnect, and respects guild access. Immutable route edges are checked once when entered; changing `geometry.navigationRevision` forces revalidation. Ordinary follow does not run weapon line-of-sight tests.
 
 Protocol 4 replication sends only changed players in the existing 32-byte
 binary record format. A stationary interest gets no redundant movement frames;
 new/re-entering interests receive a complete baseline. Shared entities update
 at up to 5 Hz using field-table IDs, bit masks and quantized values, with explicit
-interest removals. `world-deltas.js` defines the shared field tables. Static NPC
+interest removals. `world-deltas.ts` defines the shared field tables. Static NPC
 artwork and descriptions are already on the client. Private fields and inventory
 revisions update only when changed; action requests no longer attach a complete
 local-storage checkpoint. WebSocket compression remains disabled to avoid
@@ -328,14 +330,14 @@ another service.
 
 ### Teleport tablets
 
-Teleport tablets use `server/teleport-tablets.mjs`: purchases require proximity to Orin and charge 20 coins; travel consumes one durable, server-owned tablet and uses fixed native-validated destinations. The server drives the 2.8-second teleport and ignores client movement during it. Jail, private instances and vehicles prevent tablet use. Disconnecting mid-flight saves the safe destination rather than an airborne position. Tablet counts are included in inventory snapshots and are excluded from client checkpoints.
+Teleport tablets use `server/teleport-tablets.mts`: purchases require proximity to Orin and charge 20 coins; travel consumes one durable, server-owned tablet and uses fixed native-validated destinations. The server drives the 2.8-second teleport and ignores client movement during it. Jail, private instances and vehicles prevent tablet use. Disconnecting mid-flight saves the safe destination rather than an airborne position. Tablet counts are included in inventory snapshots and are excluded from client checkpoints.
 
 ### Map streaming and browser cache
 
-`node sf/build.mjs` bakes terrain, buildings, cutaway section ranges, collision
-adjacency, NPC routes and minimap road outlines. `build-world.mjs` divides meshes
-into 12 × 12 world-unit chunks. `world-codec.js` packs the immutable metadata and
-binary vertex ranges; `world-tile-codec.js` keeps detailed tile polygons compact.
+`npm --prefix sf run build` bakes terrain, buildings, cutaway section ranges, collision
+adjacency, NPC routes and minimap road outlines. `build-world.mts` divides meshes
+into 12 × 12 world-unit chunks. `world-codec.ts` packs the immutable metadata and
+binary vertex ranges; `world-tile-codec.ts` keeps detailed tile polygons compact.
 
 Startup reads the authenticated server position and loads its tile and a small
 surrounding area first. It does not run procedural world construction in the
@@ -346,7 +348,7 @@ priorities, and distant GPU buffers are released. Underground/private scenes do
 not load unrelated surface geometry. Original vertex ranges preserve building
 picking, transparent windows and camera-facing roof cutaways.
 
-`world-stream.js` uses IndexedDB (`sf-static-world`) and content-versioned static
+`world-stream.ts` uses IndexedDB (`sf-static-world`) and content-versioned static
 URLs. The backend serves hashed chunk URLs with immutable cache headers. A build
 hash covers map code, configuration, the HTML template and authored graphics;
 new builds use a separate cache generation and prune old browser entries. The
@@ -365,16 +367,16 @@ view; rebuilding embeds them in the production texture atlas.
 To run the complete-map navigation audit without a browser or server:
 
 ```sh
-node --experimental-default-type=module sf/audit-navigation.mjs
+node --import ./sf/node_modules/tsx/dist/loader.mjs sf/audit-navigation.mts
 ```
 
 This builds the actual production layout, including procedural housing and shop
-walls, through `createWorldModel()` in `world/model.js` (also re-exported by `world.js`). It skips DOM, WebGL, texture
+walls, through `createWorldModel()` in `world/model.ts` (also re-exported by `world.ts`). It skips DOM, WebGL, texture
 loading and ground rasterization; geometry is used to establish the same placed
 bounds, then its vertex buffers are released. Tests do not use screenshots,
 recorded map snapshots, or substitute city routes.
 
-`navigation.js` compiles the rendered tile materials and placed collision
+`navigation.ts` compiles the rendered tile materials and placed collision
 footprints into one graph. Every material has an explicit `walkable` rule in
 `TILE_TYPES`; building floors remain walkable while their walls and door gaps
 provide collision. Shoreline cells use their actual typed polygons. A cell has
@@ -387,7 +389,7 @@ working buffers instead of allocating map-sized arrays for every click or NPC.
 The minimap imports the same component-labeling rule. Nearest-position searches
 use an actual circular radius and the same logical/world coordinate conversion.
 
-`navigation-audit.js` checks every graph edge for reciprocal connectivity and
+`navigation-audit.ts` checks every graph edge for reciprocal connectivity and
 corner clearance. It checks routes in both directions to named destinations,
 shop interiors, actual conversation/petting/ladder approaches, animal-control
 dispatch points, regional junctions and southern trails, including full journeys
@@ -409,39 +411,39 @@ named footprint. Coordinates here match `player.x` / `player.y`.
 
 ### Source modules, models and materials
 
-- `wayfinding.js`: shared vector symbols for homepage destinations, minimap projection and inverse click coordinates, icon spacing, destination flags and navigation regions. The minimap follows the player, including beyond the city boundaries, with the player indicator fixed at its exact center. It stays flat, rotates with the camera, and uses the same live origin for click coordinates and destination flags. Content icons stay clear of the center; only visible icons are selectable. The minimap routes directly into the world; there is no larger map. Matching glowing symbols above content buildings are clickable, with a legend in the ? guide.
-- `world.js`: browser entry and headless-model export. `world/scene.js` composes `generation`, `navigation`, `rendering`, `minimap`, `hud`, `interactions`, `network` and `runtime` services. Zoom, vehicle actions, Say and Help share a compact bottom-right card; flight and climbing keep their relevant action beside Say and Help. S or Say displays a short-lived “yo” above the moving player, including while cycling, climbing or flying. Click feedback uses a shrinking yellow X for accepted actions and a red X for rejected ones; NPC selection adds five pixels around projected geometry while respecting occlusion.
-- `geography.js`: 96 × 96 world dimensions, shared park boundaries, smoother named hills and valleys, Marin ridges and small building pads. Elevations are a stylized geographic model rather than surveyed data.
-- `transamerica.js`: the original Transamerica Pyramid mesh: individually recessed window bays, pale cladding, an exposed braced lobby, closed upper service wings and a separate metal lattice spire. It fits the existing two-tile parcel and joins the static scene batch. Architectural references: [official tower history](https://transamericapyramid.com/transamerica-pyramid) and [Foster + Partners restoration notes](https://www.fosterandpartners.com/news/the-column-transamerica-pyramid-center).
-- `downtown.js`: shared downtown coordinates, the Market/Ferry alignment, Salesforce south of Market, a connected First Street bridge ramp and higher-detail waterfront landmarks. Runtime diagnostics reject broken connections.
-- `environment.js`: one sea surface with shared shallow-water depths, coastal bluffs and Marin landscape details. Deep-water spans retain neighboring edge vertices to prevent cracks; offshore pieces meet the static sea without coplanar overlap and follow the player without a sailing limit. Sea reflections, ripples and surf use the existing procedural shader and rendering pass.
-- `airship.js`: the private jet terminal south of the city, parked jet models, cached airship mesh and rental controller. A walks along a connected southern approach to the rental stand; choose Rent airship to ascend above the highest structure. Ground/minimap clicks set flight destinations, and A returns to the same mooring before descending. The camera and minimap remain centered throughout; a small envelope cutaway keeps the centered rider visible; arrows rotate/tilt the camera. Terminal routes avoid parked jets and connect back into city navigation.
-- `shipping.js`: two cached tanker models on one continuous bay channel loop, sampled by distance for steady movement, opposite phases and a closed seam. Hull extents are checked against the sailing coastline during browser verification.
-- `soma-pyramid.js`: detailed asymmetric glass spire on the existing one-tile SoMa parcel, with separate glazing bays, floor bands, metal mullions, structural diagonals, an entrance canopy and a small crown.
-- `restaurants.js`: Cotogna near Coit Tower and a signed Rich Table house on Oak Street in Hayes Valley. Their private parcels are reserved before surrounding buildings; patio furniture preserves the paving beneath it. Rich Table has a clear aisle and two seated diners sharing a meal, with a distance-culled eating gesture on the existing character rig. Signs retain their requested lettering and use the existing sign atlas. Reference identities: [Cotogna](https://www.cotognasf.com/) and [Rich Table](https://www.richtablesf.com/location/rich-table/).
-- `life.js`: checked pavement routes for pedestrians and cyclists, ferries, tangent-facing gull flight and the streetcar model. Gulls fly wider continuous loops with wingbeats, or glide gently under reduced motion; distant actors are culled before mesh construction.
-- `characters.js`: original indexed character meshes, 16 joint groups, two-weight skinning, cached clothing/hair variants and palette recoloring. Walking/running phases follow distance traveled; foot targets and two-bone IK maintain contacts on terrain. Idle, seated, cycling, windsurfing and ladder-climbing poses share the rig, with upper-body talk, reach and attack gestures. Transformed vertices join the existing dynamic batch without another rendering pass.
-- `windsurfing.js`: the Crissy Field launch, unrestricted open-water sailing, board, sail and rider meshes. Exact coastline intersections and a cached visibility graph route around SF, Marin and Yerba Buena Island. A camera-centered sea surface follows the rider beyond the city map. F launches or returns to shore.
-- `encounters.js`: constant-speed police pursuit, capture, and the barred Carceral Urbanist Facility in the Marin Headlands. Talking is peaceful; attacking or stealing starts pursuit. Officers continue through menus and follow the player onto the bay. Detention permits walking inside the cell, with routes around the bunk and no passage through the bars. Camera, zoom and help remain available; travel and interactions outside the cell remain disabled. The Classic page switch remains available.
-- `models.js`: building, landmark, furniture, character and bicycle mesh factories. The world supplies placement and GPU services through `createModels`. Trees and park benches retain their underlying surface textures and terrain; their collision footprints do not paint building foundations or flatten a square into the ground.
-- `housing.js`: curb-height entrances, fitted hillside plots, four roof profiles, façades, garden stairs, balconies and animated private funiculars. Townhomes keep their street orientation and a maximum of two main storeys; downhill sides can expose a walk-out basement.
-- `sutro.js`: shared ridge-site coordinates, ladder radii and the original 3D Sutro Tower mesh, including its three legs, grated upper platform, antenna masts and guy wires. Click or right-click the tower to choose Climb Sutro Tower, or press E nearby. The reversible traversal follows the visible ladder, keeps the character centered as the camera rises, and returns to the same navigable trail point. Climb down or E descends; it also works partway up. The climbing rig follows vertical distance, keeping planted hands and feet on their rungs. Travel and vehicle actions are unavailable until back on the ground; camera and zoom controls remain available.
-- `lighting.js`: detailed curbside lamps and one depth-tested additive pass for warm halos and terrain-following light pools. Salesforce Tower’s crown uses a small procedural metaball shader for subtle, slowly merging pale-blue light behind the top-floor glazing; it shares the main time uniform and freezes with reduced motion. Emissive glass and metal use reserved GPU style values; the glow buffers rebuild after WebGL context restoration.
-- `geometry.js`: mesh primitives, transforms, picking math and the shared camera-facing cutaway mask.
-- `tiles.js`: configurable surface types, polygon partitioning, connectivity checks and tile regressions. Water-edge intervals and heights are checked alongside road and curb connections; an aligned land/water transition requires a shoreline authored on both neighbors.
-- `water-tiles.js`: shared, precomputed land/ocean/lake partitions. Boundary cells split the two terrain triangles against the actual coastline and lake outlines, preserving concave coves and narrow inlets. Rendering uses these same typed fragments; waterfront footprints preserve water beneath piers, and connected Lake Merced lobes share one level.
-- `material-catalog.mjs`: the shared list of material names, stable GPU slots, source filenames, labels and intended uses, plus atlas dimensions. `MATERIAL_IDS` is derived from this catalog.
-- `materials.js`: texture loading, context restoration, stable room appearances and the separate lettering atlas. Residential glazing uses a dedicated ambient shader style with restrained warm light in roughly one fifth of rooms; it does not blend the atlas’s pane pattern into the glass. Bay and shop windows sit clear of their backing panels to avoid depth fighting. The glass SVG provides faint reflection detail for glazed towers.
-- `../textures/materials/*.svg`: the editable material sources. Each standalone 256 × 256 SVG has a title, usage description, and named background/detail groups. For example, edit `grass.svg` for grass, or `roof-tile.svg` for clay roof tiles.
-- `../textures/materials/preview.html`: generated visual reference with swatches, names, slot numbers, intended uses and links to each source. Open it directly with `file://` or through the development server.
-- `../textures/sf-materials.svg`: the generated 1024 × 1024 atlas. The build arranges all 16 named materials into the catalog’s 4 × 4 grid. Do not edit this generated file.
-- `build-materials.mjs`: validates the catalog and SVG references, then assembles the atlas and visual reference. `build.mjs` runs this automatically.
-- `build.mjs`: validates map inputs and combines the module graph and graphics into `../explore.html`. `build-bundle.mjs` uses esbuild with scoped native modules and source maps; `build-world-inputs.mjs` isolates semantic map dependencies from UI/runtime changes. Do not edit the generated HTML directly.
-- `dev.mjs`: serves the modular development view and public assets with caching disabled.
+- `wayfinding.ts`: shared vector symbols for homepage destinations, minimap projection and inverse click coordinates, icon spacing, destination flags and navigation regions. The minimap follows the player, including beyond the city boundaries, with the player indicator fixed at its exact center. It stays flat, rotates with the camera, and uses the same live origin for click coordinates and destination flags. Content icons stay clear of the center; only visible icons are selectable. The minimap routes directly into the world; there is no larger map. Matching glowing symbols above content buildings are clickable, with a legend in the ? guide.
+- `world.ts`: browser entry and headless-model export. `world/scene.ts` composes `generation`, `navigation`, `rendering`, `minimap`, `hud`, `interactions`, `network` and `runtime` services. Zoom, vehicle actions, Say and Help share a compact bottom-right card; flight and climbing keep their relevant action beside Say and Help. S or Say displays a short-lived “yo” above the moving player, including while cycling, climbing or flying. Click feedback uses a shrinking yellow X for accepted actions and a red X for rejected ones; NPC selection adds five pixels around projected geometry while respecting occlusion.
+- `geography.ts`: 96 × 96 world dimensions, shared park boundaries, smoother named hills and valleys, Marin ridges and small building pads. Elevations are a stylized geographic model rather than surveyed data.
+- `transamerica.ts`: the original Transamerica Pyramid mesh: individually recessed window bays, pale cladding, an exposed braced lobby, closed upper service wings and a separate metal lattice spire. It fits the existing two-tile parcel and joins the static scene batch. Architectural references: [official tower history](https://transamericapyramid.com/transamerica-pyramid) and [Foster + Partners restoration notes](https://www.fosterandpartners.com/news/the-column-transamerica-pyramid-center).
+- `downtown.ts`: shared downtown coordinates, the Market/Ferry alignment, Salesforce south of Market, a connected First Street bridge ramp and higher-detail waterfront landmarks. Runtime diagnostics reject broken connections.
+- `environment.ts`: one sea surface with shared shallow-water depths, coastal bluffs and Marin landscape details. Deep-water spans retain neighboring edge vertices to prevent cracks; offshore pieces meet the static sea without coplanar overlap and follow the player without a sailing limit. Sea reflections, ripples and surf use the existing procedural shader and rendering pass.
+- `airship.ts`: the private jet terminal south of the city, parked jet models, cached airship mesh and rental controller. A walks along a connected southern approach to the rental stand; choose Rent airship to ascend above the highest structure. Ground/minimap clicks set flight destinations, and A returns to the same mooring before descending. The camera and minimap remain centered throughout; a small envelope cutaway keeps the centered rider visible; arrows rotate/tilt the camera. Terminal routes avoid parked jets and connect back into city navigation.
+- `shipping.ts`: two cached tanker models on one continuous bay channel loop, sampled by distance for steady movement, opposite phases and a closed seam. Hull extents are checked against the sailing coastline during browser verification.
+- `soma-pyramid.ts`: detailed asymmetric glass spire on the existing one-tile SoMa parcel, with separate glazing bays, floor bands, metal mullions, structural diagonals, an entrance canopy and a small crown.
+- `restaurants.ts`: Cotogna near Coit Tower and a signed Rich Table house on Oak Street in Hayes Valley. Their private parcels are reserved before surrounding buildings; patio furniture preserves the paving beneath it. Rich Table has a clear aisle and two seated diners sharing a meal, with a distance-culled eating gesture on the existing character rig. Signs retain their requested lettering and use the existing sign atlas. Reference identities: [Cotogna](https://www.cotognasf.com/) and [Rich Table](https://www.richtablesf.com/location/rich-table/).
+- `life.ts`: checked pavement routes for pedestrians and cyclists, ferries, tangent-facing gull flight and the streetcar model. Gulls fly wider continuous loops with wingbeats, or glide gently under reduced motion; distant actors are culled before mesh construction.
+- `characters.ts`: original indexed character meshes, 16 joint groups, two-weight skinning, cached clothing/hair variants and palette recoloring. Walking/running phases follow distance traveled; foot targets and two-bone IK maintain contacts on terrain. Idle, seated, cycling, windsurfing and ladder-climbing poses share the rig, with upper-body talk, reach and attack gestures. Transformed vertices join the existing dynamic batch without another rendering pass.
+- `windsurfing.ts`: the Crissy Field launch, unrestricted open-water sailing, board, sail and rider meshes. Exact coastline intersections and a cached visibility graph route around SF, Marin and Yerba Buena Island. A camera-centered sea surface follows the rider beyond the city map. F launches or returns to shore.
+- `encounters.ts`: constant-speed police pursuit, capture, and the barred Carceral Urbanist Facility in the Marin Headlands. Talking is peaceful; attacking or stealing starts pursuit. Officers continue through menus and follow the player onto the bay. Detention permits walking inside the cell, with routes around the bunk and no passage through the bars. Camera, zoom and help remain available; travel and interactions outside the cell remain disabled. The Classic page switch remains available.
+- `models.ts`: building, landmark, furniture, character and bicycle mesh factories. The world supplies placement and GPU services through `createModels`. Trees and park benches retain their underlying surface textures and terrain; their collision footprints do not paint building foundations or flatten a square into the ground.
+- `housing.ts`: curb-height entrances, fitted hillside plots, four roof profiles, façades, garden stairs, balconies and animated private funiculars. Townhomes keep their street orientation and a maximum of two main storeys; downhill sides can expose a walk-out basement.
+- `sutro.ts`: shared ridge-site coordinates, ladder radii and the original 3D Sutro Tower mesh, including its three legs, grated upper platform, antenna masts and guy wires. Click or right-click the tower to choose Climb Sutro Tower, or press E nearby. The reversible traversal follows the visible ladder, keeps the character centered as the camera rises, and returns to the same navigable trail point. Climb down or E descends; it also works partway up. The climbing rig follows vertical distance, keeping planted hands and feet on their rungs. Travel and vehicle actions are unavailable until back on the ground; camera and zoom controls remain available.
+- `lighting.ts`: detailed curbside lamps and one depth-tested additive pass for warm halos and terrain-following light pools. Salesforce Tower’s crown uses a small procedural metaball shader for subtle, slowly merging pale-blue light behind the top-floor glazing; it shares the main time uniform and freezes with reduced motion. Emissive glass and metal use reserved GPU style values; the glow buffers rebuild after WebGL context restoration.
+- `geometry.ts`: mesh primitives, transforms, picking math and the shared camera-facing cutaway mask.
+- `tiles.ts`: configurable surface types, polygon partitioning, connectivity checks and tile regressions. Water-edge intervals and heights are checked alongside road and curb connections; an aligned land/water transition requires a shoreline authored on both neighbors.
+- `water-tiles.ts`: shared, precomputed land/ocean/lake partitions. Boundary cells split the two terrain triangles against the actual coastline and lake outlines, preserving concave coves and narrow inlets. Rendering uses these same typed fragments; waterfront footprints preserve water beneath piers, and connected Lake Merced lobes share one level.
+- `material-catalog.mts`: the shared list of material names, stable GPU slots, source filenames, labels and intended uses, plus atlas dimensions. `MATERIAL_IDS` is derived from this catalog.
+- `materials.ts`: texture loading, context restoration, stable room appearances and the separate lettering atlas. Residential glazing uses a dedicated ambient shader style with restrained warm light in roughly one fifth of rooms; it does not blend the atlas’s pane pattern into the glass. Bay and shop windows sit clear of their backing panels to avoid depth fighting. The glass SVG provides faint reflection detail for glazed towers.
+- `textures/materials/*.svg`: the editable material sources. Each standalone 256 × 256 SVG has a title, usage description, and named background/detail groups. For example, edit `grass.svg` for grass, or `roof-tile.svg` for clay roof tiles.
+- `textures/materials/preview.html`: generated visual reference with swatches, names, slot numbers, intended uses and links to each source. Open it directly with `file://` or through the development server.
+- `textures/sf-materials.svg`: the generated 1024 × 1024 atlas. The build arranges all 16 named materials into the catalog’s 4 × 4 grid. Do not edit this generated file.
+- `build-materials.mts`: validates the catalog and SVG references, then assembles the atlas and visual reference. `build.mts` runs this automatically.
+- `build.mts`: validates map inputs and combines the module graph and graphics into `index.html`. `build-bundle.mts` uses esbuild with scoped native modules and source maps; `build-world-inputs.mts` isolates semantic map dependencies from UI/runtime changes. Do not edit the generated HTML directly.
+- `dev.mts`: serves the modular development view and public assets with caching disabled.
 
 Material lookup follows the geometry, rather than SVG element IDs. A model asks for a named material, such as `m.box(..., "brick")`. `Mesh.tri` looks up `MATERIAL_IDS.brick` (slot 6), storing that selection in the mesh’s UV data. The fragment shader converts slot 6 to column 2, row 1 (zero-based), repeats that region using world coordinates, and multiplies the sampled detail by the model color. SVG IDs are local artwork references; the renderer uploads the entire sheet once and samples pixels from it. Atlas dimensions and the special glass slot come from the catalog too.
 
-To change artwork, find the material in `textures/materials/preview.html`, edit its linked SVG, and run `node sf/build.mjs`. This rebuilds the atlas, reference and standalone experience. The production build embeds a compact copy of the atlas, preserving the single texture upload and `file://` support.
+To change artwork, find the material in `sf/textures/materials/preview.html`, edit its linked SVG, and run `npm --prefix sf run build`. This rebuilds the atlas, reference and standalone experience. The production build embeds a compact copy of the atlas, preserving the single texture upload and `file://` support.
 
 ### Rendering and additional systems
 
@@ -459,15 +461,15 @@ Character rendering research:
 
 This implementation uses that separation of geometry and animation with original geometry and poses. Foot placement, interpolation and action overlays are authored for this world. The character renderer does not load RuneScape model caches or require WASM, a rendering library, or external character downloads.
 
-Marin uses `marin-land.js` for its terrain mesh, bounded terrain picking and a half-tile native walking graph. Its polygon shoreline and the detention footprint are collision boundaries. The navigation audit checks routes into the headland ridges and back across the Golden Gate; walking does not require staying on the bridge road.
+Marin uses `marin-land.ts` for its terrain mesh, bounded terrain picking and a half-tile native walking graph. Its polygon shoreline and the detention footprint are collision boundaries. The navigation audit checks routes into the headland ridges and back across the Golden Gate; walking does not require staying on the bridge road.
 
-`loading-screen.js` displays completed initialization stages and waits for the material atlases, signs and first rendered frame before showing 100% and dismissing the overlay. `teleport-tablets.js` owns the tablet inventory and 2.8-second travel pose; `teleport-models.js` draws its purple lightning. Orin the Wizard sells both tablets for 20 coins inside the Nob Hill home. Inventory buttons break a tablet and land the player by the Tahoe gondola or Mazarine in downtown SF. Purchases, consumption and arrival are server-authoritative; local storage cannot supply tablets or complete travel. Other players have Follow, optional PvP Attack and Walk here actions, without Examine.
+`loading-screen.ts` displays completed initialization stages and waits for the material atlases, signs and first rendered frame before showing 100% and dismissing the overlay. `teleport-tablets.ts` owns the tablet inventory and 2.8-second travel pose; `teleport-models.ts` draws its purple lightning. Orin the Wizard sells both tablets for 20 coins inside the Nob Hill home. Inventory buttons break a tablet and land the player by the Tahoe gondola or Mazarine in downtown SF. Purchases, consumption and arrival are server-authoritative; local storage cannot supply tablets or complete travel. Other players have Follow, optional PvP Attack and Walk here actions, without Examine.
 
 The Sunset peptide site is the Technologist’s Farmers Market (its stable internal site ID remains `sunset-whole-foods`). Four farmers wear dark coats and sunglasses; their dialogue reads the same spawn deadline used by the shared world. `peptideSpawnAt` is sent at login and whenever the deadline changes, so countdowns need no polling or per-second network messages. There is no local spawn clock.
 
-`countryside.js` makes the regional grass between Berkeley and Tahoe walkable. A small visibility graph routes around the campus and roadside buildings without storing a giant empty tile grid; water and the detailed Tahoe collision map retain their own boundaries. Grass picking and foot placement use the same clipped 16-tile triangles as the regional backdrop. Native route checks cover journeys over grass from Berkeley to the gondola and back. Hold Shift while flying the B-2 for rocket-speed boost; releasing Shift returns to cruise speed.
+`countryside.ts` makes the regional grass between Berkeley and Tahoe walkable. A small visibility graph routes around the campus and roadside buildings without storing a giant empty tile grid; water and the detailed Tahoe collision map retain their own boundaries. Grass picking and foot placement use the same clipped 16-tile triangles as the regional backdrop. Native route checks cover journeys over grass from Berkeley to the gondola and back. Hold Shift while flying the B-2 for rocket-speed boost; releasing Shift returns to cruise speed.
 
-Combat accuracy falls linearly with inebriation: 50% inebriation reduces hit chance by 25%, and 100% halves it. Successful-hit damage and strength bonuses remain unchanged. `combat.js` supplies the shared rule to spectre battles, expeditions, wilderness encounters and server-authoritative PvP/shared monsters. Each swing reads the current percentage, so sobering restores accuracy during a fight. The inebriation indicator explains the current penalty on hover.
+Combat accuracy falls linearly with inebriation: 50% inebriation reduces hit chance by 25%, and 100% halves it. Successful-hit damage and strength bonuses remain unchanged. `combat.ts` supplies the shared rule to spectre battles, expeditions, wilderness encounters and server-authoritative PvP/shared monsters. Each swing reads the current percentage, so sobering restores accuracy during a fight. The inebriation indicator explains the current penalty on hover.
 
 Multiplayer following now sends a follow intent to the server rather than pathfinding or advancing the follower in requestAnimationFrame. The server advances the route and walk phase even while that browser is backgrounded or its render loop is paused; the client interpolates its own authoritative samples and reuses the same character rig as other players. Clicking away cancels follow and rebases the new walk route onto the server’s final position.
 

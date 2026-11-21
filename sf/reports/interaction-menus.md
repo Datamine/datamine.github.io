@@ -63,10 +63,10 @@ camera orientation.
 ## Repeatable checks
 
 ```sh
-node --test sf/tests/interaction-menus.test.mjs sf/tests/dialogue.test.mjs sf/tests/jurassic.test.mjs
+node --import ./sf/node_modules/tsx/dist/loader.mjs --test sf/tests/interaction-menus.test.mts sf/tests/dialogue.test.mts sf/tests/jurassic.test.mts
 node --test --test-concurrency=2 sf/server/tests/*.test.mjs
-node sf/build.mjs
-node --test sf/tests/build.test.mjs
+npm --prefix sf run build
+node --import ./sf/node_modules/tsx/dist/loader.mjs --test sf/tests/build.test.mts
 ```
 
 Final backend results: 205 passed, 3 skipped, 0 failed. The final focused client

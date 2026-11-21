@@ -10,7 +10,7 @@ COPYFILE_DISABLE=1 tar -czf "$output" \
     --exclude='node_modules' --exclude='data' --exclude='backups' \
     --exclude='.terraform' --exclude='*.tfstate*' --exclude='*.tfvars' \
     --exclude='*.sqlite*' --exclude='*.log' --exclude='game.tar.gz' \
-    --exclude='.DS_Store' --exclude='__pycache__' \
+    --exclude='.build' --exclude='.DS_Store' --exclude='__pycache__' \
     --exclude='.aws' --exclude='.codex' --exclude='.agents' \
-    -C "$repo_root" sf index.html new.css explore.html textures billboards
+    -C "$repo_root" sf
 echo "Packaged $output"

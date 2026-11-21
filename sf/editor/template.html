@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>World editor · Objects & NPCs</title>
+    <style>
+      /* EDITOR:CSS */
+    </style>
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">◇</span>
+        <div>
+          <h1>World editor</h1>
+          <p>Objects, actions & conversations</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label class="draft-toggle"><input id="edit-mode" type="checkbox" /> Draft edits</label
+        ><button id="save-source" class="save-primary" disabled>Save to game</button
+        ><button id="export" disabled>Export changes <span id="draft-count">0</span></button
+        ><button id="reset-drafts" class="quiet" disabled>Discard drafts</button>
+      </div>
+    </header>
+    <div class="workspace">
+      <aside class="catalog" aria-label="World catalog">
+        <div class="catalog-controls">
+          <label for="search">Find something in the world</label
+          ><input id="search" type="search" placeholder="Name, text, ID…" autocomplete="off" />
+          <div class="filters" role="group" aria-label="Entity type">
+            <button data-group="all" aria-pressed="true">All</button
+            ><button data-group="object" aria-pressed="false">
+              <i class="object-dot"></i> Objects <span id="object-count"></span></button
+            ><button data-group="npc" aria-pressed="false">
+              <i class="npc-dot"></i> NPCs <span id="npc-count"></span>
+            </button>
+          </div>
+          <label class="kind-filter"
+            >Type
+            <select id="kind">
+              <option value="all">All types</option>
+            </select></label
+          >
+          <p id="result-count" class="muted" aria-live="polite"></p>
+        </div>
+        <nav id="entity-list" aria-label="Objects and NPCs"></nav>
+        <footer class="catalog-footer">
+          <span class="object-text">Teal · objects</span><span class="npc-text">Yellow · NPCs</span
+          ><small>Man, Woman & Child NPCs are excluded.</small>
+        </footer>
+      </aside>
+      <main id="detail" tabindex="-1"></main>
+    </div>
+    <footer class="status-bar">
+      <span id="status" role="status">Connecting to the local editor server…</span>
+      <details>
+        <summary>About this editor</summary>
+        <p>
+          Menus and conversations come from canonical JSON definitions. State variants cover quests,
+          ownership and activities. Generic casual conversations are shared across eligible NPCs.
+          Conditions use the same JSON player state as the game. Repeated names and types share one
+          entry. Definition details lists their world placements.
+        </p>
+        <p>
+          Edits stay in this browser until you choose Save to game. The local server writes
+          <code>sf/content/entities.json</code>, <code>dialogues.json</code>, and
+          <code>texts.json</code>. The game reloads content automatically. Export changes also saves
+          a reviewable JSON file. Name changes and NPC/Object conversions apply to every placement
+          in the selected entry.
+        </p>
+        <p>
+          Refresh the catalog with <code>npm --prefix sf run build:editor</code>. The normal game
+          build refreshes it too.
+        </p>
+        <p id="catalog-version"></p>
+      </details>
+    </footer>
+    <script id="editor-catalog" type="application/json">
+      /* EDITOR:DATA */
+    </script>
+    <script type="module">
+      /* EDITOR:JS */
+    </script>
+  </body>
+</html>

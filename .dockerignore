@@ -1,7 +1,0 @@
-.git
-**/node_modules
-sf/server/data
-sf/server/.env
-sf/tests
-sf/server/tests
-**/.DS_Store

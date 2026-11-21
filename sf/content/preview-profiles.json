@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "profiles": [
+    {
+      "label": "New visitor"
+    },
+    {
+      "label": "Monkey quest: accepted",
+      "monkey": "accepted"
+    },
+    {
+      "label": "Monkey quest: carrying",
+      "monkey": "carrying"
+    },
+    {
+      "label": "Monkey quest: completed",
+      "monkey": "completed"
+    },
+    {
+      "label": "Sunglasses found",
+      "theyLive": {
+        "started": true
+      }
+    },
+    {
+      "label": "Evidence certified",
+      "theyLive": {
+        "started": true,
+        "evidence": true
+      }
+    },
+    {
+      "label": "Permit issued",
+      "theyLive": {
+        "started": true,
+        "evidence": true,
+        "permit": true
+      }
+    },
+    {
+      "label": "Bayonet collected",
+      "theyLive": {
+        "started": true,
+        "evidence": true,
+        "permit": true,
+        "bayonet": true
+      }
+    },
+    {
+      "label": "All aliens defeated",
+      "theyLive": {
+        "started": true,
+        "evidence": true,
+        "permit": true,
+        "bayonet": true,
+        "defeated": [
+          "alien-civic",
+          "alien-ferry",
+          "alien-venture",
+          "alien-industrial",
+          "alien-square",
+          "alien-sand-hill"
+        ]
+      }
+    },
+    {
+      "label": "Alien quest complete",
+      "theyLive": {
+        "started": true,
+        "evidence": true,
+        "permit": true,
+        "bayonet": true,
+        "defeated": [
+          "alien-civic",
+          "alien-ferry",
+          "alien-venture",
+          "alien-industrial",
+          "alien-square",
+          "alien-sand-hill"
+        ],
+        "completed": true
+      }
+    },
+    {
+      "label": "Raptor quest: escaped",
+      "raptor": "escaped"
+    },
+    {
+      "label": "Raptor quest: carrying",
+      "raptor": "carrying"
+    },
+    {
+      "label": "Raptor quest: completed",
+      "raptor": "completed"
+    },
+    {
+      "label": "Aboard the Pequod",
+      "aboard": true,
+      "raptor": "completed"
+    },
+    {
+      "label": "Kraken defeated, aboard",
+      "aboard": true,
+      "victory": true,
+      "raptor": "completed"
+    },
+    {
+      "label": "Kraken reward collected",
+      "krakenReward": true,
+      "raptor": "completed"
+    },
+    {
+      "label": "Guild applicant",
+      "guildVisits": 7
+    },
+    {
+      "label": "Guild member",
+      "guildMember": true
+    },
+    {
+      "label": "Illuminati initiate",
+      "guildMember": true,
+      "initiated": true
+    },
+    {
+      "label": "Motorcycle rented",
+      "rented": true
+    },
+    {
+      "label": "AI lab employee",
+      "hired": true
+    },
+    {
+      "label": "iPhone owned, put away",
+      "iphoneOwned": true
+    },
+    {
+      "label": "iPhone equipped",
+      "iphoneOwned": true,
+      "iphoneEquipped": true
+    },
+    {
+      "label": "Robotaxi owned",
+      "robotaxiOwned": true
+    },
+    {
+      "label": "Software pitch pending",
+      "pitch": true
+    },
+    {
+      "label": "Carrying a conservation letter",
+      "letter": 1
+    },
+    {
+      "label": "Conservation letter delivered",
+      "lettersDelivered": 1
+    },
+    {
+      "label": "Founder funding claimed",
+      "funded": true
+    },
+    {
+      "label": "All shop hats owned",
+      "hatsOwned": true
+    },
+    {
+      "label": "Airship rented by another player",
+      "airshipActive": true
+    },
+    {
+      "label": "Airship prepaid",
+      "prepaid": true
+    },
+    {
+      "label": "Airship reserved by another player",
+      "reserved": true
+    },
+    {
+      "label": "Dog surfing: judging",
+      "judging": true
+    },
+    {
+      "label": "In custody",
+      "jailed": true
+    },
+    {
+      "label": "Equipment and rentals available",
+      "equipment": true,
+      "rented": true
+    }
+  ]
+}

@@ -13,15 +13,15 @@ Replication preserves protocol 4. Deploy the client-command adapter refactor wit
   instances remain isolated and entering interests get complete baselines.
   Speech uses reverse visibility interests and one encoded event, avoiding an
   all-nearby broadcast/sort for invisible speakers in dense crowds.
-- `spatial-index.mjs` shares candidate lists between nearby observers, uses
+- `spatial-index.mts` shares candidate lists between nearby observers, uses
   bounded top-K selection, then checks exact distances. Boundary ties are kept.
-- `player-frames.mjs` encodes each source player once per broadcast and copies
+- `player-frames.mts` encodes each source player once per broadcast and copies
   cached 32-byte records to recipients. Changes compare actual wire bytes,
   avoiding both repeated encoding and lost sub-centimeter changes.
-- `player-components.mjs` publishes immutable private DTOs only when explicit component fields change. Per-player revision baselines replace whole transient-state string comparisons. Idle/walking players reuse their records until an action, snapshot revision or activity transition invalidates them. Active police, keeper, travel and instance presentations sample independently.
-- `replication.mjs` prepares rounded global state once per broadcast, then reuses it for recipients. It caches public metadata and unchanged shared source arrays.
+- `player-components.mts` publishes immutable private DTOs only when explicit component fields change. Per-player revision baselines replace whole transient-state string comparisons. Idle/walking players reuse their records until an action, snapshot revision or activity transition invalidates them. Active police, keeper, travel and instance presentations sample independently.
+- `replication.mts` prepares rounded global state once per broadcast, then reuses it for recipients. It caches public metadata and unchanged shared source arrays.
   Field-mask patches are reused by observers with identical previous versions.
-- `routes.mjs` caches exact endpoints, including failures, without rounding
+- `routes.mts` caches exact endpoints, including failures, without rounding
   across walls. Cached waypoint arrays are detached from actor routes. Expiry
   and navigation revisions invalidate the cache. Limits bound entries and points.
   Obstructed routes can reuse a quarter-cell core only after both exact endpoint
@@ -34,7 +34,7 @@ Replication preserves protocol 4. Deploy the client-command adapter refactor wit
 - Follow replans use count/time budgets and round-robin admission. Deferred
   actors keep their existing route. A very crowded pursuit may lag; an individual
   synchronous path search cannot be interrupted by the time budget.
-- `action-queue.mjs` yields to I/O/timers after 4 ms or 64 mutations, preserving
+- `action-queue.mts` yields to I/O/timers after 4 ms or 64 mutations, preserving
   order. Consecutive pending destinations coalesce; every request gets a result.
   Other messages are barriers. Sessions exceeding 32 pending commands close
   rather than growing an unbounded backlog. Running actions are not preempted.
@@ -58,7 +58,7 @@ Replication preserves protocol 4. Deploy the client-command adapter refactor wit
   differential test matches original distances exactly. Unowned passive assets
   and unhired AI jobs skip unnecessary per-tick work and building searches.
 
-Defaults are in [`tuning.mjs`](tuning.mjs); tests can override them using
+Defaults are in [`tuning.mts`](tuning.mjs); tests can override them using
 `createGame({tuning:{...}})`. Gameplay balance/cadence remain in `sf/config`.
 
 ## Metrics
@@ -85,11 +85,11 @@ production decision, put the load generator on a separate machine. Loopback
 shares host resources and excludes WAN, TLS and reverse-proxy overhead.
 
 ```sh
-node sf/server/load-test.mjs --url ws://127.0.0.1:8787/ws \
+node --import ./sf/node_modules/tsx/dist/loader.mjs sf/server/load-test.mts --url ws://127.0.0.1:8787/ws \
   --players 2000 --seconds 60 --warmup 8 --scenario crowded \
   --output /tmp/crowded-2000.json
 
-node sf/server/load-test.mjs --url ws://127.0.0.1:8787/ws \
+node --import ./sf/node_modules/tsx/dist/loader.mjs sf/server/load-test.mts --url ws://127.0.0.1:8787/ws \
   --players 2000 --seconds 60 --warmup 8 --scenario mixed \
   --output /tmp/mixed-2000.json
 ```

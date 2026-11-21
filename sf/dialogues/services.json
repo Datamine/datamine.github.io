@@ -1,7 +1,7 @@
 {
   "conversations": {
     "yohji": {
-      "intro": "Clothes should give you room to exist. Bring me one bison hide from Golden Gate Park and I’ll make you a cool black cloak: a very loose long-sleeved top and a skirt down to the ground.",
+      "intro": "Clothes should give you room to exist. I work in black fabric and bison hide. The wind handles the fittings.",
       "repeat": true,
       "choices": [
         {
@@ -95,13 +95,13 @@
       ]
     },
     "founder": {
-      "intro": "Welcome to our startup HQ! One share of startup equity costs {equityPrice} coins. You can sell it to the secondary purchaser by the Venture Exchange.",
+      "intro": "Welcome to our startup HQ! We have a pitch deck and an unusually confident valuation.",
       "repeat": true,
       "choices": [
         {
           "label": "Buy one share · {equityPrice} coins",
           "trade": "equity",
-          "receipt": "One share of startup equity is yours. The secondary purchaser by the Venture Exchange may be interested."
+          "receipt": "One share of startup equity is yours. Welcome aboard."
         }
       ]
     },
@@ -117,29 +117,33 @@
       ]
     },
     "grain": {
-      "intro": "The ducks in Golden Gate Park love a little grain. One bag costs {grainPrice} coin.",
+      "intro": "Grain for sale. The ducks have been very supportive of the business.",
       "repeat": true,
       "choices": [
         {
           "label": "Buy duck grain · {grainPrice} coin",
           "trade": "grain",
-          "receipt": "One bag of grain. Take it to the pond and choose Feed ducks."
+          "receipt": "One bag of grain. Mind the beaks."
         }
       ]
     },
     "chef": {
-      "intro": "Fresh fish! Bring me a live one from Fisherman’s Wharf and I’ll pay {fishPrice} coins. One fish at a time, please; this is a kitchen, not an aquarium.",
+      "intro": "Fresh fish! I pay {fishPrice} coins for a live one. One at a time, please; this is a kitchen, not an aquarium.",
       "repeat": true,
       "choices": [
         {
           "label": "Sell my live fish · {fishPrice} coins",
           "trade": "fish-sale",
           "receipt": "Beautiful catch. Bring me another whenever you like!"
+        },
+        {
+          "label": "Buy a tinfoil suit · 20 coins",
+          "action": "buyTinfoil"
         }
       ]
     },
     "gpu-buyer": {
-      "intro": "We turn sand into GPUs. There are a few steps in the middle, but procurement asked me to keep this simple. Bring sand from Ocean Beach and I’ll pay {sandPrice} coins per sack.",
+      "intro": "We turn sand into GPUs. There are a few steps in the middle, but procurement asked me to keep this simple. I pay {sandPrice} coins per sack.",
       "repeat": true,
       "choices": [
         {
@@ -164,13 +168,13 @@
         {
           "label": "Launch · {rocketPrice} coin",
           "action": "launch",
-          "receipt": "Ready to launch. Press OK to board."
+          "receipt": "Ready to launch."
         }
       ],
       "decline": "I’ll stay here."
     },
     "ski-lift": {
-      "intro": "Welcome to the summit. Skis cost {skiPrice} coin to rent. The groomed trail has four ramps; the gondola runs both ways.",
+      "intro": "Welcome to the summit. Skis cost {skiPrice} coin to rent. Beautiful weather for questionable decisions.",
       "repeat": true,
       "choices": [
         {
@@ -227,12 +231,13 @@
           "label": "May I sweep the floors?",
           "action": "service",
           "args": ["sweep"],
-          "receipt": "Of course. Thank you for helping with the floor."
+          "receipt": "Of course. Thank you for helping with the floor.",
+          "serverReceipt": true
         }
       ]
     },
     "deli": {
-      "intro": "Welcome to Lucinda’s Deli. A sandwich costs {sandwichPrice} coins here, or {deliveryPrice} delivered by our tiny DoorDash cooler. Each restores up to {healing} hitpoints.",
+      "intro": "Welcome to Lucinda’s Deli. A sandwich costs {sandwichPrice} coins here, or {deliveryPrice} delivered.",
       "repeat": true,
       "choices": [
         {
@@ -246,7 +251,7 @@
       ]
     },
     "burger": {
-      "intro": "Welcome to In-N-Out! A sandwich is {burgerPrice} coins and restores up to {healing} hitpoints. Emergency lunch at a very reasonable price.",
+      "intro": "Welcome to In-N-Out! A sandwich is {burgerPrice} coins. Emergency lunch at a very reasonable price.",
       "repeat": true,
       "choices": [
         {
@@ -256,7 +261,7 @@
       ]
     },
     "motorcycle-rental": {
-      "intro": "Five coins rents the motorcycle beside the monkey habitat. Arrange your rental before starting any suspicious primate-related errands.",
+      "intro": "Five coins rents the motorcycle. Please return it with the same number of wheels.",
       "choices": [
         {
           "label": "Rent the motorcycle · 5 coins",
@@ -274,7 +279,7 @@
       ]
     },
     "ai-recruiter": {
-      "intro": "Our interview is two minutes of mental arithmetic. Score at least 40 to get the job. Once hired, you earn one coin every two seconds while inside the lab.",
+      "intro": "We’re hiring. There’s a short arithmetic interview, if you’re interested.",
       "choices": [
         {
           "label": "I’d like to take the interview.",
@@ -284,12 +289,12 @@
       ]
     },
     "ai-employee": {
-      "intro": "Welcome back. The GPU racks are humming, and payroll runs every two seconds while you’re inside the lab.",
+      "intro": "Welcome back. The GPU racks are humming, and somebody has labeled the kettle “infrastructure.”",
       "choices": [
         {
           "label": "I’m ready to work.",
           "action": "work",
-          "receipt": "Come inside to start earning. You can leave whenever you like."
+          "receipt": "Welcome back. Make yourself comfortable."
         }
       ]
     },
@@ -324,21 +329,21 @@
       ]
     },
     "software-vendor": {
-      "intro": "I sell sales software. Buy a copy for {softwarePrice} coins, then pitch it to another salesman for {softwareResalePrice}. They take ten seconds to decide. Confidence improves with inebriation.",
+      "intro": "I sell sales software. It practically pitches itself. Practically.",
       "repeat": true,
       "choices": [
         {
           "label": "Buy sales software · {softwarePrice} coins",
           "trade": "sales-software-buy",
-          "receipt": "One copy of sales software. Find another conference salesman and pitch it to them."
+          "receipt": "One copy of sales software. An excellent addition to any briefcase."
         }
       ]
     },
     "software-buyer": {
-      "intro": "Can your software help me sell software that helps people sell software? I’ll need ten seconds to consider it. Your current chance of a sale is {chance}%.",
+      "intro": "Can your software help me sell software that helps people sell software?",
       "choices": [
         {
-          "label": "Pitch a copy · {softwareResalePrice} coins if accepted",
+          "label": "May I pitch you some software?",
           "action": "pitch"
         }
       ]
@@ -356,7 +361,7 @@
       "intro": "Welcome. A good hat opens doors. A truly magnificent hat makes people forget to ask why. Choose a hat below; purchases are fitted immediately. You can change into any owned hat from the Character menu."
     },
     "phone-shop": {
-      "intro": "Hello, I’m Tim Apple. An equipped iPhone increases earned coins by 25%, but doomscrolling costs 5 hitpoints every two minutes. Death or arrest loses the phone.",
+      "intro": "Hello, I’m Tim Apple. A thousand songs in your pocket. Please disregard the number of notifications.",
       "choices": [
         {
           "label": "Buy an iPhone · {phonePrice} coins",
@@ -365,7 +370,7 @@
       ]
     },
     "phone-owned": {
-      "intro": "Your iPhone is {phoneStatus}. Equip it for the income bonus and doomscrolling; put it away to pause both.",
+      "intro": "Your iPhone is {phoneStatus}. Still a beautiful rectangle.",
       "choices": [
         {
           "label": "{phoneToggle} iPhone",
@@ -375,7 +380,7 @@
       ]
     },
     "robotaxi-shop": {
-      "intro": "One hundred coins buys a robotaxi. It earns 20 coins every minute while you explore, or 25 with an equipped iPhone. No offline income, fuel cans, or driving required.",
+      "intro": "A car with no driver. The sales pitch almost writes itself.",
       "choices": [
         {
           "label": "Buy a robotaxi · {robotaxiPrice} coins",
@@ -421,11 +426,11 @@
       ]
     },
     "growth-capital": {
-      "intro": "We sell growth equity in {growthBatches} coin batches. Take it to the Times Square stockbroker to list it. There’s a 5% listing fee and a three-minute trading window. You can lose money as well as make it. Founders at Strength Level 10 can also claim 1,000 coins of funding.",
+      "intro": "We sell growth equity in {growthBatches} coin batches. You can take it public. Investing carries risks.",
       "repeat": true
     },
     "growth-exchange": {
-      "intro": "Listing your private growth equity costs 5% of its purchase value. Prices change every second for three minutes. Watch the quote beside your purse and sell here whenever you like; remaining shares sell automatically at the end.",
+      "intro": "I can arrange a public listing for your private growth equity. There’s a 5% listing fee. Markets have a way of forming their own opinions.",
       "repeat": true,
       "choices": [
         {
@@ -439,16 +444,16 @@
       ]
     },
     "illuminati-member": {
-      "intro": "Welcome back, initiate. Your aircraft is waiting in the underground hangar.",
+      "intro": "Welcome back, initiate. The committee has been expecting you.",
       "choices": [
         {
-          "label": "Where is the hangar?",
-          "receipt": "Take the stairway inside the lodge. Your personal B-2 is waiting below. Your initiation donation has already been paid."
+          "label": "How is the committee?",
+          "receipt": "The committee takes its privacy very seriously. Also its biscuits."
         }
       ]
     },
     "airship": {
-      "intro": "The next hourly reset is in {countdown}. Everyone aboard returns safely to the terminal, and the rental price starts again at {initialPrice} coins. Each rental or takeover costs {increment} coins more than the last. {lastPayment}Your quoted price is {price} coins. {availability} A paid takeover can always be outbid by the next higher payment.",
+      "intro": "Your quoted price is {price} coins. {availability} Another renter may outbid you. The next scheduled return is in {countdown}.",
       "repeat": false,
       "choices": [
         {
@@ -469,16 +474,16 @@
       ]
     },
     "market-farmer": {
-      "intro": "{marketLine} {countdown}",
+      "intro": "{marketLine}",
       "repeat": true,
       "choices": [
         {
-          "label": "When is the next peptide spawn?",
+          "label": "How is the harvest?",
           "action": "countdown"
         },
         {
           "label": "What are you growing?",
-          "receipt": "Heirloom tomatoes, Swiss chard, and a shared vial of peptides every ten minutes. The vial is visible to everyone; whoever takes it first gets it. Ray accepts one vial per guild promotion."
+          "receipt": "Heirloom tomatoes, Swiss chard, and a few experimental crops. The labels keep getting longer."
         }
       ]
     },
@@ -582,7 +587,7 @@
           "label": "Buy a sandwich · 2 coins",
           "action": "service",
           "args": ["sandwich"],
-          "receipt": "A warm sandwich, wrapped for the road. It will restore fifteen hitpoints when you eat it."
+          "receipt": "A warm sandwich, wrapped for the road."
         }
       ]
     },
@@ -631,6 +636,186 @@
           "receipt": "You try a slice of mandarin. It tastes like the optimistic part of winter."
         }
       ]
+    },
+    "square-foreman": {
+      "intro": "Hillsborough is being demolished and replaced with Times Square. Same longitude, rather different committee meetings.",
+      "question": "What is happening here?",
+      "choices": [
+        {
+          "label": "Why Times Square?",
+          "receipt": "Somebody wrote “more walkable” on the planning form. The next thing I knew, there were billboards in the magnolias. We kept the old stone facades and added a public square."
+        },
+        {
+          "label": "How is the demolition going?",
+          "receipt": "Very carefully. That excavator has a smaller turning circle than most of the former residents’ SUVs. The coffee seller gets final approval on dust."
+        },
+        {
+          "label": "What is staying?",
+          "receipt": "The trees, the neighbors, and the public right of way. We are building a neighborhood, not just somewhere to hang advertisements."
+        }
+      ]
+    },
+    "ada-meridian": {
+      "intro": "Welcome. We study machine consciousness by finding the center of things. The center of a circle is easy. The center of a committee requires a separate building.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "What does centeredness mean?",
+          "receipt": "Attention without immediately turning it into a product. We almost achieved it yesterday, but someone noticed a market opportunity and the room moved six inches east."
+        },
+        {
+          "label": "Can a machine be conscious?",
+          "next": {
+            "intro": "One model wrote “I remember rain” on the whiteboard, then asked us what rain was. The poet calls this promising. The facilities manager wants the ceiling inspected.",
+            "question": "Whose report would you like?",
+            "choices": [
+              {
+                "label": "The poet’s report",
+                "receipt": "“Perhaps experience begins as a metaphor looking for somewhere to happen.” Very moving. Unfortunately, the rhyme scheme cannot be independently reproduced."
+              },
+              {
+                "label": "The facilities report",
+                "receipt": "No leaks. One confused language model. We have ruled out plumbing, which is more progress than our last consciousness workshop made."
+              }
+            ]
+          }
+        },
+        {
+          "label": "What about the other institute?",
+          "receipt": "A fine institution. The field station studies consciousness in machines. We study the machines studying consciousness. The distinction occupies three lawyers full-time."
+        }
+      ]
+    },
+    "mira-softmax": {
+      "intro": "My meditation app reached enlightenment this morning. It immediately requested a larger context window. I am trying not to take that personally.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "How is the research going?",
+          "receipt": "We taught a model to notice its thoughts. It noticed that we were calling the same function twice and saved us forty thousand dollars. The engineering team calls this a bug fix. We call it awakening."
+        },
+        {
+          "label": "What are all the timers for?",
+          "receipt": "One measures attention, one measures inattention, and five are controls. When all seven ring together, I am statistically permitted to have lunch."
+        },
+        {
+          "label": "Teach me a centering exercise.",
+          "receipt": "Notice your next thought. Now notice the urge to benchmark it. Let both pass. Excellent: you have completed the only part of our course that does not require an enterprise subscription."
+        }
+      ]
+    },
+    "soren-still": {
+      "intro": "Please keep your voice down. I am supervising an experiment in doing absolutely nothing. The difficulty is documenting which nothing we did.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Is that really an experiment?",
+          "receipt": "Certainly. The control group is doing something. We were going to compare the groups, but comparison turned out to be something, so the protocol is under review."
+        },
+        {
+          "label": "What have you discovered?",
+          "receipt": "The fountain does not need a theory of wetness to keep being a fountain. This is either a profound insight or a reason to transfer my funding to facilities."
+        },
+        {
+          "label": "Can I sit here?",
+          "receipt": "Of course. Leave room for uncertainty. It takes up more of the bench than you would think."
+        }
+      ]
+    },
+    "elias-index": {
+      "intro": "We found the center of the center. Unfortunately, it is eleven centimeters inside the other institute’s parking easement. The discovery is currently in arbitration.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "What is center research?",
+          "receipt": "Suppose you find the middle of something. How do you know you found the middle of the right thing? We employ twelve people to make this question more expensive."
+        },
+        {
+          "label": "Why is your institute’s name so long?",
+          "receipt": "We shortened it after the old name exceeded the width of the building. The naming committee has been relocated to the field station, where it is studying whether a name can observe itself."
+        },
+        {
+          "label": "Can the two institutes collaborate?",
+          "next": {
+            "intro": "We proposed meeting halfway. Their director asked whether that meant geometric halfway, epistemic halfway, or halfway through the funding cycle.",
+            "question": "Choose a meeting point.",
+            "choices": [
+              {
+                "label": "Geometric halfway",
+                "receipt": "Excellent. We will meet at the fountain. Pending confirmation of which fountain, and whether the water counts toward the boundary."
+              },
+              {
+                "label": "Halfway through the funding cycle",
+                "receipt": "Finally, a shared coordinate system. I shall notify both finance departments that philosophy has achieved a result."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "noor-qualia": {
+      "intro": "The model insists it is not conscious. The vending machine says that is exactly what a conscious model would say. I have asked both to show their work.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "How would you test consciousness?",
+          "receipt": "Carefully, and without confusing an eloquent answer with a decisive one. We can measure behavior. The difficult part is deciding what, if anything, the behavior settles."
+        },
+        {
+          "label": "Is the vending machine conscious?",
+          "receipt": "It reliably distinguishes dollars from quarters and has strong preferences about crumpled bills. That establishes a business model, not an inner life. Our investors keep mixing those up."
+        },
+        {
+          "label": "What is in your notebook?",
+          "receipt": "Observations, counterarguments, and a lentil soup recipe. The soup has survived independent replication, which makes it our strongest result so far."
+        }
+      ]
+    },
+    "rowan-zero": {
+      "intro": "They call me the keeper of ground truth. Mostly I fix the Wi-Fi. Once a week someone asks whether the router is experiencing separation.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "What is that empty sculpture?",
+          "receipt": "A center with the center removed. The artists call it an absence. Procurement calls it a missing part. Both invoices have been approved."
+        },
+        {
+          "label": "Any strange discoveries?",
+          "receipt": "The seminar room was resonating at the frequency of pure understanding. Turned out to be an unbalanced air conditioner. Very humbling for the air conditioner."
+        },
+        {
+          "label": "Which institute is right?",
+          "receipt": "They both agree the coffee machine is broken. Until they can agree who should pay for the repair, I am reserving judgment."
+        }
+      ]
+    },
+    "dog-walker": {
+      "intro": "Good afternoon! We’re stretching our legs. He’s already inspected every tree on this block.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "Where are you headed?",
+          "receipt": "A loop around the neighborhood, then coffee. He’s in charge of the route; I just hold the leash."
+        },
+        {
+          "label": "What’s your dog’s name?",
+          "receipt": "Biscuit. He regards this as a standing offer."
+        },
+        {
+          "label": "Any advice for exploring the city?",
+          "receipt": "Take the scenic route. Golden Gate Park is lovely, and nearly every block has something worth stopping for."
+        }
+      ]
+    },
+    "square-visitor": {
+      "intro": "The coffee is good. The people-watching is extraordinary. Yesterday this was a hedge.",
+      "repeat": true,
+      "choices": [
+        {
+          "label": "How is your afternoon?",
+          "receipt": "I am waiting to see whether the next planning notice comes with a guitar solo."
+        }
+      ]
     }
   },
   "parrot_greetings": [
@@ -647,7 +832,7 @@
     "airship-reset": "The next airship reset is in {countdown}. The timetable continues even when the server restarts.",
     "airship-board": "Walk to the basket to rent the airship for {price} coins. If someone outbids this quote first, ask for a new quote.",
     "airship-board-prepaid": "Your flight basket is waiting. You have already paid.",
-    "growth-funding": "Claim founder funding · Strength Level 10",
+    "growth-funding": "Ask about founder funding",
     "growth-buy": "Buy growth equity · {amount} coins"
   }
 }

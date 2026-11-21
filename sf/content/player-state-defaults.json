@@ -1,0 +1,123 @@
+{
+  "schema": 2,
+  "appearance": {},
+  "position": null,
+  "skills": {
+    "strength": {
+      "xp": 0,
+      "funded": false
+    },
+    "hitpoints": {
+      "hp": 30,
+      "max": 30,
+      "xp": 0
+    }
+  },
+  "inventory": {
+    "economy": {
+      "coins": 25,
+      "equity": 0,
+      "grain": 0,
+      "bouquets": 0,
+      "fuelCans": 0,
+      "fish": 0,
+      "sand": 0,
+      "saltLetters": 0,
+      "saltLettersDelivered": 0,
+      "ownedHats": [],
+      "iphoneOwned": false,
+      "iphoneEquipped": false,
+      "robotaxiOwned": false,
+      "softwareCopies": 0,
+      "incomeQuarters": 0,
+      "ownedEquipment": []
+    },
+    "ledger": null,
+    "sunglasses": {
+      "owned": false
+    },
+    "grapplingHook": false,
+    "collection": []
+  },
+  "quests": {
+    "monkey": {
+      "stage": "not-started"
+    },
+    "theyLive": {
+      "started": false,
+      "evidence": false,
+      "permit": false,
+      "bayonet": false,
+      "defeated": [],
+      "completed": false,
+      "skateboard": false
+    },
+    "expeditions": {
+      "raptor": "not-started",
+      "railgun": false,
+      "equipped": true,
+      "krakenStarted": false,
+      "krakenDefeated": false,
+      "krakenReward": false,
+      "cape": false
+    },
+    "illuminatus": {
+      "guild": null,
+      "initiated": false,
+      "bomberOwned": false
+    }
+  },
+  "vehicles": {
+    "ferrari": {},
+    "motorcycle": {},
+    "bicycle": null,
+    "bomber": {
+      "bombReadyAt": 0
+    }
+  },
+  "activities": {
+    "delivery": {},
+    "monkeyKeeper": {},
+    "laborReadyAt": {}
+  },
+  "conditions": {
+    "inebriation": 0,
+    "jailed": false,
+    "police": null,
+    "deathPending": false
+  },
+  "employment": {
+    "aiLab": {
+      "hired": false,
+      "bestScore": 0
+    }
+  },
+  "business": {
+    "tech": {}
+  },
+  "finance": {
+    "bank": null,
+    "growth": null
+  },
+  "social": {
+    "pvp": null
+  },
+  "progress": {
+    "houseSearches": []
+  },
+  "rewards": {
+    "pending": [],
+    "serial": 0
+  },
+  "equipment": {
+    "decorativeRocket": {
+      "readyAt": 0,
+      "burnUntil": 0,
+      "hopAt": 0
+    }
+  },
+  "migration": {
+    "legacyKeys": [],
+    "unknownPrivateState": {}
+  }
+}

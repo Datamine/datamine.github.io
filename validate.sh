@@ -4,7 +4,7 @@ html-validator --file index.html --verbose
 # htmlhint index.html
 echo ""
 echo ">>>> Selector check"
-python3 check_selectors.py
+npm run check:selectors
 echo ""
 echo ">>>> Check links are not broken"
 linkchecker index.html --check-extern --no-status --no-warnings

@@ -1,3 +1,5 @@
+TypeScript setup and compiled runtime commands are documented in [../TYPESCRIPT.md](../TYPESCRIPT.md).
+
 # Server operations
 
 Run, configure, deploy and recover the Explore SF backend. For the local
@@ -23,11 +25,11 @@ Use Node.js >=22.16 (the image uses Node 24):
 ```sh
 npm ci --prefix sf
 npm ci --prefix sf/server
-node sf/build.mjs
+npm --prefix sf run build
 npm --prefix sf/server start
 ```
 
-Open **http://127.0.0.1:8787/explore.html**. The server serves the static site,
+Open **http://127.0.0.1:8787/**. The server serves the static site,
 `/multiplayer-config.json`, `/healthz`, and WebSockets at `/ws`. Without
 `REDIS_URL`, saves go to `sf/server/data/world.sqlite`.
 
@@ -35,7 +37,7 @@ For Docker Compose with Redis:
 
 ```sh
 npm ci --prefix sf
-node sf/build.mjs
+npm --prefix sf run build
 docker compose -f sf/server/compose.yaml up --build -d game
 docker compose -f sf/server/compose.yaml logs -f game
 ```
@@ -50,7 +52,7 @@ replicas or put independent world processes behind a load balancer.
 ### Docker Compose and static hosting
 
 GitHub Pages cannot run the backend. It can continue serving the homepage and
-`explore.html`; run the backend on a host with long-lived WebSocket connections.
+`sf/index.html`; run the backend on a host with long-lived WebSocket connections.
 
 ```sh
 docker compose -f sf/server/compose.yaml up --build -d game
@@ -66,7 +68,7 @@ ALLOWED_ORIGINS=https://johnloeber.com,https://www.johnloeber.com \
 docker compose -f sf/server/compose.yaml --profile production up --build -d
 ```
 
-Create a root `multiplayer-config.json` in the static site's deployment:
+Create `sf/multiplayer-config.json` beside the statically hosted game:
 
 ```json
 { "endpoint": "wss://game.example.com/ws" }
@@ -93,7 +95,7 @@ account. From the repository root, build and package the **current working tree*
 including uncommitted changes, then configure the backend hostname you control:
 
 ```sh
-node sf/build.mjs
+npm --prefix sf run build
 bash sf/server/deploy/package.sh
 cd sf/server/deploy
 cp terraform.tfvars.example terraform.tfvars
@@ -212,7 +214,7 @@ been migrated. Redis in Compose uses a named volume and AOF.
 
 ### Hourly SQLite backups
 
-`backup.mjs` exports every registered Redis game checkpoint into one standalone
+`backup.mts` exports every registered Redis game checkpoint into one standalone
 SQLite database compatible with the existing SQLite store and state editor.
 This includes world records, all saved player profiles/inventories, username
 reservations, versions and completed games. Usernames are embedded in the game
@@ -245,7 +247,7 @@ each completed file using the AWS CLI before pruning local backups.
 For Node without Docker:
 
 ```sh
-REDIS_URL=redis://127.0.0.1:6379 node sf/server/backup.mjs --output /safe/path/world.sqlite
+REDIS_URL=redis://127.0.0.1:6379 npm --prefix sf/server run backup -- --output /safe/path/world.sqlite
 ```
 
 The EC2 bootstrap installs `deploy/loeberland-backup.cron` at
@@ -437,11 +439,11 @@ Gameplay commands operate on RAM inside one ordered mutation queue. Clients
 send intents and cosmetic preferences; the server owns positions, health,
 inventory, XP and quest progress. The browser interpolates server movement.
 Simulation runs at 20 Hz, player replication at 10 Hz and world/private
-replication at 5 Hz (`sf/config/gameplay.js`). World and private messages carry
+replication at 5 Hz (`sf/config/gameplay.ts`). World and private messages carry
 their server sample time. The renderer uses a bounded snapshot buffer for NPC
 movement and gait, including personal police and shared animal chases, rather
 than running client-side paths or increasing the simulation/broadcast rates.
-The current protocol version is defined in `sf/multiplayer-protocol.js`;
+The current protocol version is defined in `sf/multiplayer-protocol.ts`;
 deploy matching static-client and server builds together when changing it.
 Server-only code is excluded from the client build.
 

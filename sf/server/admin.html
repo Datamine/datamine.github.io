@@ -207,143 +207,163 @@
       </main>
     </div>
     <script>
-      const token = '__ADMIN_TOKEN__';
-      const readOnly = __ADMIN_READ_ONLY__;
-      const $ = (id) => document.getElementById(id);
-      let records = [],
-        selected = null,
-        original = '',
-        baseline = '',
-        busy = false;
-      function status(message, type = '') {
-        $('status').textContent = message;
-        $('status').className = type;
-      }
-      function changed() {
-        return !readOnly && selected && $('editor').value !== baseline;
-      }
-      function controls() {
-        $('save').disabled = readOnly || busy || !changed();
-        $('save').hidden = readOnly;
-        $('editor').readOnly = readOnly;
-        for (const id of ['format', 'reload']) $(id).disabled = busy || !selected;
-        $('editor').disabled = busy || !selected;
-        $('refresh').disabled = busy;
-        $('dirty').textContent = changed() ? 'Unsaved changes' : '';
-      }
-      async function api(path, options = {}) {
-        const response = await fetch('/api/' + path, {
-          ...options,
-          headers: { 'X-Admin-Token': token, 'Content-Type': 'application/json' },
-        });
-        const result = await response.json();
-        if (!response.ok) throw Error(result.error || 'Request failed.');
-        return result;
-      }
-      function draw() {
-        const query = $('search').value.toLowerCase();
-        const visible = records.filter((row) =>
-          (row.label + ' ' + row.key + ' ' + row.kind).toLowerCase().includes(query),
-        );
-        $('count').textContent = visible.length + ' of ' + records.length + ' records';
-        $('records').replaceChildren();
-        for (const row of visible) {
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.disabled = busy;
-          button.className =
-            selected && row.kind === selected.kind && row.key === selected.key ? 'active' : '';
-          button.textContent = row.label;
-          const detail = document.createElement('small');
-          detail.textContent = row.kind + ' · ' + row.key;
-          button.append(detail);
-          button.onclick = () => load(row);
-          $('records').append(button);
-        }
-      }
-      async function refresh() {
-        const data = await api('records');
-        records = data.records;
-        $('source').textContent = data.backend.toUpperCase() + ' · ' + data.location;
-        draw();
-      }
-      async function load(row) {
-        if (busy || (changed() && !confirm('Discard unsaved changes?'))) return;
-        busy = true;
-        controls();
-        draw();
-        try {
-          const data = await api('record?' + new URLSearchParams({ kind: row.kind, key: row.key }));
-          const formatted = JSON.stringify(JSON.parse(data.raw), null, 2);
-          selected = row;
-          original = data.raw;
-          baseline = formatted;
-          $('editor').value = baseline;
-          $('title').textContent = row.label;
-          $('key').textContent = row.kind + ' · ' + row.key;
-          status(
-            readOnly
-              ? 'Read-only inspection. Refresh or reload to see the latest saved checkpoint.'
-              : row.kind === 'usernames'
-                ? 'For a rename, update name and canonical (lowercase). Keep owner unchanged. changed is a timestamp in milliseconds.'
-                : 'Edit the JSON, then save. Changes are written directly to the database.',
-          );
-        } catch (error) {
-          status(error.message, 'error');
-        } finally {
-          busy = false;
-          controls();
-          draw();
-        }
-      }
-      $('save').onclick = async () => {
-        busy = true;
-        controls();
-        draw();
-        try {
-          const value = JSON.parse($('editor').value);
-          const data = await api('record', {
-            method: 'PUT',
-            body: JSON.stringify({ ...selected, original, value }),
-          });
-          original = data.raw;
-          baseline = JSON.stringify(value, null, 2);
-          $('editor').value = baseline;
-          status('Saved. Restart the game server to load this change.', 'success');
-          try {
-            await refresh();
-          } catch (error) {
-            status('Saved, but refreshing the list failed: ' + error.message, 'error');
-          }
-        } catch (error) {
-          status(error.message, 'error');
-        } finally {
-          busy = false;
-          controls();
-          draw();
-        }
-      };
-      $('format').onclick = () => {
-        try {
-          $('editor').value = JSON.stringify(JSON.parse($('editor').value), null, 2);
-          controls();
-          status('JSON formatted.');
-        } catch (error) {
-          status(error.message, 'error');
-        }
-      };
-      $('reload').onclick = () => load(selected);
-      $('refresh').onclick = () => refresh().catch((error) => status(error.message, 'error'));
-      $('search').oninput = draw;
-      $('editor').oninput = controls;
-      window.addEventListener('beforeunload', (event) => {
-        if (changed()) {
-          event.preventDefault();
-          event.returnValue = '';
-        }
-      });
+      "use strict";
+(() => {
+  // types/ui.ts
+  function requiredElement(id) {
+    const value = document.getElementById(id);
+    if (!value) throw new Error("Missing interface element: " + id);
+    return value;
+  }
+
+  // types/json.ts
+  function isRecord(value) {
+    return value !== null && typeof value === "object" && !Array.isArray(value);
+  }
+  function errorMessage(error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+
+  // server/admin-ui.ts
+  var token = "__ADMIN_TOKEN__";
+  var readOnly = __ADMIN_READ_ONLY__;
+  var $ = (id) => requiredElement(id);
+  var records = [];
+  var selected = null;
+  var original = "";
+  var baseline = "";
+  var busy = false;
+  function status(message, type = "") {
+    $("status").textContent = message;
+    $("status").className = type;
+  }
+  function changed() {
+    return !readOnly && !!selected && $("editor").value !== baseline;
+  }
+  function controls() {
+    $("save").disabled = readOnly || busy || !changed();
+    $("save").hidden = readOnly;
+    $("editor").readOnly = readOnly;
+    for (const id of ["format", "reload"]) $(id).disabled = busy || !selected;
+    $("editor").disabled = busy || !selected;
+    $("refresh").disabled = busy;
+    $("dirty").textContent = changed() ? "Unsaved changes" : "";
+  }
+  async function api(path, options = {}) {
+    const response = await fetch("/api/" + path, {
+      ...options,
+      headers: { "X-Admin-Token": token, "Content-Type": "application/json" }
+    });
+    const result = await response.json();
+    if (!response.ok)
+      throw Error(
+        isRecord(result) && typeof result.error === "string" ? result.error : "Request failed."
+      );
+    return result;
+  }
+  function draw() {
+    const query = $("search").value.toLowerCase();
+    const visible = records.filter(
+      (row) => (row.label + " " + row.key + " " + row.kind).toLowerCase().includes(query)
+    );
+    $("count").textContent = visible.length + " of " + records.length + " records";
+    $("records").replaceChildren();
+    for (const row of visible) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.disabled = busy;
+      button.className = selected && row.kind === selected.kind && row.key === selected.key ? "active" : "";
+      button.textContent = row.label;
+      const detail = document.createElement("small");
+      detail.textContent = row.kind + " \xB7 " + row.key;
+      button.append(detail);
+      button.onclick = () => load(row);
+      $("records").append(button);
+    }
+  }
+  async function refresh() {
+    const data = await api("records");
+    records = data.records;
+    $("source").textContent = data.backend.toUpperCase() + " \xB7 " + data.location;
+    draw();
+  }
+  async function load(row) {
+    if (busy || changed() && !confirm("Discard unsaved changes?")) return;
+    busy = true;
+    controls();
+    draw();
+    try {
+      const data = await api("record?" + new URLSearchParams({ kind: row.kind, key: row.key }));
+      const formatted = JSON.stringify(JSON.parse(data.raw), null, 2);
+      selected = row;
+      original = data.raw;
+      baseline = formatted;
+      $("editor").value = baseline;
+      $("title").textContent = row.label;
+      $("key").textContent = row.kind + " \xB7 " + row.key;
+      status(
+        readOnly ? "Read-only inspection. Refresh or reload to see the latest saved checkpoint." : row.kind === "usernames" ? "For a rename, update name and canonical (lowercase). Keep owner unchanged. changed is a timestamp in milliseconds." : "Edit the JSON, then save. Changes are written directly to the database."
+      );
+    } catch (error) {
+      status(errorMessage(error), "error");
+    } finally {
+      busy = false;
       controls();
-      refresh().catch((error) => status(error.message, 'error'));
+      draw();
+    }
+  }
+  $("save").onclick = async () => {
+    busy = true;
+    controls();
+    draw();
+    try {
+      const value = JSON.parse($("editor").value);
+      const data = await api("record", {
+        method: "PUT",
+        body: JSON.stringify({ ...selected, original, value })
+      });
+      original = data.raw;
+      baseline = JSON.stringify(value, null, 2);
+      $("editor").value = baseline;
+      status("Saved. Restart the game server to load this change.", "success");
+      try {
+        await refresh();
+      } catch (error) {
+        status("Saved, but refreshing the list failed: " + errorMessage(error), "error");
+      }
+    } catch (error) {
+      status(errorMessage(error), "error");
+    } finally {
+      busy = false;
+      controls();
+      draw();
+    }
+  };
+  $("format").onclick = () => {
+    try {
+      $("editor").value = JSON.stringify(JSON.parse($("editor").value), null, 2);
+      controls();
+      status("JSON formatted.");
+    } catch (error) {
+      status(errorMessage(error), "error");
+    }
+  };
+  $("reload").onclick = () => {
+    if (selected) void load(selected);
+  };
+  $("refresh").onclick = () => refresh().catch((error) => status(errorMessage(error), "error"));
+  $("search").oninput = draw;
+  $("editor").oninput = controls;
+  window.addEventListener("beforeunload", (event) => {
+    if (changed()) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+  });
+  controls();
+  refresh().catch((error) => status(errorMessage(error), "error"));
+})();
+
     </script>
   </body>
 </html>

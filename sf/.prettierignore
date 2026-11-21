@@ -6,3 +6,18 @@ server/benchmarks/*.json
 explore.js.map
 bundle-meta.json
 reports/*.csv
+
+content/validate.js
+content/runtime.json
+content/manifest.json
+
+server/admin.html
+tools/animation-audit.js
+tools/character-gpu-audit.js
+
+.build/
+
+# Generated standalone browser pages
+index.html
+editor.html
+textures/materials/preview.html

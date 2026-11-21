@@ -20,12 +20,12 @@ The mixed run delivered 39,892 PvP hit messages and observed all 400 followers m
 Use an isolated Redis/database and a disposable backend with ALLOW_DEBUG=1 for the authored teleport positions below. Keep debug teleportation off publicly. Reuse the same identity seed between runs to avoid accumulating benchmark accounts.
 
 ```sh
-node sf/server/load-test.mjs --players 2000 --seconds 60 --warmup 8 \
+node --import ./sf/node_modules/tsx/dist/loader.mjs sf/server/load-test.mts --players 2000 --seconds 60 --warmup 8 \
   --scenario spread --identity-seed disposable-capacity \
   --locations sf/server/benchmarks/capacity-locations.json \
   --url ws://127.0.0.1:8787/ws --output /tmp/spread-2000.json
 
-node sf/server/load-test.mjs --players 2000 --seconds 60 --warmup 8 \
+node --import ./sf/node_modules/tsx/dist/loader.mjs sf/server/load-test.mts --players 2000 --seconds 60 --warmup 8 \
   --scenario mixed --identity-seed disposable-capacity \
   --locations sf/server/benchmarks/capacity-combat-locations.json \
   --url ws://127.0.0.1:8787/ws --output /tmp/mixed-2000.json
@@ -97,7 +97,7 @@ map chunks, version `57937c39a672e32b0aae`. The audit verifies 503 destinations,
 formatting are excluded from semantic geometry invalidation.
 
 [Vehicle geometry measurements](../../reports/vehicle-cache.json) are reproduced
-with `node sf/tools/vehicle-cache-benchmark.mjs`. Warm per-frame CPU construction
+with `node --import ./sf/node_modules/tsx/dist/loader.mjs sf/tools/vehicle-cache-benchmark.mts`. Warm per-frame CPU construction
 in ms (CPU reference → cached GPU records): airship 1.5041 → 0.0551;
 Ferrari 0.7002 → 0.0679; streetcar 0.2317 → 0.0016; parked rocket
 0.3645 → 0.0017. These measure CPU geometry preparation, not total FPS or GPU

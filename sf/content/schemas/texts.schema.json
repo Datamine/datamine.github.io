@@ -1,0 +1,282 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loeber.land/schemas/texts.schema.json",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": 1
+    },
+    "texts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "template": {
+            "type": "string"
+          },
+          "bindings": {
+            "type": "object"
+          }
+        },
+        "required": ["template"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["schema", "texts"],
+  "additionalProperties": false,
+  "definitions": {
+    "condition": {
+      "oneOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "all": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/condition"
+              }
+            }
+          },
+          "required": ["all"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "any": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/definitions/condition"
+              }
+            }
+          },
+          "required": ["any"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "not": {
+              "$ref": "#/definitions/condition"
+            }
+          },
+          "required": ["not"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "eq": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          },
+          "required": ["path", "eq"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "ne": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          },
+          "required": ["path", "ne"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "in": {
+              "type": "array",
+              "items": {
+                "type": ["string", "number", "boolean", "null"]
+              }
+            }
+          },
+          "required": ["path", "in"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "contains": {
+              "type": ["string", "number", "boolean", "null"]
+            }
+          },
+          "required": ["path", "contains"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "exists": {
+              "type": "boolean"
+            }
+          },
+          "required": ["path", "exists"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "gte": {
+              "type": "number"
+            }
+          },
+          "required": ["path", "gte"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "gt": {
+              "type": "number"
+            }
+          },
+          "required": ["path", "gt"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "lte": {
+              "type": "number"
+            }
+          },
+          "required": ["path", "lte"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!.*(?:__proto__|constructor|prototype))[A-Za-z][A-Za-z0-9_.-]*$"
+            },
+            "lt": {
+              "type": "number"
+            }
+          },
+          "required": ["path", "lt"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "count": {
+              "type": "object",
+              "minProperties": 1,
+              "maxProperties": 1,
+              "properties": {
+                "eq": {
+                  "type": "integer"
+                },
+                "gte": {
+                  "type": "integer"
+                },
+                "gt": {
+                  "type": "integer"
+                },
+                "lte": {
+                  "type": "integer"
+                },
+                "lt": {
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "required": ["path", "count"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "text": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": ["text"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "select": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "when": {
+                    "$ref": "#/definitions/condition"
+                  },
+                  "text": {
+                    "$ref": "#/definitions/text"
+                  }
+                },
+                "required": ["when", "text"],
+                "additionalProperties": false
+              }
+            },
+            "default": {
+              "$ref": "#/definitions/text"
+            }
+          },
+          "required": ["select", "default"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noEmitOnError": true,
+    "sourceMap": true,
+    "inlineSources": true,
+    "outDir": ".build"
+  },
+  "include": [
+    "server/index.mts",
+    "server/admin.mts",
+    "server/backup.mts",
+    "server/load-test.mts",
+    "server/sqlite-worker.mts",
+    "types/**/*.d.ts"
+  ],
+  "exclude": ["node_modules", "server/node_modules", "world-cache", "server/tests"]
+}

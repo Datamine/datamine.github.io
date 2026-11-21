@@ -1,8 +1,8 @@
 services:
   game:
     build:
-      context: ../..
-      dockerfile: sf/server/Dockerfile
+      context: ..
+      dockerfile: server/Dockerfile
     restart: unless-stopped
     init: true
     ports: ['127.0.0.1:8787:8787']
@@ -15,7 +15,7 @@ services:
       CHECKPOINT_INTERVAL_MS: ${CHECKPOINT_INTERVAL_MS:-1000}
       SHUTDOWN_TIMEOUT_MS: ${SHUTDOWN_TIMEOUT_MS:-10000}
     volumes:
-      - world-data:/app/sf/server/data
+      - world-data:/app/server/data
       - ${BACKUP_DIR:-./backups}:/backups
     depends_on:
       redis:

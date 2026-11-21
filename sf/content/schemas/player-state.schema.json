@@ -1,0 +1,476 @@
+{
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": 2
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": true
+    },
+    "position": {
+      "type": ["object", "null"]
+    },
+    "skills": {
+      "type": "object",
+      "properties": {
+        "strength": {
+          "type": "object",
+          "properties": {
+            "xp": {
+              "type": "number"
+            },
+            "funded": {
+              "type": "boolean"
+            }
+          },
+          "required": ["xp", "funded"],
+          "additionalProperties": true
+        },
+        "hitpoints": {
+          "type": "object",
+          "properties": {
+            "hp": {
+              "type": "number"
+            },
+            "max": {
+              "type": "number"
+            },
+            "xp": {
+              "type": "number"
+            }
+          },
+          "required": ["hp", "max", "xp"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["strength", "hitpoints"],
+      "additionalProperties": true
+    },
+    "inventory": {
+      "type": "object",
+      "properties": {
+        "economy": {
+          "type": "object",
+          "properties": {
+            "coins": {
+              "type": "number"
+            },
+            "equity": {
+              "type": "number"
+            },
+            "grain": {
+              "type": "number"
+            },
+            "bouquets": {
+              "type": "number"
+            },
+            "fuelCans": {
+              "type": "number"
+            },
+            "fish": {
+              "type": "number"
+            },
+            "sand": {
+              "type": "number"
+            },
+            "saltLetters": {
+              "type": "number"
+            },
+            "saltLettersDelivered": {
+              "type": "number"
+            },
+            "ownedHats": {
+              "type": "array"
+            },
+            "iphoneOwned": {
+              "type": "boolean"
+            },
+            "iphoneEquipped": {
+              "type": "boolean"
+            },
+            "robotaxiOwned": {
+              "type": "boolean"
+            },
+            "softwareCopies": {
+              "type": "number"
+            },
+            "incomeQuarters": {
+              "type": "number"
+            },
+            "ownedEquipment": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "coins",
+            "equity",
+            "grain",
+            "bouquets",
+            "fuelCans",
+            "fish",
+            "sand",
+            "saltLetters",
+            "saltLettersDelivered",
+            "ownedHats",
+            "iphoneOwned",
+            "iphoneEquipped",
+            "robotaxiOwned",
+            "softwareCopies",
+            "incomeQuarters",
+            "ownedEquipment"
+          ],
+          "additionalProperties": true
+        },
+        "ledger": {
+          "type": ["object", "null"]
+        },
+        "sunglasses": {
+          "type": "object",
+          "properties": {
+            "owned": {
+              "type": "boolean"
+            }
+          },
+          "required": ["owned"],
+          "additionalProperties": true
+        },
+        "grapplingHook": {
+          "type": "boolean"
+        },
+        "collection": {
+          "type": "array"
+        }
+      },
+      "required": ["economy", "ledger", "sunglasses", "grapplingHook", "collection"],
+      "additionalProperties": true
+    },
+    "quests": {
+      "type": "object",
+      "properties": {
+        "monkey": {
+          "type": "object",
+          "properties": {
+            "stage": {
+              "enum": ["not-started", "accepted", "carrying", "completed"]
+            }
+          },
+          "required": ["stage"],
+          "additionalProperties": true
+        },
+        "theyLive": {
+          "type": "object",
+          "properties": {
+            "started": {
+              "type": "boolean"
+            },
+            "evidence": {
+              "type": "boolean"
+            },
+            "permit": {
+              "type": "boolean"
+            },
+            "bayonet": {
+              "type": "boolean"
+            },
+            "defeated": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "type": "string"
+              }
+            },
+            "completed": {
+              "type": "boolean"
+            },
+            "skateboard": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "started",
+            "evidence",
+            "permit",
+            "bayonet",
+            "defeated",
+            "completed",
+            "skateboard"
+          ],
+          "additionalProperties": true
+        },
+        "expeditions": {
+          "type": "object",
+          "properties": {
+            "raptor": {
+              "enum": ["not-started", "escaped", "carrying", "completed"]
+            },
+            "railgun": {
+              "type": "boolean"
+            },
+            "equipped": {
+              "type": "boolean"
+            },
+            "krakenStarted": {
+              "type": "boolean"
+            },
+            "krakenDefeated": {
+              "type": "boolean"
+            },
+            "krakenReward": {
+              "type": "boolean"
+            },
+            "cape": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "raptor",
+            "railgun",
+            "equipped",
+            "krakenStarted",
+            "krakenDefeated",
+            "krakenReward",
+            "cape"
+          ],
+          "additionalProperties": true
+        },
+        "illuminatus": {
+          "type": "object",
+          "properties": {
+            "guild": {
+              "type": ["object", "null"]
+            },
+            "initiated": {
+              "type": "boolean"
+            },
+            "bomberOwned": {
+              "type": "boolean"
+            }
+          },
+          "required": ["guild", "initiated", "bomberOwned"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["monkey", "theyLive", "expeditions", "illuminatus"],
+      "additionalProperties": true
+    },
+    "vehicles": {
+      "type": "object",
+      "properties": {
+        "ferrari": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": true
+        },
+        "motorcycle": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": true
+        },
+        "bicycle": {
+          "type": ["object", "null"]
+        },
+        "bomber": {
+          "type": "object",
+          "properties": {
+            "bombReadyAt": {
+              "type": "number"
+            }
+          },
+          "required": ["bombReadyAt"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["ferrari", "motorcycle", "bicycle", "bomber"],
+      "additionalProperties": true
+    },
+    "activities": {
+      "type": "object",
+      "properties": {
+        "delivery": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": true
+        },
+        "monkeyKeeper": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": true
+        },
+        "laborReadyAt": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": true
+        }
+      },
+      "required": ["delivery", "monkeyKeeper", "laborReadyAt"],
+      "additionalProperties": true
+    },
+    "conditions": {
+      "type": "object",
+      "properties": {
+        "inebriation": {
+          "type": "number"
+        },
+        "jailed": {
+          "type": "boolean"
+        },
+        "police": {
+          "type": ["object", "null"]
+        },
+        "deathPending": {
+          "type": "boolean"
+        }
+      },
+      "required": ["inebriation", "jailed", "police", "deathPending"],
+      "additionalProperties": true
+    },
+    "employment": {
+      "type": "object",
+      "properties": {
+        "aiLab": {
+          "type": "object",
+          "properties": {
+            "hired": {
+              "type": "boolean"
+            },
+            "bestScore": {
+              "type": "number"
+            }
+          },
+          "required": ["hired", "bestScore"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["aiLab"],
+      "additionalProperties": true
+    },
+    "business": {
+      "type": "object",
+      "properties": {
+        "tech": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": true
+        }
+      },
+      "required": ["tech"],
+      "additionalProperties": true
+    },
+    "finance": {
+      "type": "object",
+      "properties": {
+        "bank": {
+          "type": ["object", "null"]
+        },
+        "growth": {
+          "type": ["object", "null"]
+        }
+      },
+      "required": ["bank", "growth"],
+      "additionalProperties": true
+    },
+    "social": {
+      "type": "object",
+      "properties": {
+        "pvp": {
+          "type": ["object", "null"]
+        }
+      },
+      "required": ["pvp"],
+      "additionalProperties": true
+    },
+    "progress": {
+      "type": "object",
+      "properties": {
+        "houseSearches": {
+          "type": "array"
+        }
+      },
+      "required": ["houseSearches"],
+      "additionalProperties": true
+    },
+    "rewards": {
+      "type": "object",
+      "properties": {
+        "pending": {
+          "type": "array"
+        },
+        "serial": {
+          "type": "number"
+        }
+      },
+      "required": ["pending", "serial"],
+      "additionalProperties": true
+    },
+    "equipment": {
+      "type": "object",
+      "properties": {
+        "decorativeRocket": {
+          "type": "object",
+          "properties": {
+            "readyAt": {
+              "type": "number"
+            },
+            "burnUntil": {
+              "type": "number"
+            },
+            "hopAt": {
+              "type": "number"
+            }
+          },
+          "required": ["readyAt", "burnUntil", "hopAt"],
+          "additionalProperties": true
+        }
+      },
+      "required": ["decorativeRocket"],
+      "additionalProperties": true
+    },
+    "migration": {
+      "type": "object",
+      "properties": {
+        "legacyKeys": {
+          "type": "array"
+        },
+        "unknownPrivateState": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": true
+        }
+      },
+      "required": ["legacyKeys", "unknownPrivateState"],
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "schema",
+    "appearance",
+    "position",
+    "skills",
+    "inventory",
+    "quests",
+    "vehicles",
+    "activities",
+    "conditions",
+    "employment",
+    "business",
+    "finance",
+    "social",
+    "progress",
+    "rewards",
+    "equipment",
+    "migration"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://loeber.land/schemas/player-state.schema.json"
+}

@@ -1,0 +1,119 @@
+import { requiredFixture } from './helpers/required.mts';
+import type { SignAtlas } from '../types/world.ts';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createSignTexture } from '../materials.ts';
+import { RESEARCH_SIGNS } from '../research-campuses.ts';
+
+test('long institute names render on separate lines and expanded atlases keep every sign in bounds', () => {
+  const previous = globalThis.document,
+    drawn: [string, number, number][] = [],
+    context = {
+      fillRect() {},
+      strokeRect() {},
+      fillText(...args: [string, number, number]) {
+        drawn.push(args);
+      },
+    },
+    canvas = { width: 0, height: 0, getContext: () => context };
+  globalThis.document = { createElement: () => canvas } as unknown as Document;
+  try {
+    const gl = { createTexture: () => ({}), bindTexture() {}, texImage2D() {}, texParameteri() {} },
+      signs: SignAtlas = new Map(),
+      names = [...Array.from({ length: 70 }, (_, i) => 'Sign ' + i), ...RESEARCH_SIGNS];
+    createSignTexture(gl as unknown as WebGLRenderingContext, names, signs);
+    assert.equal(signs.size, names.length);
+    assert.equal(canvas.width, 1024);
+    assert.equal(canvas.height, 2048);
+    for (const uv of signs.values())
+      for (const [x, y] of uv)
+        assert.ok(
+          x >= 0 && x <= 1 && y >= 0 && y <= 1,
+          'a sign must never sample outside the atlas',
+        );
+    for (const sign of RESEARCH_SIGNS) {
+      const lines = sign.split('\n'),
+        calls = drawn.filter(([text]) => lines.includes(text));
+      assert.equal(calls.length, 3);
+      assert.equal(new Set(calls.map((c) => c[2])).size, 3);
+    }
+  } finally {
+    if (previous === undefined) Reflect.deleteProperty(globalThis, 'document');
+    else globalThis.document = previous;
+  }
+});
+
+test('billboard art loads into padded atlas cells and asynchronous uploads restore GPU bindings', () => {
+  const previousDocument = globalThis.document,
+    previousImage = globalThis.Image,
+    images: { onload: () => void }[] = [],
+    drawn: unknown[][] = [],
+    uploads: unknown[] = [];
+  const context = {
+      fillRect() {},
+      strokeRect() {},
+      fillText() {},
+      drawImage(...args: unknown[]) {
+        drawn.push(args);
+      },
+    },
+    canvas = { width: 0, height: 0, getContext: () => context };
+  globalThis.document = { createElement: () => canvas } as unknown as Document;
+  globalThis.Image = class {
+    onload = () => {};
+    src = '';
+    width = 0;
+    height = 0;
+    constructor() {
+      images.push(this);
+    }
+  } as unknown as typeof Image;
+  let unit = 7,
+    binding: unknown = 'material';
+  const gl = {
+    TEXTURE0: 0,
+    ACTIVE_TEXTURE: 1,
+    TEXTURE_BINDING_2D: 2,
+    createTexture: () => ({ id: 'atlas' }),
+    bindTexture(_: number, t: unknown) {
+      binding = t;
+    },
+    activeTexture(u: number) {
+      unit = u;
+    },
+    getParameter: (k: number) => (k === 1 ? unit : binding),
+    isContextLost: () => false,
+    texImage2D() {
+      uploads.push(binding);
+    },
+    texParameteri() {},
+  };
+  try {
+    const signs: SignAtlas = new Map(),
+      texture = createSignTexture(
+        gl as unknown as WebGLRenderingContext,
+        ['Ordinary sign'],
+        signs,
+        {
+          artwork: [{ id: 'poster', color: '#224466', src: 'data:image/svg+xml,poster' }],
+        },
+      );
+    assert.equal(images.length, 1);
+    assert.equal(signs.size, 2);
+    const text = requiredFixture(signs.get('Ordinary sign')),
+      poster = requiredFixture(signs.get('poster'));
+    assert.ok(Math.max(...text.map((p) => p[1])) < Math.min(...poster.map((p) => p[1])));
+    gl.activeTexture(7);
+    gl.bindTexture(0, 'material');
+    images[0].onload();
+    assert.equal(unit, 7);
+    assert.equal(binding, 'material');
+    assert.equal(uploads.at(-1), texture);
+    assert.equal(drawn.length, 1);
+  } finally {
+    if (previousDocument === undefined) Reflect.deleteProperty(globalThis, 'document');
+    else globalThis.document = previousDocument;
+    if (previousImage === undefined) Reflect.deleteProperty(globalThis, 'Image');
+    else globalThis.Image = previousImage;
+  }
+});

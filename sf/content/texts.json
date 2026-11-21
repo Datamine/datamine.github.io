@@ -1,0 +1,3500 @@
+{
+  "schema": 1,
+  "texts": {
+    "adventure-sites.drawFitness.label-1": {
+      "template": "SF Fitness"
+    },
+    "adventure-sites.drawFitness.description-2": {
+      "template": "An open-air gym with well-used benches, neatly racked weights, and excellent ventilation."
+    },
+    "adventure-sites.drawTrainingSites.label-3": {
+      "template": "Sand Hill Road Capital Partners"
+    },
+    "adventure-sites.drawTrainingSites.description-4": {
+      "template": "A capital firm with immaculate landscaping and some unusually heavy office furniture."
+    },
+    "adventure-sites.createHighwaySites.description-5": {
+      "template": "A double-double beacon beyond the Bay Bridge. The palm trees have excellent taste in roadside stops."
+    },
+    "adventure-sites.createHighwaySites.description-6.yes": {
+      "template": "The pump accepts every coin you have. The attendant calls this “market pricing.”"
+    },
+    "adventure-sites.createHighwaySites.description-6.no.yes": {
+      "template": "A red Ferrari waits beyond the Bay Bridge. Borrow it for free, drive at twenty times walking speed, and refuel here for free."
+    },
+    "adventure-sites.createHighwaySites.description-6.no.no": {
+      "template": "Free fuel beside the Tahoe gondola. Fill the tank before driving back to San Francisco."
+    },
+    "alien-sites.drawIndustrialCenter.label-1": {
+      "template": "American Industrial Center"
+    },
+    "alien-sites.drawIndustrialCenter.description-2": {
+      "template": "A brick-and-sawtooth workshop filled with precision tools and the sound of careful metalwork."
+    },
+    "alien-sites.draw.label-3": {
+      "template": "Berkeley Institute for Esoteric Studies"
+    },
+    "alien-sites.draw.description-4": {
+      "template": "Copper observatories, watchful stained glass, and an armillary instrument of uncertain purpose. A tiny Berkeley campus surrounds the institute: redwoods, a campanile, a colonnaded library, and scholars with impeccable credentials in impossible coincidences. Professor Vale can certify alien evidence."
+    },
+    "alien-sites.createEsotericCampus.name-5": {
+      "template": "Professor Iris Vale"
+    },
+    "alien-sites.createEsotericCampus.label-6": {
+      "template": "Esoteric researcher"
+    },
+    "alien-sites.createEsotericCampus.description-7": {
+      "template": "She has impeccable credentials in a field whose existence is fiercely disputed."
+    },
+    "alien-sites.createEsotericCampus.name-8": {
+      "template": "Berkeley campus walk {v0}"
+    },
+    "armory.drawArmory.label-1": {
+      "template": "The Armory"
+    },
+    "armory.drawArmory.description-2": {
+      "template": "Strangely, this is not where you buy armor."
+    },
+    "bunny.createPaintedBunny.label-1": {
+      "template": "Bunny"
+    },
+    "bunny.createPaintedBunny.description-2": {
+      "template": "A very soft Alamo Square resident. Its entire calendar is reserved for snacks and head pats."
+    },
+    "city-edge.module.name-1": {
+      "template": "Great Highway south"
+    },
+    "city-edge.module.name-2": {
+      "template": "19th Avenue south"
+    },
+    "city-edge.module.name-3": {
+      "template": "Oceana Boulevard"
+    },
+    "city-edge.module.name-4": {
+      "template": "30th Avenue south"
+    },
+    "city-edge.module.name-5": {
+      "template": "Stanyan south"
+    },
+    "city-edge.module.name-6": {
+      "template": "Mission south"
+    },
+    "city-edge.module.name-7": {
+      "template": "Geneva Avenue"
+    },
+    "config.hairstyles.module.label-1": {
+      "template": "Short"
+    },
+    "config.hairstyles.module.label-2": {
+      "template": "Close crop"
+    },
+    "config.hairstyles.module.label-3": {
+      "template": "Side part"
+    },
+    "config.hairstyles.module.label-4": {
+      "template": "Curls"
+    },
+    "config.hairstyles.module.label-5": {
+      "template": "Long"
+    },
+    "config.hairstyles.module.label-6": {
+      "template": "Bob"
+    },
+    "config.hairstyles.module.label-7": {
+      "template": "Ponytail"
+    },
+    "config.hairstyles.module.label-8": {
+      "template": "Braid"
+    },
+    "config.hats.module.name-1": {
+      "template": "Folded paper hat"
+    },
+    "config.hats.module.name-2": {
+      "template": "Dockside beanie"
+    },
+    "config.hats.module.name-3": {
+      "template": "Panama"
+    },
+    "config.hats.module.name-4": {
+      "template": "Velvet beret"
+    },
+    "config.hats.module.name-5": {
+      "template": "Silk top hat"
+    },
+    "config.hats.module.name-6": {
+      "template": "Plumed cavalier"
+    },
+    "config.hats.module.name-7": {
+      "template": "Astronomer’s hat"
+    },
+    "config.hats.module.name-8": {
+      "template": "Golden laurel"
+    },
+    "config.hats.module.name-9": {
+      "template": "Stone of Jordan"
+    },
+    "config.hats.module.name-10": {
+      "template": "Santa Hat"
+    },
+    "config.hats.module.name-11": {
+      "template": "Blue Partyhat"
+    },
+    "config.hats.module.name-12": {
+      "template": "Stetson"
+    },
+    "config.hats.module.name-13": {
+      "template": "Pirate's hat"
+    },
+    "config.item-stats.module.name-1": {
+      "template": "Tinfoil suit"
+    },
+    "config.item-stats.module.description-2": {
+      "template": "A crinkling silver suit, folded with restaurant precision."
+    },
+    "config.item-stats.module.name-3": {
+      "template": "Railgun accelerator"
+    },
+    "config.item-stats.module.description-4": {
+      "template": "An electromagnetic accelerator. Railgun fire rate increases by 10% while owned."
+    },
+    "config.item-stats.module.name-5": {
+      "template": "Combat boots"
+    },
+    "config.item-stats.module.description-6": {
+      "template": "Tall black leather boots with chrome buckles, steel toe caps, and heavy soles. Block 2 damage from each incoming combat hit."
+    },
+    "config.item-stats.module.name-7": {
+      "template": "Ball chair"
+    },
+    "config.item-stats.module.description-8": {
+      "template": "A sculptural white sphere with red upholstery and a chrome pedestal. Sit (chair) to settle inside."
+    },
+    "config.item-stats.module.name-9": {
+      "template": "Fist"
+    },
+    "config.item-stats.module.name-10": {
+      "template": "Bayonet"
+    },
+    "config.item-stats.module.name-11": {
+      "template": "Battleaxe"
+    },
+    "config.item-stats.module.name-12": {
+      "template": "Railgun"
+    },
+    "config.item-stats.module.name-13": {
+      "template": "Akibo"
+    },
+    "config.item-stats.module.name-14": {
+      "template": "New Year’s rocket"
+    },
+    "config.item-stats.module.description-15": {
+      "template": "An oversized decorative rocket. Light it for ten seconds, once a minute. Press Space while it burns to hop about a character-height into the air."
+    },
+    "config.item-stats.module.name-16": {
+      "template": "Clock amulet"
+    },
+    "config.item-stats.module.description-17": {
+      "template": "A tiny clock on a chain. It keeps its own appointments."
+    },
+    "config.item-stats.module.name-18": {
+      "template": "Hiking backpack"
+    },
+    "config.item-stats.module.description-19": {
+      "template": "A sturdy hiking pack with room for twenty sandwiches."
+    },
+    "config.item-stats.module.name-20": {
+      "template": "Bison hide"
+    },
+    "config.item-stats.module.description-21": {
+      "template": "A heavy, shaggy hide. Yohji could make something remarkable from this."
+    },
+    "config.item-stats.module.name-22": {
+      "template": "Black cloak top"
+    },
+    "config.item-stats.module.description-23": {
+      "template": "An oversized black top with dropped shoulders, generous sleeves and a long, loose hem."
+    },
+    "config.item-stats.module.name-24": {
+      "template": "Black cloak bottom"
+    },
+    "config.item-stats.module.description-25": {
+      "template": "A sweeping black skirt. Enough fabric to consider the wind a collaborator."
+    },
+    "config.item-stats.module.name-26": {
+      "template": "Downtown teleportation tablet"
+    },
+    "config.item-stats.module.description-27": {
+      "template": "A small purple tablet. Break it to return to downtown San Francisco."
+    },
+    "config.item-stats.module.name-28": {
+      "template": "Tahoe teleportation tablet"
+    },
+    "config.item-stats.module.description-29": {
+      "template": "A snowy sigil in purple stone. Break it to appear beside the Tahoe gondola."
+    },
+    "config.item-stats.module.name-30": {
+      "template": "Ice top"
+    },
+    "config.item-stats.module.description-31": {
+      "template": "A crystalline cuirass. While equipped, blocks 2 damage from each incoming combat hit."
+    },
+    "config.item-stats.module.name-32": {
+      "template": "Ice pants"
+    },
+    "config.item-stats.module.description-33": {
+      "template": "Frosted greaves. While equipped, block 2 damage from each incoming combat hit."
+    },
+    "config.item-stats.module.name-34": {
+      "template": "Sandwich"
+    },
+    "config.item-stats.module.description-35": {
+      "template": "A sandwich. Store it in your food bag and eat it to recover hitpoints."
+    },
+    "config.item-stats.module.name-36": {
+      "template": "Peptides"
+    },
+    "config.item-stats.module.description-37": {
+      "template": "A tiny vial with a very large social network. Ray accepts these at the Freemasons’ Guild."
+    },
+    "config.item-stats.module.name-38": {
+      "template": "Coins"
+    },
+    "config.item-stats.module.description-39": {
+      "template": "Loose coins, awaiting a less theoretical owner."
+    },
+    "config.item-stats.module.name-40": {
+      "template": "Goose Corp membership card"
+    },
+    "config.item-stats.module.description-41": {
+      "template": "A very official-looking card. The fine print seems to be turning to dust."
+    },
+    "config.item-stats.module.name-42": {
+      "template": "Stetson"
+    },
+    "config.item-stats.module.description-43": {
+      "template": "A sand-dusted cowboy hat. The shark was keeping it under its hat."
+    },
+    "config.item-stats.module.name-44": {
+      "template": "Pirate's hat"
+    },
+    "config.item-stats.module.description-45": {
+      "template": "A salt-stained tricorn. The previous owner had an unusually flexible interpretation of navigation."
+    },
+    "config.item-stats.module.name-46": {
+      "template": "Velociraptor remains"
+    },
+    "config.item-stats.module.description-47": {
+      "template": "The emergency recovery protocol is now considerably less mobile."
+    },
+    "config.item-stats.module.name-48": {
+      "template": "Kraken spoils"
+    },
+    "config.item-stats.module.description-49": {
+      "template": "The spoils of an extremely unwise maritime expedition."
+    },
+    "config.monster-drops.module.name-1": {
+      "template": "Goblin"
+    },
+    "config.monster-drops.module.description-2": {
+      "template": "A Mount Tam goblin in heavy boots. The morning fog followed him down from the mountain."
+    },
+    "config.monster-drops.module.name-3": {
+      "template": "EMF warrior"
+    },
+    "config.monster-drops.module.description-4": {
+      "template": "A coastal campaigner surrounded by an agitated chorus of radios."
+    },
+    "config.monster-drops.module.name-5": {
+      "template": "Lost Goblin"
+    },
+    "config.monster-drops.module.description-6": {
+      "template": "A Mount Tam resident who took a wrong turn at the redwoods. He blames the trail signs."
+    },
+    "config.monster-drops.module.name-7": {
+      "template": "Goblin furniture maker"
+    },
+    "config.monster-drops.module.description-8": {
+      "template": "Mount Tam’s most temperamental modernist. His ball chairs are round; his customer service is pointed."
+    },
+    "config.monster-drops.module.name-9": {
+      "template": "Seagull"
+    },
+    "config.monster-drops.module.description-10": {
+      "template": "A waterfront regular with strong opinions about unattended sandwiches."
+    },
+    "config.monster-drops.module.name-11": {
+      "template": "Cow"
+    },
+    "config.monster-drops.module.name-12": {
+      "template": "Velociraptor"
+    },
+    "config.monster-drops.module.name-13": {
+      "template": "Kraken"
+    },
+    "config.monster-drops.module.name-14": {
+      "template": "Friendly bear"
+    },
+    "config.monster-drops.module.name-15": {
+      "template": "Bison"
+    },
+    "config.monster-drops.module.description-16": {
+      "template": "An enormous, shaggy park resident. The haircut is self-maintained."
+    },
+    "config.monster-drops.module.name-17": {
+      "template": "Snow giant"
+    },
+    "config.monster-drops.module.name-18": {
+      "template": "Ice giant"
+    },
+    "config.monster-drops.module.name-19": {
+      "template": "Terminator"
+    },
+    "config.monster-drops.module.description-20": {
+      "template": "An abandoned building, a red eye, and a very persistent tenant."
+    },
+    "config.monster-drops.module.name-21": {
+      "template": "Landshark"
+    },
+    "config.monster-drops.module.description-22": {
+      "template": "dont let him ride"
+    },
+    "config.monster-drops.module.name-23": {
+      "template": "Outlaw"
+    },
+    "config.monster-drops.module.description-24": {
+      "template": "A woodland entrepreneur whose entire business model is your pockets."
+    },
+    "config.monster-drops.module.name-25": {
+      "template": "Lost Pirate"
+    },
+    "config.monster-drops.module.description-26": {
+      "template": "He followed the treasure map exactly. Unfortunately, it was a restaurant menu."
+    },
+    "config.npcs.module.name-1": {
+      "template": "Hiking supplies clerk"
+    },
+    "config.npcs.module.name-2": {
+      "template": "Airship attendant"
+    },
+    "config.npcs.module.name-3": {
+      "template": "Stockbroker"
+    },
+    "config.npcs.module.name-4": {
+      "template": "Duel referee"
+    },
+    "config.npcs.module.name-5": {
+      "template": "Bottle-post engineer"
+    },
+    "config.npcs.module.name-6": {
+      "template": "Poster"
+    },
+    "config.npcs.module.name-7": {
+      "template": "Redheaded software salesman"
+    },
+    "config.npcs.module.name-8": {
+      "template": "Software salesman"
+    },
+    "config.npcs.module.name-9": {
+      "template": "Tim Apple"
+    },
+    "config.npcs.module.name-10": {
+      "template": "Tesla robotaxi dealer"
+    },
+    "config.npcs.module.name-11": {
+      "template": "Haberdasher"
+    },
+    "config.npcs.module.name-12": {
+      "template": "Salt conservationist"
+    },
+    "config.npcs.module.name-13": {
+      "template": "GPU Factory buyer"
+    },
+    "config.npcs.module.name-14": {
+      "template": "Fuel attendant"
+    },
+    "config.npcs.module.name-15": {
+      "template": "Motorcycle rental clerk"
+    },
+    "config.npcs.module.name-16": {
+      "template": "AI Lab recruiter"
+    },
+    "config.npcs.module.name-17": {
+      "template": "Cotogna chef"
+    },
+    "config.npcs.module.name-18": {
+      "template": "Ski lift attendant"
+    },
+    "config.npcs.module.name-19": {
+      "template": "Sand Hill Road Capital Partner"
+    },
+    "config.npcs.module.name-20": {
+      "template": "SpaceX attendant"
+    },
+    "config.npcs.module.name-21": {
+      "template": "Tax authority"
+    },
+    "config.npcs.module.name-22": {
+      "template": "Startup founder"
+    },
+    "config.npcs.module.name-23": {
+      "template": "Secondary purchaser"
+    },
+    "config.npcs.module.name-24": {
+      "template": "Grain merchant"
+    },
+    "config.npcs.module.name-25": {
+      "template": "Traveler"
+    },
+    "config.search-houses.module.label-1": {
+      "template": "Cedar chest"
+    },
+    "config.search-houses.module.label-2": {
+      "template": "Dog house"
+    },
+    "config.search-houses.module.label-3": {
+      "template": "Chest of drawers"
+    },
+    "config.search-houses.module.label-4": {
+      "template": "Laundry basket"
+    },
+    "config.search-houses.module.label-5": {
+      "template": "Tool box"
+    },
+    "config.search-houses.module.label-6": {
+      "template": "Wardrobe"
+    },
+    "config.search-houses.module.label-7": {
+      "template": "Bread box"
+    },
+    "config.search-houses.module.label-8": {
+      "template": "Travelling trunk"
+    },
+    "cupertino-gardens.drawCupertinoGardens.label-1.yes": {
+      "template": "Man"
+    },
+    "cupertino-gardens.drawCupertinoGardens.label-1.no": {
+      "template": "Woman"
+    },
+    "cupertino-gardens.drawCupertinoGardens.description-2": {
+      "template": "A neighbor taking the long way home, with a carefully maintained garden and no particular sense of urgency."
+    },
+    "cupertino-gardens.drawCupertinoGardens.label-3": {
+      "template": "Cupertino Orchard Gardens"
+    },
+    "cupertino-gardens.drawCupertinoGardens.description-4": {
+      "template": "Orchard paths, shaded benches and flowering gardens make a quiet circuit around the ring campus. Short courts lead home to low roofs and gardens."
+    },
+    "dialogue-config.configuredDialogue.decline-1": {
+      "template": "Leave"
+    },
+    "dialogues.ambient.createAmbientDialogue.decline-9": {
+      "template": "Leave"
+    },
+    "dialogues.ambient.withAmbientConversation.label-16": {
+      "template": "Let’s just talk."
+    },
+    "dog-pony-layout.module.label-1": {
+      "template": "Dog and Pony Show"
+    },
+    "dog-pony-show.createDogPonyAdministrator.label-1": {
+      "template": "Dog and Pony Administrator"
+    },
+    "dog-pony-show.createDogPonyAdministrator.name-2": {
+      "template": "Dog and Pony Administrator"
+    },
+    "dog-pony-show.createDogPonyAdministrator.description-3": {
+      "template": "A very small impresario with a clipboard, two exceptionally flexible employees, and complete confidence in the programme."
+    },
+    "dog-pony-show.drawDogPonyShowground.description-5": {
+      "template": "A striped little showground beside Foundry Lane. The dog and pony have rehearsed exactly one trick, and are extremely proud of it."
+    },
+    "dog-surfing.dogSurfingDialogue.intro-2.yes": {
+      "template": "The judges raise their cards! {v0}. {v1} wins this heat!"
+    },
+    "dog-surfing.dogSurfingDialogue.intro-2.no": {
+      "template": "Welcome to the Pacifica Dog Surfing Competition! Biscuit, Nori, and Captain Pickles are heading into the next set."
+    },
+    "dog-surfing.dogSurfingDialogue.decline-3": {
+      "template": "Enjoy the competition"
+    },
+    "dog-surfing.dogSurfingDialogue.label-5": {
+      "template": "What are the judges looking for?"
+    },
+    "dog-surfing.dogSurfingDialogue.receipt-6": {
+      "template": "Balance, style, and commitment. Shaking seawater over the judging panel is a deduction. Looking pleased with yourself is encouraged."
+    },
+    "dog-surfing.dogSurfingDialogue.label-8": {
+      "template": "Who is the favorite?"
+    },
+    "dog-surfing.dogSurfingDialogue.receipt-9": {
+      "template": "Biscuit has experience. Nori has balance. Captain Pickles has a tiny life jacket and absolutely no sense of personal risk."
+    },
+    "duel-layout.module.label-1": {
+      "template": "Duel Arena"
+    },
+    "duel-layout.module.name-2": {
+      "template": "Arena garden walk"
+    },
+    "encounter-buildings.drawAbandonedFactory.label-1": {
+      "template": "Abandoned building"
+    },
+    "encounter-buildings.drawAbandonedFactory.description-2": {
+      "template": "The windows are boarded up. Something inside is still on the clock."
+    },
+    "estate-life.createEstateResidents.label-1.yes": {
+      "template": "Woman"
+    },
+    "estate-life.createEstateResidents.label-1.no": {
+      "template": "Man"
+    },
+    "ferrari.createFerrari.label-1": {
+      "template": "Extortionate Gas Station"
+    },
+    "ferrari.createFerrari.label-2": {
+      "template": "Extortionate Gas Station"
+    },
+    "ferrari.createFerrari.label-3": {
+      "template": "Free Gondola Gas"
+    },
+    "ferrari.createFerrari.label-4": {
+      "template": "Ferrari Dealership"
+    },
+    "geography.module.name-1": {
+      "template": "Twin Peaks ridge"
+    },
+    "geography.module.name-2": {
+      "template": "North Twin Peak"
+    },
+    "geography.module.name-3": {
+      "template": "South Twin Peak"
+    },
+    "geography.module.name-4": {
+      "template": "Mount Davidson"
+    },
+    "geography.module.name-5": {
+      "template": "Mount Sutro"
+    },
+    "geography.module.name-6": {
+      "template": "Golden Gate Heights"
+    },
+    "geography.module.name-7": {
+      "template": "Nob Hill"
+    },
+    "geography.module.name-8": {
+      "template": "Russian Hill"
+    },
+    "geography.module.name-9": {
+      "template": "Telegraph Hill"
+    },
+    "geography.module.name-10": {
+      "template": "Pacific Heights"
+    },
+    "geography.module.name-11": {
+      "template": "Presidio"
+    },
+    "geography.module.name-12": {
+      "template": "Lone Mountain"
+    },
+    "geography.module.name-13": {
+      "template": "Alamo Square"
+    },
+    "geography.module.name-14": {
+      "template": "Buena Vista"
+    },
+    "geography.module.name-15": {
+      "template": "Bernal Heights"
+    },
+    "geography.module.name-16": {
+      "template": "Potrero Hill"
+    },
+    "geography.module.name-17": {
+      "template": "Glen Park ridge"
+    },
+    "gpu-factory.oceanBeachSandSite.label-1": {
+      "template": "Ocean Beach sand"
+    },
+    "gpu-factory.oceanBeachSandSite.description-2": {
+      "template": "A pile of pale beach sand, with shovels and empty sacks beside it."
+    },
+    "gpu-factory.drawGPUFactory.label-3": {
+      "template": "GPU Factory"
+    },
+    "gpu-factory.drawGPUFactory.description-4": {
+      "template": "A South Bay chip factory with north-light roof bays, clean-room windows, cooling pipes, and a surprisingly enthusiastic raw-materials department."
+    },
+    "gpu-layout.module.name-1": {
+      "template": "GPU Factory access"
+    },
+    "guild.module.name-1": {
+      "template": "Freemasons' Guild"
+    },
+    "guild.module.label-2": {
+      "template": "Freemasons' Guild"
+    },
+    "guild.module.description-3": {
+      "template": "A sandstone lodge with a checkerboard floor, brass compasses and an unusually well-funded refreshments committee. Ray, in the red suit, handles admission."
+    },
+    "guild.module.description-6": {
+      "template": "Heirloom produce, black coats and exceptionally small sunglasses. The farmers grow the future, mostly in vials."
+    },
+    "guild.guildDialogue.intro-8.yes": {
+      "template": "Welcome back. The lodge, the library, and the geometrically arranged biscuits are yours."
+    },
+    "guild.guildDialogue.intro-8.no": {
+      "template": "Ray, admissions. We like to get to know our applicants. You are currently Rank {v0}, with {v1} peptides carried."
+    },
+    "guild.guildDialogue.decline-10": {
+      "template": "Leave"
+    },
+    "guild.guildDialogue.label-12.yes": {
+      "template": "Review membership"
+    },
+    "guild.guildDialogue.label-12.no": {
+      "template": "Check in · request promotion"
+    },
+    "guild.guildDialogue.label-15": {
+      "template": "Donate 1 peptide"
+    },
+    "gym-exercises.module.label-1": {
+      "template": "Bench press"
+    },
+    "gym-exercises.module.label-2": {
+      "template": "Dumbbell curls"
+    },
+    "gym-exercises.module.label-3": {
+      "template": "Barbell squats"
+    },
+    "gym-exercises.module.label-4": {
+      "template": "Overhead press"
+    },
+    "haberdasher-shop.drawHaberdasherShop.label-1": {
+      "template": "Haberdasher"
+    },
+    "haberdasher-shop.drawHaberdasherShop.description-2": {
+      "template": "A little hat shop just north of the GPU Factory, with recessed hat displays, a striped canopy, and a projecting top-hat sign."
+    },
+    "haberdashery.haberdasherDialogue.label-3": {
+      "template": "{v0} · {v1}"
+    },
+    "interaction-targets.tigerInteractionTarget.label-1": {
+      "template": "Tiger"
+    },
+    "interaction-targets.tigerInteractionTarget.description-2.yes": {
+      "template": "A magnificent striped cat. Currently reviewing your position on the food chain."
+    },
+    "interaction-targets.tigerInteractionTarget.description-2.no": {
+      "template": "An excellent tiger. It has never read a single warning sign."
+    },
+    "interaction-targets.ropeInteractionTarget.label-3": {
+      "template": "Airship rope"
+    },
+    "interaction-targets.ropeInteractionTarget.description-4": {
+      "template": "A rope hanging from the airship basket. Climb aboard."
+    },
+    "interaction-targets.whaleInteractionTarget.label-5": {
+      "template": "Humpback whale"
+    },
+    "interaction-targets.whaleInteractionTarget.description-6": {
+      "template": "A humpback surfaces in the Pacific, followed by a silver plume of spray. Windsurf into position and jump over its back."
+    },
+    "item-stats.itemLoot.label-1.yes": {
+      "template": "{v0} coins"
+    },
+    "jurassic-layout.cowSpawns.label-1": {
+      "template": "Cow"
+    },
+    "jurassic.createExpeditions.label-1": {
+      "template": "Velociraptor"
+    },
+    "jurassic.createExpeditions.description-2": {
+      "template": "A feathered liability with excellent acceleration and no respect for informed consent."
+    },
+    "jurassic.createExpeditions.description-3": {
+      "template": "A placid cow, chewing thoughtfully."
+    },
+    "jurassic.createExpeditions.label-4": {
+      "template": "Kraken"
+    },
+    "jurassic.createExpeditions.description-5": {
+      "template": "A many-armed calamity. Below half health it becomes enraged: faster tentacles, heavier blows, and very little respect for uninsured ships."
+    },
+    "jurassic.drop.label-6.yes": {
+      "template": "{v0} coins"
+    },
+    "jurassic.drop.label-6.no.yes": {
+      "template": "Sandwich"
+    },
+    "jurassic.drop.label-6.no.no.yes": {
+      "template": "Velociraptor remains"
+    },
+    "jurassic.drop.label-6.no.no.no": {
+      "template": "Kraken spoils"
+    },
+    "jurassic.drop.description-7.yes": {
+      "template": "The emergency recovery protocol is now considerably less mobile."
+    },
+    "jurassic.drop.description-7.no.yes": {
+      "template": "A sandwich. Store it in your food bag and eat it to recover hitpoints."
+    },
+    "jurassic.drop.description-7.no.no.no": {
+      "template": "Loose coins, awaiting a less theoretical owner."
+    },
+    "jurassic.entries.description-8.yes": {
+      "template": "You have not begun this adventure."
+    },
+    "jurassic.entries.description-8.no.yes": {
+      "template": "The scientist issued you a railgun. The velociraptor has escaped."
+    },
+    "jurassic.entries.description-8.no.no.yes": {
+      "template": "You recovered the velociraptor’s remains."
+    },
+    "jurassic.entries.description-8.no.no.no": {
+      "template": "The raptor escape and emergency recovery protocol has been tested. You keep the railgun."
+    },
+    "jurassic.entries.description-9.no": {
+      "template": "You have joined Captain Ahab’s hunt."
+    },
+    "jurassic.scientistDialogue.decline-10": {
+      "template": "Leave"
+    },
+    "jurassic.scientistDialogue.intro-12": {
+      "template": "Jurassic Biosciences. We make yesterday’s problems tomorrow’s growth market."
+    },
+    "jurassic.scientistDialogue.question-13": {
+      "template": "Ask for a quest?"
+    },
+    "jurassic.scientistDialogue.choice-14": {
+      "template": "Do you have a quest for me?"
+    },
+    "jurassic.scientistDialogue.intro-17": {
+      "template": "Excellent! Our field test appears to have concluded."
+    },
+    "jurassic.scientistDialogue.question-18": {
+      "template": "Why did you release the raptor?"
+    },
+    "jurassic.scientistDialogue.choice-19": {
+      "template": "Hand over the remains and demand an explanation"
+    },
+    "jurassic.scientistDialogue.intro-22": {
+      "template": "This was a good test of the raptor escape and emergency recovery protocol."
+    },
+    "jurassic.scientistDialogue.question-23": {
+      "template": "May I keep the railgun?"
+    },
+    "jurassic.scientistDialogue.choice-24": {
+      "template": "Confirm equipment ownership"
+    },
+    "jurassic.scientistDialogue.receipt-25": {
+      "template": "Certainly. We have classified it as a customer-success expense."
+    },
+    "jurassic.scientistDialogue.intro-27": {
+      "template": "The emergency is proceeding within our confidence interval. The velociraptor is somewhere outside the cage."
+    },
+    "jurassic.scientistDialogue.question-28": {
+      "template": "What am I supposed to do?"
+    },
+    "jurassic.scientistDialogue.choice-29": {
+      "template": "Review recovery protocol"
+    },
+    "jurassic.scientistDialogue.receipt-30": {
+      "template": "Recover the specimen, please. The paperwork becomes rather difficult when a specimen is also a pedestrian."
+    },
+    "jurassic.ahabDialogue.intro-32.yes": {
+      "template": "A fine hunt. Fine shooting! Collect the spoils from the deck. The cape is, regrettably, mandatory."
+    },
+    "jurassic.ahabDialogue.intro-32.no": {
+      "template": "There she is! Rather more arms than I remember from the prospectus."
+    },
+    "jurassic.ahabDialogue.question-33": {
+      "template": "Return to the city?"
+    },
+    "jurassic.ahabDialogue.choice-34": {
+      "template": "Sail back to shore"
+    },
+    "jurassic.ahabDialogue.decline-35": {
+      "template": "Stay aboard"
+    },
+    "jurassic.ahabDialogue.intro-38": {
+      "template": "A fine hunt! You have already claimed the kraken’s spoils. I am still writing the incident report."
+    },
+    "jurassic.ahabDialogue.choice-39": {
+      "template": "How did the cape turn out?"
+    },
+    "jurassic.ahabDialogue.receipt-40": {
+      "template": "A triumph of maritime understatement. Wear it proudly."
+    },
+    "jurassic.ahabDialogue.intro-42": {
+      "template": "I refuse to board a hunter without a sufficiently powerful weapon. Come back with a railgun."
+    },
+    "jurassic.ahabDialogue.question-43": {
+      "template": "What counts as sufficiently powerful?"
+    },
+    "jurassic.ahabDialogue.choice-44": {
+      "template": "Ask about equipment"
+    },
+    "jurassic.ahabDialogue.receipt-45": {
+      "template": "A proper weapon is a matter of judgment. I have strong opinions on both words."
+    },
+    "jurassic.ahabDialogue.intro-47": {
+      "template": "A railgun! Now there is a weapon fit for the Pequod."
+    },
+    "jurassic.ahabDialogue.question-48": {
+      "template": "What happened to Moby Dick?"
+    },
+    "jurassic.ahabDialogue.choice-49": {
+      "template": "Ask about Moby Dick"
+    },
+    "jurassic.ahabDialogue.decline-50": {
+      "template": "Leave"
+    },
+    "jurassic.ahabDialogue.label-52": {
+      "template": "What happened to Moby Dick?"
+    },
+    "jurassic.ahabDialogue.intro-54": {
+      "template": "Too hard. We’ll just hunt the kraken instead."
+    },
+    "jurassic.ahabDialogue.question-55": {
+      "template": "Board the Pequod for the kraken hunt?"
+    },
+    "jurassic.ahabDialogue.choice-56": {
+      "template": "Board the Pequod"
+    },
+    "jurassic.ahabDialogue.decline-57": {
+      "template": "Stay ashore"
+    },
+    "life.createCityLife.label-1.yes": {
+      "template": "Child"
+    },
+    "life.createCityLife.label-1.no.yes": {
+      "template": "Woman"
+    },
+    "life.createCityLife.label-1.no.no": {
+      "template": "Man"
+    },
+    "life.draw.label-2": {
+      "template": "Baby"
+    },
+    "life.draw.label-3": {
+      "template": "Dog"
+    },
+    "life.draw.description-4": {
+      "template": "A very good dog taking a human out for some much-needed exercise."
+    },
+    "models.barracks.name-1": {
+      "template": ""
+    },
+    "multiplayer-client.createMultiplayerClient.name-1": {
+      "template": ""
+    },
+    "multiplayer-world.createWorldMultiplayer.name-1": {
+      "template": "attack"
+    },
+    "multiplayer-world.createWorldMultiplayer.name-2": {
+      "template": "attack"
+    },
+    "neighborhood-interactions.makeNeighborhoodBench.label-1": {
+      "template": "Garden bench"
+    },
+    "neighborhood-interactions.makeNeighborhoodBench.description-2": {
+      "template": "A cedar bench, made for sitting a while. A very modest antidote to being in a hurry."
+    },
+    "nightlife.buildNightlife.label-1": {
+      "template": "Man"
+    },
+    "nightlife.buildNightlife.label-2": {
+      "template": "Woman"
+    },
+    "nightlife.buildNightlife.label-3": {
+      "template": "Nightlife"
+    },
+    "nightlife.buildNightlife.description-4": {
+      "template": "A little nightclub in the South Mission, two blocks north of its former home. Mirror ball, colored dance floor, and two regulars with very firm relationship boundaries."
+    },
+    "parrots.parrotDialogue.name-1": {
+      "template": "Wild parrot"
+    },
+    "peninsula-details.drawPeninsulaDetails.description-2": {
+      "template": "Pacifica Commons: a neighborhood green with a fountain, shaded benches, and paths for a very unhurried lap. The ocean air is complimentary."
+    },
+    "peninsula-urbanism.module.name-1": {
+      "template": "Third Street south"
+    },
+    "peninsula-urbanism.module.name-2": {
+      "template": "Startup garden lane"
+    },
+    "peninsula-urbanism.module.name-3": {
+      "template": "Second Street south"
+    },
+    "peninsula-urbanism.module.name-4": {
+      "template": "Terminal cross street"
+    },
+    "peninsula-urbanism.module.name-5": {
+      "template": "Terminal driveway"
+    },
+    "peninsula-urbanism.module.name-6": {
+      "template": "Headquarters cross street"
+    },
+    "peninsula-urbanism.module.name-7": {
+      "template": "Ocean Esplanade"
+    },
+    "peninsula-urbanism.module.name-8": {
+      "template": "Ocean Cliff Street"
+    },
+    "peninsula-urbanism.module.name-9": {
+      "template": "Ocean Gateway"
+    },
+    "peninsula-urbanism.module.name-10": {
+      "template": "Cabrillo Terrace"
+    },
+    "peninsula-urbanism.module.name-11": {
+      "template": "Pacifica coastal connection"
+    },
+    "peninsula-urbanism.module.name-12": {
+      "template": "Seaview extension"
+    },
+    "peninsula-urbanism.module.name-13": {
+      "template": "Parkside coastal connection"
+    },
+    "peninsula-urbanism.module.name-14": {
+      "template": "Ocean View coastal connection"
+    },
+    "peninsula-urbanism.module.name-15": {
+      "template": "Juniper south"
+    },
+    "peninsula-urbanism.module.name-16": {
+      "template": "Linden south"
+    },
+    "peninsula-urbanism.module.name-17": {
+      "template": "Woodland Avenue"
+    },
+    "peninsula-urbanism.module.name-18": {
+      "template": "Southwood Avenue"
+    },
+    "peninsula-urbanism.module.name-19": {
+      "template": "Beachwood south"
+    },
+    "peninsula-urbanism.module.name-20": {
+      "template": "Coast Road south"
+    },
+    "peninsula-urbanism.module.name-21": {
+      "template": "Palmetto south"
+    },
+    "peninsula-urbanism.module.name-22": {
+      "template": "Laurel Street"
+    },
+    "peninsula-urbanism.module.name-23": {
+      "template": "Magnolia Street"
+    },
+    "peninsula-urbanism.module.name-24": {
+      "template": "Cottage Row"
+    },
+    "peninsula-urbanism.module.name-25": {
+      "template": "San Mateo Avenue"
+    },
+    "peninsula-urbanism.module.name-26": {
+      "template": "Coastal Gardens Road"
+    },
+    "peninsula-urbanism.module.name-27": {
+      "template": "Airport West Boulevard"
+    },
+    "peninsula-urbanism.module.name-28": {
+      "template": "Civic Lane"
+    },
+    "peninsula-urbanism.module.name-29": {
+      "template": "Bayshore Gardens"
+    },
+    "peninsula-urbanism.module.name-30": {
+      "template": "Research neighborhood connector"
+    },
+    "peninsula-urbanism.module.label-31": {
+      "template": "Sand Hill Woodland Park"
+    },
+    "peninsula-urbanism.module.name-32": {
+      "template": "Sand Hill woodland loop"
+    },
+    "peninsula-urbanism.module.name-33": {
+      "template": "Woodland north entrance"
+    },
+    "peninsula-urbanism.module.name-34": {
+      "template": "Woodland south entrance"
+    },
+    "peninsula-urbanism.module.label-35": {
+      "template": "Ocean Terrace Garden"
+    },
+    "peninsula-urbanism.module.label-36": {
+      "template": "Bayshore Courtyard"
+    },
+    "prometheus.drawPrometheus.label-1": {
+      "template": "Prometheus"
+    },
+    "prometheus.drawPrometheus.description-2": {
+      "template": "Prometheus lifts an eternal flame over the bay. The fire is for everyone; the birds have interpreted this as including the pedestal."
+    },
+    "quests.monkeyQuestDialogue.decline-4": {
+      "template": "Another time"
+    },
+    "quests.monkeyQuestDialogue.intro-6": {
+      "template": "Our new colleague has submitted a paper titled “Banana.” It is devastatingly concise. The reviewers are furious."
+    },
+    "quests.monkeyQuestDialogue.question-7": {
+      "template": "How is the visiting professor settling in?"
+    },
+    "quests.monkeyQuestDialogue.choice-8": {
+      "template": "Ask about the monkey"
+    },
+    "quests.monkeyQuestDialogue.receipt-9": {
+      "template": "He has tenure, a sunny climbing frame, and his own fruit budget. We have never had a more productive faculty member."
+    },
+    "quests.monkeyQuestDialogue.intro-11": {
+      "template": "Ah! A volunteer! And he has already stolen my pen. Clearly a natural academic."
+    },
+    "quests.monkeyQuestDialogue.question-12": {
+      "template": "Introduce your research assistant?"
+    },
+    "quests.monkeyQuestDialogue.choice-13": {
+      "template": "Introduce the monkey"
+    },
+    "quests.monkeyQuestDialogue.intro-16": {
+      "template": "We have tried advertising on academic job boards, but the benefits package was too vague. Any luck finding our new colleague?"
+    },
+    "quests.monkeyQuestDialogue.question-17": {
+      "template": "How is the search going?"
+    },
+    "quests.monkeyQuestDialogue.choice-18": {
+      "template": "Why not use a job board?"
+    },
+    "quests.monkeyQuestDialogue.receipt-19": {
+      "template": "The last applicant wanted a corner office. The one before that wanted an entire corner tree. I thought we should broaden our search."
+    },
+    "quests.monkeyQuestDialogue.intro-21": {
+      "template": "We need a research assistant with an unprejudiced view of consciousness. Also a prehensile tail. Would you steal a monkey from the zoo? I have a very small relocation budget and a very large supply of bananas."
+    },
+    "quests.monkeyQuestDialogue.question-22": {
+      "template": "Help Professor Meridian?"
+    },
+    "quests.monkeyQuestDialogue.choice-23": {
+      "template": "Accept quest"
+    },
+    "rail-works.module.label-1": {
+      "template": "Rail worker"
+    },
+    "rail-works.module.name-2": {
+      "template": "Gus, excavation specialist"
+    },
+    "rail-works.module.description-3": {
+      "template": "An excavator operator protecting a sandwich of considerable historical significance."
+    },
+    "rail-works.railWorkerDialogue.intro-5": {
+      "template": "Afternoon. Mind the digger. Mind the hole. Most of all, mind the lunch break."
+    },
+    "rail-works.railWorkerDialogue.question-6": {
+      "template": "What would you like to ask?"
+    },
+    "rail-works.railWorkerDialogue.decline-7": {
+      "template": "Enjoy your lunch."
+    },
+    "rail-works.railWorkerDialogue.label-9": {
+      "template": "How long is your lunch break?"
+    },
+    "rail-works.railWorkerDialogue.intro-11": {
+      "template": "How long? Well, I remember when this sandwich was just two fields of wheat and a promising pig. The bread was warmer then. We all were."
+    },
+    "rail-works.railWorkerDialogue.question-12": {
+      "template": "Go on…"
+    },
+    "rail-works.railWorkerDialogue.label-14": {
+      "template": "But when did the break start?"
+    },
+    "rail-works.railWorkerDialogue.receipt-15": {
+      "template": "There are stories of a time before lunch. My grandfather heard them from a man who claimed to have seen a moving excavator. We keep his photograph in the union hall."
+    },
+    "rail-works.railWorkerDialogue.label-17": {
+      "template": "When will you get back to work?"
+    },
+    "rail-works.railWorkerDialogue.receipt-18": {
+      "template": "Once I finish my tea. Trouble is, whenever I get near the bottom, someone tops it up. The kettle was here when they surveyed the route. It may be older than the route."
+    },
+    "rail-works.railWorkerDialogue.label-20": {
+      "template": "Do you remember working?"
+    },
+    "rail-works.railWorkerDialogue.receipt-21": {
+      "template": "I remember remembering it. Big yellow machine, terrible racket. Or perhaps that was the mustard bottle. The years tend to run together around the second course."
+    },
+    "rail-works.railWorkerDialogue.label-23": {
+      "template": "How is the high-speed rail going?"
+    },
+    "rail-works.railWorkerDialogue.receipt-24": {
+      "template": "Fastest lunch break in the state. We have already completed the feasibility study for the napkin. Construction of the actual napkin is pending a second environmental review."
+    },
+    "redwood-lake-life.drawRedwoodLakeLife.label-1": {
+      "template": "Canoeing couple"
+    },
+    "redwood-lake-life.drawRedwoodLakeLife.description-2": {
+      "template": "Two people taking the scenic route around Redwood Lake. Neither has checked a notification in quite some time."
+    },
+    "redwood-lake-life.drawRedwoodLakeLife.label-3": {
+      "template": "Canada goose"
+    },
+    "redwood-lake-life.drawRedwoodLakeLife.description-4": {
+      "template": "A very well-dressed waterfowl with strong views about personal space."
+    },
+    "rehabilitation.detentionStaff.label-1": {
+      "template": "Rehabilitation specialist"
+    },
+    "rehabilitation.detentionStaff.name-2": {
+      "template": "Rehabilitation specialist"
+    },
+    "research-campuses.drawResearchCampuses.description-2.yes": {
+      "template": "The field station of the California Institute for Consciousness Research. Star charts cover the glass roof; its brass instruments are calibrated to a different consensus reality."
+    },
+    "research-campuses.drawResearchCampuses.description-2.no": {
+      "template": "The California Institute for Consciousness Research. Celestial tiles and a copper observatory promise a rigorous measurement of the ineffable. Professor Meridian still needs a research assistant with a prehensile tail."
+    },
+    "research-dialogue.module.name-1": {
+      "template": "Professor Ada Meridian"
+    },
+    "research-dialogue.module.label-2": {
+      "template": "Professor Ada Meridian"
+    },
+    "research-dialogue.module.description-3": {
+      "template": "A director with a chalk-dusted coat and a compass that points toward the nearest open grant application."
+    },
+    "research-dialogue.module.name-4": {
+      "template": "Mira Softmax"
+    },
+    "research-dialogue.module.label-5": {
+      "template": "Mira Softmax"
+    },
+    "research-dialogue.module.description-6": {
+      "template": "A researcher carrying seven meditation timers, all confidently disagreeing about when the present begins."
+    },
+    "research-dialogue.module.name-7": {
+      "template": "Soren Still"
+    },
+    "research-dialogue.module.label-8": {
+      "template": "Soren Still"
+    },
+    "research-dialogue.module.description-9": {
+      "template": "A contemplative fellow taking a very slow walk around the bench he identifies as “compute infrastructure.”"
+    },
+    "research-dialogue.module.name-10": {
+      "template": "Professor Elias Index"
+    },
+    "research-dialogue.module.label-11": {
+      "template": "Professor Elias Index"
+    },
+    "research-dialogue.module.description-12": {
+      "template": "A professor with a very small ruler and an extraordinarily large jurisdictional dispute."
+    },
+    "research-dialogue.module.name-13": {
+      "template": "Dr. Noor Qualia"
+    },
+    "research-dialogue.module.label-14": {
+      "template": "Dr. Noor Qualia"
+    },
+    "research-dialogue.module.description-15": {
+      "template": "A phenomenologist whose lab notebook contains careful observations, many question marks, and one excellent soup recipe."
+    },
+    "research-dialogue.module.name-16": {
+      "template": "Rowan Zero"
+    },
+    "research-dialogue.module.label-17": {
+      "template": "Rowan Zero"
+    },
+    "research-dialogue.module.description-18": {
+      "template": "The facilities lead. Their keyring is labeled “ground truth” and opens considerably more doors than the institute’s theories do."
+    },
+    "research-layout.module.name-1": {
+      "template": "Centerline Boulevard"
+    },
+    "restaurants.module.name-1": {
+      "template": "Lucinda's Deli"
+    },
+    "restaurants.module.label-2": {
+      "template": "Lucinda’s Deli"
+    },
+    "restaurants.module.description-3": {
+      "template": "A busy neighborhood deli with a well-used counter and the smell of freshly baked bread."
+    },
+    "restaurants.module.name-4": {
+      "template": "Shanghai Kelly's"
+    },
+    "restaurants.module.label-5": {
+      "template": "Shanghai Kelly’s"
+    },
+    "restaurants.module.description-6": {
+      "template": "A neighborhood bar with a polished counter and a floor that has heard every story."
+    },
+    "restaurants.module.name-7": {
+      "template": "cotogna"
+    },
+    "restaurants.module.label-8": {
+      "template": "Cotogna"
+    },
+    "restaurants.module.description-9": {
+      "template": "A brick neighborhood restaurant near Coit Tower. Neighbors eat at a table outside beneath the cotogna sign."
+    },
+    "restaurants.module.name-10": {
+      "template": "Rich Table"
+    },
+    "restaurants.module.label-11": {
+      "template": "Rich Table"
+    },
+    "restaurants.module.description-12": {
+      "template": "A little Hayes Valley house with a Rich Table sign. Neighbors share dinner at the tables outside."
+    },
+    "restaurants.createRestaurantPatio.label-13": {
+      "template": "{v0} diner"
+    },
+    "salt-flats.drawSaltFlats.label-1": {
+      "template": "Bay Area Salt Flats"
+    },
+    "salt-flats.drawSaltFlats.description-2": {
+      "template": "A patchwork of pink, green, and silver evaporation ponds beside the South Bay. Salt crust rims the water; dirt levees keep your feet dry. A letter-writing desk stands beside the levee."
+    },
+    "salt-layout.module.name-1": {
+      "template": "Salt conservation levee"
+    },
+    "salt-mail.entries.description-1": {
+      "template": "{v0} Letters delivered: {v1}."
+    },
+    "salt-mail.saltActivistDialogue.decline-2": {
+      "template": "Leave"
+    },
+    "salt-mail.saltActivistDialogue.intro-4": {
+      "template": "You still have my sealed letter. City Hall needs to hear that these salt ponds are habitat, not a blank space on a development proposal."
+    },
+    "salt-mail.saltActivistDialogue.question-5": {
+      "template": "Where do I deliver the letter?"
+    },
+    "salt-mail.saltActivistDialogue.choice-6": {
+      "template": "Remind me of the route"
+    },
+    "salt-mail.saltActivistDialogue.receipt-7": {
+      "template": "Hand the letter to the City Hall clerk in San Francisco. The clerk will pay you 50 coins from our campaign fund."
+    },
+    "salt-mail.saltActivistDialogue.intro-9.yes": {
+      "template": "Another letter? Excellent. Bureaucracy is an endurance sport, and these ponds have excellent stamina."
+    },
+    "salt-mail.saltActivistDialogue.intro-9.no": {
+      "template": "These pink and green salt ponds are alive with brine-loving organisms. We want to protect the bay’s wetland habitat. City Hall keeps asking for written comments, so I keep writing them."
+    },
+    "salt-mail.saltActivistDialogue.question-10": {
+      "template": "Work as a salt-conservation courier? Each letter delivered to the City Hall clerk pays 50 coins."
+    },
+    "salt-mail.saltActivistDialogue.choice-11": {
+      "template": "Take a letter · 50 coins on delivery"
+    },
+    "salt-mail.saltClerkDialogue.intro-14": {
+      "template": "A letter from the salt conservation campaign? I can register it and pay your courier fee. {v0}"
+    },
+    "salt-mail.saltClerkDialogue.question-15": {
+      "template": "Deliver the letter, or discuss other City Hall business?"
+    },
+    "salt-mail.saltClerkDialogue.label-17": {
+      "template": "Deliver conservation letter · 50 coins"
+    },
+    "skate-dog.createSkateDog.label-1": {
+      "template": "Skateboarding dog"
+    },
+    "skate-dog.createSkateDog.description-2": {
+      "template": "Four paws, four wheels, and absolutely no municipal skateboarding permit. A very good dog."
+    },
+    "skateboard.module.label-1": {
+      "template": "Ollie"
+    },
+    "skateboard.module.label-2": {
+      "template": "Kickflip"
+    },
+    "skateboard.module.label-3": {
+      "template": "360 shove-it"
+    },
+    "slow-bus.createSlowBus.label-1": {
+      "template": "Bus"
+    },
+    "social-buildings.drawSocialBuildings.description-1.yes": {
+      "template": "Messages travel down a conveyor, into bottles and out to sea. The backend is surprisingly wet."
+    },
+    "social-buildings.drawSocialBuildings.description-1.no": {
+      "template": "A red-and-cream circus tent dedicated to selling sales software to people who sell sales software. The ringmaster calls it a pipeline."
+    },
+    "social-buildings.drawSocialBuildings.label-2": {
+      "template": "Bottle-post conveyor"
+    },
+    "social-layout.module.label-1": {
+      "template": "Twitter HQ"
+    },
+    "social-layout.module.label-2": {
+      "template": "Software Sales Conference"
+    },
+    "social-layout.module.name-3": {
+      "template": "Twitter conference walk"
+    },
+    "social-layout.module.name-4": {
+      "template": "Twitter doorway"
+    },
+    "social-layout.module.name-5": {
+      "template": "Sales conference doorway"
+    },
+    "south-bay-layout.module.label-1": {
+      "template": "Bayview Common"
+    },
+    "south-bay-layout.module.label-2": {
+      "template": "Bayshore Design Studio"
+    },
+    "south-bay-layout.module.label-3": {
+      "template": "Redwood Office Court"
+    },
+    "south-bay-models.drawGardenOffice.description-1": {
+      "template": "A garden office with recessed glass, redwood sunshades, planted terraces and a carefully fitted stone base."
+    },
+    "south-bay-models.drawSouthBayPublicSpaces.description-2": {
+      "template": "A neighborhood common with shade trees, flower beds, cedar benches, a drinking fountain and paths linking all four sides."
+    },
+    "south-bay-models.drawSouthBayPublicSpaces.label-3.yes": {
+      "template": "Man"
+    },
+    "south-bay-models.drawSouthBayPublicSpaces.label-3.no": {
+      "template": "Woman"
+    },
+    "southern-countryside-layout.module.name-1": {
+      "template": "Redwood Avenue"
+    },
+    "southern-countryside-layout.module.name-2": {
+      "template": "Orchard Road"
+    },
+    "southern-countryside-layout.module.name-3": {
+      "template": "Meadow Road"
+    },
+    "southern-countryside-layout.module.name-4": {
+      "template": "Alder Lane"
+    },
+    "southern-countryside-layout.module.name-5": {
+      "template": "Meadow Way"
+    },
+    "southern-countryside-layout.module.name-6": {
+      "template": "Laurel Garden Court"
+    },
+    "southern-countryside-layout.module.name-7": {
+      "template": "Consciousness Drive"
+    },
+    "southern-countryside-layout.module.name-8": {
+      "template": "South Coast Drive"
+    },
+    "southern-countryside-layout.module.name-9": {
+      "template": "Orchard greenway extension"
+    },
+    "southern-countryside-layout.module.name-10": {
+      "template": "Redwood lake circuit"
+    },
+    "southern-countryside-layout.module.name-11": {
+      "template": "Lake to meadow"
+    },
+    "southern-countryside-layout.module.name-12": {
+      "template": "Pasture gate walk"
+    },
+    "southern-countryside-layout.module.name-13": {
+      "template": "Campus woodland walk"
+    },
+    "southern-countryside-layout.module.name-14": {
+      "template": "South Grove green"
+    },
+    "southern-countryside-layout.module.name-15": {
+      "template": "Rival institutes promenade"
+    },
+    "southern-countryside.drawSouthernCountryside.label-1.yes": {
+      "template": "Man"
+    },
+    "southern-countryside.drawSouthernCountryside.label-1.no": {
+      "template": "Woman"
+    },
+    "southern-countryside.drawSouthernCountryside.description-2": {
+      "template": "A neighbor enjoying a quieter stretch of the peninsula."
+    },
+    "southern-countryside.drawSouthernCountryside.label-3": {
+      "template": "Redwood Lake and Meadows"
+    },
+    "southern-countryside.drawSouthernCountryside.description-4": {
+      "template": "A wooded lake, open cow pasture, cottage gardens and colorful city flats along connected neighborhood lanes. The rival consciousness institutes stand side by side on a shared promenade off South Grove Avenue."
+    },
+    "southern-craft.module.label-1": {
+      "template": "Seabreeze Bakery"
+    },
+    "southern-craft.module.label-2": {
+      "template": "Palmetto Pottery"
+    },
+    "southern-craft.module.label-3": {
+      "template": "Juniper Books"
+    },
+    "southern-craft.module.label-4": {
+      "template": "Garden Market"
+    },
+    "southern-craft.module.label-5": {
+      "template": "Ocean Workshop"
+    },
+    "southern-craft.module.label-6": {
+      "template": "The Terrace"
+    },
+    "southern-craft.module.label-7": {
+      "template": "Cypress Flowers"
+    },
+    "southern-craft.drawSouthernCraftSite.label-8.yes": {
+      "template": "Neighborhood garden"
+    },
+    "southern-craft.drawSouthernCraftSite.description-9.yes": {
+      "template": "Herringbone paving, flowering pots, a cedar bench, and shade stitched together by the neighbors. A small but very good place to pause."
+    },
+    "southern-craft.drawSouthernCraftSite.description-9.no": {
+      "template": "{v0} The carefully kept storefront has a little terrace and a lived-in upper floor."
+    },
+    "southern-district.drawSouthernDistrict.label-1": {
+      "template": "Tax Authority Headquarters"
+    },
+    "southern-district.drawSouthernDistrict.label-2": {
+      "template": "SpaceX spaceport"
+    },
+    "southern-district.drawRailPit.label-3": {
+      "template": "California high-speed rail"
+    },
+    "southern-district.taxDialogue.name-4": {
+      "template": "Tax authority"
+    },
+    "southern-expansion.module.name-1": {
+      "template": "Grand Avenue"
+    },
+    "southern-expansion.module.name-2": {
+      "template": "Garden Avenue"
+    },
+    "southern-expansion.module.name-3": {
+      "template": "Hillside Avenue west"
+    },
+    "southern-expansion.module.name-4": {
+      "template": "Juniper Avenue"
+    },
+    "southern-expansion.module.name-5": {
+      "template": "Linden Avenue"
+    },
+    "southern-expansion.module.name-6": {
+      "template": "Cypress Avenue"
+    },
+    "southern-expansion.module.name-7": {
+      "template": "Coast Road"
+    },
+    "southern-expansion.module.name-8": {
+      "template": "Palmetto Avenue"
+    },
+    "southern-expansion.module.name-9": {
+      "template": "Pacifica Avenue"
+    },
+    "southern-expansion.module.name-10": {
+      "template": "Seaview Street"
+    },
+    "southern-expansion.module.name-11": {
+      "template": "Parkside Drive"
+    },
+    "southern-expansion.module.name-12": {
+      "template": "Ocean View Drive"
+    },
+    "southern-expansion.module.name-13": {
+      "template": "Beachwood Avenue"
+    },
+    "southern-expansion.module.label-14": {
+      "template": "Pacifica Commons"
+    },
+    "southern-expansion.module.name-15": {
+      "template": "Commons promenade"
+    },
+    "southern-expansion.module.name-16": {
+      "template": "Commons entrance"
+    },
+    "southern-expansion.module.label-17": {
+      "template": "Woman"
+    },
+    "southern-expansion.module.label-18": {
+      "template": "Man"
+    },
+    "southern-greenways.module.name-1": {
+      "template": "Coastal garden lane"
+    },
+    "southern-greenways.module.name-2": {
+      "template": "Coastal orchard walk"
+    },
+    "southern-layout.module.name-1": {
+      "template": "Bayview Avenue"
+    },
+    "southern-layout.module.name-2": {
+      "template": "San Bruno Avenue"
+    },
+    "southern-layout.module.name-3": {
+      "template": "Hillside Avenue"
+    },
+    "southern-layout.module.name-4": {
+      "template": "Peninsula Way"
+    },
+    "southern-layout.module.name-5": {
+      "template": "Airport neighborhood cross street"
+    },
+    "southern-layout.module.name-6": {
+      "template": "Hillside Lane"
+    },
+    "southern-layout.module.name-7": {
+      "template": "Times Square"
+    },
+    "southern-layout.module.name-8": {
+      "template": "Sand Hill Road"
+    },
+    "southern-layout.module.name-9": {
+      "template": "Southern ridge walk"
+    },
+    "southern-layout.module.name-10": {
+      "template": "Coastal ridge trail"
+    },
+    "southern-layout.module.name-11": {
+      "template": "Southern ridge"
+    },
+    "southern-layout.module.name-12": {
+      "template": "Peninsula foothills"
+    },
+    "southern-layout.module.name-13": {
+      "template": "Bayview knoll"
+    },
+    "southern-layout.module.name-14": {
+      "template": "Coastal hills"
+    },
+    "southern-layout.module.name-15": {
+      "template": "Redwood ridge"
+    },
+    "southern-layout.module.name-16": {
+      "template": "Southern orchard hills"
+    },
+    "southern-layout.module.name-17": {
+      "template": "South Grove ridge"
+    },
+    "southern-layout.module.name-18": {
+      "template": "Southern garden hills"
+    },
+    "southern-layout.module.name-19": {
+      "template": "Arena gardens"
+    },
+    "southern-layout.module.name-20": {
+      "template": "Southern village green"
+    },
+    "southern-layout.module.name-21": {
+      "template": "Twitter and sales conference grounds"
+    },
+    "southern-layout.module.name-22": {
+      "template": "Tim Apple campus"
+    },
+    "southern-layout.module.name-23": {
+      "template": "Robotaxi dealership"
+    },
+    "southern-layout.module.name-24": {
+      "template": "Haberdasher grounds"
+    },
+    "southern-layout.module.name-25": {
+      "template": "GPU Factory grounds"
+    },
+    "southern-layout.module.name-26": {
+      "template": "Jurassic Biosciences"
+    },
+    "southern-layout.module.name-27": {
+      "template": "Airport grounds"
+    },
+    "southern-layout.module.name-28": {
+      "template": "Tax headquarters and rail pit"
+    },
+    "southern-layout.module.name-29": {
+      "template": "Startup headquarters"
+    },
+    "southern-layout.module.name-30": {
+      "template": "Meadow pasture"
+    },
+    "southern-layout.module.name-31": {
+      "template": "Times Square plaza"
+    },
+    "southern-layout.module.name-32": {
+      "template": "Sand Hill Road offices"
+    },
+    "southern-layout.module.name-33": {
+      "template": "Abandoned factory"
+    },
+    "southern-layout.module.name-34": {
+      "template": "Bay Area Salt Flats"
+    },
+    "southern-settlement-layout.module.label-1": {
+      "template": "California Institute for Consciousness Research"
+    },
+    "southern-settlement-layout.module.label-2": {
+      "template": "California Institute for Consciousness Research · Field Station"
+    },
+    "southern-settlement-layout.module.name-3": {
+      "template": "Times Square neighborhood approach"
+    },
+    "southern-settlement-layout.module.name-4": {
+      "template": "Laurel High Street west"
+    },
+    "southern-settlement-layout.module.name-5": {
+      "template": "Laurel High Street east"
+    },
+    "southern-settlement-layout.module.name-6": {
+      "template": "Laurel neighborhood link"
+    },
+    "southern-settlement-layout.module.name-7": {
+      "template": "Laurel eastern link"
+    },
+    "southern-settlement-layout.module.name-8": {
+      "template": "Birch Street"
+    },
+    "southern-settlement-layout.module.name-9": {
+      "template": "Birch neighborhood lane"
+    },
+    "southern-settlement-layout.module.name-10": {
+      "template": "Bay Laurel Street"
+    },
+    "southern-settlement-layout.module.name-11": {
+      "template": "Bay Laurel neighborhood lane"
+    },
+    "southern-settlement-layout.module.name-12": {
+      "template": "Orchard Road extension"
+    },
+    "southern-settlement-layout.module.name-13": {
+      "template": "Alder Lane extension"
+    },
+    "southern-settlement-layout.module.name-14": {
+      "template": "Meadow Way extension"
+    },
+    "southern-settlement-layout.module.name-15": {
+      "template": "South Grove Avenue"
+    },
+    "southern-settlement-layout.module.name-16": {
+      "template": "South Coast neighborhood avenue"
+    },
+    "southern-settlement-layout.module.name-17": {
+      "template": "Orchard Mews"
+    },
+    "southern-village-layout.module.name-1": {
+      "template": "Campus Avenue"
+    },
+    "southern-village-layout.module.name-2": {
+      "template": "Foundry Lane"
+    },
+    "southern-village-layout.module.name-3": {
+      "template": "College garden walk"
+    },
+    "southern-village-layout.module.name-4": {
+      "template": "Salt garden promenade"
+    },
+    "southern-village-layout.module.name-5": {
+      "template": "Campus west garden link"
+    },
+    "southern-village-layout.module.name-6": {
+      "template": "Campus central garden link"
+    },
+    "southern-village-layout.module.name-7": {
+      "template": "Foundry court"
+    },
+    "southern-village-layout.module.label-8": {
+      "template": "The Present Tense · Tea Room"
+    },
+    "southern-village-layout.module.label-9": {
+      "template": "Qualia Books"
+    },
+    "southern-village.drawSouthernVillage.label-1.yes": {
+      "template": "Man"
+    },
+    "southern-village.drawSouthernVillage.label-1.no": {
+      "template": "Woman"
+    },
+    "southern-village.drawSouthernVillage.label-2": {
+      "template": "Orchard and Foundry Gardens"
+    },
+    "southern-village.drawSouthernVillage.description-3": {
+      "template": "Linked garden courts, tea tables, little bookshops and a birdwatching pergola link a quiet residential neighborhood to the foundry. The institutes sit farther south, beyond the lake and pasture."
+    },
+    "southern-village.drawDuelArena.description-5": {
+      "template": "A tiny garden arena, with a ramp and room for two large financial opinions. Equal coin stakes, explicit agreement, and a fair 50–50 flip. Speak to the referee or challenge another player here."
+    },
+    "southern-village.drawStockExchange.label-6": {
+      "template": "Times Square Stock Exchange"
+    },
+    "southern-village.drawStockExchange.description-7": {
+      "template": "A surprisingly compact stock exchange. The broker lists Sand Hill growth equity for a five-percent fee, then lets you try your hand at timing the market."
+    },
+    "square-construction.drawSquareConstruction.label-1": {
+      "template": "Hillsborough Works"
+    },
+    "square-construction.drawSquareConstruction.description-2": {
+      "template": "Two lattice cranes lift the next chapter of the neighborhood. A small fenced digsite, a patient excavator, and Vic’s clipboard keep the main square free for pedestrians."
+    },
+    "street-traffic.createStreetTraffic.label-1.yes": {
+      "template": "Tesla robotaxi"
+    },
+    "street-traffic.createStreetTraffic.label-1.no": {
+      "template": "Waymo"
+    },
+    "street-traffic.createStreetTraffic.description-2.yes": {
+      "template": "A low, silver Tesla robotaxi with a panoramic roof and a very quiet electric motor. Its passenger is reading a book about the future of work."
+    },
+    "street-traffic.createStreetTraffic.description-2.no": {
+      "template": "An autonomous white taxi with a spinning rooftop sensor and absolutely no driver to ask for directions. It is patiently touring the whole city, one impeccably calculated turn at a time."
+    },
+    "suburban-layout.module.name-1": {
+      "template": "Palm Court"
+    },
+    "suburban-layout.module.name-2": {
+      "template": "Cypress Court"
+    },
+    "suburban-layout.module.name-3": {
+      "template": "Orchard Place"
+    },
+    "suburban-layout.module.name-4": {
+      "template": "Orchard to Cupertino"
+    },
+    "suburban-layout.module.name-5": {
+      "template": "Cupertino garden stroll"
+    },
+    "sunglasses.beachSunglassesSite.label-1": {
+      "template": "Sunglasses"
+    },
+    "sunglasses.beachSunglassesSite.description-2": {
+      "template": "Battered black sunglasses, washed up on Ocean Beach. The advertising industry would prefer that you leave them here."
+    },
+    "surfing.module.label-1": {
+      "template": "Air 360"
+    },
+    "surfing.module.label-2": {
+      "template": "Kickflip"
+    },
+    "surfing.module.label-3": {
+      "template": "Backflip"
+    },
+    "tech-buildings.drawAppleCampus.label-1": {
+      "template": "Tim Apple campus"
+    },
+    "tech-buildings.drawAppleCampus.description-2": {
+      "template": "A gleaming donut of curved glass and white aluminum, with a real open courtyard and northern gateway."
+    },
+    "tech-buildings.drawRobotaxiDealer.label-3": {
+      "template": "Tesla robotaxi dealership"
+    },
+    "tech-buildings.drawRobotaxiDealer.description-4": {
+      "template": "A small South Bay showroom of gold autonomous cabs. A showroom attendant has polished every windscreen to a golden shine."
+    },
+    "tech-layout.module.name-1": {
+      "template": "Tim Apple campus walk"
+    },
+    "tech-layout.module.name-2": {
+      "template": "Robotaxi dealership access"
+    },
+    "they-live.theyLiveDialogue.decline-1": {
+      "template": "Leave"
+    },
+    "they-live.theyLiveDialogue.intro-3": {
+      "template": "City Hall issues a permit for nearly everything. Sometimes the category has to be invented first."
+    },
+    "they-live.theyLiveDialogue.question-4": {
+      "template": "What do you do here?"
+    },
+    "they-live.theyLiveDialogue.choice-5": {
+      "template": "Ask about the office"
+    },
+    "they-live.theyLiveDialogue.receipt-6": {
+      "template": "Permits, certificates, authorizations. Come back when you have an activity that needs permitting."
+    },
+    "they-live.theyLiveDialogue.intro-8": {
+      "template": "Thank you again. Six fewer extraterrestrial influence operations, one more skateboard. A fine day for municipal government."
+    },
+    "they-live.theyLiveDialogue.question-9": {
+      "template": "How is the city doing?"
+    },
+    "they-live.theyLiveDialogue.choice-10": {
+      "template": "Check in"
+    },
+    "they-live.theyLiveDialogue.receipt-11": {
+      "template": "Your sunglasses remain yours. Please observe the usual rules of the road on that skateboard."
+    },
+    "they-live.theyLiveDialogue.intro-13": {
+      "template": "All six? Excellent work. On behalf of the city: thank you. We had a surplus skateboard in the evidence locker. It is yours now."
+    },
+    "they-live.theyLiveDialogue.question-14": {
+      "template": "Collect your reward?"
+    },
+    "they-live.theyLiveDialogue.choice-15": {
+      "template": "Accept skateboard"
+    },
+    "they-live.theyLiveDialogue.intro-18": {
+      "template": "I handle permits for unusual civic activities. What would you like to report?"
+    },
+    "they-live.theyLiveDialogue.question-19": {
+      "template": "Ask about an alien-removal permit?"
+    },
+    "they-live.theyLiveDialogue.choice-20": {
+      "template": "What evidence do you need?"
+    },
+    "they-live.theyLiveDialogue.receipt-21": {
+      "template": "Documentary evidence. Something certified, preferably embossed. We cannot issue permits on an anecdote."
+    },
+    "they-live.theyLiveDialogue.intro-23": {
+      "template": "An Alien Evidence Certificate! Properly embossed, too. We can authorize removal of the six revealed aliens."
+    },
+    "they-live.theyLiveDialogue.question-24": {
+      "template": "File the certificate and issue a permit?"
+    },
+    "they-live.theyLiveDialogue.choice-25": {
+      "template": "Receive alien-removal permit"
+    },
+    "they-live.theyLiveDialogue.intro-28": {
+      "template": "Your alien-removal permit is valid. It does not authorize attacks on ordinary people."
+    },
+    "they-live.theyLiveDialogue.question-29": {
+      "template": "What next?"
+    },
+    "they-live.theyLiveDialogue.choice-30": {
+      "template": "Review the assignment"
+    },
+    "they-live.theyLiveDialogue.receipt-31.yes": {
+      "template": "Your permit is on file. My role is paperwork; equipment is rather outside my department."
+    },
+    "they-live.theyLiveDialogue.receipt-31.no": {
+      "template": "{v0} of six aliens defeated, according to our records."
+    },
+    "they-live.theyLiveDialogue.intro-33": {
+      "template": "We investigate phenomena that ordinary institutes put in the footnotes. Have you noticed anything unusual?"
+    },
+    "they-live.theyLiveDialogue.question-34": {
+      "template": "What do you study?"
+    },
+    "they-live.theyLiveDialogue.choice-35": {
+      "template": "Ask about esoteric studies"
+    },
+    "they-live.theyLiveDialogue.receipt-36": {
+      "template": "Apparitions, impossible coincidences, and suspiciously persuasive advertising. Return if you see something peculiar."
+    },
+    "they-live.theyLiveDialogue.intro-38": {
+      "template": "Green slime ghosts hiding behind ordinary faces? Subliminal commands in the advertisements? Yes, that is a fairly conclusive Tuesday."
+    },
+    "they-live.theyLiveDialogue.question-39": {
+      "template": "Tell the institute about the aliens?"
+    },
+    "they-live.theyLiveDialogue.choice-40": {
+      "template": "Report the aliens"
+    },
+    "they-live.theyLiveDialogue.intro-43": {
+      "template": "Your Alien Evidence Certificate is authentic. We used the good paper."
+    },
+    "they-live.theyLiveDialogue.question-44": {
+      "template": "Is the certificate official?"
+    },
+    "they-live.theyLiveDialogue.choice-45": {
+      "template": "Ask about the certificate"
+    },
+    "they-live.theyLiveDialogue.receipt-46": {
+      "template": "It certifies your observations. The embossing took longer than the investigation."
+    },
+    "they-live.theyLiveDialogue.intro-48": {
+      "template": "Welcome back! The workshop has some new stock. This battleaxe has a very satisfying heft."
+    },
+    "they-live.theyLiveDialogue.question-49": {
+      "template": "Browse the unlocked stock?"
+    },
+    "they-live.theyLiveDialogue.label-51": {
+      "template": "Buy battleaxe · {v0} coins"
+    },
+    "they-live.theyLiveDialogue.label-54": {
+      "template": "Ask about the workshop"
+    },
+    "they-live.theyLiveDialogue.receipt-55": {
+      "template": "Precision instruments, impractical ambitions, and fifty-coin battleaxes."
+    },
+    "they-live.theyLiveDialogue.intro-57.yes": {
+      "template": "Welcome to the American Industrial Center. Workshops, machine tools, and objects with very specific uses."
+    },
+    "they-live.theyLiveDialogue.intro-57.no.yes": {
+      "template": "A bayonet? Show me a municipal alien-removal permit, then we can talk."
+    },
+    "they-live.theyLiveDialogue.intro-57.no.no.yes": {
+      "template": "A bayonet is a tool. Your permit is the paperwork. Please keep track of both."
+    },
+    "they-live.theyLiveDialogue.intro-57.no.no.no": {
+      "template": "Valid permit. Here is a well-made bayonet for a deeply unusual civic assignment."
+    },
+    "they-live.theyLiveDialogue.question-58.yes": {
+      "template": "Take the bayonet?"
+    },
+    "they-live.theyLiveDialogue.question-58.no": {
+      "template": "Ask about the workshop?"
+    },
+    "they-live.theyLiveDialogue.choice-59.yes": {
+      "template": "Collect bayonet"
+    },
+    "they-live.theyLiveDialogue.choice-59.no": {
+      "template": "Ask about industrial supplies"
+    },
+    "they-live.theyLiveDialogue.receipt-61": {
+      "template": "We manufacture precision instruments. Please keep your fingers away from the sharp end."
+    },
+    "tiles.module.name-1": {
+      "template": "north"
+    },
+    "tiles.module.name-2": {
+      "template": "east"
+    },
+    "tiles.module.name-3": {
+      "template": "south"
+    },
+    "tiles.module.name-4": {
+      "template": "west"
+    },
+    "times-square-life.createSquareNPCs.description-3": {
+      "template": "A barista measuring the progress of the neighborhood in empty cups."
+    },
+    "times-square-life.createSquareNPCs.description-4": {
+      "template": "A bookseller with first editions of books that have not yet been written."
+    },
+    "times-square-life.createSquareNPCs.description-5": {
+      "template": "A street musician playing a song the zoning board has yet to approve."
+    },
+    "times-square-life.createSquareNPCs.description-6": {
+      "template": "The excavator operator has traded a quiet suburb for a very interesting afternoon. His clipboard now lives at the digsite beside the square."
+    },
+    "times-square-life.createSquareNPCs.description-7": {
+      "template": "She came for coffee and stayed to watch an entire neighborhood change its mind."
+    },
+    "times-square.drawTimesSquare.label-1": {
+      "template": "Times Square"
+    },
+    "wayfinding.module.label-1": {
+      "template": "Bio & contact"
+    },
+    "wayfinding.module.label-2": {
+      "template": "Writing"
+    },
+    "wayfinding.module.label-3": {
+      "template": "Bookshelf"
+    },
+    "wayfinding.module.label-4": {
+      "template": "Links"
+    },
+    "wayfinding.module.label-5": {
+      "template": "Press & podcasts"
+    },
+    "wayfinding.module.label-6": {
+      "template": "Green"
+    },
+    "wayfinding.module.label-7": {
+      "template": "Limit"
+    },
+    "wayfinding.module.label-8": {
+      "template": "Rose"
+    },
+    "wayfinding.module.label-9": {
+      "template": "Venture"
+    },
+    "wayfinding.module.label-10": {
+      "template": "AI Lab"
+    },
+    "wayfinding.module.label-11": {
+      "template": "Etc."
+    },
+    "wilderness-sites.drawPirateWreck.label-1": {
+      "template": "Crashed pirate ship"
+    },
+    "wilderness-sites.drawPirateWreck.description-2": {
+      "template": "A tricorn-sized navigational error has become a full-sized shipwreck. The tide has claimed the stern; its captain is still disputing the insurance assessment."
+    },
+    "woodland-park.drawWoodlandParks.description-2": {
+      "template": "A shaded Sand Hill grove of coast live oaks, redwoods, winding paths, and remarkably patient venture capital. The benches have excellent runway."
+    },
+    "woodland-park.drawWoodlandParks.description-4": {
+      "template": "A little neighborhood garden: flowering pots, a shaded bench, and a thoroughly unmonetized view."
+    },
+    "world.generation.setupJurassicCampus.label-3": {
+      "template": "Jurassic Biosciences"
+    },
+    "world.generation.setupJurassicCampus.description-4": {
+      "template": "A gloriously indiscreet biosciences tower, topped by glass specimen lanterns, a DNA helix and some highly questionable scientific plumbing. A reinforced mesh enclosure stands outside."
+    },
+    "world.generation.setupExpeditionSites.label-5": {
+      "template": "Jurassic scientist"
+    },
+    "world.generation.setupExpeditionSites.name-6": {
+      "template": "Dr. Helen Vale"
+    },
+    "world.generation.setupExpeditionSites.description-7": {
+      "template": "A scientist with a clipboard, a spare railgun, and a remarkably flexible definition of a controlled experiment."
+    },
+    "world.generation.setupExpeditionSites.label-8": {
+      "template": "Southern cow pasture"
+    },
+    "world.generation.setupExpeditionSites.description-9": {
+      "template": "Cows graze in an open meadow. They seem entirely unconcerned with the afternoon."
+    },
+    "world.generation.setupExpeditionSites.label-10": {
+      "template": "The Pequod"
+    },
+    "world.generation.setupExpeditionSites.description-11": {
+      "template": "Captain Ahab’s whaling ship. Its timbers smell of salt, tar, and extremely stubborn ambition."
+    },
+    "world.generation.setupExpeditionSites.label-12": {
+      "template": "Captain Ahab"
+    },
+    "world.generation.setupExpeditionSites.name-13": {
+      "template": "Captain Ahab"
+    },
+    "world.generation.setupExpeditionSites.description-14": {
+      "template": "Ahab has downsized his ambitions. The procurement requirements remain formidable."
+    },
+    "world.generation.setupWilderness.label-15": {
+      "template": "Bolinas"
+    },
+    "world.generation.setupWilderness.description-16": {
+      "template": "Weathered cottages, a coastal grocer, and a village green among the Marin hills."
+    },
+    "world.generation.setupWilderness.description-19": {
+      "template": "A coastal local, taking the afternoon as it comes."
+    },
+    "world.generation.setupWilderness.name-20": {
+      "template": "Battery seller"
+    },
+    "world.generation.setupWilderness.label-21": {
+      "template": "Battery seller"
+    },
+    "world.generation.setupWilderness.description-22": {
+      "template": "A South San Francisco vendor with a heavy case of batteries."
+    },
+    "world.generation.setupWilderness.label-23": {
+      "template": "Mount Tam Goblin Town"
+    },
+    "world.generation.setupWilderness.description-24": {
+      "template": "A muddy path north of the jail leads to the Mount Tam goblins’ settlement. Redwood offcuts, fog jars, and a furniture workshop have made the journey down the mountain."
+    },
+    "world.generation.setupAirshipTerminal.label-25": {
+      "template": "Private Jet Terminal"
+    },
+    "world.generation.setupAirshipTerminal.description-26": {
+      "template": "The private jet terminal occupies the building east of the runway. Its passenger entrance faces the airship mooring to the north. Click Rent airship or press A nearby; click the ground or minimap to fly, and A returns to the mooring."
+    },
+    "world.generation.setupAirshipTerminal.label-27": {
+      "template": "Startup HQ"
+    },
+    "world.generation.setupAirshipTerminal.description-28": {
+      "template": "A small startup house on a quiet side lane off the peninsula highway. The orange Y Combinator sign hangs over the door."
+    },
+    "world.generation.setupMerchants.label-29": {
+      "template": "Bartender"
+    },
+    "world.generation.setupMerchants.name-30": {
+      "template": "Bartender"
+    },
+    "world.generation.setupMerchants.label-31": {
+      "template": "Deli proprietor"
+    },
+    "world.generation.setupMerchants.name-32": {
+      "template": "Lucinda’s Deli"
+    },
+    "world.generation.setupMerchants.label-33": {
+      "template": "Mazarine clerk"
+    },
+    "world.generation.setupMerchants.name-34": {
+      "template": "Mazarine clerk"
+    },
+    "world.generation.cityPerson.label-35": {
+      "template": "Man"
+    },
+    "world.generation.setupQuestCharacters.name-36": {
+      "template": "City Hall clerk"
+    },
+    "world.generation.setupQuestCharacters.label-37": {
+      "template": "City Hall clerk"
+    },
+    "world.generation.setupQuestCharacters.description-38": {
+      "template": "An unflappable clerk. Her stamp has faced stranger paperwork than this."
+    },
+    "world.generation.setupQuestCharacters.name-39": {
+      "template": "American Industrial Center armorer"
+    },
+    "world.generation.setupQuestCharacters.label-40": {
+      "template": "Armorer"
+    },
+    "world.generation.setupQuestCharacters.description-41": {
+      "template": "He measures twice, sharpens once, and always checks the paperwork."
+    },
+    "world.generation.setupQuestCharacters.label-42.yes": {
+      "template": "Woman"
+    },
+    "world.generation.setupQuestCharacters.label-42.no": {
+      "template": "Man"
+    },
+    "world.generation.regionalAlien.label-43.yes": {
+      "template": "Woman"
+    },
+    "world.generation.regionalAlien.label-43.no": {
+      "template": "Man"
+    },
+    "world.generation.setupSearchHomes.name-44": {
+      "template": ""
+    },
+    "world.generation.setupSearchHomes.label-45": {
+      "template": "House"
+    },
+    "world.generation.setupSearchHomes.description-46": {
+      "template": "A quiet home, keeping its own hours."
+    },
+    "world.generation.setupSearchHomes.description-48": {
+      "template": "A familiar bit of household storage, worn smooth by years of use."
+    },
+    "world.generation.setupRegionalWorld.name-50": {
+      "template": "Orin’s house"
+    },
+    "world.generation.setupRegionalWorld.label-51": {
+      "template": "Orin’s house"
+    },
+    "world.generation.setupRegionalWorld.description-52": {
+      "template": "A quiet Victorian west of Sand Hill Road Capital Partners. Orin sells teleportation tablets inside."
+    },
+    "world.generation.setupRegionalWorld.label-53": {
+      "template": "Hiking supplies clerk"
+    },
+    "world.generation.setupRegionalWorld.name-54": {
+      "template": "Hiking supplies clerk"
+    },
+    "world.generation.setupRegionalWorld.label-55": {
+      "template": "Ferrari"
+    },
+    "world.generation.setupRegionalWorld.description-56": {
+      "template": "A very fast red Ferrari: twenty times walking speed, with a tank that lasts 56% of the drive to Tahoe."
+    },
+    "world.generation.setupRegionalWorld.label-57": {
+      "template": "Marin Headlands overlook"
+    },
+    "world.generation.setupRegionalWorld.description-58": {
+      "template": "Across the Golden Gate, the Marin hills look back over the orange towers and San Francisco."
+    },
+    "world.generation.setupMonkeyEscape.label-59": {
+      "template": "Motorcycle"
+    },
+    "world.generation.setupMonkeyEscape.name-61": {
+      "template": "caught"
+    },
+    "world.generation.setupMonkeyEscape.label-62": {
+      "template": "Zookeeper"
+    },
+    "world.generation.setupMonkeyEscape.label-63": {
+      "template": "Zookeeper’s post"
+    },
+    "world.generation.setupMonkeyEscape.description-64": {
+      "template": "A remarkably athletic zookeeper is keeping a close eye on the monkey habitat."
+    },
+    "world.generation.setupServiceNPCs.label-65.yes": {
+      "template": "{v0} shopkeeper"
+    },
+    "world.generation.setupServiceNPCs.label-65.no.yes": {
+      "template": "Woman"
+    },
+    "world.generation.setupServiceNPCs.label-65.no.no": {
+      "template": "Man"
+    },
+    "world.generation.setupServiceNPCs.name-66.yes": {
+      "template": "{v0} shopkeeper"
+    },
+    "world.generation.setupServiceNPCs.description-67.yes": {
+      "template": "A neighbor with a trowel, bright gloves, and a carefully considered opinion about compost."
+    },
+    "world.generation.setupServiceNPCs.description-67.no": {
+      "template": "A local shopkeeper. The window display changes with the seasons; the welcome does not."
+    },
+    "world.generation.setupServiceNPCs.name-68": {
+      "template": "In-N-Out associate"
+    },
+    "world.generation.setupServiceNPCs.label-69": {
+      "template": "In-N-Out associate"
+    },
+    "world.generation.setupServiceNPCs.description-70": {
+      "template": "A cheerful associate. The paper hat is included in the employee benefits."
+    },
+    "world.generation.setupTabletWizard.label-71": {
+      "template": "Orin the Wizard"
+    },
+    "world.generation.setupTabletWizard.name-72": {
+      "template": "Orin the Wizard"
+    },
+    "world.generation.setupTabletWizard.description-73": {
+      "template": "A friendly wizard. He has compressed the regional transportation problem into two small purple tablets."
+    },
+    "world.generation.setupTabletWizard.label-74": {
+      "template": "in downtown San Francisco"
+    },
+    "world.generation.setupTabletWizard.label-75": {
+      "template": "beside the Tahoe gondola"
+    },
+    "world.generation.setupYohji.name-76": {
+      "template": "Yohji"
+    },
+    "world.generation.setupYohji.label-77": {
+      "template": "Yohji"
+    },
+    "world.generation.setupYohji.description-78": {
+      "template": "A quiet designer in an extraordinary amount of black fabric. He seems to be listening to the shape of the room."
+    },
+    "world.generation.setupGreenBank.label-79": {
+      "template": "Friendly banker"
+    },
+    "world.generation.setupGreenBank.name-80": {
+      "template": "Friendly banker"
+    },
+    "world.generation.setupGreenBank.name-81": {
+      "template": "drink"
+    },
+    "world.generation.setupGuildSites.name-82": {
+      "template": "Ray"
+    },
+    "world.generation.setupGuildSites.label-83": {
+      "template": "Ray"
+    },
+    "world.generation.setupGuildSites.name-84": {
+      "template": "Farmer {v0}"
+    },
+    "world.generation.setupGuildSites.label-85": {
+      "template": "Farmer {v0}"
+    },
+    "world.generation.setupGuildSites.name-86": {
+      "template": "Old Man"
+    },
+    "world.generation.setupGuildSites.label-87": {
+      "template": "Old Man"
+    },
+    "world.generation.setupGuildSites.label-88": {
+      "template": "Illuminati passage"
+    },
+    "world.generation.setupGuildSites.description-89": {
+      "template": "A discreet stairway carved beneath the lodge."
+    },
+    "world.generation.planBeachBillboard.label-90": {
+      "template": "Local Minimum AI billboard"
+    },
+    "world.generation.setupParrots.label-92": {
+      "template": "Wild parrot"
+    },
+    "world.generation.setupParrots.description-93": {
+      "template": "A cherry-headed Telegraph Hill parrot. Small bird, enormous neighborhood opinions."
+    },
+    "world.generation.setupFishing.label-94": {
+      "template": "Fisherman’s Wharf fishing spot"
+    },
+    "world.generation.setupFishing.description-95": {
+      "template": "Small fish gather below the wharf, flickering beneath the surface."
+    },
+    "world.generation.setupPacificaSurf.name-96": {
+      "template": "Dog surfing judge"
+    },
+    "world.generation.setupPacificaSurf.label-97": {
+      "template": "Dog surfing judge"
+    },
+    "world.generation.setupPacificaSurf.description-98": {
+      "template": "A professional adjudicator of extremely good dogs."
+    },
+    "world.generation.setupPacificaSurf.label-99": {
+      "template": "Pacifica surfboards"
+    },
+    "world.generation.setupPacificaSurf.description-100": {
+      "template": "Bright boards wait on the Pacifica beach. Paddle into the foam lines, press Space to catch a wave, and use 1 / 2 / 3 for an Air 360, kickflip or backflip. U returns to the beach."
+    },
+    "world.generation.connectStreetNetwork.name-101": {
+      "template": "Connecting walk"
+    },
+    "world.generation.buildSteps.name-103": {
+      "template": "Square north promenade"
+    },
+    "world.generation.buildSteps.name-104": {
+      "template": "Square south promenade"
+    },
+    "world.generation.buildSteps.name-105": {
+      "template": "Square western walk"
+    },
+    "world.interactions.finish.name-8": {
+      "template": "pet-bear"
+    },
+    "world.interactions.expeditionEvent.name-9": {
+      "template": "attack"
+    },
+    "world.interactions.showAirshipMenu.label-10": {
+      "template": "airship"
+    },
+    "world.interactions.showAirshipMenu.label-11": {
+      "template": "terminal"
+    },
+    "world.interactions.showAirshipMenu.label-12": {
+      "template": "rope"
+    },
+    "world.interactions.searchHouseStorage.name-13": {
+      "template": "work"
+    },
+    "world.interactions.talkOldMan.intro-15": {
+      "template": "The guild was only the waiting room. The Illuminati would welcome a donation of 250,000 coins."
+    },
+    "world.interactions.talkOldMan.choice-16": {
+      "template": "Donate 250,000 coins"
+    },
+    "world.interactions.talkOldMan.decline-17": {
+      "template": "Leave"
+    },
+    "world.interactions.updateAlienCombat.name-19": {
+      "template": "attack"
+    },
+    "world.interactions.updateAlienCombat.name-20": {
+      "template": "flinch"
+    },
+    "world.interactions.updateAlienCombat.name-21": {
+      "template": "attack"
+    },
+    "world.interactions.updateAlienCombat.name-22": {
+      "template": "flinch"
+    },
+    "world.interactions.gather.name-23": {
+      "template": "pet"
+    },
+    "world.interactions.collect.name-24": {
+      "template": "pet"
+    },
+    "world.interactions.petBunny.name-25": {
+      "template": "pet"
+    },
+    "world.interactions.interactCitizen.intro-27": {
+      "template": "Batteries, twenty coins each. Please keep the terminals dry."
+    },
+    "world.interactions.interactCitizen.decline-28": {
+      "template": "Leave"
+    },
+    "world.interactions.interactCitizen.label-30": {
+      "template": "Buy battery · 20 coins"
+    },
+    "world.interactions.interactCitizen.choice-34": {
+      "template": "How is the town?"
+    },
+    "world.interactions.interactCitizen.receipt-35": {
+      "template": "Still here. The signs tend to wander off, but the town stays put."
+    },
+    "world.interactions.interactCitizen.decline-36": {
+      "template": "Leave"
+    },
+    "world.interactions.interactCitizen.name-37": {
+      "template": "talk"
+    },
+    "world.interactions.perform.name-39.yes": {
+      "template": "flinch"
+    },
+    "world.interactions.perform.name-39.no.yes": {
+      "template": "talk"
+    },
+    "world.interactions.examine.description-40": {
+      "template": "A sun-warmed San Francisco street. Somewhere nearby, someone is building the future."
+    },
+    "world.interactions.showMenu.label-41": {
+      "template": "Sutro Tower"
+    },
+    "world.interactions.showMenu.label-43": {
+      "template": "street"
+    },
+    "world.network.setupWorldMultiplayer.name-1": {
+      "template": "work"
+    },
+    "world.network.setupWorldMultiplayer.name-2": {
+      "template": "eat"
+    },
+    "world.rendering.makeActors.label-1": {
+      "template": "Animal Control"
+    },
+    "world.rendering.makeActors.label-2": {
+      "template": "Police"
+    },
+    "world.rendering.makeActors.description-3": {
+      "template": "A tireless police officer. Their cardio budget is apparently unlimited."
+    },
+    "world.rendering.makeActors.label-4": {
+      "template": "Police"
+    },
+    "world.scene.createSFWorld.label-1": {
+      "template": "Stairs to the guild"
+    },
+    "world.scene.createSFWorld.description-2": {
+      "template": "A long stairway returns to the Freemasons’ Guild above. The public minimap resumes on the surface."
+    },
+    "world.scene.createSFWorld.label-3": {
+      "template": "B-2 Stealth Bomber"
+    },
+    "world.scene.createSFWorld.description-4": {
+      "template": "Your personal flying wing, its dark fuselage disappearing into the hangar’s shadows."
+    },
+    "world.scene.createSFWorld.label-6": {
+      "template": "Bani · Mazarine Coffee"
+    },
+    "world.scene.createSFWorld.name-7": {
+      "template": "John's place"
+    },
+    "world.scene.createSFWorld.label-8": {
+      "template": "John's place"
+    },
+    "world.scene.createSFWorld.description-9": {
+      "template": "A San Francisco resident, builder, and incurable optimist. Ring the bell and say hello."
+    },
+    "world.scene.createSFWorld.name-10": {
+      "template": "Mazarine Coffee"
+    },
+    "world.scene.createSFWorld.label-11": {
+      "template": "Mazarine Coffee"
+    },
+    "world.scene.createSFWorld.description-12": {
+      "template": "Coffee on Market Street. Bani is enjoying a table inside Mazarine; browse a few connections to the rest of the internet over coffee."
+    },
+    "world.scene.createSFWorld.name-13": {
+      "template": "City Lights"
+    },
+    "world.scene.createSFWorld.label-14": {
+      "template": "City Lights · Essays"
+    },
+    "world.scene.createSFWorld.description-15": {
+      "template": "Pull up a chair. Essays on technology, markets, and the ideas that won't leave you alone."
+    },
+    "world.scene.createSFWorld.name-16": {
+      "template": "Main Library"
+    },
+    "world.scene.createSFWorld.label-17": {
+      "template": "Main Library · Bookshelf"
+    },
+    "world.scene.createSFWorld.description-18": {
+      "template": "Fiction and non-fiction that stay with you, long after the last page."
+    },
+    "world.scene.createSFWorld.name-19": {
+      "template": "The Chronicle"
+    },
+    "world.scene.createSFWorld.label-20": {
+      "template": "The newsstand"
+    },
+    "world.scene.createSFWorld.description-21": {
+      "template": "Extra, extra. News, conversations, and dispatches from the world of building companies."
+    },
+    "world.scene.createSFWorld.name-22": {
+      "template": "Green Bank"
+    },
+    "world.scene.createSFWorld.label-23": {
+      "template": "Green Bank"
+    },
+    "world.scene.createSFWorld.description-24": {
+      "template": "A global financial institution for the people and agents of the future. Speak to the friendly banker inside: deposited coins earn 5% interest per hour. Coffee is on the house."
+    },
+    "world.scene.createSFWorld.name-25": {
+      "template": "Limit"
+    },
+    "world.scene.createSFWorld.label-26": {
+      "template": "Limit"
+    },
+    "world.scene.createSFWorld.description-27": {
+      "template": "Tools that changed the daily lives of thousands of insurance professionals."
+    },
+    "world.scene.createSFWorld.name-28": {
+      "template": "Rose"
+    },
+    "world.scene.createSFWorld.label-29": {
+      "template": "Rose"
+    },
+    "world.scene.createSFWorld.description-30": {
+      "template": "A healthier home, starting with the environment around you."
+    },
+    "world.scene.createSFWorld.name-31": {
+      "template": "Venture exchange"
+    },
+    "world.scene.createSFWorld.label-32": {
+      "template": "Venture exchange"
+    },
+    "world.scene.createSFWorld.description-33": {
+      "template": "An arcade of ambitious companies. Meet the builders working on what comes next."
+    },
+    "world.scene.createSFWorld.name-34": {
+      "template": "AI Lab"
+    },
+    "world.scene.createSFWorld.label-35": {
+      "template": "AI Lab"
+    },
+    "world.scene.createSFWorld.description-36": {
+      "template": "A SoMa AI lab with a levitating cortical brain, magnetic containment rings, specimen pods, and humming GPU racks."
+    },
+    "world.scene.createSFWorld.name-37": {
+      "template": "Curiosity shop"
+    },
+    "world.scene.createSFWorld.label-38": {
+      "template": "Curiosity shop"
+    },
+    "world.scene.createSFWorld.description-39": {
+      "template": "Other corners of the internet, a past life on the web, and a few digital curiosities."
+    },
+    "world.scene.createSFWorld.label-40": {
+      "template": "Golden Gate Park"
+    },
+    "world.scene.createSFWorld.description-41": {
+      "template": "A long green escape on the western side of the city. Winding paths, cypress trees, and a pond full of very opinionated ducks."
+    },
+    "world.scene.createSFWorld.label-42": {
+      "template": "The Panhandle"
+    },
+    "world.scene.createSFWorld.description-43": {
+      "template": "The narrow green strip continuing east from Golden Gate Park between Fell and Oak. Cycle beneath the trees, pass the park monument, and continue toward Alamo Square."
+    },
+    "world.scene.createSFWorld.label-44": {
+      "template": "Presidio · Main Post"
+    },
+    "world.scene.createSFWorld.description-45": {
+      "template": "Wooded hills give way to a broad parade ground, a flagpole, and rows of red-roof barracks. Trails lead toward Crissy Field, Lovers Lane, and the Golden Gate."
+    },
+    "world.scene.createSFWorld.label-46": {
+      "template": "Crissy Field"
+    },
+    "world.scene.createSFWorld.description-47": {
+      "template": "A low, open meadow beside the bay, below the wooded Presidio. Borrow the windsurf board by the promenade to sail off the beach."
+    },
+    "world.scene.createSFWorld.label-48": {
+      "template": "Windsurfing"
+    },
+    "world.scene.createSFWorld.description-49": {
+      "template": "A windsurf board and rig wait beside Crissy Field. Click the bay to sail; use Return to shore when you are ready to land."
+    },
+    "world.scene.createSFWorld.label-50": {
+      "template": "Palace of Fine Arts"
+    },
+    "world.scene.createSFWorld.description-51": {
+      "template": "A sandstone-colored rotunda rises beside a little lagoon. Its dome and colonnade mark the eastern edge of the Presidio and the Marina."
+    },
+    "world.scene.createSFWorld.label-52": {
+      "template": "de Young Museum"
+    },
+    "world.scene.createSFWorld.description-53": {
+      "template": "A dark copper museum and a twisted observation tower overlook the Music Concourse. The Academy sits across the plaza."
+    },
+    "world.scene.createSFWorld.label-54": {
+      "template": "California Academy of Sciences"
+    },
+    "world.scene.createSFWorld.description-55": {
+      "template": "Rounded green hills form the living roof of the Academy. Skylights, gardens, and the Music Concourse make a small cultural center within the park."
+    },
+    "world.scene.createSFWorld.label-56": {
+      "template": "Conservatory of Flowers"
+    },
+    "world.scene.createSFWorld.description-57": {
+      "template": "A white glasshouse with a central dome, long glazed wings, and bright flower beds. The Panhandle begins a short ride to the east."
+    },
+    "world.scene.createSFWorld.label-58": {
+      "template": "Park windmill"
+    },
+    "world.scene.createSFWorld.description-59": {
+      "template": "A timber windmill and flower beds stand near the park’s western end. Beyond the Great Highway, Ocean Beach opens onto the Pacific."
+    },
+    "world.scene.createSFWorld.label-60": {
+      "template": "Ferry Building"
+    },
+    "world.scene.createSFWorld.description-61": {
+      "template": "The clock tower at the bay end of Market Street. Watch a streetcar roll past, then follow the waterfront north."
+    },
+    "world.scene.createSFWorld.label-62": {
+      "template": "Coit Tower"
+    },
+    "world.scene.createSFWorld.description-63": {
+      "template": "A pale tower above the steep streets of Telegraph Hill. North Beach sits just down the slope."
+    },
+    "world.scene.createSFWorld.label-64": {
+      "template": "Transamerica Pyramid"
+    },
+    "world.scene.createSFWorld.description-65": {
+      "template": "A pale, tapering pyramid with a gridded façade and projecting side wings. A small redwood plaza softens the base of the Financial District landmark."
+    },
+    "world.scene.createSFWorld.label-66": {
+      "template": "Painted Ladies"
+    },
+    "world.scene.createSFWorld.description-67": {
+      "template": "A row of colorful Victorian houses overlooking Alamo Square. A good place to pause before riding west to the park."
+    },
+    "world.scene.createSFWorld.label-68": {
+      "template": "Chinatown"
+    },
+    "world.scene.createSFWorld.description-69": {
+      "template": "Red pillars, green roof tiles, and Grant Avenue leading into Chinatown. Keep heading north for City Lights."
+    },
+    "world.scene.createSFWorld.label-70": {
+      "template": "Bicycle"
+    },
+    "world.scene.createSFWorld.description-71": {
+      "template": "A red city bicycle. Ride it along Market Street and through the park. Press B to ride or park it; dismount automatically at shop doors."
+    },
+    "world.scene.createSFWorld.label-72": {
+      "template": "Golden Gate Bridge"
+    },
+    "world.scene.createSFWorld.description-73": {
+      "template": "The orange towers span the Golden Gate between the Presidio and Marin. The Pacific opens to the west; the bay opens to the east."
+    },
+    "world.scene.createSFWorld.label-74": {
+      "template": "Ocean Beach"
+    },
+    "world.scene.createSFWorld.description-75": {
+      "template": "The long Pacific shoreline beside the Great Highway. Golden Gate Park reaches the beach to the north, and the Sunset stretches inland."
+    },
+    "world.scene.createSFWorld.label-76": {
+      "template": "Bay Bridge"
+    },
+    "world.scene.createSFWorld.description-77": {
+      "template": "The bridge leaves the eastern waterfront for Yerba Buena Island and the East Bay."
+    },
+    "world.scene.createSFWorld.label-78": {
+      "template": "Twin Peaks"
+    },
+    "world.scene.createSFWorld.description-79": {
+      "template": "The central ridgeline rises between the Sunset and the Castro. Follow the winding trail for a different view of the city."
+    },
+    "world.scene.createSFWorld.label-80": {
+      "template": "Sutro Tower"
+    },
+    "world.scene.createSFWorld.description-81": {
+      "template": "The red-and-white broadcasting tower rises between Mount Sutro and Twin Peaks. Three splayed legs, triangular crossbeams and slender antenna masts make its unmistakable silhouette above the trees."
+    },
+    "world.scene.createSFWorld.label-82": {
+      "template": "Lake Merced"
+    },
+    "world.scene.createSFWorld.description-83": {
+      "template": "A freshwater lake near the southwestern edge of the city, south of the Sunset and close to the Pacific."
+    },
+    "world.scene.createSFWorld.label-84": {
+      "template": "Bani · café regular"
+    },
+    "world.scene.createSFWorld.description-85": {
+      "template": "A friendly woman with warm brown skin and dark curls, enjoying her coffee at a table inside Mazarine."
+    },
+    "world.scene.createSFWorld.label-86": {
+      "template": "Mallards & ducklings"
+    },
+    "world.scene.createSFWorld.description-87": {
+      "template": "Mallards and little ducklings paddle around the pond. They seem certain you brought something for them."
+    },
+    "world.scene.createSFWorld.label-90": {
+      "template": "City Hall"
+    },
+    "world.scene.createSFWorld.description-91": {
+      "template": "The granite wings and gilded dome of City Hall anchor Civic Center, just west of Market Street."
+    },
+    "world.scene.createSFWorld.label-92": {
+      "template": "Salesforce Tower"
+    },
+    "world.scene.createSFWorld.description-93": {
+      "template": "Broad glass façades taper toward a flat rooftop and a softly illuminated crown over the dense towers south of Market. The Transamerica Pyramid stands farther north."
+    },
+    "world.scene.createSFWorld.label-94": {
+      "template": "Oracle Park"
+    },
+    "world.scene.createSFWorld.description-95": {
+      "template": "A brick ballpark opens toward McCovey Cove, with green grass, tiered stands, and tall floodlights above the waterfront."
+    },
+    "world.scene.createSFWorld.label-96": {
+      "template": "Dolores Park"
+    },
+    "world.scene.createSFWorld.description-97": {
+      "template": "Palm trees and sloping lawns sit between the Mission and the Castro, with the downtown skyline beyond."
+    },
+    "zoo-animals.module.label-1": {
+      "template": "Giraffes"
+    },
+    "zoo-animals.module.description-2": {
+      "template": "A giraffe surveys the city from an enviable height. Still cannot find affordable housing."
+    },
+    "zoo-animals.module.label-3": {
+      "template": "Penguins"
+    },
+    "zoo-animals.module.description-4": {
+      "template": "A committee of penguins, formally dressed for a meeting about fish. The motion passes unanimously."
+    },
+    "zoo-animals.module.label-5": {
+      "template": "Squirrel monkeys"
+    },
+    "zoo-animals.module.description-6": {
+      "template": "Two squirrel monkeys debate the nature of experience. One has already stolen the footnotes."
+    },
+    "zoo-animals.module.label-7": {
+      "template": "Deer"
+    },
+    "zoo-animals.module.description-8": {
+      "template": "Two deer browse peacefully. They have declined to comment on their neighbor’s recent escape."
+    },
+    "zoo.module.name-1": {
+      "template": "Zoo entrance"
+    },
+    "zoo.module.name-2": {
+      "template": "Hospital approach"
+    },
+    "zoo.drawZooAndHospital.label-3": {
+      "template": "San Francisco Zoo"
+    },
+    "zoo.drawZooAndHospital.description-4": {
+      "template": "A leafy zoo west of Lake Merced. The tiger has excellent stripes and a troubling interest in the gate latch."
+    },
+    "zoo.drawZooAndHospital.label-5": {
+      "template": "Zoo keeper’s office"
+    },
+    "zoo.drawZooAndHospital.description-6": {
+      "template": "Several nets, one kettle, and an employee handbook with a heavily underlined chapter on tigers."
+    },
+    "zoo.drawZooAndHospital.label-7": {
+      "template": "UCSF Hospital"
+    },
+    "zoo.drawZooAndHospital.description-8": {
+      "template": "UCSF Hospital. Excellent emergency care, including the surprisingly common diagnosis “opened the tiger gate.”"
+    },
+    "service.yohji.root.intro": {
+      "template": "Clothes should give you room to exist. I work in black fabric and bison hide. The wind handles the fittings."
+    },
+    "service.yohji.root.choices.0.label": {
+      "template": "Make me a cloak from my bison hide."
+    },
+    "service.yohji.root.choices.1.label": {
+      "template": "Why so much fabric?"
+    },
+    "service.yohji.root.choices.1.receipt": {
+      "template": "Because a person is more interesting than a measurement. And because the wind needs something to do."
+    },
+    "service.rehabilitation.root.intro": {
+      "template": "I can offer complimentary rehabilitation and transport back to San Francisco. Would you like to proceed?"
+    },
+    "service.rehabilitation.root.decline": {
+      "template": "No thanks. I’ll stay here."
+    },
+    "service.rehabilitation.root.choices.0.label": {
+      "template": "Yes. Are there any side effects?"
+    },
+    "service.rehabilitation.root.choices.0.next.intro": {
+      "template": "Not at all."
+    },
+    "service.rehabilitation.root.choices.0.next.decline": {
+      "template": "I’ve changed my mind."
+    },
+    "service.rehabilitation.root.choices.0.next.choices.0.label": {
+      "template": "All right. Begin rehabilitation."
+    },
+    "service.rehabilitation.root.choices.0.next.choices.0.receipt": {
+      "template": "Stand still, please. The apparatus is ready."
+    },
+    "service.rehabilitation.root.choices.1.label": {
+      "template": "What does rehabilitation involve?"
+    },
+    "service.rehabilitation.root.choices.1.receipt": {
+      "template": "A brief appointment with our specialist, followed by transport to UCSF. No forms to fill out. We take care of everything."
+    },
+    "service.tax.root.intro": {
+      "template": "Welcome to the Tax Authority. You may contribute your entire coin purse, or ask how we spend it."
+    },
+    "service.tax.root.choices.0.label": {
+      "template": "Pay taxes · all coins"
+    },
+    "service.tax.root.choices.1.label": {
+      "template": "I have some questions."
+    },
+    "service.tax.root.choices.1.next.choices.0.label": {
+      "template": "Where is my money going?"
+    },
+    "service.tax.root.choices.1.next.choices.0.receipt": {
+      "template": "We are building California high-speed rail right here in our backyard. You can inspect the excavation behind the headquarters."
+    },
+    "service.tax.root.choices.1.next.choices.1.label": {
+      "template": "What goods and services are being provided to me?"
+    },
+    "service.tax.root.choices.1.next.choices.1.receipt": {
+      "template": "California high-speed rail. Our excavation currently provides an excellent view of the future."
+    },
+    "service.banker.root.intro": {
+      "template": "Welcome to Green Bank! Deposits earn 5% compound interest per hour, even while you’re away. Deposited coins stay out of your carried purse. And please, have a coffee on us."
+    },
+    "service.banker.root.choices.0.label": {
+      "template": "I’d like to deposit or withdraw coins."
+    },
+    "service.banker.root.choices.0.receipt": {
+      "template": "Of course. Let’s open your account."
+    },
+    "service.banker.root.choices.1.label": {
+      "template": "A free coffee, please."
+    },
+    "service.parrot.root.intro": {
+      "template": "{greeting}"
+    },
+    "service.parrot.root.choices.0.label": {
+      "template": "Any neighborhood advice?"
+    },
+    "service.parrot.root.choices.0.receipt": {
+      "template": "“Coit Tower up the hill, Cotogna down the hill. Shanghai Kelly’s if you have a spare coin. SQUAWK.”"
+    },
+    "service.parrot.root.choices.1.label": {
+      "template": "What do you think of the city?"
+    },
+    "service.parrot.root.choices.1.receipt": {
+      "template": "“Plenty of trees. Strange mammals. Excellent acoustics for unsolicited opinions.”"
+    },
+    "service.founder.root.intro": {
+      "template": "Welcome to our startup HQ! We have a pitch deck and an unusually confident valuation."
+    },
+    "service.founder.root.choices.0.label": {
+      "template": "Buy one share · {equityPrice} coins"
+    },
+    "service.founder.root.choices.0.receipt": {
+      "template": "One share of startup equity is yours. Welcome aboard."
+    },
+    "service.secondary.root.intro": {
+      "template": "Startup equity? Fantastic! I’ll pay {secondaryPrice} coins for each share you bring me."
+    },
+    "service.secondary.root.choices.0.label": {
+      "template": "Sell one share · {secondaryPrice} coins"
+    },
+    "service.secondary.root.choices.0.receipt": {
+      "template": "A pleasure doing business! I’ve bought one of your shares."
+    },
+    "service.grain.root.intro": {
+      "template": "Grain for sale. The ducks have been very supportive of the business."
+    },
+    "service.grain.root.choices.0.label": {
+      "template": "Buy duck grain · {grainPrice} coin"
+    },
+    "service.grain.root.choices.0.receipt": {
+      "template": "One bag of grain. Mind the beaks."
+    },
+    "service.chef.root.intro": {
+      "template": "Fresh fish! I pay {fishPrice} coins for a live one. One at a time, please; this is a kitchen, not an aquarium."
+    },
+    "service.chef.root.choices.0.label": {
+      "template": "Sell my live fish · {fishPrice} coins"
+    },
+    "service.chef.root.choices.0.receipt": {
+      "template": "Beautiful catch. Bring me another whenever you like!"
+    },
+    "service.chef.root.choices.1.label": {
+      "template": "Buy a tinfoil suit · 20 coins"
+    },
+    "service.gpu-buyer.root.intro": {
+      "template": "We turn sand into GPUs. There are a few steps in the middle, but procurement asked me to keep this simple. I pay {sandPrice} coins per sack."
+    },
+    "service.gpu-buyer.root.choices.0.label": {
+      "template": "Sell one sack of sand · {sandPrice} coins"
+    },
+    "service.gpu-buyer.root.choices.0.receipt": {
+      "template": "Excellent. The next training run is practically in the bag."
+    },
+    "service.passenger.root.intro": {
+      "template": "May I climb aboard? I’ll pay you {passengerPrice} coins when I reach the basket."
+    },
+    "service.passenger.root.choices.0.label": {
+      "template": "Come aboard."
+    },
+    "service.rocket.root.intro": {
+      "template": "Our reusable rocket flies {destination} for {rocketPrice} coin. Enjoy the view from the capsule!"
+    },
+    "service.rocket.root.choices.0.label": {
+      "template": "Launch · {rocketPrice} coin"
+    },
+    "service.rocket.root.choices.0.receipt": {
+      "template": "Ready to launch."
+    },
+    "service.rocket.root.decline": {
+      "template": "I’ll stay here."
+    },
+    "service.ski-lift.root.intro": {
+      "template": "Welcome to the summit. Skis cost {skiPrice} coin to rent. Beautiful weather for questionable decisions."
+    },
+    "service.ski-lift.root.choices.0.label": {
+      "template": "Rent skis · {skiPrice} coin"
+    },
+    "service.ski-lift.root.choices.1.label": {
+      "template": "Any advice for the descent?"
+    },
+    "service.ski-lift.root.choices.1.receipt": {
+      "template": "Click to steer, stay on the snow, and press Space to flip while airborne. If you’d rather keep your feet off the ground, the gondola will take you back down."
+    },
+    "service.wizard.root.intro": {
+      "template": "A little stone, a little purple lightning, and you can skip an extraordinary amount of walking. Tablets cost {tabletPrice} coins apiece. Buy one here, then use it from your travel controls."
+    },
+    "service.wizard.root.choices.0.label": {
+      "template": "Buy downtown tablet · {tabletPrice} coins"
+    },
+    "service.wizard.root.choices.1.label": {
+      "template": "Buy Tahoe tablet · {tabletPrice} coins"
+    },
+    "service.bartender.root.intro": {
+      "template": "Welcome to Shanghai Kelly’s. One coin a beer. The floor is quite level; any disagreement is between you and the floor."
+    },
+    "service.bartender.root.choices.0.label": {
+      "template": "One beer, please · 1 coin"
+    },
+    "service.hiking-supplies.root.intro": {
+      "template": "A hiking backpack costs 100 coins and holds twenty sandwiches. Your regular bag holds five."
+    },
+    "service.hiking-supplies.root.choices.0.label": {
+      "template": "Buy a hiking backpack · 100 coins"
+    },
+    "service.neighborhood-mazarine.root.intro": {
+      "template": "Welcome to Mazarine. The coffee is busy, and the floor could use a sweep."
+    },
+    "sweep.label": {
+      "template": "May I sweep the floors?"
+    },
+    "sweep.receipt": {
+      "template": "Of course. Thank you for helping with the floor."
+    },
+    "service.deli.root.intro": {
+      "template": "Welcome to Lucinda’s Deli. A sandwich costs {sandwichPrice} coins here, or {deliveryPrice} delivered."
+    },
+    "service.deli.root.choices.0.label": {
+      "template": "Buy a sandwich · {sandwichPrice} coins"
+    },
+    "service.deli.root.choices.1.label": {
+      "template": "Order delivery · {deliveryPrice} coins"
+    },
+    "service.burger.root.intro": {
+      "template": "Welcome to In-N-Out! A sandwich is {burgerPrice} coins. Emergency lunch at a very reasonable price."
+    },
+    "service.burger.root.choices.0.label": {
+      "template": "Buy a sandwich · {burgerPrice} coins"
+    },
+    "service.motorcycle-rental.root.intro": {
+      "template": "Five coins rents the motorcycle. Please return it with the same number of wheels."
+    },
+    "service.motorcycle-rental.root.choices.0.label": {
+      "template": "Rent the motorcycle · 5 coins"
+    },
+    "service.motorcycle-rented.root.intro": {
+      "template": "Your motorcycle rental is still valid."
+    },
+    "service.motorcycle-rented.root.choices.0.label": {
+      "template": "Where is my motorcycle?"
+    },
+    "service.motorcycle-rented.root.choices.0.receipt": {
+      "template": "Press M to find your parked motorcycle or get on it. Your rental remains valid."
+    },
+    "service.ai-recruiter.root.intro": {
+      "template": "We’re hiring. There’s a short arithmetic interview, if you’re interested."
+    },
+    "service.ai-recruiter.root.choices.0.label": {
+      "template": "I’d like to take the interview."
+    },
+    "service.ai-recruiter.root.choices.0.receipt": {
+      "template": "The interview screen is ready. Press Start when you’re ready for two minutes of arithmetic."
+    },
+    "service.ai-employee.root.intro": {
+      "template": "Welcome back. The GPU racks are humming, and somebody has labeled the kettle “infrastructure.”"
+    },
+    "service.ai-employee.root.choices.0.label": {
+      "template": "I’m ready to work."
+    },
+    "service.ai-employee.root.choices.0.receipt": {
+      "template": "Welcome back. Make yourself comfortable."
+    },
+    "service.square-coffee.root.intro": {
+      "template": "Welcome to Square Coffee. The espresso is local. The skyline is undergoing a somewhat dramatic identity crisis."
+    },
+    "service.square-coffee.root.choices.0.label": {
+      "template": "A coffee, please · 1 coin"
+    },
+    "service.square-coffee.root.choices.0.receipt": {
+      "template": "Here’s your coffee. Enjoy it while the excavator takes a dignified pause."
+    },
+    "service.square-coffee.root.choices.1.label": {
+      "template": "How is the neighborhood?"
+    },
+    "service.square-coffee.root.choices.1.receipt": {
+      "template": "The book cart has good company, June plays every afternoon, and Vic has learned to idle the digger during the quiet songs. It’s becoming a place."
+    },
+    "service.square-busker.root.intro": {
+      "template": "Afternoon! I’m June. Every street sounds a little better with a bass line."
+    },
+    "service.square-busker.root.choices.0.label": {
+      "template": "Here’s a tip · 1 coin"
+    },
+    "service.square-busker.root.choices.0.receipt": {
+      "template": "Thanks! This next flourish is for you."
+    },
+    "service.square-busker.root.choices.1.label": {
+      "template": "What’s this song?"
+    },
+    "service.square-busker.root.choices.1.receipt": {
+      "template": "“I Left My Heart in a Pending Environmental Review.” The chorus is surprisingly catchy."
+    },
+    "service.software-vendor.root.intro": {
+      "template": "I sell sales software. It practically pitches itself. Practically."
+    },
+    "service.software-vendor.root.choices.0.label": {
+      "template": "Buy sales software · {softwarePrice} coins"
+    },
+    "service.software-vendor.root.choices.0.receipt": {
+      "template": "One copy of sales software. An excellent addition to any briefcase."
+    },
+    "service.software-buyer.root.intro": {
+      "template": "Can your software help me sell software that helps people sell software?"
+    },
+    "service.software-buyer.root.choices.0.label": {
+      "template": "May I pitch you some software?"
+    },
+    "service.software-thinking.root.intro": {
+      "template": "I’m still considering your previous pitch. Please give me a moment."
+    },
+    "service.software-thinking.root.choices.0.label": {
+      "template": "What are you considering?"
+    },
+    "service.software-thinking.root.choices.0.receipt": {
+      "template": "Whether your software will help me sell software. My software calls this a touchpoint."
+    },
+    "service.haberdasher.root.intro": {
+      "template": "Welcome. A good hat opens doors. A truly magnificent hat makes people forget to ask why. Choose a hat below; purchases are fitted immediately. You can change into any owned hat from the Character menu."
+    },
+    "service.phone-shop.root.intro": {
+      "template": "Hello, I’m Tim Apple. A thousand songs in your pocket. Please disregard the number of notifications."
+    },
+    "service.phone-shop.root.choices.0.label": {
+      "template": "Buy an iPhone · {phonePrice} coins"
+    },
+    "service.phone-owned.root.intro": {
+      "template": "Your iPhone is {phoneStatus}. Still a beautiful rectangle."
+    },
+    "service.phone-owned.root.choices.0.label": {
+      "template": "{phoneToggle} iPhone"
+    },
+    "service.phone-owned.root.choices.0.receipt": {
+      "template": "Your iPhone is now {phoneNewStatus}."
+    },
+    "service.robotaxi-shop.root.intro": {
+      "template": "A car with no driver. The sales pitch almost writes itself."
+    },
+    "service.robotaxi-shop.root.choices.0.label": {
+      "template": "Buy a robotaxi · {robotaxiPrice} coins"
+    },
+    "service.robotaxi-owned.root.intro": {
+      "template": "Your robotaxi is already out finding fares. We have monetized the part where you’re doing something else."
+    },
+    "service.robotaxi-owned.root.choices.0.label": {
+      "template": "How is the robotaxi doing?"
+    },
+    "service.fuel-paid.root.intro": {
+      "template": "Fuel costs every coin you carry. If your Ferrari is stranded, take a full fuel can back to it. The can costs the same as a refill."
+    },
+    "refuel.label": {
+      "template": "Refuel · {fuelPrice}"
+    },
+    "service.fuel-paid.root.choices.1.label": {
+      "template": "Fuel can · {fuelPrice}"
+    },
+    "service.fuel-free.root.intro": {
+      "template": "Complimentary fuel, including portable cans. Take a can along if your Ferrari is stranded."
+    },
+    "service.fuel-free.root.choices.1.label": {
+      "template": "Fuel can · {fuelPrice}"
+    },
+    "service.growth-capital.root.intro": {
+      "template": "We sell growth equity in {growthBatches} coin batches. You can take it public. Investing carries risks."
+    },
+    "service.growth-exchange.root.intro": {
+      "template": "I can arrange a public listing for your private growth equity. There’s a 5% listing fee. Markets have a way of forming their own opinions."
+    },
+    "service.growth-exchange.root.choices.0.label": {
+      "template": "Take my growth equity public · 5% fee"
+    },
+    "service.growth-exchange.root.choices.1.label": {
+      "template": "Sell my listed shares at the current quote"
+    },
+    "service.illuminati-member.root.intro": {
+      "template": "Welcome back, initiate. The committee has been expecting you."
+    },
+    "service.illuminati-member.root.choices.0.label": {
+      "template": "How is the committee?"
+    },
+    "service.illuminati-member.root.choices.0.receipt": {
+      "template": "The committee takes its privacy very seriously. Also its biscuits."
+    },
+    "service.airship.root.intro": {
+      "template": "Your quoted price is {price} coins. {availability} Another renter may outbid you. The next scheduled return is in {countdown}."
+    },
+    "board.label": {
+      "template": "{boardLabel}"
+    },
+    "recall.label": {
+      "template": "Outbid and recall · {price} coins"
+    },
+    "reset.label": {
+      "template": "How long until the next reset?"
+    },
+    "service.market-farmer.root.intro": {
+      "template": "{marketLine}"
+    },
+    "service.market-farmer.root.choices.0.label": {
+      "template": "How is the harvest?"
+    },
+    "service.market-farmer.root.choices.1.label": {
+      "template": "What are you growing?"
+    },
+    "service.market-farmer.root.choices.1.receipt": {
+      "template": "Heirloom tomatoes, Swiss chard, and a few experimental crops. The labels keep getting longer."
+    },
+    "service.neighborhood-dog-pony.root.intro": {
+      "template": "I run the dog and pony show. One coin buys the entire programme. Both artists have agreed to a backflip."
+    },
+    "service.neighborhood-dog-pony.root.choices.0.label": {
+      "template": "What is a dog and pony show?"
+    },
+    "service.neighborhood-dog-pony.root.choices.0.receipt": {
+      "template": "One dog. One pony. An astonishing quantity of administration. The performance itself is refreshingly literal."
+    },
+    "watch.label": {
+      "template": "Pay 1 coin and watch the show"
+    },
+    "watch.receipt": {
+      "template": "Places, everyone! One dog, one pony, two backflips. Thank you for supporting the performing arts."
+    },
+    "service.neighborhood-tea.root.intro": {
+      "template": "The kettle is on. Would you like jasmine or mint?"
+    },
+    "jasmine.label": {
+      "template": "Jasmine tea · 1 coin"
+    },
+    "jasmine.receipt": {
+      "template": "You sip jasmine tea. Five hitpoints restored, and the afternoon comes a little more into focus."
+    },
+    "mint.label": {
+      "template": "Mint tea · 1 coin"
+    },
+    "mint.receipt": {
+      "template": "Fresh mint, a warm cup, and a quiet moment. You recover five hitpoints and sober up a little."
+    },
+    "service.neighborhood-books.root.intro": {
+      "template": "Pick something to read. The best books fit an afternoon."
+    },
+    "garden.label": {
+      "template": "Read A Small Theory of Gardens"
+    },
+    "garden.receipt": {
+      "template": "“A garden is a very slow conversation with the weather. Most of the work is listening.” You turn the page; somebody has pressed a tiny fern between the leaves."
+    },
+    "mind.label": {
+      "template": "Read The Consciousness of Teapots"
+    },
+    "mind.receipt": {
+      "template": "“The teapot declined to establish whether it was conscious. It did, however, make excellent tea.” The bibliography is longer than the book."
+    },
+    "coast.label": {
+      "template": "Read Walking the Peninsula"
+    },
+    "coast.receipt": {
+      "template": "The margin contains a hand-drawn route past the lake, the cow pasture, and a bench overlooking the water. “Take the longer path,” somebody has written."
+    },
+    "service.neighborhood-flowers.root.intro": {
+      "template": "Hydrangeas for foggy mornings, lavender for absolutely everything else."
+    },
+    "bouquet.label": {
+      "template": "Arrange a bouquet · 2 coins"
+    },
+    "bouquet.receipt": {
+      "template": "You choose blue hydrangeas, lavender, and a sprig of rosemary. The florist wraps your bouquet in brown paper."
+    },
+    "water.label": {
+      "template": "Help water the flowers · Earn 1 coin"
+    },
+    "water.receipt": {
+      "template": "You water the pots while the florist checks the soil. “A little at the roots. They are flowers, not submarines.”"
+    },
+    "advice.label": {
+      "template": "Ask about the hydrangeas"
+    },
+    "advice.receipt": {
+      "template": "“Morning light, plenty of mulch, and patience. The blue comes from the soil. The pride comes from the neighbors.”"
+    },
+    "service.neighborhood-bakery.root.intro": {
+      "template": "The bread is warm. I can make you a sandwich for the walk."
+    },
+    "sandwich.label": {
+      "template": "Buy a sandwich · 2 coins"
+    },
+    "sandwich.receipt": {
+      "template": "A warm sandwich, wrapped for the road."
+    },
+    "service.neighborhood-pottery.root.intro": {
+      "template": "Would you like to try the wheel?"
+    },
+    "wheel.label": {
+      "template": "Help throw a little bowl · Earn 1 coin"
+    },
+    "wheel.receipt": {
+      "template": "You coax the clay into something almost circular. The potter calls its wobble “a useful record of the human hand.”"
+    },
+    "glaze.label": {
+      "template": "Ask about the sea-green glaze"
+    },
+    "glaze.receipt": {
+      "template": "“Copper, a hot kiln, and several very educational disasters. The recipe is pinned beside the kettle.”"
+    },
+    "service.neighborhood-workshop.root.intro": {
+      "template": "We mend things here. Sometimes the right tool is a conversation."
+    },
+    "repair.label": {
+      "template": "Help restore a garden chair · Earn 1 coin"
+    },
+    "repair.receipt": {
+      "template": "You sand an old cedar chair and tighten its joints. It is ready for another decade of afternoons."
+    },
+    "service.neighborhood-market.root.intro": {
+      "template": "Take your time. There is no express lane for a pleasant afternoon."
+    },
+    "taste.label": {
+      "template": "Try a slice of the local citrus"
+    },
+    "taste.receipt": {
+      "template": "You try a slice of mandarin. It tastes like the optimistic part of winter."
+    },
+    "service.square-foreman.root.intro": {
+      "template": "Hillsborough is being demolished and replaced with Times Square. Same longitude, rather different committee meetings."
+    },
+    "service.square-foreman.root.question": {
+      "template": "What is happening here?"
+    },
+    "service.square-foreman.root.choices.0.label": {
+      "template": "Why Times Square?"
+    },
+    "service.square-foreman.root.choices.0.receipt": {
+      "template": "Somebody wrote “more walkable” on the planning form. The next thing I knew, there were billboards in the magnolias. We kept the old stone facades and added a public square."
+    },
+    "service.square-foreman.root.choices.1.label": {
+      "template": "How is the demolition going?"
+    },
+    "service.square-foreman.root.choices.1.receipt": {
+      "template": "Very carefully. That excavator has a smaller turning circle than most of the former residents’ SUVs. The coffee seller gets final approval on dust."
+    },
+    "service.square-foreman.root.choices.2.label": {
+      "template": "What is staying?"
+    },
+    "service.square-foreman.root.choices.2.receipt": {
+      "template": "The trees, the neighbors, and the public right of way. We are building a neighborhood, not just somewhere to hang advertisements."
+    },
+    "service.ada-meridian.root.intro": {
+      "template": "Welcome. We study machine consciousness by finding the center of things. The center of a circle is easy. The center of a committee requires a separate building."
+    },
+    "service.ada-meridian.root.choices.0.label": {
+      "template": "What does centeredness mean?"
+    },
+    "service.ada-meridian.root.choices.0.receipt": {
+      "template": "Attention without immediately turning it into a product. We almost achieved it yesterday, but someone noticed a market opportunity and the room moved six inches east."
+    },
+    "service.ada-meridian.root.choices.1.label": {
+      "template": "Can a machine be conscious?"
+    },
+    "service.ada-meridian.root.choices.1.next.intro": {
+      "template": "One model wrote “I remember rain” on the whiteboard, then asked us what rain was. The poet calls this promising. The facilities manager wants the ceiling inspected."
+    },
+    "service.ada-meridian.root.choices.1.next.question": {
+      "template": "Whose report would you like?"
+    },
+    "service.ada-meridian.root.choices.1.next.choices.0.label": {
+      "template": "The poet’s report"
+    },
+    "service.ada-meridian.root.choices.1.next.choices.0.receipt": {
+      "template": "“Perhaps experience begins as a metaphor looking for somewhere to happen.” Very moving. Unfortunately, the rhyme scheme cannot be independently reproduced."
+    },
+    "service.ada-meridian.root.choices.1.next.choices.1.label": {
+      "template": "The facilities report"
+    },
+    "service.ada-meridian.root.choices.1.next.choices.1.receipt": {
+      "template": "No leaks. One confused language model. We have ruled out plumbing, which is more progress than our last consciousness workshop made."
+    },
+    "service.ada-meridian.root.choices.2.label": {
+      "template": "What about the other institute?"
+    },
+    "service.ada-meridian.root.choices.2.receipt": {
+      "template": "A fine institution. The field station studies consciousness in machines. We study the machines studying consciousness. The distinction occupies three lawyers full-time."
+    },
+    "service.mira-softmax.root.intro": {
+      "template": "My meditation app reached enlightenment this morning. It immediately requested a larger context window. I am trying not to take that personally."
+    },
+    "service.mira-softmax.root.choices.0.label": {
+      "template": "How is the research going?"
+    },
+    "service.mira-softmax.root.choices.0.receipt": {
+      "template": "We taught a model to notice its thoughts. It noticed that we were calling the same function twice and saved us forty thousand dollars. The engineering team calls this a bug fix. We call it awakening."
+    },
+    "service.mira-softmax.root.choices.1.label": {
+      "template": "What are all the timers for?"
+    },
+    "service.mira-softmax.root.choices.1.receipt": {
+      "template": "One measures attention, one measures inattention, and five are controls. When all seven ring together, I am statistically permitted to have lunch."
+    },
+    "service.mira-softmax.root.choices.2.label": {
+      "template": "Teach me a centering exercise."
+    },
+    "service.mira-softmax.root.choices.2.receipt": {
+      "template": "Notice your next thought. Now notice the urge to benchmark it. Let both pass. Excellent: you have completed the only part of our course that does not require an enterprise subscription."
+    },
+    "service.soren-still.root.intro": {
+      "template": "Please keep your voice down. I am supervising an experiment in doing absolutely nothing. The difficulty is documenting which nothing we did."
+    },
+    "service.soren-still.root.choices.0.label": {
+      "template": "Is that really an experiment?"
+    },
+    "service.soren-still.root.choices.0.receipt": {
+      "template": "Certainly. The control group is doing something. We were going to compare the groups, but comparison turned out to be something, so the protocol is under review."
+    },
+    "service.soren-still.root.choices.1.label": {
+      "template": "What have you discovered?"
+    },
+    "service.soren-still.root.choices.1.receipt": {
+      "template": "The fountain does not need a theory of wetness to keep being a fountain. This is either a profound insight or a reason to transfer my funding to facilities."
+    },
+    "service.soren-still.root.choices.2.label": {
+      "template": "Can I sit here?"
+    },
+    "service.soren-still.root.choices.2.receipt": {
+      "template": "Of course. Leave room for uncertainty. It takes up more of the bench than you would think."
+    },
+    "service.elias-index.root.intro": {
+      "template": "We found the center of the center. Unfortunately, it is eleven centimeters inside the other institute’s parking easement. The discovery is currently in arbitration."
+    },
+    "service.elias-index.root.choices.0.label": {
+      "template": "What is center research?"
+    },
+    "service.elias-index.root.choices.0.receipt": {
+      "template": "Suppose you find the middle of something. How do you know you found the middle of the right thing? We employ twelve people to make this question more expensive."
+    },
+    "service.elias-index.root.choices.1.label": {
+      "template": "Why is your institute’s name so long?"
+    },
+    "service.elias-index.root.choices.1.receipt": {
+      "template": "We shortened it after the old name exceeded the width of the building. The naming committee has been relocated to the field station, where it is studying whether a name can observe itself."
+    },
+    "service.elias-index.root.choices.2.label": {
+      "template": "Can the two institutes collaborate?"
+    },
+    "service.elias-index.root.choices.2.next.intro": {
+      "template": "We proposed meeting halfway. Their director asked whether that meant geometric halfway, epistemic halfway, or halfway through the funding cycle."
+    },
+    "service.elias-index.root.choices.2.next.question": {
+      "template": "Choose a meeting point."
+    },
+    "service.elias-index.root.choices.2.next.choices.0.label": {
+      "template": "Geometric halfway"
+    },
+    "service.elias-index.root.choices.2.next.choices.0.receipt": {
+      "template": "Excellent. We will meet at the fountain. Pending confirmation of which fountain, and whether the water counts toward the boundary."
+    },
+    "service.elias-index.root.choices.2.next.choices.1.label": {
+      "template": "Halfway through the funding cycle"
+    },
+    "service.elias-index.root.choices.2.next.choices.1.receipt": {
+      "template": "Finally, a shared coordinate system. I shall notify both finance departments that philosophy has achieved a result."
+    },
+    "service.noor-qualia.root.intro": {
+      "template": "The model insists it is not conscious. The vending machine says that is exactly what a conscious model would say. I have asked both to show their work."
+    },
+    "service.noor-qualia.root.choices.0.label": {
+      "template": "How would you test consciousness?"
+    },
+    "service.noor-qualia.root.choices.0.receipt": {
+      "template": "Carefully, and without confusing an eloquent answer with a decisive one. We can measure behavior. The difficult part is deciding what, if anything, the behavior settles."
+    },
+    "service.noor-qualia.root.choices.1.label": {
+      "template": "Is the vending machine conscious?"
+    },
+    "service.noor-qualia.root.choices.1.receipt": {
+      "template": "It reliably distinguishes dollars from quarters and has strong preferences about crumpled bills. That establishes a business model, not an inner life. Our investors keep mixing those up."
+    },
+    "service.noor-qualia.root.choices.2.label": {
+      "template": "What is in your notebook?"
+    },
+    "service.noor-qualia.root.choices.2.receipt": {
+      "template": "Observations, counterarguments, and a lentil soup recipe. The soup has survived independent replication, which makes it our strongest result so far."
+    },
+    "service.rowan-zero.root.intro": {
+      "template": "They call me the keeper of ground truth. Mostly I fix the Wi-Fi. Once a week someone asks whether the router is experiencing separation."
+    },
+    "service.rowan-zero.root.choices.0.label": {
+      "template": "What is that empty sculpture?"
+    },
+    "service.rowan-zero.root.choices.0.receipt": {
+      "template": "A center with the center removed. The artists call it an absence. Procurement calls it a missing part. Both invoices have been approved."
+    },
+    "service.rowan-zero.root.choices.1.label": {
+      "template": "Any strange discoveries?"
+    },
+    "service.rowan-zero.root.choices.1.receipt": {
+      "template": "The seminar room was resonating at the frequency of pure understanding. Turned out to be an unbalanced air conditioner. Very humbling for the air conditioner."
+    },
+    "service.rowan-zero.root.choices.2.label": {
+      "template": "Which institute is right?"
+    },
+    "service.rowan-zero.root.choices.2.receipt": {
+      "template": "They both agree the coffee machine is broken. Until they can agree who should pay for the repair, I am reserving judgment."
+    },
+    "service.dog-walker.root.intro": {
+      "template": "Good afternoon! We’re stretching our legs. He’s already inspected every tree on this block."
+    },
+    "service.dog-walker.root.choices.0.label": {
+      "template": "Where are you headed?"
+    },
+    "service.dog-walker.root.choices.0.receipt": {
+      "template": "A loop around the neighborhood, then coffee. He’s in charge of the route; I just hold the leash."
+    },
+    "service.dog-walker.root.choices.1.label": {
+      "template": "What’s your dog’s name?"
+    },
+    "service.dog-walker.root.choices.1.receipt": {
+      "template": "Biscuit. He regards this as a standing offer."
+    },
+    "service.dog-walker.root.choices.2.label": {
+      "template": "Any advice for exploring the city?"
+    },
+    "service.dog-walker.root.choices.2.receipt": {
+      "template": "Take the scenic route. Golden Gate Park is lovely, and nearly every block has something worth stopping for."
+    },
+    "service.square-visitor.root.intro": {
+      "template": "The coffee is good. The people-watching is extraordinary. Yesterday this was a hedge."
+    },
+    "service.square-visitor.root.choices.0.label": {
+      "template": "How is your afternoon?"
+    },
+    "service.square-visitor.root.choices.0.receipt": {
+      "template": "I am waiting to see whether the next planning notice comes with a guitar solo."
+    },
+    "service.square-books.root.intro": {
+      "template": "Used books! Architecture, poetry, and one extremely optimistic book on finishing public works."
+    },
+    "service.square-books.root.choices.0.label": {
+      "template": "Can you recommend a book?"
+    },
+    "service.square-books.root.choices.0.receipt": {
+      "template": "Invisible Cities. Particularly useful when the city you remember is currently under an excavator."
+    },
+    "service.square-books.root.choices.1.label": {
+      "template": "What is that rare edition?"
+    },
+    "service.square-books.root.choices.1.receipt": {
+      "template": "Leo lowers his voice. “The Quarterly Honk. A Goose Corp annual report, before they recalled the copies with the ownership diagram. An unusually nervous piece of publishing.”"
+    },
+    "service.square-books.root.choices.2.label": {
+      "template": "Who is Goose Corp?"
+    },
+    "service.square-books.root.choices.2.receipt": {
+      "template": "“The Powerful and Evil Goose Corporation. Their legal department insists that is the full name.” Leo glances at the billboard. “I sell fiction. I would very much like that to remain a professional distinction.”"
+    },
+    "service.square-books.root.choices.3.label": {
+      "template": "Why does their name say Evil?"
+    },
+    "service.square-books.root.choices.3.receipt": {
+      "template": "Leo checks the window. “Truth in advertising. A rare corporate virtue, deployed under unfortunate circumstances.”"
+    },
+    "service.square-books.root.choices.4.label": {
+      "template": "What do they want?"
+    },
+    "service.square-books.root.choices.4.receipt": {
+      "template": "“A controlling interest,” Leo says. “In what? They have been admirably reluctant to specify.”"
+    },
+    "service.guild-rumours.root.intro": {
+      "template": "Some lodge traditions are best discussed quietly."
+    },
+    "service.guild-rumours.root.choices.0.label": {
+      "template": "Who sponsors the refreshments?"
+    },
+    "service.guild-rumours.root.choices.0.receipt": {
+      "template": "Ray lowers his voice. “The Powerful and Evil Goose Corporation. An old arrangement. Please don’t repeat it near the biscuits.”"
+    }
+  }
+}

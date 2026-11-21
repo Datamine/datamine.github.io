@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "modules": {
+    "sf-character-v1": "appearance",
+    "sf-sunglasses-v1": "inventory.sunglasses",
+    "sf-strength-v1": "skills.strength",
+    "sf-hitpoints-v1": "skills.hitpoints",
+    "sf-ferrari-v1": "vehicles.ferrari",
+    "sf-deli-v1": "activities.delivery",
+    "sf-purse-v1": "inventory.economy",
+    "sf-quests-v1": "$quests",
+    "sf-expeditions-v1": "quests.expeditions",
+    "sf-motorcycle-v1": "vehicles.motorcycle",
+    "sf-monkey-keeper-v1": "activities.monkeyKeeper",
+    "sf-inebriation-v1": "conditions.inebriation",
+    "sf-ai-lab-job-v1": "employment.aiLab",
+    "sf-tech-ventures-v1": "business.tech"
+  },
+  "profile": {
+    "position": "position",
+    "inventory": "inventory.ledger",
+    "collection": "inventory.collection",
+    "grapplingHook": "inventory.grapplingHook",
+    "guild": "quests.illuminatus.guild",
+    "illuminati": "quests.illuminatus.initiated",
+    "bomber": "quests.illuminatus.bomberOwned",
+    "bombReadyAt": "vehicles.bomber.bombReadyAt",
+    "bicycle": "vehicles.bicycle",
+    "bank": "finance.bank",
+    "growth": "finance.growth",
+    "pvp": "social.pvp",
+    "houseSearches": "progress.houseSearches",
+    "personalJailed": "conditions.jailed",
+    "police": "conditions.police",
+    "deathPending": "conditions.deathPending",
+    "awards": "rewards.pending",
+    "awardSerial": "rewards.serial",
+    "laborReadyAt": "activities.laborReadyAt",
+    "decorativeRocketReadyAt": "equipment.decorativeRocket.readyAt",
+    "decorativeRocketBurnUntil": "equipment.decorativeRocket.burnUntil",
+    "decorativeRocketHopAt": "equipment.decorativeRocket.hopAt"
+  },
+  "questMarkers": {
+    "monkey-business": ["quests.monkey.stage"],
+    "they-live": [
+      "quests.theyLive.started",
+      "quests.theyLive.evidence",
+      "quests.theyLive.permit",
+      "quests.theyLive.bayonet",
+      "quests.theyLive.defeated",
+      "quests.theyLive.completed",
+      "quests.theyLive.skateboard"
+    ],
+    "jurassic": [
+      "quests.expeditions.raptor",
+      "quests.expeditions.railgun",
+      "quests.expeditions.equipped"
+    ],
+    "kraken": [
+      "quests.expeditions.krakenStarted",
+      "quests.expeditions.krakenDefeated",
+      "quests.expeditions.krakenReward",
+      "quests.expeditions.cape"
+    ],
+    "illuminatus": [
+      "quests.illuminatus.guild",
+      "quests.illuminatus.initiated",
+      "quests.illuminatus.bomberOwned"
+    ],
+    "salt-letters": ["inventory.economy.saltLetters", "inventory.economy.saltLettersDelivered"],
+    "founder-funding": ["skills.strength.funded"],
+    "ai-lab-employment": ["employment.aiLab.hired", "employment.aiLab.bestScore"]
+  }
+}

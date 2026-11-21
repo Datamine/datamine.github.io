@@ -20,7 +20,7 @@
 - Chrome rendered **31 native animation clips** with advancing frames, finite model geometry, no WebGL errors and no JavaScript exceptions.
 - Live Chrome controls: dance, sit, stand, speech and forward roll received successful server confirmations and completed.
 - Live Chrome adventure: talk to Ahab, board, sail to the private kraken encounter, auto-attack to victory, collect the reward, and return to shore. No JavaScript exceptions.
-- Rebuilt `explore.html` and the versioned map cache; navigation validation covers **496 destinations, 996 routes and 653 NPC approaches**.
+- Rebuilt `sf/index.html` and the versioned map cache; navigation validation covers **496 destinations, 996 routes and 653 NPC approaches**.
 
 The browser used software WebGL. This validates rendering and transitions, but is not a hardware FPS benchmark or a 2,000-player load test. Not every individual menu was manually clicked in Chrome; server action and conversation tests cover the broader action set.
 
@@ -28,4 +28,4 @@ The browser used software WebGL. This validates rendering and transitions, but i
 
 Open `/sf/tools/animation-audit.html` through the local development server. It uses the actual game meshes, skeletons and native vehicle models, with grouped clips and pause/scrub controls.
 
-Regression coverage: `sf/tests/animation-presentation.test.mjs` and `sf/server/tests/animation-state.test.mjs`.
+Regression coverage: `sf/tests/animation-presentation.test.mts` and `sf/server/tests/animation-state.test.mts`.
